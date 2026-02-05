@@ -1,0 +1,19 @@
+import { FastifyInstance } from 'fastify';
+import { Controllers } from './controllers.js';
+
+import { authRoutes } from '../../interfaces/http/routes/authRoutes.js';
+import { googleAuthRoutes } from '../../interfaces/http/routes/googleAuthRoutes.js';
+
+export async function registerRoutes(
+    fastify: FastifyInstance,
+    controllers: Controllers
+): Promise<void> {
+    // Auth routes
+    await fastify.register(
+        async (instance) => {
+            await authRoutes(instance, controllers.authController);
+            await googleAuthRoutes(instance, controllers.googleAuthController);
+        },
+        { prefix: '/auth' }
+    );
+}
