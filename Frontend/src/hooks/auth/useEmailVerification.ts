@@ -36,7 +36,7 @@ export function useEmailVerification(initialEmail: string = ''): UseEmailVerific
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isResending, setIsResending] = useState(false);
 
-    const { verifyOtp, resendOtp, loading: isVerifying, serverError } = useOtp();
+    const { verifyOtp, verifyPasswordResetOtp, resendOtp, resendPasswordResetOtp, loading: isVerifying, serverError } = useOtp();
 
     const handleOtpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/\D/g, '');
@@ -62,7 +62,10 @@ export function useEmailVerification(initialEmail: string = ''): UseEmailVerific
             return;
         }
 
-        const success = await verifyOtp(userEmail, otpCode);
+        // Use different endpoint based on mode
+        const success = mode === 'password-reset'
+            ? await verifyPasswordResetOtp(userEmail, otpCode)
+            : await verifyOtp(userEmail, otpCode);
 
         if (success) {
             setSuccessMessage('Verification successful!');
@@ -71,9 +74,11 @@ export function useEmailVerification(initialEmail: string = ''): UseEmailVerific
             sessionStorage.removeItem('resetEmail');
 
             if (mode === 'password-reset') {
+                // Store OTP in sessionStorage for reset password page
+                sessionStorage.setItem('resetOtp', otpCode);
                 setTimeout(() => {
                     navigate('/reset-password', {
-                        state: { email: userEmail, verified: true }
+                        state: { email: userEmail, otp: otpCode, verified: true }
                     });
                 }, 1000);
             } else {
@@ -100,7 +105,10 @@ export function useEmailVerification(initialEmail: string = ''): UseEmailVerific
             return false;
         }
 
-        const success = await resendOtp(userEmail);
+        // Use different endpoint based on mode
+        const success = mode === 'password-reset'
+            ? await resendPasswordResetOtp(userEmail)
+            : await resendOtp(userEmail);
 
         if (success) {
             setSuccessMessage('OTP resent successfully!');

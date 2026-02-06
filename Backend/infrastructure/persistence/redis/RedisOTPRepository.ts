@@ -3,7 +3,7 @@ import { redisClient } from '../../cache/RedisClient.js';
 
 export class RedisOTPRepository implements OTPRepository {
     private readonly OTP_PREFIX = 'otp:';
-    private readonly OTP_TTL_SECONDS = 300; // 5 minutes
+    private readonly OTP_TTL_SECONDS = 60; // 1 minute
 
     private getKey(email: string): string {
         return `${this.OTP_PREFIX}${email.toLowerCase()}`;

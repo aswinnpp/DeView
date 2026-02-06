@@ -10,6 +10,7 @@ const ResetPasswordPage: React.FC = () => {
     showConfirmPassword,
     isLoading,
     isSuccess,
+    serverError,
     errors,
     paramError,
     handleInputChange,
@@ -30,11 +31,6 @@ const ResetPasswordPage: React.FC = () => {
         </div>
         <div className="auth-content">
           <div className="auth-form-section">
-            <div className="back-link">
-              <Link to="/login" className="back-button">
-                ← Back to Login
-              </Link>
-            </div>
             {paramError && (
               <div className="reset-password-content">
                 <h1 className="reset-title">Session Expired</h1>
@@ -52,6 +48,7 @@ const ResetPasswordPage: React.FC = () => {
                 <p className="reset-message">
                   Enter your new password below. Make sure it's secure and easy to remember.
                 </p>
+                {serverError && <p className="error-message" style={{ marginBottom: '16px' }}>{serverError}</p>}
                 <form onSubmit={handleSubmit} className="auth-form">
                   <div className="form-group">
                     <div className="input-wrapper">

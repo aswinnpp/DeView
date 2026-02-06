@@ -31,9 +31,11 @@ export const getErrorMessage = (error: unknown): string => {
 
     const { response, message } = error as AxiosError<ApiErrorResponse>;
 
-    // Backend provided error message
-    if (response?.data?.error) return response.data.error;
+    // Backend provided error message - prefer 'message' over 'error' code
     if (response?.data?.message) return response.data.message;
+    if (response?.data?.error && !['VALIDATION_ERROR', 'CONFLICT', 'DOMAIN_ERROR'].includes(response.data.error)) {
+        return response.data.error;
+    }
 
     // HTTP status code message
     if (response?.status && STATUS_MESSAGES[response.status]) {

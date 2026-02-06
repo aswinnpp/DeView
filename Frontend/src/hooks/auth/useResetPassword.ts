@@ -6,6 +6,7 @@ import { validatePassword, validateConfirmPassword, validateEmail } from '../../
 
 interface ResetPasswordRequest {
     email: string;
+    otp: string;
     newPassword: string;
 }
 
@@ -56,16 +57,19 @@ export function useResetPassword(): UseResetPasswordReturn {
     const email = (location.state as { email?: string })?.email ||
         sessionStorage.getItem('resetEmail') || '';
 
+    const otp = (location.state as { otp?: string })?.otp ||
+        sessionStorage.getItem('resetOtp') || '';
+
     const { loading: isLoading, execute, error: serverError } = useApi<ResetPasswordResponse>(
         '/auth/reset-password',
         'POST'
     );
 
     useEffect(() => {
-        if (!email) {
+        if (!email || !otp) {
             setParamError('Reset session expired. Please request a new password reset.');
         }
-    }, [email]);
+    }, [email, otp]);
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -111,12 +115,14 @@ export function useResetPassword(): UseResetPasswordReturn {
         const result = await execute({
             data: {
                 email,
+                otp,
                 newPassword: formData.newPassword
             } as ResetPasswordRequest,
         });
 
         if (result) {
             sessionStorage.removeItem('resetEmail');
+            sessionStorage.removeItem('resetOtp');
             setIsSuccess(true);
         }
     };

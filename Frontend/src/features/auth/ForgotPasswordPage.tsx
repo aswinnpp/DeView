@@ -28,11 +28,6 @@ const ForgotPasswordPage: React.FC = () => {
         </div>
         <div className="auth-content">
           <div className="auth-form-section">
-            <div className="back-link">
-              <Link to="/login" className="back-button">
-                ← Back to Login
-              </Link>
-            </div>
             <div className="forgot-password-content">
               <h1 className="forgot-title">Forgot Password?</h1>
               <p className="forgot-message">

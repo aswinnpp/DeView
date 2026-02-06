@@ -128,15 +128,11 @@ export class AuthController {
   ) => {
     const { email } = request.body;
 
-    // Always return success to prevent user enumeration
-    try {
-      await this.forgotPasswordUseCase.execute(email);
-    } catch {
-      // Intentionally silent
-    }
+    // Let the error propagate if email doesn't exist
+    await this.forgotPasswordUseCase.execute(email);
 
     reply.code(200).send({
-      message: 'If an account with that email exists, an OTP has been sent.',
+      message: 'OTP has been sent to your email.',
     });
   };
 

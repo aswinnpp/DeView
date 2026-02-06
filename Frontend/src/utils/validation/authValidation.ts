@@ -54,8 +54,8 @@ export const validateOtp = (otp: string): ValidationResult => {
     if (!otp || otp.trim() === '') {
         return { isValid: false, error: 'OTP is required' };
     }
-    if (otp.length !== 6 || !/^\d+$/.test(otp)) {
-        return { isValid: false, error: 'OTP must be 6 digits' };
+    if (otp.length !== 4 || !/^\d+$/.test(otp)) {
+        return { isValid: false, error: 'OTP must be 4 digits' };
     }
     return { isValid: true, error: null };
 };

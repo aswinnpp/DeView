@@ -134,7 +134,7 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
               </div>
               <div className="tip-item">
                 <div className="tip-icon icon-clock"></div>
-                <span>OTP valid for 10 minutes</span>
+                <span>OTP valid for 1 minute</span>
               </div>
               <div className="tip-item">
                 <div className="tip-icon icon-lock"></div>

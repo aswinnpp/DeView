@@ -83,7 +83,7 @@ const RegisterPage: React.FC = () => {
             {selectedRole && (
               <form onSubmit={handleSubmit} className="auth-form">
                 <div className="form-group">
-                  <div className="input-wrapper">
+                  <div className={`input-wrapper ${errors.fullName ? 'error' : ''}`}>
                     <span className="input-icon icon-user"></span>
                     <input
                       type="text"
@@ -91,14 +91,13 @@ const RegisterPage: React.FC = () => {
                       placeholder={selectedRole === "company" ? "Company Name" : "Full Name"}
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      className={errors.fullName ? "error" : ""}
                     />
-                    {errors.fullName && <span className="error-message">{errors.fullName}</span>}
                   </div>
+                  {errors.fullName && <span className="error-message">{errors.fullName}</span>}
                 </div>
 
                 <div className="form-group">
-                  <div className="input-wrapper">
+                  <div className={`input-wrapper ${errors.email ? 'error' : ''}`}>
                     <span className="input-icon">@</span>
                     <input
                       type="email"
@@ -106,33 +105,30 @@ const RegisterPage: React.FC = () => {
                       placeholder="Email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={errors.email ? "error" : ""}
                     />
-                    {errors.email && <span className="error-message">{errors.email}</span>}
                   </div>
+                  {errors.email && <span className="error-message">{errors.email}</span>}
                 </div>
 
                 <div className="form-group">
-                  <div className="input-wrapper">
+                  <div className={`input-wrapper ${errors.password ? 'error' : ''}`}>
                     <span className="input-icon icon-lock"></span>
                     <input
                       type={showPassword ? "text" : "password"}
                       name="password"
-                      placeholder="Password"
+                      placeholder="Password (min 6 characters)"
                       value={formData.password}
                       onChange={handleInputChange}
-                      className={errors.password ? "error" : ""}
                     />
-                    {!errors.password && (
-                      <button type="button" className="password-toggle" onClick={togglePasswordVisibility}>
-                        {showPassword ? "Hide" : "Show"}
-                      </button>
-                    )}
+                    <button type="button" className="password-toggle" onClick={togglePasswordVisibility}>
+                      {showPassword ? "Hide" : "Show"}
+                    </button>
                   </div>
+                  {errors.password && <span className="error-message">{errors.password}</span>}
                 </div>
 
                 <div className="form-group">
-                  <div className="input-wrapper">
+                  <div className={`input-wrapper ${errors.confirmPassword ? 'error' : ''}`}>
                     <span className="input-icon icon-lock"></span>
                     <input
                       type={showConfirmPassword ? "text" : "password"}
@@ -140,14 +136,12 @@ const RegisterPage: React.FC = () => {
                       placeholder="Confirm Password"
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
-                      className={errors.confirmPassword ? "error" : ""}
                     />
-                    {!errors.confirmPassword && (
-                      <button type="button" className="password-toggle" onClick={toggleConfirmPasswordVisibility}>
-                        {showConfirmPassword ? "Hide" : "Show"}
-                      </button>
-                    )}
+                    <button type="button" className="password-toggle" onClick={toggleConfirmPasswordVisibility}>
+                      {showConfirmPassword ? "Hide" : "Show"}
+                    </button>
                   </div>
+                  {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
                 </div>
 
                 <button type="submit" className="submit-btn register-btn" disabled={loading || apiLoading}>

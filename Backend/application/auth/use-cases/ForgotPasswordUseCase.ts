@@ -3,6 +3,8 @@ import { OTPRepository } from '../../../domain/otp/repositories/OTPRepository.js
 import { EmailServicePort } from '../ports/EmailServicePort.js';
 import { Email } from '../../../domain/user/value-objects/Email.js';
 
+import { ValidationError } from '../../../shared/errors/ValidationError.js';
+
 export class ForgotPasswordUseCase {
     constructor(
         private userRepository: UserRepository,
@@ -15,7 +17,7 @@ export class ForgotPasswordUseCase {
         const user = await this.userRepository.findByEmail(emailVO);
 
         if (!user) {
-            return;
+            throw new ValidationError('Email does not exist');
         }
 
         if (user.authProvider === 'google') {

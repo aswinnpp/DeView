@@ -5,7 +5,7 @@ import './AuthCallbackPage.css';
 
 const AuthCallbackPage: React.FC = () => {
     const navigate = useNavigate();
-    const { handleCallback, loading, error } = useGoogleAuth();
+    const { handleCallback, error } = useGoogleAuth();
     const [isProcessing, setIsProcessing] = useState(true);
 
     useEffect(() => {
