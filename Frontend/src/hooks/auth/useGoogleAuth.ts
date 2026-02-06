@@ -63,6 +63,7 @@ export function useGoogleAuth(): UseGoogleAuthReturn {
         const result = await execute({
             params: { sessionId } as TokenExchangeRequest,
         });
+        console.log(result, "sssssss");
 
         if (result) {
             // Store only user info in Redux (tokens are in HTTP-only cookies!)
@@ -71,7 +72,7 @@ export function useGoogleAuth(): UseGoogleAuthReturn {
             // Redirect based on role
             const role = result.role;
             if (role === 'candidate') {
-                navigate('/');
+                navigate('/candidate/profile');
             } else if (role === 'company') {
                 navigate('/company/dashboard');
             } else if (role === 'hr') {

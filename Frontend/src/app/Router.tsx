@@ -17,6 +17,9 @@ const CompanyApprovalFormPage = lazy(() => import("../features/auth/CompanyAppro
 const CompanyApprovalPendingPage = lazy(() => import("../features/auth/CompanyApprovalPendingPage"));
 
 
+const Profile = lazy(() => import("../features/candidate/Profile"));
+
+
 const LoadingFallback = () => (
   <div style={{ padding: '20px', textAlign: 'center' }}>
     Loading...
@@ -40,11 +43,15 @@ const AppRouter: React.FC = () => {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
-        
+
+        <Route path="/candidate" element={<Navigate to="/candidate/profile" replace />} />
+        <Route path="/candidate/profile" element={<Profile />} />
+
+
 
         <Route path="/" element={<LandingPage />} />
 
-       
+
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>

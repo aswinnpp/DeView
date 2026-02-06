@@ -91,7 +91,7 @@ export function useLogin(): UseLoginReturn {
             const role = result.user.role;
             setTimeout(() => {
                 if (role === 'candidate') {
-                    navigate('/');
+                    navigate('/candidate/profile');
                 } else if (role === 'company') {
                     navigate('/company/dashboard');
                 } else if (role === 'hr') {
