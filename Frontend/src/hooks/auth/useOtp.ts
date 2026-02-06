@@ -1,9 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useApi } from '../useApi';
+import { validateOtp } from '../../utils/validation/authValidation';
 
-// ===========================================
-// TYPES
-// ===========================================
 
 interface VerifyOTPRequest {
     email: string;
@@ -26,40 +24,29 @@ interface UseOtpReturn {
     verifyOtp: (email: string, otp: string) => Promise<boolean>;
     resendOtp: (email: string) => Promise<boolean>;
     loading: boolean;
-    error: string | null;
+    serverError: string | null;
+    validationError: string | null;
     successMessage: string | null;
 }
 
-// ===========================================
-// HOOK
-// ===========================================
 
-/**
- * useOtp - Hook to handle OTP verification and resend
- * 
- * Usage:
- * const { verifyOtp, resendOtp, loading, error, successMessage } = useOtp();
- * const success = await verifyOtp(email, otp);
- */
 export function useOtp(): UseOtpReturn {
-    const [error, setError] = useState<string | null>(null);
+    const [validationError, setValidationError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-    // API hooks
     const verifyApi = useApi<VerifyOTPResponse>('/auth/verify-otp', 'POST');
     const resendApi = useApi<ResendOTPResponse>('/auth/resend-otp', 'POST');
 
-    // Combined loading state
     const loading = verifyApi.loading || resendApi.loading;
+    const serverError = verifyApi.error || resendApi.error;
 
-    // Verify OTP
     const verifyOtp = useCallback(async (email: string, otp: string): Promise<boolean> => {
-        setError(null);
+        setValidationError(null);
         setSuccessMessage(null);
 
-        // Validate OTP
-        if (!otp || otp.length !== 4) {
-            setError('Please enter a valid 4-digit OTP');
+        const otpCheck = validateOtp(otp);
+        if (!otpCheck.isValid) {
+            setValidationError(otpCheck.error);
             return false;
         }
 
@@ -72,13 +59,11 @@ export function useOtp(): UseOtpReturn {
             return true;
         }
 
-        setError(verifyApi.error || 'Invalid OTP. Please try again.');
         return false;
     }, [verifyApi]);
 
-    // Resend OTP
     const resendOtp = useCallback(async (email: string): Promise<boolean> => {
-        setError(null);
+        setValidationError(null);
         setSuccessMessage(null);
 
         const result = await resendApi.execute({
@@ -90,9 +75,8 @@ export function useOtp(): UseOtpReturn {
             return true;
         }
 
-        setError(resendApi.error || 'Failed to resend OTP. Please try again.');
         return false;
     }, [resendApi]);
 
-    return { verifyOtp, resendOtp, loading, error, successMessage };
+    return { verifyOtp, resendOtp, loading, serverError, validationError, successMessage };
 }

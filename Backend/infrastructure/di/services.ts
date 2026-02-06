@@ -16,7 +16,7 @@ export interface Services {
 export function createServices(fastify: FastifyInstance, repositories: Repositories): Services {
     return {
         passwordHasher: new BcryptPasswordHasher(),
-        tokenService: new SecureJwtTokenService(fastify, repositories.refreshTokenRepository),
+        tokenService: new SecureJwtTokenService(fastify),
         emailService: new NodemailerEmailService(),
         googleAuthService: new GoogleAuthService(
             env.GOOGLE_CLIENT_ID || '',

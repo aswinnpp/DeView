@@ -22,10 +22,10 @@ export function createControllers(
             useCases.loginUseCase,
             useCases.resendOTPUseCase,
             useCases.refreshTokenUseCase,
-            useCases.logoutUseCase,
             useCases.forgotPasswordUseCase,
             useCases.verifyPasswordResetOTPUseCase,
-            useCases.resetPasswordUseCase
+            useCases.resetPasswordUseCase,
+            services.tokenService
         ),
         googleAuthController: new GoogleAuthController(
             services.googleAuthService,

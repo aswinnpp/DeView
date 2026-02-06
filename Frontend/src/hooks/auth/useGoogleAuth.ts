@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useApi } from '../useApi';
-import { setAuthToken } from '../../utils/auth';
+import { setUser } from '../../context/authSlice';
+import type { AppDispatch } from '../../context/store';
 
 // ===========================================
 // TYPES
@@ -12,8 +14,14 @@ interface TokenExchangeRequest {
 }
 
 interface TokenExchangeResponse {
-    token: string;
+    user: {
+        id: string;
+        fullName: string;
+        email: string;
+        role: string;
+    };
     role: string;
+    // No tokens in response - they're in HTTP-only cookies
 }
 
 interface UseGoogleAuthReturn {
@@ -23,30 +31,12 @@ interface UseGoogleAuthReturn {
     error: string | null;
 }
 
-// ===========================================
-// CONFIGURATION
-// ===========================================
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// ===========================================
-// HOOK
-// ===========================================
-
-/**
- * useGoogleAuth - Hook to handle Google OAuth authentication
- * 
- * Usage:
- * const { initiateGoogleAuth, handleCallback, loading, error } = useGoogleAuth();
- * 
- * // Start Google auth
- * initiateGoogleAuth('candidate');
- * 
- * // In callback page
- * await handleCallback();
- */
 export function useGoogleAuth(): UseGoogleAuthReturn {
     const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
     const [searchParams] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
 
@@ -69,14 +59,14 @@ export function useGoogleAuth(): UseGoogleAuthReturn {
             return false;
         }
 
-        // Exchange session ID for token
+        // Exchange session ID for user info (tokens set as cookies by backend)
         const result = await execute({
             params: { sessionId } as TokenExchangeRequest,
         });
 
         if (result) {
-            // Save the token
-            setAuthToken(result.token);
+            // Store only user info in Redux (tokens are in HTTP-only cookies!)
+            dispatch(setUser(result.user));
 
             // Redirect based on role
             const role = result.role;
@@ -95,7 +85,7 @@ export function useGoogleAuth(): UseGoogleAuthReturn {
 
         setError('Failed to complete Google sign in. Please try again.');
         return false;
-    }, [searchParams, execute, navigate]);
+    }, [searchParams, execute, navigate, dispatch]);
 
     return { initiateGoogleAuth, handleCallback, loading, error };
 }

@@ -1,16 +1,20 @@
 import { Link } from "react-router-dom";
 import "./AuthPages.css";
 import Background from "@components/Background/Background";
-import { useForgotPassword } from "@/hooks/auth";
+import { useForgotPassword } from "@/hooks/auth/useForgotPassword";
 
 const ForgotPasswordPage: React.FC = () => {
   const {
     email,
     isLoading,
-    error,
+    serverError,
+    validationError,
     handleEmailSubmit,
     handleEmailChange,
   } = useForgotPassword();
+
+
+  const error = validationError || serverError;
 
   return (
     <div className="auth-container">

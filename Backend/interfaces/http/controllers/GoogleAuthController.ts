@@ -6,7 +6,8 @@ import { MongoUserRepository } from '../../../infrastructure/persistence/mongodb
 import { User } from '../../../domain/user/entities/User.js';
 import { Email } from '../../../domain/user/value-objects/Email.js';
 import { Role } from '../../../domain/user/value-objects/Role.js';
-import { sessionCache } from '../../../infrastructure/cache/SessionCache.js';
+import { redisClient } from '../../../infrastructure/cache/RedisClient.js';
+
 
 export class GoogleAuthController {
     constructor(
@@ -69,22 +70,33 @@ export class GoogleAuthController {
             throw new Error('Failed to create or find user');
         }
 
-        // Generate JWT token
-        const token = this.tokenService.signAccessToken({
+        // Generate tokens
+        const accessToken = this.tokenService.signAccessToken({
             userId: user.id!,
             role: user.role.getValue(),
         });
+        const refreshTokenData = await this.tokenService.generateRefreshToken(user.id!);
 
-        // Create session ID for frontend to exchange for token
+        // Create session ID for frontend to exchange for user info
         const sessionId = crypto.randomUUID();
-        await sessionCache.setex(
+        await redisClient.setex(
             `oauth:session:${sessionId}`,
             300, // 5 minutes TTL
-            JSON.stringify({ token, role: user.role.getValue() })
+            JSON.stringify({
+                accessToken,
+                refreshToken: refreshTokenData.token,
+                user: {
+                    id: user.id!,
+                    fullName: user.fullName,
+                    email: user.email.getValue(),
+                    role: user.role.getValue(),
+                },
+                role: user.role.getValue()
+            })
         );
 
         // Redirect to frontend with session ID
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
+        const frontendUrl = process.env.FRONTEND_URL;
         reply.redirect(`${frontendUrl}/auth/callback?sessionId=${sessionId}`);
     };
 
@@ -94,7 +106,7 @@ export class GoogleAuthController {
     ) => {
         const { sessionId } = request.query;
 
-        const sessionData = await sessionCache.get(`oauth:session:${sessionId}`);
+        const sessionData = await redisClient.get(`oauth:session:${sessionId}`);
 
         if (!sessionData) {
             reply.status(400).send({ error: 'Session expired or invalid' });
@@ -102,9 +114,52 @@ export class GoogleAuthController {
         }
 
         // Delete session (one-time use)
-        await sessionCache.del(`oauth:session:${sessionId}`);
+        await redisClient.del(`oauth:session:${sessionId}`);
 
-        const { token, role } = JSON.parse(sessionData);
-        reply.send({ token, role });
+        const { accessToken, refreshToken, user, role } = JSON.parse(sessionData);
+
+        // Set tokens as HTTP-only cookies
+        this.setAccessTokenCookie(reply, accessToken);
+        this.setRefreshTokenCookie(reply, refreshToken);
+
+        // Return only user info (no tokens in response body!)
+        reply.send({ user, role });
     };
+
+    // =====================
+    // HELPER METHODS
+    // =====================
+
+    private setAccessTokenCookie(reply: FastifyReply, token: string): void {
+        const isProduction = process.env.NODE_ENV === 'production';
+        const options = [
+            `accessToken=${token}`,
+            'Path=/',
+            'HttpOnly',
+            'SameSite=Strict',
+            'Max-Age=900',
+            isProduction ? 'Secure' : '',
+        ].filter(Boolean).join('; ');
+
+        reply.header('Set-Cookie', options);
+    }
+
+    private setRefreshTokenCookie(reply: FastifyReply, token: string): void {
+        const isProduction = process.env.NODE_ENV === 'production';
+        const options = [
+            `refreshToken=${token}`,
+            'Path=/',
+            'HttpOnly',
+            'SameSite=Strict',
+            'Max-Age=604800',
+            isProduction ? 'Secure' : '',
+        ].filter(Boolean).join('; ');
+
+        const existingCookie = reply.getHeader('Set-Cookie');
+        if (existingCookie) {
+            reply.header('Set-Cookie', [existingCookie as string, options]);
+        } else {
+            reply.header('Set-Cookie', options);
+        }
+    }
 }

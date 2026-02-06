@@ -1,10 +1,10 @@
 import { TokenServicePort } from '../ports/TokenServicePort.js';
 import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
+import { SecureJwtTokenService } from '../../../infrastructure/security/SecureJwtTokenService.js';
 
 export interface RefreshTokenRequest {
-    refreshTokenHash: string;
-    deviceInfo: string;
+    refreshToken: string;
 }
 
 export interface RefreshTokenResponse {
@@ -20,32 +20,33 @@ export class RefreshTokenUseCase {
     ) { }
 
     async execute(request: RefreshTokenRequest): Promise<RefreshTokenResponse> {
-        if (!request.refreshTokenHash) {
+        if (!request.refreshToken) {
             throw AppError.unauthorized('No refresh token provided');
         }
 
-        const existingToken = await (this.tokenService as any).refreshTokenRepository.findByTokenHash(
-            request.refreshTokenHash
-        );
+        // Cast to SecureJwtTokenService to access verifyRefreshToken
+        const secureTokenService = this.tokenService as SecureJwtTokenService;
 
-        if (!existingToken || !existingToken.isValid()) {
+        // Verify refresh token (checks JWT + Redis)
+        const decoded = await secureTokenService.verifyRefreshToken(request.refreshToken);
+        if (!decoded) {
             throw AppError.unauthorized('Invalid or expired refresh token');
         }
 
-        const newTokenData = await this.tokenService.rotateRefreshToken(
-            request.refreshTokenHash,
-            request.deviceInfo
-        );
+        // Rotate the token (delete old, create new)
+        const newTokenData = await this.tokenService.rotateRefreshToken(request.refreshToken);
 
         if (!newTokenData) {
             throw AppError.unauthorized('Failed to rotate refresh token');
         }
 
-        const user = await this.userRepository.findById(existingToken.userId);
+        // Get user info
+        const user = await this.userRepository.findById(decoded.userId);
         if (!user) {
             throw AppError.unauthorized('User not found');
         }
 
+        // Generate new access token
         const accessToken = this.tokenService.signAccessToken({
             userId: user.id!,
             role: typeof user.role === 'string' ? user.role : user.role.getValue(),

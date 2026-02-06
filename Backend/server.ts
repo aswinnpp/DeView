@@ -7,6 +7,7 @@ import { registerErrorHandler } from './infrastructure/plugins/errorHandler.js';
 import jwtPlugin from './infrastructure/plugins/fastifyJwt.js';
 import { createContainer } from './infrastructure/di/container.js';
 import { registerRoutes } from './infrastructure/di/routes.js';
+import { redisClient } from './infrastructure/cache/RedisClient.js';
 
 async function bootstrap() {
     // Reduced logging in development for better performance
@@ -20,12 +21,15 @@ async function bootstrap() {
     registerErrorHandler(fastify);
 
     await fastify.register(cors, {
-        origin: true,
+        origin: [env.FRONTEND_URL || 'http://localhost:5173'],
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
-        exposedHeaders: ['Content-Type', 'Authorization'],
+        exposedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
     });
+
+    // Initialize Redis connection
+    await redisClient.connect();
 
     const db = await initializeDatabase();
     fastify.decorate('db', db);
@@ -36,13 +40,26 @@ async function bootstrap() {
 
     await registerRoutes(fastify, container.controllers);
 
+    // Graceful shutdown
+    const gracefulShutdown = async () => {
+        console.log('🛑 Shutting down gracefully...');
+        await redisClient.disconnect();
+        await fastify.close();
+        process.exit(0);
+    };
+
+    process.on('SIGINT', gracefulShutdown);
+    process.on('SIGTERM', gracefulShutdown);
+
     try {
         await fastify.listen({ port: env.PORT, host: '0.0.0.0' });
         console.log(`🚀 Server running on port ${env.PORT}`);
     } catch (err) {
         fastify.log.error(err);
+        await redisClient.disconnect();
         process.exit(1);
     }
 }
 
 bootstrap();
+

@@ -12,9 +12,9 @@ export interface RefreshTokenData {
 
 export interface TokenServicePort {
     signAccessToken(payload: TokenPayload): string;
-    generateRefreshToken(userId: string, deviceInfo: string): Promise<RefreshTokenData>;
+    generateRefreshToken(userId: string): Promise<RefreshTokenData>;
     verifyAccessToken(token: string): TokenPayload;
-    rotateRefreshToken(oldTokenHash: string, deviceInfo: string): Promise<RefreshTokenData | null>;
-    revokeRefreshToken(tokenHash: string): Promise<void>;
+    rotateRefreshToken(oldToken: string): Promise<RefreshTokenData | null>;
+    revokeRefreshToken(token: string): Promise<void>;
     revokeAllUserTokens(userId: string): Promise<void>;
 }

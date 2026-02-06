@@ -1,71 +1,89 @@
 import { FastifyInstance } from 'fastify';
-import { TokenServicePort, TokenPayload, RefreshTokenData } from '../../application/auth/ports/TokenServicePort';
-import { RefreshTokenRepositoryPort } from '../../domain/auth/repositories/RefreshTokenRepositoryPort';
-import { RefreshToken } from '../../domain/auth/entities/RefreshToken';
-import { TokenHasher } from './TokenHasher';
+import crypto from 'crypto';
+import { TokenServicePort, TokenPayload, RefreshTokenData } from '../../application/auth/ports/TokenServicePort.js';
+import { RedisRefreshTokenRepository } from '../persistence/redis/RedisRefreshTokenRepository.js';
 
 export class SecureJwtTokenService implements TokenServicePort {
-    private readonly REFRESH_TOKEN_TTL_DAYS = 7;
+    private refreshTokenRepo: RedisRefreshTokenRepository;
 
-    constructor(
-        private readonly fastify: FastifyInstance,
-        private readonly refreshTokenRepository: RefreshTokenRepositoryPort
-    ) { }
+    constructor(private readonly fastify: FastifyInstance) {
+        this.refreshTokenRepo = new RedisRefreshTokenRepository();
+    }
 
+    // Generate access token (15 min)
     signAccessToken(payload: TokenPayload): string {
         return this.fastify.jwt.sign(payload, { expiresIn: '15m' });
     }
 
-    async generateRefreshToken(userId: string, deviceInfo: string): Promise<RefreshTokenData> {
-        const token = TokenHasher.generateSecureToken();
-        const tokenHash = TokenHasher.hash(token);
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + this.REFRESH_TOKEN_TTL_DAYS);
+    // Generate refresh token (7 days) and store in Redis
+    async generateRefreshToken(userId: string): Promise<RefreshTokenData> {
+        const tokenId = crypto.randomUUID();
 
-        const refreshToken = RefreshToken.create({
-            userId,
-            tokenHash,
-            deviceInfo,
-            expiresAt,
-        });
+        const token = this.fastify.jwt.sign(
+            { userId, jti: tokenId },
+            { expiresIn: '7d' }
+        );
 
-        await this.refreshTokenRepository.save(refreshToken);
+        // Store in Redis for revocation
+        await this.refreshTokenRepo.save(userId, tokenId);
 
         return {
             token,
-            tokenHash,
-            expiresAt,
+            tokenHash: tokenId,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         };
     }
 
+    // Verify access token
     verifyAccessToken(token: string): TokenPayload {
         return this.fastify.jwt.verify(token) as TokenPayload;
     }
 
-    async rotateRefreshToken(oldTokenHash: string, deviceInfo: string): Promise<RefreshTokenData | null> {
-        const existingToken = await this.refreshTokenRepository.findByTokenHash(oldTokenHash);
+    // Verify refresh token and check Redis
+    async verifyRefreshToken(token: string): Promise<{ userId: string; jti: string } | null> {
+        try {
+            const decoded = this.fastify.jwt.verify(token) as { userId: string; jti: string };
 
-        if (!existingToken || !existingToken.isValid()) {
-            if (existingToken && !existingToken.revoked) {
-                await this.revokeAllUserTokens(existingToken.userId);
+            // Check if token exists in Redis (not revoked)
+            const exists = await this.refreshTokenRepo.exists(decoded.jti);
+            if (!exists) {
+                return null;
             }
+
+            return decoded;
+        } catch {
+            return null;
+        }
+    }
+
+    // Rotate refresh token (delete old, create new)
+    async rotateRefreshToken(oldToken: string): Promise<RefreshTokenData | null> {
+        const decoded = await this.verifyRefreshToken(oldToken);
+        if (!decoded) {
             return null;
         }
 
-        await this.refreshTokenRepository.delete(existingToken.id!);
+        // Delete old token from Redis
+        await this.refreshTokenRepo.delete(decoded.jti);
 
-        return this.generateRefreshToken(existingToken.userId, deviceInfo);
+        // Generate new token
+        return this.generateRefreshToken(decoded.userId);
     }
 
-    async revokeRefreshToken(tokenHash: string): Promise<void> {
-        const token = await this.refreshTokenRepository.findByTokenHash(tokenHash);
-        if (token) {
-            token.revoke();
-            await this.refreshTokenRepository.save(token);
+    // Revoke a specific refresh token (logout)
+    async revokeRefreshToken(token: string): Promise<void> {
+        try {
+            const decoded = this.fastify.jwt.decode(token) as { jti: string } | null;
+            if (decoded?.jti) {
+                await this.refreshTokenRepo.delete(decoded.jti);
+            }
+        } catch {
+            // Ignore decode errors
         }
     }
 
+
     async revokeAllUserTokens(userId: string): Promise<void> {
-        await this.refreshTokenRepository.revokeAllByUserId(userId);
+        await this.refreshTokenRepo.deleteAllForUser(userId);
     }
 }

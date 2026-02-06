@@ -1,15 +1,14 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useOtp } from './useOtp';
+import { validateOtp, validateEmail } from '../../utils/validation/authValidation';
 
-// ===========================================
-// TYPES
-// ===========================================
 
 interface UseEmailVerificationReturn {
     otpCode: string;
     successMessage: string | null;
-    errorMessage: string | null;
+    serverError: string | null;
+    validationError: string | null;
     mode: 'email-verification' | 'password-reset';
     userEmail: string;
     isVerifying: boolean;
@@ -19,61 +18,47 @@ interface UseEmailVerificationReturn {
     handleOtpChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-// ===========================================
-// HOOK
-// ===========================================
 
-/**
- * useEmailVerification - Hook for email verification page
- * 
- * Usage:
- * const { otpCode, handleVerifyOtp, handleOtpChange, ... } = useEmailVerification(email);
- */
 export function useEmailVerification(initialEmail: string = ''): UseEmailVerificationReturn {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
 
-    // Get mode from URL params or default to email verification
     const modeParam = searchParams.get('mode');
     const mode: 'email-verification' | 'password-reset' =
         modeParam === 'password-reset' ? 'password-reset' : 'email-verification';
 
-    // Get email from props, session storage, or URL params
     const sessionEmail = sessionStorage.getItem('verificationEmail') ||
         sessionStorage.getItem('resetEmail') || '';
     const userEmail = initialEmail || sessionEmail;
 
-    // Local state
     const [otpCode, setOtpCode] = useState('');
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [validationError, setValidationError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isResending, setIsResending] = useState(false);
 
-    // Use OTP hook
-    const { verifyOtp, resendOtp, loading: isVerifying, error: otpError } = useOtp();
+    const { verifyOtp, resendOtp, loading: isVerifying, serverError } = useOtp();
 
-    // Handle OTP input change
     const handleOtpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replace(/\D/g, ''); // Only digits
-        if (value.length <= 4) {
+        const value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 6) {
             setOtpCode(value);
-            setErrorMessage(null);
+            setValidationError(null);
         }
     }, []);
 
-    // Handle OTP verification
     const handleVerifyOtp = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
-        setErrorMessage(null);
         setSuccessMessage(null);
 
-        if (!userEmail) {
-            setErrorMessage('No email found. Please try again.');
+        const emailCheck = validateEmail(userEmail);
+        if (!emailCheck.isValid) {
+            setValidationError(emailCheck.error);
             return;
         }
 
-        if (otpCode.length !== 4) {
-            setErrorMessage('Please enter a 4-digit OTP');
+        const otpCheck = validateOtp(otpCode);
+        if (!otpCheck.isValid) {
+            setValidationError(otpCheck.error);
             return;
         }
 
@@ -82,40 +67,35 @@ export function useEmailVerification(initialEmail: string = ''): UseEmailVerific
         if (success) {
             setSuccessMessage('Verification successful!');
 
-            // Clear stored email
             sessionStorage.removeItem('verificationEmail');
             sessionStorage.removeItem('resetEmail');
 
             if (mode === 'password-reset') {
-                // Navigate to reset password page
                 setTimeout(() => {
                     navigate('/reset-password', {
                         state: { email: userEmail, verified: true }
                     });
                 }, 1000);
             } else {
-                // Navigate to login page
                 setTimeout(() => {
                     navigate('/login', {
                         state: { message: 'Email verified! You can now login.' }
                     });
                 }, 1000);
             }
-        } else {
-            setErrorMessage(otpError || 'Invalid OTP. Please try again.');
         }
     };
 
-    // Handle resend OTP
     const handleResendOtp = async (): Promise<boolean> => {
         if (isResending) return false;
 
         setIsResending(true);
-        setErrorMessage(null);
+        setValidationError(null);
         setSuccessMessage(null);
 
-        if (!userEmail) {
-            setErrorMessage('No email found. Please try again.');
+        const emailCheck = validateEmail(userEmail);
+        if (!emailCheck.isValid) {
+            setValidationError(emailCheck.error);
             setIsResending(false);
             return false;
         }
@@ -124,8 +104,6 @@ export function useEmailVerification(initialEmail: string = ''): UseEmailVerific
 
         if (success) {
             setSuccessMessage('OTP resent successfully!');
-        } else {
-            setErrorMessage('Failed to resend OTP. Please try again.');
         }
 
         setIsResending(false);
@@ -135,7 +113,8 @@ export function useEmailVerification(initialEmail: string = ''): UseEmailVerific
     return {
         otpCode,
         successMessage,
-        errorMessage: errorMessage || otpError,
+        serverError,
+        validationError,
         mode,
         userEmail,
         isVerifying,

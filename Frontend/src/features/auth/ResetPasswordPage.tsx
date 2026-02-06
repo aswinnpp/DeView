@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./AuthPages.css";
 import Background from "@components/Background/Background";
-import { useResetPassword } from "@/hooks/auth";
+import { useResetPassword } from "@/hooks/auth/useResetPassword";
 
 const ResetPasswordPage: React.FC = () => {
   const {

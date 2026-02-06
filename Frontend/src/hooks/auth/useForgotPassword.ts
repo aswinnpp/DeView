@@ -1,10 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../useApi';
+import { validateEmail } from '../../utils/validation/authValidation';
 
-// ===========================================
-// TYPES
-// ===========================================
 
 interface ForgotPasswordRequest {
     email: string;
@@ -17,48 +15,37 @@ interface ForgotPasswordResponse {
 interface UseForgotPasswordReturn {
     email: string;
     isLoading: boolean;
-    error: string | null;
+    serverError: string | null;
+    validationError: string | null;
     successMessage: string | null;
     handleEmailSubmit: (e: React.FormEvent) => Promise<void>;
     handleEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-// ===========================================
-// HOOK
-// ===========================================
 
-/**
- * useForgotPassword - Hook to handle forgot password flow
- * 
- * Usage:
- * const { email, isLoading, error, handleEmailSubmit, handleEmailChange } = useForgotPassword();
- */
 export function useForgotPassword(): UseForgotPasswordReturn {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const [validationError, setValidationError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-    const { loading: isLoading, execute, error: apiError } = useApi<ForgotPasswordResponse>(
+    const { loading: isLoading, execute, error: serverError } = useApi<ForgotPasswordResponse>(
         '/auth/forgot-password',
         'POST'
     );
 
-    // Handle email input change
     const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
-        setError(null);
+        setValidationError(null);
     }, []);
 
-    // Handle form submit
     const handleEmailSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
-        setError(null);
         setSuccessMessage(null);
 
-        // Validate email
-        if (!email || !email.includes('@')) {
-            setError('Please enter a valid email address');
+        const emailCheck = validateEmail(email);
+        if (!emailCheck.isValid) {
+            setValidationError(emailCheck.error);
             return;
         }
 
@@ -67,24 +54,20 @@ export function useForgotPassword(): UseForgotPasswordReturn {
         });
 
         if (result) {
-            // Store email for reset password page
             sessionStorage.setItem('resetEmail', email);
-
             setSuccessMessage(result.message || 'Reset code sent to your email!');
 
-            // Navigate to email verification page with password-reset mode
             setTimeout(() => {
                 navigate('/verify-email?mode=password-reset', { state: { email } });
             }, 1500);
-        } else {
-            setError(apiError || 'Failed to send reset email. Please try again.');
         }
     };
 
     return {
         email,
         isLoading,
-        error: error || apiError,
+        serverError,
+        validationError,
         successMessage,
         handleEmailSubmit,
         handleEmailChange

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./AuthPages.css";
 import Background from "@components/Background/Background";
-import { useEmailVerification } from "@/hooks/auth";
+import { useEmailVerification } from "@/hooks/auth/useEmailVerification";
 
 interface IEmailVerificationPageProps {
   email?: string;
@@ -12,7 +12,8 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
   const {
     otpCode,
     successMessage,
-    errorMessage,
+    serverError,
+    validationError,
     mode,
     userEmail,
     isVerifying,
@@ -22,7 +23,6 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
     handleOtpChange,
   } = useEmailVerification(email);
 
-  // Countdown timer - managed directly in UI
   const [countdown, setCountdown] = useState(60);
 
   useEffect(() => {
@@ -33,7 +33,6 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
     return undefined;
   }, [countdown]);
 
-  // Handle resend with countdown reset
   const onResendClick = async () => {
     if (isResending || countdown > 0) return;
 
@@ -108,7 +107,7 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
                 </span>
 
                 {successMessage && <div className="success-message">{successMessage}</div>}
-                {errorMessage && <div className="error-message">{errorMessage}</div>}
+                {(serverError || validationError) && <div className="error-message">{serverError || validationError}</div>}
               </form>
             </div>
 

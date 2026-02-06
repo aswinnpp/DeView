@@ -1,10 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useApi } from '../useApi';
+import { validatePassword, validateConfirmPassword, validateEmail } from '../../utils/validation/authValidation';
 
-// ===========================================
-// TYPES
-// ===========================================
 
 interface ResetPasswordRequest {
     email: string;
@@ -21,8 +19,8 @@ interface FormData {
 }
 
 interface FormErrors {
-    newPassword?: string;
-    confirmPassword?: string;
+    newPassword: string;
+    confirmPassword: string;
 }
 
 interface UseResetPasswordReturn {
@@ -31,6 +29,7 @@ interface UseResetPasswordReturn {
     showConfirmPassword: boolean;
     isLoading: boolean;
     isSuccess: boolean;
+    serverError: string | null;
     errors: FormErrors;
     paramError: string | null;
     handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -39,70 +38,45 @@ interface UseResetPasswordReturn {
     toggleConfirmPasswordVisibility: () => void;
 }
 
-// ===========================================
-// HOOK
-// ===========================================
 
-/**
- * useResetPassword - Hook to handle password reset flow
- * 
- * Usage:
- * const { formData, handleInputChange, handleSubmit, ... } = useResetPassword();
- */
 export function useResetPassword(): UseResetPasswordReturn {
     const location = useLocation();
 
-    // Form state
     const [formData, setFormData] = useState<FormData>({
         newPassword: '',
         confirmPassword: '',
     });
 
-    // Password visibility
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    // Success state
     const [isSuccess, setIsSuccess] = useState(false);
-
-    // Errors
-    const [errors, setErrors] = useState<FormErrors>({});
+    const [errors, setErrors] = useState<FormErrors>({ newPassword: '', confirmPassword: '' });
     const [paramError, setParamError] = useState<string | null>(null);
 
-    // Get email from location state or session storage
     const email = (location.state as { email?: string })?.email ||
         sessionStorage.getItem('resetEmail') || '';
 
-    // Note: User should come from verification page (password reset flow)
-
-    // API hook
-    const { loading: isLoading, execute, error: apiError } = useApi<ResetPasswordResponse>(
+    const { loading: isLoading, execute, error: serverError } = useApi<ResetPasswordResponse>(
         '/auth/reset-password',
         'POST'
     );
 
-    // Check for missing email on mount
     useEffect(() => {
         if (!email) {
             setParamError('Reset session expired. Please request a new password reset.');
         }
     }, [email]);
 
-    // Handle input change
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value,
         }));
-        // Clear error for this field
-        setErrors(prev => ({
-            ...prev,
-            [name]: undefined,
-        }));
+        // Clear the error for the field being edited
+        setErrors(prev => ({ ...prev, [name]: '' }));
     }, []);
 
-    // Toggle password visibility
     const toggleNewPasswordVisibility = useCallback(() => {
         setShowNewPassword(prev => !prev);
     }, []);
@@ -111,32 +85,26 @@ export function useResetPassword(): UseResetPasswordReturn {
         setShowConfirmPassword(prev => !prev);
     }, []);
 
-    // Validate form
-    const validateForm = (): boolean => {
-        const newErrors: FormErrors = {};
-
-        if (!formData.newPassword || formData.newPassword.length < 6) {
-            newErrors.newPassword = 'Password must be at least 6 characters';
-        }
-
-        if (formData.newPassword !== formData.confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    // Handle form submit
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
 
-        if (!validateForm()) {
+        const emailCheck = validateEmail(email);
+        if (!emailCheck.isValid) {
+            setParamError('Reset session expired. Please request a new password reset.');
             return;
         }
 
-        if (!email) {
-            setParamError('Reset session expired. Please request a new password reset.');
+        const passwordCheck = validatePassword(formData.newPassword);
+        const confirmCheck = validateConfirmPassword(formData.newPassword, formData.confirmPassword);
+
+        const newErrors: FormErrors = {
+            newPassword: passwordCheck.isValid ? '' : (passwordCheck.error || ''),
+            confirmPassword: confirmCheck.isValid ? '' : (confirmCheck.error || ''),
+        };
+
+        setErrors(newErrors);
+
+        if (!passwordCheck.isValid || !confirmCheck.isValid) {
             return;
         }
 
@@ -148,14 +116,8 @@ export function useResetPassword(): UseResetPasswordReturn {
         });
 
         if (result) {
-            // Clear stored email
             sessionStorage.removeItem('resetEmail');
-
             setIsSuccess(true);
-        } else {
-            setErrors({
-                newPassword: apiError || 'Failed to reset password. Please try again.',
-            });
         }
     };
 
@@ -165,6 +127,7 @@ export function useResetPassword(): UseResetPasswordReturn {
         showConfirmPassword,
         isLoading,
         isSuccess,
+        serverError,
         errors,
         paramError,
         handleInputChange,

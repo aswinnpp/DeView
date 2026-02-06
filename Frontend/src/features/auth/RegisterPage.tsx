@@ -2,7 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./AuthPages.css";
 import Background from "@components/Background/Background";
-import { useRegister, useGoogleAuth } from "@/hooks/auth";
+import { useRegister } from "@/hooks/auth/useRegister";
+import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 
 const RegisterPage: React.FC = () => {
   // Get everything from hooks - no local state needed!

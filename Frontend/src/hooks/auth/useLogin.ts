@@ -1,11 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useApi } from '../useApi';
-import { setAuthToken, setRefreshToken, setUser } from '../../utils/auth';
-
-// ===========================================
-// TYPES
-// ===========================================
+import { validateEmail, validatePassword } from '../../utils/validation/authValidation';
+import { setUser } from '../../context/authSlice';
+import type { AppDispatch } from '../../context/store';
 
 interface LoginRequest {
     email: string;
@@ -19,8 +18,7 @@ interface LoginResponse {
         email: string;
         role: string;
     };
-    accessToken: string;
-    refreshToken: string;
+    // No tokens in response! They're in HTTP-only cookies
 }
 
 interface FormData {
@@ -29,92 +27,67 @@ interface FormData {
 }
 
 interface UseLoginReturn {
-    // Form state
     formData: FormData;
     showPassword: boolean;
-
-    // Loading & errors
     isLoading: boolean;
-    displayError: string | null;
-    displaySuccess: string | null;
-
-    // Handlers
+    serverError: string | null;
+    validationError: string | null;
     handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleSubmit: (e: React.FormEvent) => Promise<void>;
     togglePasswordVisibility: () => void;
 }
 
-// ===========================================
-// HOOK
-// ===========================================
 
-/**
- * useLogin - Hook to handle user login with all form logic
- * 
- * Usage:
- * const { formData, handleInputChange, handleSubmit, ... } = useLogin();
- */
 export function useLogin(): UseLoginReturn {
     const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
 
-    // Form state
     const [formData, setFormData] = useState<FormData>({
         email: '',
         password: '',
     });
 
-    // Password visibility
     const [showPassword, setShowPassword] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
 
-    // Display states
-    const [displayError, setDisplayError] = useState<string | null>(null);
-    const [displaySuccess, setDisplaySuccess] = useState<string | null>(null);
+    const { loading: isLoading, execute, error: serverError } = useApi<LoginResponse>('/auth/login', 'POST');
 
-    // Use our API hook for login
-    const { loading: isLoading, execute, error: apiError } = useApi<LoginResponse>('/auth/login', 'POST');
-
-    // Handle input changes
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
-        // Clear errors when typing
-        setDisplayError(null);
+        setValidationError(null);
     }, []);
 
-    // Toggle password visibility
     const togglePasswordVisibility = useCallback(() => {
         setShowPassword((prev) => !prev);
     }, []);
 
-    // Handle form submit
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
-        setDisplayError(null);
-        setDisplaySuccess(null);
 
-        // Basic validation
-        if (!formData.email || !formData.password) {
-            setDisplayError('Please fill in all fields');
+        const emailCheck = validateEmail(formData.email);
+        if (!emailCheck.isValid) {
+            setValidationError(emailCheck.error);
             return;
         }
 
-        // Call the API
+        const passwordCheck = validatePassword(formData.password);
+        if (!passwordCheck.isValid) {
+            setValidationError(passwordCheck.error);
+            return;
+        }
+
         const result = await execute({
             data: { email: formData.email, password: formData.password } as LoginRequest,
         });
 
         if (result) {
-            // Save the tokens
-            setAuthToken(result.accessToken);
-            setRefreshToken(result.refreshToken);
-            setUser(result.user);
+            // Store only user info in Redux (tokens are in HTTP-only cookies!)
+            dispatch(setUser(result.user));
 
-            setDisplaySuccess('Login successful!');
-
-            // Redirect based on role
             const role = result.user.role;
             setTimeout(() => {
                 if (role === 'candidate') {
@@ -129,8 +102,6 @@ export function useLogin(): UseLoginReturn {
                     navigate('/');
                 }
             }, 500);
-        } else {
-            setDisplayError(apiError || 'Invalid email or password');
         }
     };
 
@@ -138,8 +109,8 @@ export function useLogin(): UseLoginReturn {
         formData,
         showPassword,
         isLoading,
-        displayError,
-        displaySuccess,
+        serverError,
+        validationError,
         handleInputChange,
         handleSubmit,
         togglePasswordVisibility,

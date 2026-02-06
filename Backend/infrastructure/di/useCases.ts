@@ -6,7 +6,6 @@ import { VerifyOTPUseCase } from '../../application/auth/use-cases/VerifyOTPUseC
 import { LoginUseCase } from '../../application/auth/use-cases/LoginUseCase.js';
 import { ResendOTPUseCase } from '../../application/auth/use-cases/ResendOTPUseCase.js';
 import { RefreshTokenUseCase } from '../../application/auth/use-cases/RefreshTokenUseCase.js';
-import { LogoutUseCase } from '../../application/auth/use-cases/LogoutUseCase.js';
 import { ForgotPasswordUseCase } from '../../application/auth/use-cases/ForgotPasswordUseCase.js';
 import { VerifyPasswordResetOTPUseCase } from '../../application/auth/use-cases/VerifyPasswordResetOTPUseCase.js';
 import { ResetPasswordUseCase } from '../../application/auth/use-cases/ResetPasswordUseCase.js';
@@ -19,7 +18,6 @@ export interface UseCases {
     loginUseCase: LoginUseCase;
     resendOTPUseCase: ResendOTPUseCase;
     refreshTokenUseCase: RefreshTokenUseCase;
-    logoutUseCase: LogoutUseCase;
     forgotPasswordUseCase: ForgotPasswordUseCase;
     verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCase;
     resetPasswordUseCase: ResetPasswordUseCase;
@@ -41,7 +39,6 @@ export function createUseCases(repositories: Repositories, services: Services): 
         loginUseCase: new LoginUseCase(userRepository, passwordHasher, tokenService),
         resendOTPUseCase: new ResendOTPUseCase(userRepository, otpRepository, emailService),
         refreshTokenUseCase: new RefreshTokenUseCase(tokenService, userRepository),
-        logoutUseCase: new LogoutUseCase(tokenService),
         forgotPasswordUseCase: new ForgotPasswordUseCase(userRepository, otpRepository, emailService),
         verifyPasswordResetOTPUseCase: new VerifyPasswordResetOTPUseCase(otpRepository),
         resetPasswordUseCase: new ResetPasswordUseCase(userRepository, otpRepository, passwordHasher, tokenService),

@@ -4,11 +4,10 @@ import { VerifyOTPUseCase } from '../../../application/auth/use-cases/VerifyOTPU
 import { LoginUseCase } from '../../../application/auth/use-cases/LoginUseCase.js';
 import { ResendOTPUseCase } from '../../../application/auth/use-cases/ResendOTPUseCase.js';
 import { RefreshTokenUseCase } from '../../../application/auth/use-cases/RefreshTokenUseCase.js';
-import { LogoutUseCase } from '../../../application/auth/use-cases/LogoutUseCase.js';
 import { ForgotPasswordUseCase } from '../../../application/auth/use-cases/ForgotPasswordUseCase.js';
 import { ResetPasswordUseCase } from '../../../application/auth/use-cases/ResetPasswordUseCase.js';
 import { VerifyPasswordResetOTPUseCase } from '../../../application/auth/use-cases/VerifyPasswordResetOTPUseCase.js';
-import { TokenHasher } from '../../../infrastructure/security/TokenHasher.js';
+import { SecureJwtTokenService } from '../../../infrastructure/security/SecureJwtTokenService.js';
 import {
   RegisterBody,
   VerifyOTPBody,
@@ -25,10 +24,10 @@ export class AuthController {
     private readonly loginUseCase: LoginUseCase,
     private readonly resendOTPUseCase: ResendOTPUseCase,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
-    private readonly logoutUseCase: LogoutUseCase,
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCase,
-    private readonly resetPasswordUseCase: ResetPasswordUseCase
+    private readonly resetPasswordUseCase: ResetPasswordUseCase,
+    private readonly tokenService: SecureJwtTokenService
   ) { }
 
   register = async (
@@ -78,45 +77,47 @@ export class AuthController {
     reply: FastifyReply
   ) => {
     const { email, password } = request.body;
-    const deviceInfo = this.getDeviceInfo(request);
 
-    const result = await this.loginUseCase.execute({ email, password }, deviceInfo);
+    const result = await this.loginUseCase.execute({ email, password });
 
+    // Set BOTH tokens as HTTP-only cookies
+    this.setAccessTokenCookie(reply, result.accessToken);
     this.setRefreshTokenCookie(reply, result.refreshToken);
 
+    // Only send user info (no tokens in response body!)
     reply.code(200).send({
-      accessToken: result.accessToken,
       user: result.user,
     });
   };
 
   refresh = async (request: FastifyRequest, reply: FastifyReply) => {
-    const refreshToken = this.getRefreshTokenFromCookie(request);
-    const tokenHash = refreshToken ? TokenHasher.hash(refreshToken) : '';
-    const deviceInfo = this.getDeviceInfo(request);
+    const refreshToken = this.getCookie(request, 'refreshToken');
 
     const result = await this.refreshTokenUseCase.execute({
-      refreshTokenHash: tokenHash,
-      deviceInfo,
+      refreshToken: refreshToken || '',
     });
 
+    // Set new tokens as cookies
+    this.setAccessTokenCookie(reply, result.accessToken);
     this.setRefreshTokenCookie(reply, result.newRefreshToken);
 
     reply.code(200).send({
-      accessToken: result.accessToken,
+      message: 'Token refreshed successfully',
       role: result.role,
     });
   };
 
   logout = async (request: FastifyRequest, reply: FastifyReply) => {
-    const refreshToken = this.getRefreshTokenFromCookie(request);
+    const refreshToken = this.getCookie(request, 'refreshToken');
 
+    // Revoke token in Redis
     if (refreshToken) {
-      const tokenHash = TokenHasher.hash(refreshToken);
-      await this.logoutUseCase.execute({ refreshTokenHash: tokenHash });
+      await this.tokenService.revokeRefreshToken(refreshToken);
     }
 
-    this.clearRefreshTokenCookie(reply);
+    // Clear both cookies
+    this.clearCookie(reply, 'accessToken');
+    this.clearCookie(reply, 'refreshToken');
 
     reply.code(200).send({ message: 'Logged out successfully' });
   };
@@ -161,16 +162,28 @@ export class AuthController {
     reply.code(200).send({ message: 'Password reset successfully' });
   };
 
-  private getDeviceInfo(request: FastifyRequest): string {
-    const userAgent = request.headers['user-agent'] || 'unknown';
-    const ip = request.ip || 'unknown';
-    return `${userAgent}|${ip}`;
+  // =====================
+  // HELPER METHODS
+  // =====================
+
+  private getCookie(request: FastifyRequest, name: string): string | null {
+    const cookies = request.headers.cookie || '';
+    const match = cookies.match(new RegExp(`${name}=([^;]+)`));
+    return match ? match[1] : null;
   }
 
-  private getRefreshTokenFromCookie(request: FastifyRequest): string | null {
-    const cookies = request.headers.cookie || '';
-    const match = cookies.match(/refreshToken=([^;]+)/);
-    return match ? match[1] : null;
+  private setAccessTokenCookie(reply: FastifyReply, token: string): void {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const options = [
+      `accessToken=${token}`,
+      'Path=/',
+      'HttpOnly',
+      'SameSite=Strict',
+      'Max-Age=900', // 15 minutes
+      isProduction ? 'Secure' : '',
+    ].filter(Boolean).join('; ');
+
+    reply.header('Set-Cookie', options);
   }
 
   private setRefreshTokenCookie(reply: FastifyReply, token: string): void {
@@ -180,14 +193,26 @@ export class AuthController {
       'Path=/',
       'HttpOnly',
       'SameSite=Strict',
-      'Max-Age=604800',
+      'Max-Age=604800', // 7 days
       isProduction ? 'Secure' : '',
     ].filter(Boolean).join('; ');
 
-    reply.header('Set-Cookie', options);
+    // Append to existing cookies
+    const existingCookie = reply.getHeader('Set-Cookie');
+    if (existingCookie) {
+      reply.header('Set-Cookie', [existingCookie as string, options]);
+    } else {
+      reply.header('Set-Cookie', options);
+    }
   }
 
-  private clearRefreshTokenCookie(reply: FastifyReply): void {
-    reply.header('Set-Cookie', 'refreshToken=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0');
+  private clearCookie(reply: FastifyReply, name: string): void {
+    const cookie = `${name}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`;
+    const existingCookie = reply.getHeader('Set-Cookie');
+    if (existingCookie) {
+      reply.header('Set-Cookie', [existingCookie as string, cookie]);
+    } else {
+      reply.header('Set-Cookie', cookie);
+    }
   }
 }

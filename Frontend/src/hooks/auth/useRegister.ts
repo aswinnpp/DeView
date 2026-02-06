@@ -1,10 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../useApi';
+import { validateEmail, validatePassword, validateConfirmPassword, validateName, validateRole } from '../../utils/validation/authValidation';
 
-// ===========================================
-// TYPES
-// ===========================================
 
 interface RegisterRequest {
     fullName: string;
@@ -26,54 +24,35 @@ interface FormData {
 }
 
 interface FormErrors {
-    fullName?: string;
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
+    fullName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
 }
 
 interface UseRegisterReturn {
-    // Role selection
     selectedRole: 'candidate' | 'company' | null;
     handleRolePick: (role: 'candidate' | 'company') => void;
-
-    // Form state
     formData: FormData;
     errors: FormErrors;
-
-    // Password visibility
     showPassword: boolean;
     showConfirmPassword: boolean;
-
-    // Loading & errors
     loading: boolean;
     apiLoading: boolean;
     serverError: string | null;
-
-    // Handlers
+    validationError: string | null;
     handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleSubmit: (e: React.FormEvent) => Promise<void>;
     togglePasswordVisibility: () => void;
     toggleConfirmPasswordVisibility: () => void;
 }
 
-// ===========================================
-// HOOK
-// ===========================================
 
-/**
- * useRegister - Hook to handle user registration with all form logic
- * 
- * Usage:
- * const { formData, handleInputChange, handleSubmit, ... } = useRegister();
- */
 export function useRegister(): UseRegisterReturn {
     const navigate = useNavigate();
 
-    // Selected role state
     const [selectedRole, setSelectedRole] = useState<'candidate' | 'company' | null>(null);
 
-    // Form state
     const [formData, setFormData] = useState<FormData>({
         fullName: '',
         email: '',
@@ -81,47 +60,53 @@ export function useRegister(): UseRegisterReturn {
         confirmPassword: '',
     });
 
-    // Password visibility states
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
+    const [errors, setErrors] = useState<FormErrors>({
+        fullName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+    });
 
-    // Form validation errors
-    const [errors, setErrors] = useState<FormErrors>({});
+    const { loading, execute, error: serverError } = useApi<RegisterResponse>('/auth/register', 'POST');
 
-    // Local loading state
-    const [loading, setLoading] = useState(false);
+    const clearErrors = useCallback(() => {
+        setErrors({
+            fullName: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+        });
+        setValidationError(null);
+    }, []);
 
-    // Use our API hook for registration
-    const { loading: apiLoading, execute, error: serverError } = useApi<RegisterResponse>('/auth/register', 'POST');
-
-    // Handle role selection
     const handleRolePick = useCallback((role: 'candidate' | 'company') => {
         setSelectedRole(role);
-        // Clear form when switching roles
         setFormData({
             fullName: '',
             email: '',
             password: '',
             confirmPassword: '',
         });
-        setErrors({});
-    }, []);
+        clearErrors();
+    }, [clearErrors]);
 
-    // Handle input changes
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
-        // Clear specific error when typing
+        // Clear the error for this specific field
         setErrors((prev) => ({
             ...prev,
-            [name]: undefined,
+            [name]: '',
         }));
+        setValidationError(null);
     }, []);
 
-    // Toggle password visibility
     const togglePasswordVisibility = useCallback(() => {
         setShowPassword((prev) => !prev);
     }, []);
@@ -130,43 +115,56 @@ export function useRegister(): UseRegisterReturn {
         setShowConfirmPassword((prev) => !prev);
     }, []);
 
-    // Validate form
-    const validateForm = (): boolean => {
-        const newErrors: FormErrors = {};
-
-        // Validate name
-        if (!formData.fullName || formData.fullName.trim().length < 2) {
-            newErrors.fullName = selectedRole === 'company' ? 'Company name is required' : 'Full name is required';
-        }
-
-        // Validate email
-        if (!formData.email || !formData.email.includes('@')) {
-            newErrors.email = 'Please enter a valid email address';
-        }
-
-        // Validate password
-        if (!formData.password || formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters';
-        }
-
-        // Validate confirm password
-        if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    // Handle form submit
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
 
-        if (!validateForm() || !selectedRole) {
+        // Clear previous errors
+        clearErrors();
+
+        // Create new errors object
+        const newErrors: FormErrors = {
+            fullName: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+        };
+        let hasError = false;
+
+        const roleCheck = validateRole(selectedRole);
+        if (!roleCheck.isValid) {
+            setValidationError(roleCheck.error || 'Please select a role');
             return;
         }
 
-        setLoading(true);
+        const nameLabel = selectedRole === 'company' ? 'Company name' : 'Full name';
+        const nameCheck = validateName(formData.fullName, nameLabel);
+        if (!nameCheck.isValid) {
+            newErrors.fullName = nameCheck.error || 'Name is required';
+            hasError = true;
+        }
+
+        const emailCheck = validateEmail(formData.email);
+        if (!emailCheck.isValid) {
+            newErrors.email = emailCheck.error || 'Valid email is required';
+            hasError = true;
+        }
+
+        const passwordCheck = validatePassword(formData.password);
+        if (!passwordCheck.isValid) {
+            newErrors.password = passwordCheck.error || 'Password is required';
+            hasError = true;
+        }
+
+        const confirmCheck = validateConfirmPassword(formData.password, formData.confirmPassword);
+        if (!confirmCheck.isValid) {
+            newErrors.confirmPassword = confirmCheck.error || 'Passwords must match';
+            hasError = true;
+        }
+
+        if (hasError) {
+            setErrors(newErrors);
+            return;
+        }
 
         const result = await execute({
             data: {
@@ -177,18 +175,12 @@ export function useRegister(): UseRegisterReturn {
             } as RegisterRequest,
         });
 
-        setLoading(false);
-
         if (result) {
-            // Store email for verification page
             sessionStorage.setItem('verificationEmail', formData.email);
-
-            // Navigate to email verification page
             navigate('/verify-email', {
                 state: { email: formData.email }
             });
         }
-        // Error is handled by the hook's serverError
     };
 
     return {
@@ -199,8 +191,9 @@ export function useRegister(): UseRegisterReturn {
         showPassword,
         showConfirmPassword,
         loading,
-        apiLoading,
+        apiLoading: loading,
         serverError,
+        validationError,
         handleInputChange,
         handleSubmit,
         togglePasswordVisibility,

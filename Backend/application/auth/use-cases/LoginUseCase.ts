@@ -13,7 +13,7 @@ export class LoginUseCase {
         private readonly tokenService: TokenServicePort
     ) { }
 
-    async execute(dto: LoginRequestDTO, deviceInfo: string): Promise<LoginResponseDTO> {
+    async execute(dto: LoginRequestDTO): Promise<LoginResponseDTO> {
         const email = new Email(dto.email);
         const user = await this.userRepository.findByEmail(email);
         if (!user) {
@@ -44,10 +44,10 @@ export class LoginUseCase {
         const tokenPayload = {
             userId: user.id!,
             role: user.role.getValue(),
-            ...(user.companyId && { companyId: user.companyId }) // Include companyId for HR users
+            ...(user.companyId && { companyId: user.companyId })
         };
         const accessToken = this.tokenService.signAccessToken(tokenPayload);
-        const refreshTokenData = await this.tokenService.generateRefreshToken(user.id!, deviceInfo);
+        const refreshTokenData = await this.tokenService.generateRefreshToken(user.id!);
 
         return {
             user: {

@@ -2,7 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./AuthPages.css";
 import Background from "@components/Background/Background";
-import { useLogin, useGoogleAuth } from "@/hooks/auth";
+import { useLogin } from "@/hooks/auth/useLogin";
+import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 
 const LoginPage: React.FC = () => {
   // Get everything from hooks - no local state needed!
@@ -10,8 +11,8 @@ const LoginPage: React.FC = () => {
     formData,
     showPassword,
     isLoading,
-    displayError,
-    displaySuccess,
+    serverError,
+    validationError,
     handleInputChange,
     handleSubmit,
     togglePasswordVisibility,
@@ -19,8 +20,8 @@ const LoginPage: React.FC = () => {
 
   const { initiateGoogleAuth, loading: googleLoading, error: googleError } = useGoogleAuth();
 
-  // Combined error display
-  const errorToShow = displayError || googleError;
+  // Combined error display (validation errors take priority)
+  const errorToShow = validationError || serverError || googleError;
 
   return (
     <div className="auth-container">
@@ -79,7 +80,8 @@ const LoginPage: React.FC = () => {
                 </Link>
               </div>
 
-              {displaySuccess && <div className="success-message">{displaySuccess}</div>}
+
+
 
               <button type="submit" className="submit-btn login-btn" disabled={isLoading || googleLoading}>
                 {isLoading ? "Logging in..." : "LOGIN"}
