@@ -20,6 +20,11 @@ const CompanyApprovalPendingPage = lazy(() => import("../features/auth/CompanyAp
 const Profile = lazy(() => import("../features/candidate/Profile"));
 
 
+
+const AdminDashboard = lazy(() => import("../features/admin/AdminDashboard"));
+const AdminLayout = lazy(() => import("../features/admin/AdminLayout"));
+
+
 const LoadingFallback = () => (
   <div style={{ padding: '20px', textAlign: 'center' }}>
     Loading...
@@ -46,6 +51,13 @@ const AppRouter: React.FC = () => {
 
         <Route path="/candidate" element={<Navigate to="/candidate/profile" replace />} />
         <Route path="/candidate/profile" element={<Profile />} />
+
+
+
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+
+        </Route>
 
 
 

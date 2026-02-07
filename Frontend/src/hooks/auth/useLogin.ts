@@ -97,7 +97,7 @@ export function useLogin(): UseLoginReturn {
                 } else if (role === 'hr') {
                     navigate('/hr/dashboard');
                 } else if (role === 'admin') {
-                    navigate('/admin/dashboard');
+                    navigate('/admin');
                 } else {
                     navigate('/');
                 }
