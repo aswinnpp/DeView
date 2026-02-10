@@ -9,15 +9,12 @@ const iconClass = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 
 
 const ForgotPasswordPage = () => {
   const {
-    email,
     isLoading,
-    serverError,
-    validationError,
-    handleEmailSubmit,
-    handleEmailChange,
+    error,
+    data,
   } = useForgotPassword();
-
-  const error = validationError || serverError;
+  const { form, onSubmit } = data;
+  const { register, handleSubmit, formState } = form;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
@@ -39,7 +36,7 @@ const ForgotPasswordPage = () => {
               <p className="text-[rgba(255,255,255,0.7)] text-sm leading-relaxed mb-5">
                 No worries! Enter your email address and we'll send you an OTP to reset your password.
               </p>
-              <form onSubmit={handleEmailSubmit} className="w-full">
+              <form onSubmit={handleSubmit(onSubmit)} className="w-full">
                 <div className="mb-3.5">
                   <div className={`${inputWrapperBase} ${error ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                     <span className={iconClass}>@</span>
@@ -47,11 +44,14 @@ const ForgotPasswordPage = () => {
                       type="email"
                       placeholder="Enter your email"
                       className={inputClass}
-                      value={email}
-                      onChange={handleEmailChange}
+                      {...register("email")}
                     />
                   </div>
-                  {error && <span className="text-brand-red text-sm mt-0.5 block">{error}</span>}
+                  {(error || formState.errors.email?.message) && (
+                    <span className="text-brand-red text-sm mt-0.5 block">
+                      {error || formState.errors.email?.message}
+                    </span>
+                  )}
                 </div>
                 <Button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-amber to-brand-amber-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(245,158,11,0.3)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
                   {isLoading ? "Sending..." : "Send OTP"}

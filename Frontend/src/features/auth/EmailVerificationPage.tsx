@@ -4,24 +4,17 @@ import Background from "@components/Background/Background";
 import { useEmailVerification } from "@/hooks/auth/useEmailVerification";
 import { Input, Button } from "../../components/common";
 
-interface IEmailVerificationPageProps {
-  email?: string;
-}
 
-const EmailVerificationPage = ({ email = "" }: IEmailVerificationPageProps) => {
+
+const EmailVerificationPage = () => {
+
   const {
-    otpCode,
-    successMessage,
-    serverError,
-    validationError,
-    mode,
-    userEmail,
-    isVerifying,
-    isResending,
-    handleVerifyOtp,
-    handleResendOtp,
-    handleOtpChange,
-  } = useEmailVerification(email);
+    isLoading,
+    error,
+    data,
+  } = useEmailVerification();
+  const { form, mode, userEmail, handleResendOtp, onSubmit } = data;
+  const { register, handleSubmit, formState, watch } = form;
 
   const [countdown, setCountdown] = useState(60);
 
@@ -34,7 +27,7 @@ const EmailVerificationPage = ({ email = "" }: IEmailVerificationPageProps) => {
   }, [countdown]);
 
   const onResendClick = async () => {
-    if (isResending || countdown > 0) return;
+    if (isLoading || countdown > 0) return;
 
     const success = await handleResendOtp();
     if (success) {
@@ -69,40 +62,42 @@ const EmailVerificationPage = ({ email = "" }: IEmailVerificationPageProps) => {
                   : `We've sent a verification code to ${userEmail || "your email"}. Please enter the 4-digit OTP below to verify your account.`}
               </p>
 
-              <form className="flex flex-col gap-3" onSubmit={(e) => handleVerifyOtp(e)}>
+              <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
                 <Input
                   type="text"
                   inputMode="numeric"
                   pattern="\d*"
                   placeholder="Enter 4-digit OTP"
-                  value={otpCode}
                   maxLength={4}
-                  onChange={handleOtpChange}
+                  {...register("otpCode")}
                   className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 text-white text-center text-2xl tracking-[10px] w-full outline-none transition-all duration-300 focus:border-brand-primary focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)] placeholder:text-[rgba(255,255,255,0.4)] placeholder:text-sm placeholder:tracking-normal"
                   aria-label="4-digit OTP"
                 />
                 <Button
                   type="submit"
                   className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 bg-linear-to-br from-brand-green to-brand-green-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(16,185,129,0.3)] disabled:opacity-60 disabled:cursor-not-allowed"
-                  disabled={isVerifying || otpCode.length !== 4}
-                  aria-disabled={isVerifying || otpCode.length !== 4}
+                  disabled={isLoading || (watch("otpCode")?.length ?? 0) !== 4}
+                  aria-disabled={isLoading || (watch("otpCode")?.length ?? 0) !== 4}
                 >
-                  {isVerifying ? "Verifying..." : "Verify OTP"}
+                  {isLoading ? "Verifying..." : "Verify OTP"}
                 </Button>
 
                 <span
                   onClick={onResendClick}
-                  className={`text-brand-blue underline text-sm ${isResending || countdown > 0 ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"}`}
+                  className={`text-brand-blue underline text-sm ${isLoading || countdown > 0 ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"}`}
                 >
-                  {isResending
+                  {isLoading
                     ? "Resending..."
                     : countdown > 0
                       ? `Resend OTP (${countdown}s)`
                       : "Resend OTP"}
                 </span>
 
-                {successMessage && <div className="text-brand-green text-sm">{successMessage}</div>}
-                {(serverError || validationError) && <div className="text-brand-red text-sm">{serverError || validationError}</div>}
+                {(error || formState.errors.otpCode?.message) && (
+                  <div className="text-brand-red text-sm">
+                    {error || formState.errors.otpCode?.message}
+                  </div>
+                )}
               </form>
             </div>
 

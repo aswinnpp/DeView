@@ -1,8 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { useForm, type SubmitHandler, type UseFormReturn } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useApi } from '../useApi';
-import { validateEmail, validatePassword } from '../../utils/validation/authValidation';
 import { setUser } from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
 
@@ -28,20 +30,24 @@ interface CompanyApprovalCheckResponse {
     rejectionReason?: string;
 }
 
-interface FormData {
-    email: string;
-    password: string;
+const loginSchema = z.object({
+    email: z.string().email('Please enter a valid email'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+export type LoginFormValues = z.infer<typeof loginSchema>;
+
+interface UseLoginData {
+    form: UseFormReturn<LoginFormValues>;
+    onSubmit: SubmitHandler<LoginFormValues>;
+    showPassword: boolean;
+    togglePasswordVisibility: () => void;
 }
 
 interface UseLoginReturn {
-    formData: FormData;
-    showPassword: boolean;
     isLoading: boolean;
-    serverError: string | null;
-    validationError: string | null;
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    handleSubmit: (e: React.FormEvent) => Promise<void>;
-    togglePasswordVisibility: () => void;
+    error: string | null;
+    data: UseLoginData;
 }
 
 
@@ -49,29 +55,29 @@ export function useLogin(): UseLoginReturn {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
-    const [formData, setFormData] = useState<FormData>({
-        email: '',
-        password: '',
-    });
-
     const [showPassword, setShowPassword] = useState(false);
-    const [validationError, setValidationError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const { loading: isLoading, execute, error: serverError } = useApi<LoginResponse>('/auth/login', 'POST');
     const { execute: checkCompanyApproval } = useApi<CompanyApprovalCheckResponse>('/company/check-status', 'POST');
 
-    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-        setValidationError(null);
-    }, []);
+    const form = useForm<LoginFormValues>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+        },
+        mode: 'onSubmit',
+    });
 
-    const togglePasswordVisibility = useCallback(() => {
+    // Fold API errors into the single error state exposed by this hook.
+    useEffect(() => {
+        if (serverError) setError(serverError);
+    }, [serverError]);
+
+    const togglePasswordVisibility = () => {
         setShowPassword((prev) => !prev);
-    }, []);
+    };
 
     // Handle company role navigation based on approval status
     const handleCompanyNavigation = async (userId: string): Promise<void> => {
@@ -109,23 +115,11 @@ export function useLogin(): UseLoginReturn {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-        e.preventDefault();
-
-        const emailCheck = validateEmail(formData.email);
-        if (!emailCheck.isValid) {
-            setValidationError(emailCheck.error);
-            return;
-        }
-
-        const passwordCheck = validatePassword(formData.password);
-        if (!passwordCheck.isValid) {
-            setValidationError(passwordCheck.error);
-            return;
-        }
+    const onSubmit: SubmitHandler<LoginFormValues> = async (values: LoginFormValues) => {
+        setError(null);
 
         const result = await execute({
-            data: { email: formData.email, password: formData.password } as LoginRequest,
+            data: { email: values.email, password: values.password } satisfies LoginRequest,
         });
 
         if (result) {
@@ -153,13 +147,13 @@ export function useLogin(): UseLoginReturn {
     };
 
     return {
-        formData,
-        showPassword,
         isLoading,
-        serverError,
-        validationError,
-        handleInputChange,
-        handleSubmit,
-        togglePasswordVisibility,
+        error,
+        data: {
+            form,
+            showPassword,
+            togglePasswordVisibility,
+            onSubmit,
+        },
     };
 }

@@ -1,7 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useForm, type SubmitHandler, type UseFormReturn } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useApi } from '../useApi';
-import { validatePassword, validateConfirmPassword, validateEmail } from '../../utils/validation/authValidation';
 
 
 interface ResetPasswordRequest {
@@ -14,72 +16,68 @@ interface ResetPasswordResponse {
     message: string;
 }
 
-interface FormData {
-    newPassword: string;
-    confirmPassword: string;
-}
+const resetPasswordSchema = z.object({
+    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords must match',
+});
 
-interface FormErrors {
-    newPassword: string;
-    confirmPassword: string;
+type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+
+interface UseResetPasswordData {
+    form: UseFormReturn<ResetPasswordFormValues>;
+    showNewPassword: boolean;
+    showConfirmPassword: boolean;
+    isSuccess: boolean;
+    paramError: string | null;
+    onSubmit: SubmitHandler<ResetPasswordFormValues>;
+    toggleNewPasswordVisibility: () => void;
+    toggleConfirmPasswordVisibility: () => void;
 }
 
 interface UseResetPasswordReturn {
-    formData: FormData;
-    showNewPassword: boolean;
-    showConfirmPassword: boolean;
     isLoading: boolean;
-    isSuccess: boolean;
-    serverError: string | null;
-    errors: FormErrors;
-    paramError: string | null;
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    handleSubmit: (e: React.FormEvent) => Promise<void>;
-    toggleNewPasswordVisibility: () => void;
-    toggleConfirmPasswordVisibility: () => void;
+    error: string | null;
+    data: UseResetPasswordData;
 }
 
 
 export function useResetPassword(): UseResetPasswordReturn {
     const location = useLocation();
 
-    const [formData, setFormData] = useState<FormData>({
-        newPassword: '',
-        confirmPassword: '',
-    });
-
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [errors, setErrors] = useState<FormErrors>({ newPassword: '', confirmPassword: '' });
     const [paramError, setParamError] = useState<string | null>(null);
 
-    const email = (location.state as { email?: string })?.email ||
-        sessionStorage.getItem('resetEmail') || '';
+    const locationState = location.state as { email?: string; otp?: string } | null;
 
-    const otp = (location.state as { otp?: string })?.otp ||
-        sessionStorage.getItem('resetOtp') || '';
+    const storedEmail = localStorage.getItem('pendingResetEmail');
+
+    const email = locationState?.email || storedEmail || '';
+    const otp = locationState?.otp || '';
 
     const { loading: isLoading, execute, error: serverError } = useApi<ResetPasswordResponse>(
         '/auth/reset-password',
         'POST'
     );
 
+    const form = useForm<ResetPasswordFormValues>({
+        resolver: zodResolver(resetPasswordSchema),
+        defaultValues: {
+            newPassword: '',
+            confirmPassword: '',
+        },
+        mode: 'onSubmit',
+    });
+
     useEffect(() => {
         if (!email || !otp) {
             setParamError('Reset session expired. Please request a new password reset.');
         }
     }, [email, otp]);
-
-    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value,
-        }));
-        // Clear the error for the field being edited
-        setErrors(prev => ({ ...prev, [name]: '' }));
-    }, []);
 
     const toggleNewPasswordVisibility = useCallback(() => {
         setShowNewPassword(prev => !prev);
@@ -89,26 +87,9 @@ export function useResetPassword(): UseResetPasswordReturn {
         setShowConfirmPassword(prev => !prev);
     }, []);
 
-    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-        e.preventDefault();
-
-        const emailCheck = validateEmail(email);
-        if (!emailCheck.isValid) {
+    const onSubmit: SubmitHandler<ResetPasswordFormValues> = async ({ newPassword }) => {
+        if (!email || !otp) {
             setParamError('Reset session expired. Please request a new password reset.');
-            return;
-        }
-
-        const passwordCheck = validatePassword(formData.newPassword);
-        const confirmCheck = validateConfirmPassword(formData.newPassword, formData.confirmPassword);
-
-        const newErrors: FormErrors = {
-            newPassword: passwordCheck.isValid ? '' : (passwordCheck.error || ''),
-            confirmPassword: confirmCheck.isValid ? '' : (confirmCheck.error || ''),
-        };
-
-        setErrors(newErrors);
-
-        if (!passwordCheck.isValid || !confirmCheck.isValid) {
             return;
         }
 
@@ -116,29 +97,28 @@ export function useResetPassword(): UseResetPasswordReturn {
             data: {
                 email,
                 otp,
-                newPassword: formData.newPassword
+                newPassword,
             } as ResetPasswordRequest,
         });
 
         if (result) {
-            sessionStorage.removeItem('resetEmail');
-            sessionStorage.removeItem('resetOtp');
+            localStorage.removeItem('pendingResetEmail');
             setIsSuccess(true);
         }
     };
 
     return {
-        formData,
-        showNewPassword,
-        showConfirmPassword,
         isLoading,
-        isSuccess,
-        serverError,
-        errors,
-        paramError,
-        handleInputChange,
-        handleSubmit,
-        toggleNewPasswordVisibility,
-        toggleConfirmPasswordVisibility,
+        error: serverError,
+        data: {
+            showNewPassword,
+            showConfirmPassword,
+            isSuccess,
+            paramError,
+            form,
+            onSubmit,
+            toggleNewPasswordVisibility,
+            toggleConfirmPasswordVisibility,
+        },
     };
 }

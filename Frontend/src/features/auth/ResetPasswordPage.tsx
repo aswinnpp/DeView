@@ -11,19 +11,12 @@ const errorMsgClass = "text-brand-red text-sm mt-0.5 whitespace-nowrap block";
 
 const ResetPasswordPage = () => {
   const {
-    formData,
-    showNewPassword,
-    showConfirmPassword,
     isLoading,
-    isSuccess,
-    serverError,
-    errors,
-    paramError,
-    handleInputChange,
-    handleSubmit,
-    toggleNewPasswordVisibility,
-    toggleConfirmPasswordVisibility,
+    error,
+    data,
   } = useResetPassword();
+  const { form, onSubmit, showNewPassword, showConfirmPassword, isSuccess, paramError, toggleNewPasswordVisibility, toggleConfirmPasswordVisibility } = data;
+  const { register, handleSubmit, formState } = form;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
@@ -43,7 +36,7 @@ const ResetPasswordPage = () => {
             {paramError && (
               <div>
                 <h1 className="text-white text-xl font-bold mb-2">Session Expired</h1>
-                <p className="text-brand-red text-sm mb-5">{paramError}</p>
+                <p className="text-brand-red text-sm mb-5">{data.paramError}</p>
                 <Link to="/forgot-password" className="block w-full p-3.5 border-none rounded-xl text-sm font-semibold no-underline text-center bg-linear-to-br from-brand-indigo to-brand-indigo-dark text-white">
                   Go to Forgot Password
                 </Link>
@@ -55,25 +48,25 @@ const ResetPasswordPage = () => {
                 <p className="text-[rgba(255,255,255,0.7)] text-sm leading-relaxed mb-5">
                   Enter your new password below. Make sure it's secure and easy to remember.
                 </p>
-                {serverError && <p className="text-brand-red text-sm mb-3">{serverError}</p>}
-                <form onSubmit={handleSubmit} className="w-full">
+                {error && <p className="text-brand-red text-sm mb-3">{error}</p>}
+                <form onSubmit={handleSubmit(onSubmit)} className="w-full">
                   {/* New Password */}
                   <div className="mb-3.5">
                     <div className={inputWrapperBase}>
                       <span className={passwordIconClass}></span>
                       <Input
                         type={showNewPassword ? "text" : "password"}
-                        name="newPassword"
                         placeholder="New Password"
                         className={inputClass}
-                        value={formData.newPassword}
-                        onChange={handleInputChange}
+                        {...register("newPassword")}
                       />
                       <Button type="button" className={toggleClass} onClick={toggleNewPasswordVisibility}>
                         {showNewPassword ? "Hide" : "Show"}
                       </Button>
                     </div>
-                    {errors.newPassword && <span className={errorMsgClass}>{errors.newPassword}</span>}
+                    {formState.errors.newPassword?.message && (
+                      <span className={errorMsgClass}>{formState.errors.newPassword.message}</span>
+                    )}
                   </div>
                   {/* Confirm Password */}
                   <div className="mb-3.5">
@@ -81,17 +74,17 @@ const ResetPasswordPage = () => {
                       <span className={passwordIconClass}></span>
                       <Input
                         type={showConfirmPassword ? "text" : "password"}
-                        name="confirmPassword"
                         placeholder="Confirm New Password"
                         className={inputClass}
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
+                        {...register("confirmPassword")}
                       />
                       <Button type="button" className={toggleClass} onClick={toggleConfirmPasswordVisibility}>
                         {showConfirmPassword ? "Hide" : "Show"}
                       </Button>
                     </div>
-                    {errors.confirmPassword && <span className={errorMsgClass}>{errors.confirmPassword}</span>}
+                    {formState.errors.confirmPassword?.message && (
+                      <span className={errorMsgClass}>{formState.errors.confirmPassword.message}</span>
+                    )}
                   </div>
                   <Button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-indigo to-brand-indigo-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(99,102,241,0.3)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
                     {isLoading ? "Resetting..." : "Reset Password"}

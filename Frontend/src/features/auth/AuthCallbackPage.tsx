@@ -5,7 +5,8 @@ import { Button } from '../../components/common';
 
 const AuthCallbackPage = () => {
     const navigate = useNavigate();
-    const { handleCallback, error } = useGoogleAuth();
+    const { error, data } = useGoogleAuth();
+    const { handleCallback } = data;
     const [isProcessing, setIsProcessing] = useState(true);
 
     useEffect(() => {

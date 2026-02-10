@@ -13,19 +13,19 @@ const toggleClass = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-poi
 
 const LoginPage = () => {
   const {
-    formData,
-    showPassword,
     isLoading,
-    serverError,
-    validationError,
-    handleInputChange,
-    handleSubmit,
-    togglePasswordVisibility,
+    error,
+    data,
   } = useLogin();
+  const { form, onSubmit, showPassword, togglePasswordVisibility } = data;
+  const { register, handleSubmit, formState } = form;
 
-  const { initiateGoogleAuth, loading: googleLoading, error: googleError } = useGoogleAuth();
+  const google = useGoogleAuth();
+  const { initiateGoogleAuth } = google.data;
+  const googleLoading = google.isLoading;
+  const googleError = google.error;
 
-  const errorToShow = validationError || serverError || googleError;
+  const errorToShow = error || googleError || formState.errors.root?.message;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
@@ -43,18 +43,16 @@ const LoginPage = () => {
           {/* Form Section */}
           <div className="py-8 px-8 flex flex-col justify-center relative text-center max-sm:py-6 max-sm:px-5">
             {errorToShow && <div className="text-brand-red text-sm mb-3 block">{errorToShow}</div>}
-            <form onSubmit={handleSubmit} className="w-full">
+            <form onSubmit={handleSubmit(onSubmit)} className="w-full">
               <div className="mb-3.5">
                 <div className={inputWrapperClass}>
                   <span className={iconClass}>@</span>
                   <Input
                     type="email"
-                    name="email"
                     placeholder="Email"
                     className={inputClass}
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
+                    {...register("email")}
+                    
                     autoComplete="email"
                   />
                 </div>
@@ -64,15 +62,18 @@ const LoginPage = () => {
                   <span className={passwordIconClass}></span>
                   <Input
                     type={showPassword ? "text" : "password"}
-                    name="password"
                     placeholder="Password"
                     className={inputClass}
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    required
+                    {...register("password")}
+                    
                     autoComplete="current-password"
                   />
-                  <Button type="button" className={toggleClass} onClick={togglePasswordVisibility} aria-label={showPassword ? "Hide password" : "Show password"}>
+                  <Button
+                    type="button"
+                    className={toggleClass}
+                    onClick={togglePasswordVisibility}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
                     {showPassword ? "Hide" : "Show"}
                   </Button>
                 </div>

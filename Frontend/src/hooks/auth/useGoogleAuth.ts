@@ -24,11 +24,15 @@ interface TokenExchangeResponse {
     // No tokens in response - they're in HTTP-only cookies
 }
 
-interface UseGoogleAuthReturn {
+interface UseGoogleAuthData {
     initiateGoogleAuth: (role?: string) => void;
     handleCallback: () => Promise<boolean>;
-    loading: boolean;
+}
+
+interface UseGoogleAuthReturn {
+    isLoading: boolean;
     error: string | null;
+    data: UseGoogleAuthData;
 }
 
 
@@ -40,7 +44,7 @@ export function useGoogleAuth(): UseGoogleAuthReturn {
     const [searchParams] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
 
-    const { loading, execute } = useApi<TokenExchangeResponse>('/auth/google/exchange', 'GET');
+    const { loading: isLoading, execute } = useApi<TokenExchangeResponse>('/auth/google/exchange', 'GET');
 
     // Start Google authentication
     const initiateGoogleAuth = useCallback((role: string = 'candidate') => {
@@ -88,5 +92,5 @@ export function useGoogleAuth(): UseGoogleAuthReturn {
         return false;
     }, [searchParams, execute, navigate, dispatch]);
 
-    return { initiateGoogleAuth, handleCallback, loading, error };
+    return { isLoading, error, data: { initiateGoogleAuth, handleCallback } };
 }

@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Link } from "react-router-dom";
 import Background from "@components/Background/Background";
 import { useRegister } from "@/hooks/auth/useRegister";
@@ -24,31 +24,26 @@ const GoogleIcon = () => (
 const googleBtnClass = "w-full py-3 px-4 border border-[rgba(255,255,255,0.2)] rounded-xl text-sm font-medium cursor-pointer transition-all duration-300 flex items-center justify-center gap-3 bg-[rgba(255,255,255,0.05)] text-white hover:not-disabled:bg-[rgba(255,255,255,0.1)] hover:not-disabled:border-[rgba(255,255,255,0.3)] hover:not-disabled:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none";
 
 const RegisterPage = () => {
-  const {
-    selectedRole,
-    handleRolePick,
-    formData,
-    errors,
-    showPassword,
-    showConfirmPassword,
-    loading,
-    apiLoading,
-    serverError,
-    handleInputChange,
-    handleSubmit,
-    togglePasswordVisibility,
-    toggleConfirmPasswordVisibility,
-  } = useRegister();
+  const { isLoading, error, data } = useRegister();
+  const { form, onSubmit } = data;
+  const { register, handleSubmit, formState, watch, setValue } = form;
 
-  const { initiateGoogleAuth, loading: googleLoading, error: googleError } = useGoogleAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const selectedRole = watch("role");
+
+  const google = useGoogleAuth();
+  const { initiateGoogleAuth } = google.data;
+  const googleLoading = google.isLoading;
+  const googleError = google.error;
 
   const handleGoogleRegister = () => {
     if (!selectedRole) return;
-    sessionStorage.setItem("pendingRole", selectedRole);
     initiateGoogleAuth(selectedRole);
   };
 
-  const reduxError = serverError || googleError;
+  const reduxError = error || googleError || formState.errors.root?.message;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
@@ -67,21 +62,20 @@ const RegisterPage = () => {
         <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
           {/* Left Section — Form */}
           <div className="py-6 px-8 flex flex-col justify-center relative text-center max-sm:py-5 max-sm:px-5">
-            {serverError && <p className="text-brand-red text-sm mt-0.5 whitespace-nowrap block">{serverError}</p>}
-            {reduxError && !serverError && <p className="text-brand-red text-sm mt-0.5 whitespace-nowrap block">{reduxError}</p>}
+            {reduxError && <p className="text-brand-red text-sm mt-0.5 whitespace-nowrap block">{reduxError}</p>}
 
             {/* Role Picker */}
             <div className="flex gap-2 mb-3">
               <Button
                 type="button"
-                onClick={() => handleRolePick("candidate")}
+                onClick={() => setValue("role", "candidate")}
                 className={`flex-1 py-2.5 px-5 border-2 rounded-3xl text-sm font-semibold cursor-pointer transition-all duration-300 ${selectedRole === "candidate" ? "border-brand-primary bg-linear-to-br from-brand-primary to-brand-secondary text-white" : "border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.05)] text-[rgba(255,255,255,0.7)] hover:border-[rgba(102,126,234,0.5)] hover:bg-[rgba(102,126,234,0.1)] hover:text-white"}`}
               >
                 Candidate
               </Button>
               <Button
                 type="button"
-                onClick={() => handleRolePick("company")}
+                onClick={() => setValue("role", "company")}
                 className={`flex-1 py-2.5 px-5 border-2 rounded-3xl text-sm font-semibold cursor-pointer transition-all duration-300 ${selectedRole === "company" ? "border-brand-primary bg-linear-to-br from-brand-primary to-brand-secondary text-white" : "border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.05)] text-[rgba(255,255,255,0.7)] hover:border-[rgba(102,126,234,0.5)] hover:bg-[rgba(102,126,234,0.1)] hover:text-white"}`}
               >
                 Company
@@ -89,47 +83,73 @@ const RegisterPage = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="w-full">
+            <form onSubmit={handleSubmit(onSubmit)} className="w-full">
               {/* Full Name */}
               <div className="mb-3">
-                <div className={`${inputWrapperBase} ${errors.fullName ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
+                <div className={`${inputWrapperBase} ${formState.errors.fullName ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                   <span className={`${iconBase} text-sm before:content-['●']`}></span>
-                  <Input type="text" name="fullName" placeholder={selectedRole === "company" ? "Company Name" : "Full Name"} value={formData.fullName} onChange={handleInputChange} className={inputClass} />
+                  <Input
+                    type="text"
+                    placeholder={selectedRole === "company" ? "Company Name" : "Full Name"}
+                    className={inputClass}
+                    {...register("fullName")}
+                  />
                 </div>
-                {errors.fullName && <span className={errorMsgClass}>{errors.fullName}</span>}
+                {formState.errors.fullName?.message && <span className={errorMsgClass}>{formState.errors.fullName.message}</span>}
               </div>
 
               {/* Email */}
               <div className="mb-3">
-                <div className={`${inputWrapperBase} ${errors.email ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
+                <div className={`${inputWrapperBase} ${formState.errors.email ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                   <span className={iconBase}>@</span>
-                  <Input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} className={inputClass} />
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    className={inputClass}
+                    {...register("email")}
+                  />
                 </div>
-                {errors.email && <span className={errorMsgClass}>{errors.email}</span>}
+                {formState.errors.email?.message && <span className={errorMsgClass}>{formState.errors.email.message}</span>}
               </div>
 
               {/* Password */}
               <div className="mb-3">
-                <div className={`${inputWrapperBase} ${errors.password ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
+                <div className={`${inputWrapperBase} ${formState.errors.password ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                   <span className={passwordIconClass}></span>
-                  <Input type={showPassword ? "text" : "password"} name="password" placeholder="Password (min 6 characters)" value={formData.password} onChange={handleInputChange} className={inputClass} />
-                  <Button type="button" className={toggleClass} onClick={togglePasswordVisibility}>{showPassword ? "Hide" : "Show"}</Button>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password (min 6 characters)"
+                    className={inputClass}
+                    {...register("password")}
+                  />
+                  <Button type="button" className={toggleClass} onClick={() => setShowPassword((prev) => !prev)}>
+                    {showPassword ? "Hide" : "Show"}
+                  </Button>
                 </div>
-                {errors.password && <span className={errorMsgClass}>{errors.password}</span>}
+                {formState.errors.password?.message && <span className={errorMsgClass}>{formState.errors.password.message}</span>}
               </div>
 
               {/* Confirm Password */}
               <div className="mb-3">
-                <div className={`${inputWrapperBase} ${errors.confirmPassword ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
+                <div className={`${inputWrapperBase} ${formState.errors.confirmPassword ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                   <span className={passwordIconClass}></span>
-                  <Input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleInputChange} className={inputClass} />
-                  <Button type="button" className={toggleClass} onClick={toggleConfirmPasswordVisibility}>{showConfirmPassword ? "Hide" : "Show"}</Button>
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm Password"
+                    className={inputClass}
+                    {...register("confirmPassword")}
+                  />
+                  <Button type="button" className={toggleClass} onClick={() => setShowConfirmPassword((prev) => !prev)}>
+                    {showConfirmPassword ? "Hide" : "Show"}
+                  </Button>
                 </div>
-                {errors.confirmPassword && <span className={errorMsgClass}>{errors.confirmPassword}</span>}
+                {formState.errors.confirmPassword?.message && (
+                  <span className={errorMsgClass}>{formState.errors.confirmPassword.message}</span>
+                )}
               </div>
 
-              <Button type="submit" className="w-full p-3 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-blue to-brand-blue-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={loading || apiLoading}>
-                {loading || apiLoading ? "Creating Account..." : "REGISTER"}
+              <Button type="submit" className="w-full p-3 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-blue to-brand-blue-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading}>
+                {isLoading ? "Creating Account..." : "REGISTER"}
               </Button>
 
               {/* Mobile Google Auth */}
@@ -137,7 +157,7 @@ const RegisterPage = () => {
                 <div className="flex items-center my-3 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
                   <span className="px-4">OR</span>
                 </div>
-                <Button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={loading || apiLoading || googleLoading}>
+                <Button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={isLoading || googleLoading}>
                   <GoogleIcon />
                   {googleLoading ? "Connecting..." : "Continue with Google"}
                 </Button>
@@ -167,7 +187,7 @@ const RegisterPage = () => {
               <div className="flex items-center my-5 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
                 <span className="px-4">OR</span>
               </div>
-              <Button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={loading || apiLoading || googleLoading}>
+              <Button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={isLoading || googleLoading}>
                 <GoogleIcon />
                 {googleLoading ? "Connecting..." : "Continue with Google"}
               </Button>
