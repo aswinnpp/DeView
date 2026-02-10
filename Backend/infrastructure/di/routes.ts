@@ -3,6 +3,7 @@ import { Controllers } from './controllers.js';
 
 import { authRoutes } from '../../interfaces/http/routes/authRoutes.js';
 import { googleAuthRoutes } from '../../interfaces/http/routes/googleAuthRoutes.js';
+import { companyApprovalRoutes } from '../../interfaces/http/routes/companyApprovalRoutes.js';
 
 export async function registerRoutes(
     fastify: FastifyInstance,
@@ -16,4 +17,13 @@ export async function registerRoutes(
         },
         { prefix: '/auth' }
     );
+
+    // Company approval routes
+    await fastify.register(
+        async (instance) => {
+            await companyApprovalRoutes(instance, controllers.companyApprovalController);
+        },
+        { prefix: '/company' }
+    );
 }
+

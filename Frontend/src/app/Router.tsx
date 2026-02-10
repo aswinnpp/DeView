@@ -13,8 +13,10 @@ const AuthCallbackPage = lazy(() => import("../features/auth/AuthCallbackPage"))
 const NotFoundPage = lazy(() => import("../features/error/NotFoundPage"));
 
 
-const CompanyApprovalFormPage = lazy(() => import("../features/auth/CompanyApprovalFormPage"));
-const CompanyApprovalPendingPage = lazy(() => import("../features/auth/CompanyApprovalPendingPage"));
+// Company pages - moved from auth folder to company folder
+const CompanyApprovalFormPage = lazy(() => import("../features/company/CompanyApprovalFormPage"));
+const CompanyApprovalPendingPage = lazy(() => import("../features/company/CompanyApprovalPendingPage"));
+const CompanyDashboardPage = lazy(() => import("../features/company/CompanyDashboardPage"));
 
 
 const Profile = lazy(() => import("../features/candidate/Profile"));
@@ -23,6 +25,11 @@ const Profile = lazy(() => import("../features/candidate/Profile"));
 
 const AdminDashboard = lazy(() => import("../features/admin/AdminDashboard"));
 const AdminLayout = lazy(() => import("../features/admin/AdminLayout"));
+const AdminCompanyRequestsPage = lazy(() => import("../features/admin/AdminCompanyRequestsPage"));
+
+const CompanyLayout = lazy(() => import("../features/company/CompanyLayout"));
+
+
 
 
 const LoadingFallback = () => (
@@ -56,6 +63,14 @@ const AppRouter: React.FC = () => {
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
+          <Route path="company-requests" element={<AdminCompanyRequestsPage />} />
+
+        </Route>
+
+
+        <Route path="/company" element={<CompanyLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<CompanyDashboardPage />} />
 
         </Route>
 

@@ -1,20 +1,22 @@
+/* Background.css — Floating light particles animation
+   These styles use unique per-element animation timings and positions
+   that are best kept in CSS rather than Tailwind utilities */
+
 body {
   background: rgba(15, 15, 25, 0.9);
 }
 
-
 .light {
   position: absolute;
   width: 0px;
-  opacity: .75;
-
-  box-shadow: #0571fe 0px 0px 20px 2px;
   opacity: 0;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
   top: 100vh;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  margin: auto;
+  bottom: 0;
+  box-shadow: #0571fe 0px 0px 20px 2px;
 }
 
 .x1 {
@@ -30,7 +32,7 @@ body {
 
 .x3 {
   animation: floatUp 2.5s infinite linear;
-  transform: scale(.5);
+  transform: scale(0.5);
   left: -15%;
 }
 
@@ -48,7 +50,7 @@ body {
 
 .x6 {
   animation: floatUp 3s infinite linear;
-  transform: scale(.8);
+  transform: scale(0.8);
   left: -81%;
 }
 
@@ -68,29 +70,4 @@ body {
   animation: floatUp 4.1s infinite linear;
   transform: scale(0.9);
   left: 85%;
-}
-
-@keyframes floatUp {
-  0% {
-    top: 100vh;
-    opacity: 0;
-  }
-
-  25% {
-    opacity: 1;
-  }
-
-  50% {
-    top: 0vh;
-    opacity: .8;
-  }
-
-  75% {
-    opacity: 1;
-  }
-
-  100% {
-    top: -100vh;
-    opacity: 0;
-  }
 }

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import "./AuthPages.css";
 import Background from "@components/Background/Background";
 import { useEmailVerification } from "@/hooks/auth/useEmailVerification";
 
@@ -45,29 +44,31 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
   const isPasswordReset = mode === "password-reset";
 
   return (
-    <div className="auth-container">
+    <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
       <Background />
-      <div className="register_auth-card verification-card">
-        <div className="auth-header">
-          <div className="logo">
-            <div className="logo-icon">D</div>
-            <h2>DEVIEW</h2>
+      <div className="bg-[rgba(15,15,25,0.95)] rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.1)] w-full max-w-[820px] h-[520px] overflow-y-auto overflow-x-hidden relative flex flex-col max-md:rounded-2xl max-sm:rounded-xl max-sm:h-auto">
+        {/* Header */}
+        <div className="py-5 px-7 border-b border-[rgba(255,255,255,0.1)] flex justify-between items-center max-md:py-4 max-md:px-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-linear-to-br from-brand-primary to-brand-secondary rounded-xl flex items-center justify-center text-white">D</div>
+            <h2 className="text-white text-lg font-semibold tracking-wider">DEVIEW</h2>
           </div>
         </div>
-        <div className="auth-content">
-          <div className="auth-form-section">
-            <div className="verification-icon icon-check"></div>
-            <div className="verification-content">
-              <h1 className="verification-title">
+        {/* Content */}
+        <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
+          {/* Form Section */}
+          <div className="py-8 px-8 flex flex-col justify-center relative text-center max-sm:py-6 max-sm:px-5">
+            <div>
+              <h1 className="text-white text-xl font-bold mb-2">
                 {isPasswordReset ? "Verify Your Email" : "Check Your Email"}
               </h1>
-              <p className="verification-message">
+              <p className="text-[rgba(255,255,255,0.7)] text-sm leading-relaxed mb-5">
                 {isPasswordReset
                   ? `We've sent a 4-digit OTP to ${userEmail || "your email"}. Enter it below to reset your password.`
                   : `We've sent a verification code to ${userEmail || "your email"}. Please enter the 4-digit OTP below to verify your account.`}
               </p>
 
-              <form className="otp-section" onSubmit={(e) => handleVerifyOtp(e)}>
+              <form className="flex flex-col gap-3" onSubmit={(e) => handleVerifyOtp(e)}>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -76,12 +77,12 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
                   value={otpCode}
                   maxLength={4}
                   onChange={handleOtpChange}
-                  className="otp-input"
+                  className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 text-white text-center text-2xl tracking-[10px] w-full outline-none transition-all duration-300 focus:border-brand-primary focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)] placeholder:text-[rgba(255,255,255,0.4)] placeholder:text-sm placeholder:tracking-normal"
                   aria-label="4-digit OTP"
                 />
                 <button
                   type="submit"
-                  className="verify-btn"
+                  className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 bg-linear-to-br from-brand-green to-brand-green-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(16,185,129,0.3)] disabled:opacity-60 disabled:cursor-not-allowed"
                   disabled={isVerifying || otpCode.length !== 4}
                   aria-disabled={isVerifying || otpCode.length !== 4}
                 >
@@ -90,14 +91,7 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
 
                 <span
                   onClick={onResendClick}
-                  className="resend-link"
-                  style={{
-                    cursor: isResending || countdown > 0 ? "not-allowed" : "pointer",
-                    color: "#4a90e2",
-                    textDecoration: "underline",
-                    opacity: isResending || countdown > 0 ? 0.6 : 1,
-                    marginLeft: 12,
-                  }}
+                  className={`text-brand-blue underline text-sm ${isResending || countdown > 0 ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"}`}
                 >
                   {isResending
                     ? "Resending..."
@@ -106,44 +100,42 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
                       : "Resend OTP"}
                 </span>
 
-                {successMessage && <div className="success-message">{successMessage}</div>}
-                {(serverError || validationError) && <div className="error-message">{serverError || validationError}</div>}
+                {successMessage && <div className="text-brand-green text-sm">{successMessage}</div>}
+                {(serverError || validationError) && <div className="text-brand-red text-sm">{serverError || validationError}</div>}
               </form>
             </div>
 
-            <div className="mobile-auth-links" style={{ marginTop: 12 }}>
+            <div className="hidden max-[679px]:block text-center mt-5 text-[rgba(255,255,255,0.7)] text-sm">
               <span>Remembered your password? </span>
-              <Link to="/login">Sign in</Link>
+              <Link to="/login" className="text-brand-blue no-underline font-semibold">Sign in</Link>
             </div>
           </div>
 
-          <div className="auth-welcome-section">
-            <div className="welcome-graphic"></div>
-            <h1 className="welcome-title">
+          {/* Welcome Section */}
+          <div className="hidden min-[680px]:flex bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] py-8 px-8 flex-col justify-center relative overflow-hidden text-center">
+            <h1 className="text-white text-4xl font-bold mb-3 relative z-[1]">
               {isPasswordReset ? "Reset Password." : "Almost There!"}
             </h1>
-            <p className="welcome-text">
+            <p className="text-[rgba(255,255,255,0.8)] text-sm leading-relaxed mb-6 relative z-[1]">
               {isPasswordReset
                 ? "Enter the OTP sent to your email to proceed with resetting your password."
                 : "Your account is almost ready. Just one more step to complete your registration and start exploring our platform."}
             </p>
-            <div className="verification-tips">
-              <div className="tip-item">
-                <div className="tip-icon">@</div>
-                <span>Check your spam folder</span>
+            <div className="flex flex-col gap-3.5 relative z-[1]">
+              {[
+                { icon: "@", text: "Check your spam folder" },
+                { icon: "⏱", text: "OTP valid for 1 minute" },
+                { icon: "🔒", text: "Secure verification process" },
+              ].map((tip, i) => (
+                <div key={i} className="flex items-center gap-3 text-[rgba(255,255,255,0.8)] text-sm">
+                  <div className="w-6 h-6 bg-[rgba(255,255,255,0.1)] rounded-md flex items-center justify-center text-xs shrink-0">{tip.icon}</div>
+                  <span>{tip.text}</span>
+                </div>
+              ))}
+              <div className="text-center mt-3 text-[rgba(255,255,255,0.7)] text-sm">
+                <span>Remembered your password? </span>
+                <Link to="/login" className="text-brand-blue no-underline font-semibold">Sign in</Link>
               </div>
-              <div className="tip-item">
-                <div className="tip-icon icon-clock"></div>
-                <span>OTP valid for 1 minute</span>
-              </div>
-              <div className="tip-item">
-                <div className="tip-icon icon-lock"></div>
-                <span>Secure verification process</span>
-              </div>
-            </div>
-            <div className="login-link" style={{ marginTop: 12 }}>
-              <span>Remembered your password? </span>
-              <Link to="/login">Sign in</Link>
             </div>
           </div>
         </div>

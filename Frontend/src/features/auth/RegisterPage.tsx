@@ -1,12 +1,28 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./AuthPages.css";
 import Background from "@components/Background/Background";
 import { useRegister } from "@/hooks/auth/useRegister";
 import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 
+/* ─── Shared style constants ─── */
+const inputWrapperBase = "relative flex items-center bg-[rgba(255,255,255,0.05)] border rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]";
+const inputBase = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";
+const iconBase = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center";
+const passwordToggle = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-1 rounded transition-colors duration-300 hover:text-white text-xs min-w-10";
+const errorMsg = "text-brand-red text-sm mt-0.5 whitespace-nowrap block";
+
+const GoogleIcon = () => (
+  <svg className="shrink-0" viewBox="0 0 24 24" width="18" height="18">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+  </svg>
+);
+
+const googleBtnClass = "w-full py-3 px-4 border border-[rgba(255,255,255,0.2)] rounded-xl text-sm font-medium cursor-pointer transition-all duration-300 flex items-center justify-center gap-3 bg-[rgba(255,255,255,0.05)] text-white hover:not-disabled:bg-[rgba(255,255,255,0.1)] hover:not-disabled:border-[rgba(255,255,255,0.3)] hover:not-disabled:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none";
+
 const RegisterPage: React.FC = () => {
-  // Get everything from hooks - no local state needed!
   const {
     selectedRole,
     handleRolePick,
@@ -25,228 +41,139 @@ const RegisterPage: React.FC = () => {
 
   const { initiateGoogleAuth, loading: googleLoading, error: googleError } = useGoogleAuth();
 
-  // Handle Google registration with role
   const handleGoogleRegister = () => {
     if (!selectedRole) return;
     sessionStorage.setItem("pendingRole", selectedRole);
     initiateGoogleAuth(selectedRole);
   };
 
-  // Combined error
   const reduxError = serverError || googleError;
 
   return (
-    <div className="auth-container">
+    <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
       <Background />
 
-      <div className="register_auth-card">
-        <div className="auth-header">
-          <div className="logo">
-            <div className="logo-icon">D</div>
-            <h2>DEVIEW</h2>
+      <div className="bg-[rgba(15,15,25,0.95)] rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.1)] w-full max-w-[820px] h-[520px] overflow-y-auto overflow-x-hidden relative flex flex-col [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-[rgba(255,255,255,0.05)] [&::-webkit-scrollbar-track]:rounded [&::-webkit-scrollbar-thumb]:bg-[rgba(102,126,234,0.5)] [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(102,126,234,0.7)] max-md:rounded-2xl max-sm:rounded-xl max-sm:h-auto">
+        {/* Header */}
+        <div className="py-5 px-7 border-b border-[rgba(255,255,255,0.1)] flex justify-between items-center max-md:py-4 max-md:px-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-linear-to-br from-brand-primary to-brand-secondary rounded-xl flex items-center justify-center text-white">D</div>
+            <h2 className="text-white text-lg font-semibold tracking-wider">DEVIEW</h2>
           </div>
         </div>
 
-        <div className="auth-content">
-          <div className="auth-form-section">
-            <div className="user-avatar">D</div>
+        {/* Content */}
+        <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
+          {/* Left Section — Form */}
+          <div className="py-6 px-8 flex flex-col justify-center relative text-center max-sm:py-5 max-sm:px-5">
+            {serverError && <p className={errorMsg}>{serverError}</p>}
+            {reduxError && !serverError && <p className={errorMsg}>{reduxError}</p>}
 
-            {serverError && <p className="error-message">{serverError}</p>}
-            {reduxError && !serverError && <p className="error-message">{reduxError}</p>}
-
-            <div
-              style={{
-                display: "flex",
-                gap: 8,
-                marginBottom: 16,
-              }}
-            >
+            {/* Role Picker */}
+            <div className="flex gap-2 mb-3">
               <button
                 type="button"
                 onClick={() => handleRolePick("candidate")}
-                className={`pill-button ${selectedRole === "candidate" ? "active" : ""}`}
-                style={{ flex: 1 }}
+                className={`flex-1 py-2.5 px-5 border-2 rounded-3xl text-sm font-semibold cursor-pointer transition-all duration-300 ${selectedRole === "candidate" ? "border-brand-primary bg-linear-to-br from-brand-primary to-brand-secondary text-white" : "border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.05)] text-[rgba(255,255,255,0.7)] hover:border-[rgba(102,126,234,0.5)] hover:bg-[rgba(102,126,234,0.1)] hover:text-white"}`}
               >
                 Candidate
               </button>
-
               <button
                 type="button"
                 onClick={() => handleRolePick("company")}
-                className={`pill-button ${selectedRole === "company" ? "active" : ""}`}
-                style={{ flex: 1 }}
+                className={`flex-1 py-2.5 px-5 border-2 rounded-3xl text-sm font-semibold cursor-pointer transition-all duration-300 ${selectedRole === "company" ? "border-brand-primary bg-linear-to-br from-brand-primary to-brand-secondary text-white" : "border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.05)] text-[rgba(255,255,255,0.7)] hover:border-[rgba(102,126,234,0.5)] hover:bg-[rgba(102,126,234,0.1)] hover:text-white"}`}
               >
                 Company
               </button>
             </div>
 
-            {selectedRole && (
-              <form onSubmit={handleSubmit} className="auth-form">
-                <div className="form-group">
-                  <div className={`input-wrapper ${errors.fullName ? 'error' : ''}`}>
-                    <span className="input-icon icon-user"></span>
-                    <input
-                      type="text"
-                      name="fullName"
-                      placeholder={selectedRole === "company" ? "Company Name" : "Full Name"}
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  {errors.fullName && <span className="error-message">{errors.fullName}</span>}
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="w-full">
+              {/* Full Name */}
+              <div className="mb-3">
+                <div className={`${inputWrapperBase} ${errors.fullName ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
+                  <span className={`${iconBase} text-sm before:content-['●']`}></span>
+                  <input type="text" name="fullName" placeholder={selectedRole === "company" ? "Company Name" : "Full Name"} value={formData.fullName} onChange={handleInputChange} className={inputBase} />
                 </div>
+                {errors.fullName && <span className={errorMsg}>{errors.fullName}</span>}
+              </div>
 
-                <div className="form-group">
-                  <div className={`input-wrapper ${errors.email ? 'error' : ''}`}>
-                    <span className="input-icon">@</span>
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  {errors.email && <span className="error-message">{errors.email}</span>}
+              {/* Email */}
+              <div className="mb-3">
+                <div className={`${inputWrapperBase} ${errors.email ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
+                  <span className={iconBase}>@</span>
+                  <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} className={inputBase} />
                 </div>
+                {errors.email && <span className={errorMsg}>{errors.email}</span>}
+              </div>
 
-                <div className="form-group">
-                  <div className={`input-wrapper ${errors.password ? 'error' : ''}`}>
-                    <span className="input-icon icon-lock"></span>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      placeholder="Password (min 6 characters)"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                    />
-                    <button type="button" className="password-toggle" onClick={togglePasswordVisibility}>
-                      {showPassword ? "Hide" : "Show"}
-                    </button>
-                  </div>
-                  {errors.password && <span className="error-message">{errors.password}</span>}
+              {/* Password */}
+              <div className="mb-3">
+                <div className={`${inputWrapperBase} ${errors.password ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
+                  <span className={`${iconBase} text-[10px] before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent`}></span>
+                  <input type={showPassword ? "text" : "password"} name="password" placeholder="Password (min 6 characters)" value={formData.password} onChange={handleInputChange} className={inputBase} />
+                  <button type="button" className={passwordToggle} onClick={togglePasswordVisibility}>{showPassword ? "Hide" : "Show"}</button>
                 </div>
+                {errors.password && <span className={errorMsg}>{errors.password}</span>}
+              </div>
 
-                <div className="form-group">
-                  <div className={`input-wrapper ${errors.confirmPassword ? 'error' : ''}`}>
-                    <span className="input-icon icon-lock"></span>
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      name="confirmPassword"
-                      placeholder="Confirm Password"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                    />
-                    <button type="button" className="password-toggle" onClick={toggleConfirmPasswordVisibility}>
-                      {showConfirmPassword ? "Hide" : "Show"}
-                    </button>
-                  </div>
-                  {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+              {/* Confirm Password */}
+              <div className="mb-3">
+                <div className={`${inputWrapperBase} ${errors.confirmPassword ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
+                  <span className={`${iconBase} text-[10px] before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent`}></span>
+                  <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleInputChange} className={inputBase} />
+                  <button type="button" className={passwordToggle} onClick={toggleConfirmPasswordVisibility}>{showConfirmPassword ? "Hide" : "Show"}</button>
                 </div>
+                {errors.confirmPassword && <span className={errorMsg}>{errors.confirmPassword}</span>}
+              </div>
 
-                <button type="submit" className="submit-btn register-btn" disabled={loading || apiLoading}>
-                  {loading || apiLoading ? "Creating Account..." : "REGISTER"}
+              <button type="submit" className="w-full p-3 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-blue to-brand-blue-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={loading || apiLoading}>
+                {loading || apiLoading ? "Creating Account..." : "REGISTER"}
+              </button>
+
+              {/* Mobile Google Auth */}
+              <div className="block mt-3 min-[680px]:hidden">
+                <div className="flex items-center my-3 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
+                  <span className="px-4">OR</span>
+                </div>
+                <button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={loading || apiLoading || googleLoading}>
+                  <GoogleIcon />
+                  {googleLoading ? "Connecting..." : "Continue with Google"}
                 </button>
+              </div>
+            </form>
 
-                {/* Google Auth for Mobile - Only shows on mobile */}
-                <div className="mobile-google-auth">
-                  <div className="divider">
-                    <span>OR</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleGoogleRegister}
-                    className="google-login-btn"
-                    disabled={loading || apiLoading || googleLoading}
-                  >
-                    <svg className="google-icon" viewBox="0 0 24 24" width="20" height="20">
-                      <path
-                        fill="#4285F4"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
-                    {googleLoading ? "Connecting..." : "Continue with Google"}
-                  </button>
-                </div>
-              </form>
-            )}
-
-            <div className="mobile-auth-links">
+            {/* Mobile "Already have account" link */}
+            <div className="hidden max-[679px]:block text-center mt-4 text-[rgba(255,255,255,0.7)] text-sm">
               <span>Already have an account? </span>
-              <Link to="/login">Sign in</Link>
+              <Link to="/login" className="text-brand-blue no-underline font-semibold transition-colors duration-300 hover:text-[#5a67d8]">Sign in</Link>
             </div>
           </div>
 
-          <div className="auth-welcome-section">
-            <div className="welcome-graphic"></div>
-            <h1 className="welcome-title">Join Us.</h1>
-            <p className="welcome-text">Create your account to get started.</p>
+          {/* Right Panel — Welcome Section */}
+          <div className="hidden min-[680px]:flex bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] py-8 px-8 flex-col justify-center relative overflow-hidden text-center">
+            <h1 className="text-white text-4xl font-bold mb-3 relative z-[1]">Join Us.</h1>
+            <p className="text-[rgba(255,255,255,0.8)] text-sm leading-relaxed mb-6 relative z-[1]">Create your account to get started.</p>
 
-            <div className="features-list">
-              <div className="feature-item">
-                <div className="feature-icon">✓</div>
-                <span>Free account creation</span>
+            <div className="flex flex-col gap-3.5 relative z-[1]">
+              {["Free account creation", "Secure authentication", "24/7 support"].map((text, i) => (
+                <div key={i} className="flex items-center gap-3 text-[rgba(255,255,255,0.8)] text-sm">
+                  <div className="w-6 h-6 bg-[rgba(255,255,255,0.1)] rounded-md flex items-center justify-center text-xs shrink-0">✓</div>
+                  <span>{text}</span>
+                </div>
+              ))}
+
+              <div className="flex items-center my-5 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
+                <span className="px-4">OR</span>
               </div>
-              <div className="feature-item">
-                <div className="feature-icon">✓</div>
-                <span>Secure authentication</span>
-              </div>
-              <div className="feature-item">
-                <div className="feature-icon">✓</div>
-                <span>24/7 support</span>
-              </div>
+              <button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={loading || apiLoading || googleLoading}>
+                <GoogleIcon />
+                {googleLoading ? "Connecting..." : "Continue with Google"}
+              </button>
 
-              {selectedRole && (
-                <>
-                  <div className="divider" style={{ margin: "24px 0" }}>
-                    <span>OR</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleGoogleRegister}
-                    className="google-login-btn"
-                    disabled={loading || apiLoading || googleLoading}
-                  >
-                    <svg className="google-icon" viewBox="0 0 24 24" width="20" height="20">
-                      <path
-                        fill="#4285F4"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
-                    {googleLoading ? "Connecting..." : "Continue with Google"}
-                  </button>
-                </>
-              )}
-
-              <div className="login-link">
+              <div className="text-center mt-4 text-[rgba(255,255,255,0.7)] text-sm">
                 <span>Already have an account? </span>
-                <Link to="/login">Sign in</Link>
+                <Link to="/login" className="text-brand-blue no-underline font-semibold transition-colors duration-300 hover:text-[#5a67d8]">Sign in</Link>
               </div>
             </div>
           </div>

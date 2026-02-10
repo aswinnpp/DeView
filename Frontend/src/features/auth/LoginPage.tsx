@@ -1,12 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./AuthPages.css";
 import Background from "@components/Background/Background";
 import { useLogin } from "@/hooks/auth/useLogin";
 import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 
 const LoginPage: React.FC = () => {
-  // Get everything from hooks - no local state needed!
   const {
     formData,
     showPassword,
@@ -20,27 +18,28 @@ const LoginPage: React.FC = () => {
 
   const { initiateGoogleAuth, loading: googleLoading, error: googleError } = useGoogleAuth();
 
-  // Combined error display (validation errors take priority)
   const errorToShow = validationError || serverError || googleError;
 
   return (
-    <div className="auth-container">
+    <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
       <Background />
-      <div className="login_auth-card">
-        <div className="auth-header">
-          <div className="logo">
-            <div className="logo-icon">D</div>
-            <h2>DEVIEW</h2>
+      <div className="bg-[rgba(15,15,25,0.95)] rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.1)] w-full max-w-[820px] h-[520px] overflow-hidden relative flex flex-col max-md:rounded-2xl max-sm:rounded-xl max-sm:h-auto">
+        {/* Auth Header */}
+        <div className="py-5 px-7 border-b border-[rgba(255,255,255,0.1)] flex justify-between items-center max-md:py-4 max-md:px-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-linear-to-br from-brand-primary to-brand-secondary rounded-xl flex items-center justify-center text-white">D</div>
+            <h2 className="text-white text-lg font-semibold tracking-wider">DEVIEW</h2>
           </div>
         </div>
-        <div className="auth-content">
-          <div className="auth-form-section">
-            <div className="user-avatar">D</div>
-            {errorToShow && <div className="error-message">{errorToShow}</div>}
-            <form onSubmit={handleSubmit} className="auth-form">
-              <div className="form-group">
-                <div className="input-wrapper">
-                  <span className="input-icon">@</span>
+        {/* Auth Content */}
+        <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
+          {/* Form Section */}
+          <div className="py-8 px-8 flex flex-col justify-center relative text-center max-sm:py-6 max-sm:px-5">
+            {errorToShow && <div className="text-brand-red text-sm mb-3 block">{errorToShow}</div>}
+            <form onSubmit={handleSubmit} className="w-full">
+              <div className="mb-3.5">
+                <div className="relative flex items-center bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]">
+                  <span className="text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center">@</span>
                   <input
                     type="email"
                     name="email"
@@ -49,12 +48,13 @@ const LoginPage: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     autoComplete="email"
+                    className="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]"
                   />
                 </div>
               </div>
-              <div className="form-group">
-                <div className="input-wrapper">
-                  <span className="input-icon icon-lock"></span>
+              <div className="mb-3.5">
+                <div className="relative flex items-center bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]">
+                  <span className="text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center text-[10px] before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent"></span>
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
@@ -63,10 +63,11 @@ const LoginPage: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     autoComplete="current-password"
+                    className="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]"
                   />
                   <button
                     type="button"
-                    className="password-toggle"
+                    className="bg-none border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-1 rounded transition-colors duration-300 hover:text-white text-xs min-w-10"
                     onClick={togglePasswordVisibility}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
@@ -74,65 +75,53 @@ const LoginPage: React.FC = () => {
                   </button>
                 </div>
               </div>
-              <div className="form-options">
-                <Link to="/forgot-password" className="forgot-link">
+              <div className="flex justify-between items-center mb-4">
+                <Link to="/forgot-password" className="text-brand-primary no-underline text-sm transition-colors duration-300 hover:text-[#5a67d8]">
                   Forgot your password?
                 </Link>
               </div>
 
-
-
-
-              <button type="submit" className="submit-btn login-btn" disabled={isLoading || googleLoading}>
+              <button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-pink to-brand-pink-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(236,72,153,0.3)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading || googleLoading}>
                 {isLoading ? "Logging in..." : "LOGIN"}
               </button>
 
-              <div className="divider">
-                <span>OR</span>
+              {/* Divider */}
+              <div className="flex items-center my-4 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
+                <span className="px-4">OR</span>
               </div>
 
+              {/* Google Login */}
               <button
                 type="button"
                 onClick={() => initiateGoogleAuth()}
-                className="google-login-btn"
+                className="w-full py-3 px-4 border border-[rgba(255,255,255,0.2)] rounded-xl text-sm font-medium cursor-pointer transition-all duration-300 flex items-center justify-center gap-3 bg-[rgba(255,255,255,0.05)] text-white hover:not-disabled:bg-[rgba(255,255,255,0.1)] hover:not-disabled:border-[rgba(255,255,255,0.3)] hover:not-disabled:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
                 disabled={isLoading || googleLoading}
               >
-                <svg className="google-icon" viewBox="0 0 24 24" width="20" height="20">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
+                <svg className="shrink-0" viewBox="0 0 24 24" width="18" height="18">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
                 {googleLoading ? "Connecting..." : "Continue with Google"}
               </button>
             </form>
-            <div className="mobile-auth-links">
+            {/* Mobile auth links */}
+            <div className="hidden max-[679px]:block text-center mt-5 text-[rgba(255,255,255,0.7)] text-sm">
               <span>New here? </span>
-              <Link to="/register">Sign up</Link>
+              <Link to="/register" className="text-brand-blue no-underline font-semibold transition-colors duration-300 hover:text-[#5a67d8]">Sign up</Link>
             </div>
           </div>
-          <div className="auth-welcome-section">
-            <div className="welcome-graphic"></div>
-            <h1 className="welcome-title">Welcome.</h1>
-            <p className="welcome-text">
+          {/* Welcome Section - hidden on mobile */}
+          <div className="hidden min-[680px]:flex bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] py-8 px-8 flex-col justify-center relative overflow-hidden text-center">
+            <h1 className="text-white text-4xl font-bold mb-4 relative z-[1]">Welcome.</h1>
+            <p className="text-[rgba(255,255,255,0.8)] text-sm leading-relaxed mb-6 relative z-[1]">
               Sign in to access your account and manage your profile. Stay connected with the latest updates and
               opportunities.
             </p>
-            <div className="signup-link">
+            <div className="text-[rgba(255,255,255,0.7)] text-sm relative z-[1]">
               <span>New here? </span>
-              <Link to="/register">Sign up</Link>
+              <Link to="/register" className="text-brand-blue no-underline font-semibold transition-colors duration-300 hover:text-[#5a67d8]">Sign up</Link>
             </div>
           </div>
         </div>

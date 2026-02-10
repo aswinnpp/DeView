@@ -14,7 +14,6 @@ import {
 
 } from "recharts";
 import { useAdminDashboard } from "../../hooks/admin";
-import "./AdminDashboard.css";
 
 const AdminDashboard: React.FC = () => {
     const {
@@ -24,51 +23,35 @@ const AdminDashboard: React.FC = () => {
         subscriptionByPlanData,
         timePeriod,
         setTimePeriod,
-        navigateToCompanyRequests,
-        navigateToSubscriptions,
         tooltipStyle,
         timePeriodOptions,
     } = useAdminDashboard();
 
     return (
-        <div className="admin-dashboard">
+        <div className="max-w-[1400px] mx-auto">
 
-            <div className="admin-dashboard__header">
-                <h1 className="admin-dashboard__title">
+            <div className="mb-8">
+                <h1 className="m-0 text-[28px] text-[#f1f5f9] font-bold">
                     Admin Dashboard
                 </h1>
-                <p className="admin-dashboard__subtitle">
+                <p className="mt-2 mb-0 text-[#94a3b8] text-sm">
                     Welcome back! Here's an overview of your platform's activity
                 </p>
             </div>
 
-            {/* Quick Actions */}
-            <div className="admin-dashboard__quick-actions">
-                <button
-                    onClick={navigateToCompanyRequests}
-                    className="admin-dashboard__btn-primary"
-                >
-                    Company Requests
-                </button>
-                <button
-                    onClick={navigateToSubscriptions}
-                    className="admin-dashboard__btn-secondary"
-                >
-                    Subscriptions
-                </button>
-            </div>
+
 
             {/* Analytics Grid: Company Registrations & Subscriptions */}
-            <div className="admin-dashboard__analytics-grid">
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 mt-6 mb-6 flex-wrap max-md:grid-cols-1">
                 {/* Company Registrations - Pie Chart */}
-                <div className="admin-dashboard__chart-card">
-                    <h3 className="admin-dashboard__chart-title">
+                <div className="bg-linear-to-br from-[#1e293b] to-[#020617] border border-[#334155] rounded-2xl p-6 min-h-[300px]">
+                    <h3 className="m-0 text-lg text-[#f1f5f9] mb-2">
                         Company Registrations
                     </h3>
-                    <p className="admin-dashboard__chart-description">
+                    <p className="m-0 text-[13px] text-[#64748b] mb-4">
                         Distribution of company approval statuses
                     </p>
-                    <div className="admin-dashboard__chart-container">
+                    <div className="h-60">
                         {registrationStatusData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -92,7 +75,7 @@ const AdminDashboard: React.FC = () => {
                                 </PieChart>
                             </ResponsiveContainer>
                         ) : (
-                            <div className="admin-dashboard__no-data">
+                            <div className="h-full flex items-center justify-center text-[#64748b] text-[13px]">
                                 No registration data available yet
                             </div>
                         )}
@@ -100,14 +83,14 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 {/* Company Subscriptions - Bar Chart */}
-                <div className="admin-dashboard__chart-card">
-                    <h3 className="admin-dashboard__chart-title">
+                <div className="bg-linear-to-br from-[#1e293b] to-[#020617] border border-[#334155] rounded-2xl p-6 min-h-[300px]">
+                    <h3 className="m-0 text-lg text-[#f1f5f9] mb-2">
                         Company Subscriptions
                     </h3>
-                    <p className="admin-dashboard__chart-description">
+                    <p className="m-0 text-[13px] text-[#64748b] mb-4">
                         Number of companies on each subscription plan
                     </p>
-                    <div className="admin-dashboard__chart-container">
+                    <div className="h-60">
                         {subscriptionByPlanData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={subscriptionByPlanData}>
@@ -130,7 +113,7 @@ const AdminDashboard: React.FC = () => {
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
-                            <div className="admin-dashboard__no-data">
+                            <div className="h-full flex items-center justify-center text-[#64748b] text-[13px]">
                                 No subscription data available yet
                             </div>
                         )}
@@ -139,22 +122,24 @@ const AdminDashboard: React.FC = () => {
             </div>
 
             {/* Growth Chart (moved to bottom) */}
-            <div className="admin-dashboard__growth-section">
-                <div className="admin-dashboard__growth-header">
+            <div className="bg-linear-to-br from-[#1e293b] to-[#0f172a] border border-[#334155] rounded-2xl p-7 mb-6">
+                <div className="flex justify-between items-center mb-7 flex-wrap gap-4 max-md:flex-col max-md:items-start">
                     <div>
-                        <h2 className="admin-dashboard__growth-title">
+                        <h2 className="m-0 text-xl text-[#f1f5f9] font-semibold">
                             Company Growth Overview
                         </h2>
-                        <p className="admin-dashboard__growth-subtitle">
+                        <p className="mt-1.5 mb-0 text-[#64748b] text-[13px]">
                             New company registrations by time period
                         </p>
                     </div>
-                    <div className="admin-dashboard__period-selector">
+                    <div className="flex bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-[10px] p-1 gap-1">
                         {timePeriodOptions.map((period) => (
                             <button
                                 key={period}
                                 onClick={() => setTimePeriod(period)}
-                                className={`admin-dashboard__period-btn ${timePeriod === period ? 'admin-dashboard__period-btn--active' : ''
+                                className={`border-none text-[13px] font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-200 capitalize ${timePeriod === period
+                                        ? 'bg-linear-to-br from-[#6366f1] to-[#4f46e5] text-white'
+                                        : 'bg-transparent text-[#94a3b8]'
                                     }`}
                             >
                                 {period}
@@ -164,17 +149,19 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 {/* Bar Chart */}
-                <div className="admin-dashboard__bar-chart">
+                <div className="flex items-end gap-5 h-60 py-6 border-t border-[rgba(255,255,255,0.05)]">
                     {growthData.map((item, index) => {
                         const heightPercent = (item.count / maxValue) * 100;
                         const isLast = index === growthData.length - 1;
 
                         return (
-                            <div key={index} className="admin-dashboard__bar-item">
-                                <div className="admin-dashboard__bar-container">
+                            <div key={index} className="flex-1 flex flex-col items-center gap-3">
+                                <div className="w-full h-[200px] flex items-end justify-center">
                                     <div
-                                        className={`admin-dashboard__bar ${isLast ? 'admin-dashboard__bar--current' : 'admin-dashboard__bar--previous'
-                                            }`}
+                                        className={`w-[70%] rounded-t-lg relative transition-all duration-300 cursor-pointer hover:scale-y-105 ${isLast
+                                                ? 'bg-linear-to-b from-[#6366f1] to-[#4f46e5]'
+                                                : 'bg-linear-to-b from-[#475569] to-[#334155]'
+                                            } hover:bg-linear-to-b hover:from-[#6366f1] hover:to-[#4f46e5]`}
                                         style={{
                                             height: `${heightPercent}%`,
                                             minHeight: item.count > 0 ? '24px' : '4px'
@@ -182,13 +169,13 @@ const AdminDashboard: React.FC = () => {
                                         title={`${item.label}: ${item.count} companies`}
                                     >
                                         {item.count > 0 && (
-                                            <div className="admin-dashboard__bar-value">
+                                            <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-[#e2e8f0] text-[13px] font-bold bg-[rgba(0,0,0,0.5)] py-1 px-2.5 rounded-md whitespace-nowrap">
                                                 {item.count}
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                                <div className={`admin-dashboard__bar-label ${isLast ? 'admin-dashboard__bar-label--current' : ''
+                                <div className={`text-xs font-medium text-center ${isLast ? 'text-[#6366f1] font-semibold' : 'text-[#64748b]'
                                     }`}>
                                     {item.label}
                                 </div>
@@ -198,14 +185,14 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 {/* Legend */}
-                <div className="admin-dashboard__legend">
-                    <div className="admin-dashboard__legend-item">
-                        <div className="admin-dashboard__legend-color admin-dashboard__legend-color--current" />
-                        <span className="admin-dashboard__legend-text">Current Period</span>
+                <div className="mt-5 pt-5 border-t border-[rgba(255,255,255,0.05)] flex justify-end gap-5 text-xs">
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-sm bg-linear-to-b from-[#6366f1] to-[#4f46e5]" />
+                        <span className="text-[#94a3b8]">Current Period</span>
                     </div>
-                    <div className="admin-dashboard__legend-item">
-                        <div className="admin-dashboard__legend-color admin-dashboard__legend-color--previous" />
-                        <span className="admin-dashboard__legend-text">Previous Periods</span>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-sm bg-linear-to-b from-[#475569] to-[#334155]" />
+                        <span className="text-[#94a3b8]">Previous Periods</span>
                     </div>
                 </div>
             </div>

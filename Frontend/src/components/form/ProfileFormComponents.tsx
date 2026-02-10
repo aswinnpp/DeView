@@ -14,27 +14,17 @@ interface FormFieldProps {
     error?: string;
 }
 
+const inputClass = "bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70";
+const selectClass = "bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none appearance-none bg-no-repeat bg-[right_12px_center] pr-9 disabled:opacity-70 [&_option]:bg-[#1a1a2e] [&_option]:text-white";
+const selectBgImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.6)' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")";
+const textareaClass = "bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none resize-y min-h-16 placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70";
+const labelClass = "text-[13px] text-[rgba(255,255,255,0.8)] font-semibold";
+const errorStyle: React.CSSProperties = { color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block' };
 
 export const FormField: React.FC<FormFieldProps> = ({
-    label,
-    name,
-    value,
-    onChange,
-    disabled = false,
-    type = 'text',
-    placeholder,
-    required = false,
-    options,
-    rows = 4,
-    error
+    label, name, value, onChange, disabled = false, type = 'text',
+    placeholder, required = false, options, rows = 4, error
 }) => {
-    const errorStyle: React.CSSProperties = {
-        color: '#ef4444',
-        fontSize: '12px',
-        marginTop: '4px',
-        display: 'block'
-    };
-
     const inputErrorStyle: React.CSSProperties = error ? {
         borderColor: '#ef4444',
         boxShadow: '0 0 0 1px rgba(239, 68, 68, 0.3)'
@@ -42,14 +32,15 @@ export const FormField: React.FC<FormFieldProps> = ({
 
     if (type === 'checkbox') {
         return (
-            <div className="form-group checkbox-group">
-                <label className="form-label checkbox-label">
+            <div className="flex flex-row items-center gap-2">
+                <label className={`${labelClass} flex items-center gap-2.5 cursor-pointer text-sm`}>
                     <input
                         type="checkbox"
                         name={name}
                         checked={value as boolean}
                         onChange={onChange}
                         disabled={disabled}
+                        className="w-[18px] h-[18px] accent-brand-primary cursor-pointer"
                     />
                     {label} {required && '*'}
                 </label>
@@ -60,12 +51,12 @@ export const FormField: React.FC<FormFieldProps> = ({
 
     if (type === 'textarea') {
         return (
-            <div className="form-group">
-                <label className="form-label">
+            <div className="flex flex-col gap-2">
+                <label className={labelClass}>
                     {label} {required && '*'}
                 </label>
                 <textarea
-                    className="form-textarea"
+                    className={textareaClass}
                     name={name}
                     value={value as string}
                     onChange={onChange}
@@ -81,17 +72,17 @@ export const FormField: React.FC<FormFieldProps> = ({
 
     if (type === 'select' && options) {
         return (
-            <div className="form-group">
-                <label className="form-label">
+            <div className="flex flex-col gap-2">
+                <label className={labelClass}>
                     {label} {required && '*'}
                 </label>
                 <select
-                    className="form-input"
+                    className={selectClass}
                     name={name}
                     value={value as string}
                     onChange={onChange}
                     disabled={disabled}
-                    style={inputErrorStyle}
+                    style={{ ...inputErrorStyle, backgroundImage: selectBgImage }}
                 >
                     {options.map(opt => (
                         <option key={opt.value} value={opt.value}>
@@ -105,12 +96,12 @@ export const FormField: React.FC<FormFieldProps> = ({
     }
 
     return (
-        <div className="form-group">
-            <label className="form-label">
+        <div className="flex flex-col gap-2">
+            <label className={labelClass}>
                 {label} {required && '*'}
             </label>
             <input
-                className="form-input"
+                className={inputClass}
                 type={type}
                 name={name}
                 value={value as string}
@@ -133,11 +124,11 @@ interface ProfileSectionProps {
 
 export const ProfileSection: React.FC<ProfileSectionProps> = ({ title, children, optional = false }) => {
     return (
-        <section className="profile-section">
-            <h3 className="section-title">
-                {title} {optional && <span className="optional-label">(Optional)</span>}
+        <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
+            <h3 className="m-0 mb-2.5 text-base font-bold text-white">
+                {title} {optional && <span className="text-xs font-normal text-[rgba(255,255,255,0.5)]">(Optional)</span>}
             </h3>
-            <div className="form-grid">
+            <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
                 {children}
             </div>
         </section>
@@ -155,47 +146,41 @@ interface ArrayFieldProps {
 }
 
 export const ArrayField: React.FC<ArrayFieldProps> = ({
-    items,
-    field,
-    isEditing,
-    onChange,
-    onAdd,
-    onRemove,
-    label
+    items, field, isEditing, onChange, onAdd, onRemove, label
 }) => {
     return (
-        <section className="profile-section">
-            <h3 className="section-title">{label}</h3>
-            <div className="skills-container">
+        <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
+            <h3 className="m-0 mb-2.5 text-base font-bold text-white">{label}</h3>
+            <div className="flex flex-wrap gap-2.5 items-center">
                 {items.map((item, index) => (
-                    <div key={index} className="skill-item">
+                    <div key={index}>
                         {isEditing ? (
-                            <div className="skill-input-group">
+                            <div className="flex gap-2 items-center">
                                 <input
-                                    className="skill-input"
+                                    className="py-2 px-2.5 rounded-lg border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)] text-[rgba(255,255,255,0.92)]"
                                     value={item}
                                     onChange={(e) => onChange(field, index, e.target.value)}
                                     placeholder={`Enter ${label.toLowerCase().slice(0, -1)}`}
                                 />
                                 <button
-                                    className="remove-skill-btn"
+                                    className="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.3)] text-[#fca5a5] py-1.5 px-2.5 rounded-md cursor-pointer text-xs transition-all duration-200 hover:bg-[rgba(239,68,68,0.2)]"
                                     onClick={() => onRemove(field, index)}
                                 >
                                     Remove
                                 </button>
                             </div>
                         ) : (
-                            <span className="skill-tag">{item}</span>
+                            <span className="bg-[rgba(255,255,255,0.03)] text-[rgba(255,255,255,0.9)] py-2 px-3 rounded-full font-semibold">{item}</span>
                         )}
                     </div>
                 ))}
                 {isEditing && (
-                    <button className="add-skill-btn" onClick={() => onAdd(field)}>
+                    <button className="bg-[rgba(255,255,255,0.03)] border border-dashed border-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.9)] py-2 px-3 rounded-[10px] cursor-pointer font-bold" onClick={() => onAdd(field)}>
                         Add {label.slice(0, -1)}
                     </button>
                 )}
                 {!isEditing && items.length === 0 && (
-                    <p className="no-data">No {label.toLowerCase()} added yet</p>
+                    <p className="text-[rgba(255,255,255,0.5)] italic text-sm m-0">No {label.toLowerCase()} added yet</p>
                 )}
             </div>
         </section>

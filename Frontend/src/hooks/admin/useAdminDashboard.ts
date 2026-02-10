@@ -33,9 +33,7 @@ export interface UseAdminDashboardReturn {
     timePeriod: TimePeriod;
     setTimePeriod: (period: TimePeriod) => void;
 
-    // Navigation
-    navigateToCompanyRequests: () => void;
-    navigateToSubscriptions: () => void;
+
 
     // Utilities
     tooltipStyle: React.CSSProperties;
@@ -187,14 +185,6 @@ export const useAdminDashboard = (): UseAdminDashboardReturn => {
         ];
     }, [subscriptions]);
 
-    // Navigation handlers
-    const navigateToCompanyRequests = () => {
-        navigate("/admin/company-requests");
-    };
-
-    const navigateToSubscriptions = () => {
-        navigate("/admin/subscriptions");
-    };
 
     // Tooltip style for recharts
     const tooltipStyle: React.CSSProperties = {
@@ -215,9 +205,6 @@ export const useAdminDashboard = (): UseAdminDashboardReturn => {
         timePeriod,
         setTimePeriod,
 
-        // Navigation
-        navigateToCompanyRequests,
-        navigateToSubscriptions,
 
         // Utilities
         tooltipStyle,

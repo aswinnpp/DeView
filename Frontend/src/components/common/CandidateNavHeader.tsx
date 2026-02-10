@@ -17,23 +17,23 @@ const CandidateNavHeader: React.FC<CandidateNavHeaderProps> = ({ title, currentP
     const [showNotifications, setShowNotifications] = useState<boolean>(false);
     const notificationRef = useRef<HTMLDivElement>(null);
 
-    // Fetch candidate profile to get fullName for avatar
-    const { data: profileData } = useApi<{ hasProfile: boolean; data?: { fullName?: string } }>({
-        url: '/candidate/profile',
-        method: 'GET',
-        immediate: true,
-    });
+    const { data: profileData, execute: fetchProfile } = useApi<{ hasProfile: boolean; data?: { fullName?: string } }>(
+        '/candidate/profile',
+        'GET'
+    );
 
-    // Get first letter of first name for avatar
+    useEffect(() => {
+        fetchProfile();
+    }, []);
+
     const getInitials = (name?: string): string => {
-        if (!name) return 'C'; // Default to "C" for Candidate
+        if (!name) return 'C';
         const firstName = name.trim().split(' ')[0];
         return firstName ? firstName.charAt(0).toUpperCase() : 'C';
     };
 
     const candidateName = profileData?.data?.fullName || localStorage.getItem('userName') || '';
 
-    // Close notification dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
@@ -56,45 +56,41 @@ const CandidateNavHeader: React.FC<CandidateNavHeaderProps> = ({ title, currentP
     ];
 
     return (
-        <div className="candidate-header">
-            <div className="logo">
-                <h2>{title}</h2>
+        <div className="flex justify-between items-center py-[18px] px-10 border-b border-[rgba(255,255,255,0.03)] bg-[rgba(255,255,255,0.01)] max-[480px]:py-3 max-[480px]:px-4">
+            <div className="flex gap-3 items-center">
+                <h2 className="m-0 text-lg font-bold text-white">{title}</h2>
             </div>
 
-            <div className="header-actions">
+            <div className="flex gap-4 items-center">
                 {currentPage !== 'jobs' && (
-                    <Link to="/candidate/jobs" className="nav-link">
+                    <Link to="/candidate/jobs" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
                         Jobs
                     </Link>
                 )}
                 {currentPage !== 'interviews' && currentPage !== 'dashboard' && (
-                    <Link to="/candidate/interviews" className="nav-link">
+                    <Link to="/candidate/interviews" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
                         Scheduled Interviews
                     </Link>
                 )}
                 {currentPage !== 'history' && (
-                    <Link to="/candidate/history" className="nav-link">
+                    <Link to="/candidate/history" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
                         History
                     </Link>
                 )}
                 {currentPage !== 'mails' && (
-                    <Link to="/candidate/mails" className="nav-link">
+                    <Link to="/candidate/mails" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
                         Mails
                     </Link>
                 )}
                 {currentPage !== 'applied' && (
-                    <Link to="/candidate/applied" className="nav-link">
+                    <Link to="/candidate/applied" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
                         Applied Jobs
                     </Link>
                 )}
 
-                <div
-                    className="notification-container"
-                    ref={notificationRef}
-                    style={{ position: "relative" }}
-                >
+                <div className="relative" ref={notificationRef}>
                     <button
-                        className="notification-bell"
+                        className="bg-none border-none cursor-pointer text-xl text-[rgba(255,255,255,0.95)] relative"
                         onClick={() => setShowNotifications((v) => !v)}
                         aria-expanded={showNotifications}
                         aria-controls="notification-list"
@@ -104,7 +100,7 @@ const CandidateNavHeader: React.FC<CandidateNavHeaderProps> = ({ title, currentP
                             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
                         {notifications.length > 0 && (
-                            <span className="notification-badge">
+                            <span className="absolute -top-1 -right-1.5 bg-linear-to-br from-brand-pink to-brand-pink-dark text-white px-1.5 py-0.5 text-[11px] font-bold rounded-full">
                                 {notifications.length}
                             </span>
                         )}
@@ -112,32 +108,32 @@ const CandidateNavHeader: React.FC<CandidateNavHeaderProps> = ({ title, currentP
 
                     {showNotifications && (
                         <div
-                            className="notification-dropdown"
+                            className="absolute top-[110%] right-0 w-80 bg-[rgba(12,12,18,0.98)] border border-[rgba(255,255,255,0.03)] rounded-xl shadow-[0_12px_30px_rgba(0,0,0,0.5)] z-[2000]"
                             id="notification-list"
                             role="menu"
                         >
-                            <div className="notification-header">
-                                <h3>Notifications</h3>
+                            <div className="flex justify-between items-center py-3.5 px-4 border-b border-[rgba(255,255,255,0.04)]">
+                                <h3 className="m-0 text-white text-[15px]">Notifications</h3>
                                 <button
-                                    className="close-notifications"
+                                    className="bg-none border-none text-[rgba(255,255,255,0.7)] cursor-pointer"
                                     onClick={() => setShowNotifications(false)}
                                 >
                                     ✕
                                 </button>
                             </div>
-                            <div className="notification-list">
+                            <div>
                                 {notifications.length === 0 ? (
-                                    <div className="no-notifications">
+                                    <div className="text-center py-6">
                                         <span>🔕</span>
-                                        <p>You're all caught up</p>
+                                        <p className="text-[rgba(255,255,255,0.5)] text-sm">You're all caught up</p>
                                     </div>
                                 ) : (
                                     notifications.map((n) => (
-                                        <div key={n.id} className="notification-item">
-                                            <div className="notification-icon">📣</div>
-                                            <div className="notification-content">
-                                                <div className="notification-text">{n.text}</div>
-                                                <div className="notification-time">{n.time}</div>
+                                        <div key={n.id} className="flex items-start gap-3 p-4 border-b border-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.02)]">
+                                            <div className="text-lg">📣</div>
+                                            <div>
+                                                <div className="text-white text-sm">{n.text}</div>
+                                                <div className="text-[rgba(255,255,255,0.5)] text-xs mt-1">{n.time}</div>
                                             </div>
                                         </div>
                                     ))
@@ -151,11 +147,11 @@ const CandidateNavHeader: React.FC<CandidateNavHeaderProps> = ({ title, currentP
                     <NavLink
                         to="/candidate/profile"
                         className={({ isActive }) =>
-                            `profile-avatar-link ${isActive ? "active" : ""}`
+                            `no-underline ${isActive ? "ring-2 ring-brand-primary rounded-full" : ""}`
                         }
                         title="Profile"
                     >
-                        <div className="profile-avatar">
+                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-white text-sm font-bold">
                             {getInitials(candidateName)}
                         </div>
                     </NavLink>

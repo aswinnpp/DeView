@@ -51,7 +51,7 @@ interface UseRegisterReturn {
 export function useRegister(): UseRegisterReturn {
     const navigate = useNavigate();
 
-    const [selectedRole, setSelectedRole] = useState<'candidate' | 'company' | null>(null);
+    const [selectedRole, setSelectedRole] = useState<'candidate' | 'company' | null>('candidate');
 
     const [formData, setFormData] = useState<FormData>({
         fullName: '',

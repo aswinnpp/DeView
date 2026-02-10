@@ -4,10 +4,12 @@ import { Repositories } from './repositories.js';
 
 import { AuthController } from '../../interfaces/http/controllers/AuthController.js';
 import { GoogleAuthController } from '../../interfaces/http/controllers/GoogleAuthController.js';
+import { CompanyApprovalController } from '../../interfaces/http/controllers/CompanyApprovalController.js';
 
 export interface Controllers {
     authController: AuthController;
     googleAuthController: GoogleAuthController;
+    companyApprovalController: CompanyApprovalController;
 }
 
 export function createControllers(
@@ -32,5 +34,10 @@ export function createControllers(
             services.tokenService,
             repositories.userRepository
         ),
+        companyApprovalController: new CompanyApprovalController(
+            useCases.companyApprovalUseCase
+        ),
     };
 }
+
+

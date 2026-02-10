@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import "./AuthPages.css";
 import Background from "@components/Background/Background";
 import { useForgotPassword } from "@/hooks/auth/useForgotPassword";
 
@@ -13,73 +12,73 @@ const ForgotPasswordPage: React.FC = () => {
     handleEmailChange,
   } = useForgotPassword();
 
-
   const error = validationError || serverError;
 
   return (
-    <div className="auth-container">
+    <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
       <Background />
-      <div className="register_auth-card forgot-password-card">
-        <div className="auth-header">
-          <div className="logo">
-            <div className="logo-icon">D</div>
-            <h2>DEVIEW</h2>
+      <div className="bg-[rgba(15,15,25,0.95)] rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.1)] w-full max-w-[820px] h-[520px] overflow-hidden relative flex flex-col max-md:rounded-2xl max-sm:rounded-xl max-sm:h-auto">
+        {/* Header */}
+        <div className="py-5 px-7 border-b border-[rgba(255,255,255,0.1)] flex justify-between items-center max-md:py-4 max-md:px-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-linear-to-br from-brand-primary to-brand-secondary rounded-xl flex items-center justify-center text-white">D</div>
+            <h2 className="text-white text-lg font-semibold tracking-wider">DEVIEW</h2>
           </div>
         </div>
-        <div className="auth-content">
-          <div className="auth-form-section">
-            <div className="forgot-password-content">
-              <h1 className="forgot-title">Forgot Password?</h1>
-              <p className="forgot-message">
+        {/* Content */}
+        <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
+          {/* Form Section */}
+          <div className="py-8 px-8 flex flex-col justify-center relative text-center max-sm:py-6 max-sm:px-5">
+            <div>
+              <h1 className="text-white text-xl font-bold mb-2">Forgot Password?</h1>
+              <p className="text-[rgba(255,255,255,0.7)] text-sm leading-relaxed mb-5">
                 No worries! Enter your email address and we'll send you an OTP to reset your password.
               </p>
-              <form onSubmit={handleEmailSubmit} className="auth-form">
-                <div className="form-group">
-                  <div className="input-wrapper">
-                    <span className="input-icon">@</span>
+              <form onSubmit={handleEmailSubmit} className="w-full">
+                <div className="mb-3.5">
+                  <div className={`relative flex items-center bg-[rgba(255,255,255,0.05)] border rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)] ${error ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
+                    <span className="text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center">@</span>
                     <input
                       type="email"
                       placeholder="Enter your email"
                       value={email}
                       onChange={handleEmailChange}
-                      className={error ? "error" : ""}
+                      className="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]"
                     />
                   </div>
-                  {error && <span className="error-message">{error}</span>}
+                  {error && <span className="text-brand-red text-sm mt-0.5 block">{error}</span>}
                 </div>
-                <button type="submit" className="submit-btn forgot-btn" disabled={isLoading}>
+                <button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-amber to-brand-amber-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(245,158,11,0.3)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
                   {isLoading ? "Sending..." : "Send OTP"}
                 </button>
               </form>
             </div>
-            <div className="mobile-auth-links">
+            <div className="hidden max-[679px]:block text-center mt-5 text-[rgba(255,255,255,0.7)] text-sm">
               <span>Remembered your password? </span>
-              <Link to="/login">Sign in</Link>
+              <Link to="/login" className="text-brand-blue no-underline font-semibold">Sign in</Link>
             </div>
           </div>
-          <div className="auth-welcome-section">
-            <div className="welcome-graphic"></div>
-            <h1 className="welcome-title">Reset Password.</h1>
-            <p className="welcome-text">
+          {/* Welcome Section */}
+          <div className="hidden min-[680px]:flex bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] py-8 px-8 flex-col justify-center relative overflow-hidden text-center">
+            <h1 className="text-white text-4xl font-bold mb-3 relative z-[1]">Reset Password.</h1>
+            <p className="text-[rgba(255,255,255,0.8)] text-sm leading-relaxed mb-6 relative z-[1]">
               Don't worry if you've forgotten your password. We'll help you create a new one quickly and securely.
             </p>
-            <div className="reset-tips">
-              <div className="tip-item">
-                <div className="tip-icon icon-shield"></div>
-                <span>Secure OTP verification</span>
+            <div className="flex flex-col gap-3.5 relative z-[1]">
+              {[
+                { icon: "🛡️", text: "Secure OTP verification" },
+                { icon: "⚡", text: "Quick and easy process" },
+                { icon: "@", text: "Email verification required" },
+              ].map((tip, i) => (
+                <div key={i} className="flex items-center gap-3 text-[rgba(255,255,255,0.8)] text-sm">
+                  <div className="w-6 h-6 bg-[rgba(255,255,255,0.1)] rounded-md flex items-center justify-center text-xs shrink-0">{tip.icon}</div>
+                  <span>{tip.text}</span>
+                </div>
+              ))}
+              <div className="text-center mt-4 text-[rgba(255,255,255,0.7)] text-sm">
+                <span>Remembered your password? </span>
+                <Link to="/login" className="text-brand-blue no-underline font-semibold">Sign in</Link>
               </div>
-              <div className="tip-item">
-                <div className="tip-icon icon-bolt"></div>
-                <span>Quick and easy process</span>
-              </div>
-              <div className="tip-item">
-                <div className="tip-icon">@</div>
-                <span>Email verification required</span>
-              </div>
-            </div>
-            <div className="login-link">
-              <span>Remembered your password? </span>
-              <Link to="/login">Sign in</Link>
             </div>
           </div>
         </div>

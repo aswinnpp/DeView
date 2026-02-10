@@ -10,6 +10,7 @@ import { ForgotPasswordUseCase } from '../../application/auth/use-cases/ForgotPa
 import { VerifyPasswordResetOTPUseCase } from '../../application/auth/use-cases/VerifyPasswordResetOTPUseCase.js';
 import { ResetPasswordUseCase } from '../../application/auth/use-cases/ResetPasswordUseCase.js';
 import { GoogleTokenExchangeUseCase } from '../../application/auth/use-cases/GoogleTokenExchangeUseCase.js';
+import { CompanyApprovalUseCase } from '../../application/company/CompanyApprovalUseCase.js';
 
 export interface UseCases {
     // Auth
@@ -22,12 +23,15 @@ export interface UseCases {
     verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCase;
     resetPasswordUseCase: ResetPasswordUseCase;
     googleTokenExchangeUseCase: GoogleTokenExchangeUseCase;
+    // Company
+    companyApprovalUseCase: CompanyApprovalUseCase;
 }
 
 export function createUseCases(repositories: Repositories, services: Services): UseCases {
     const {
         userRepository,
         otpRepository,
+        companyApprovalRepository,
     } = repositories;
 
     const { passwordHasher, tokenService, emailService } = services;
@@ -43,5 +47,8 @@ export function createUseCases(repositories: Repositories, services: Services): 
         verifyPasswordResetOTPUseCase: new VerifyPasswordResetOTPUseCase(otpRepository),
         resetPasswordUseCase: new ResetPasswordUseCase(userRepository, otpRepository, passwordHasher, tokenService),
         googleTokenExchangeUseCase: new GoogleTokenExchangeUseCase(),
+        // Company
+        companyApprovalUseCase: new CompanyApprovalUseCase(companyApprovalRepository),
     };
 }
+
