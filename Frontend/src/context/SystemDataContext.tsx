@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useMemo, useState, ReactNode } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import type { Interview, Candidate } from "../types";
 
 // Type Definitions
@@ -152,7 +153,7 @@ interface SystemDataProviderProps {
     children: ReactNode;
 }
 
-export const SystemDataProvider: React.FC<SystemDataProviderProps> = ({ children }) => {
+export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
     const [hrs, setHrs] = useState<HR[]>([]);
     const [interviews, setInterviews] = useState<Interview[]>([]);
     const [interviewers, setInterviewers] = useState<Interviewer[]>([]);

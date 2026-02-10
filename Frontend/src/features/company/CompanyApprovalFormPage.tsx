@@ -1,5 +1,9 @@
-import { FormInput, Button } from '../../components/common';
+import React from 'react';
+import { Input, Button } from '../../components/common';
 import { useCompanyApprovalForm } from '../../hooks/company';
+
+const formInputClass = "w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border focus:outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] placeholder:text-[#64748b]";
+const formLabelClass = "block mb-2 text-[13px] font-semibold text-[#cbd5e1]";
 
 const CompanyApprovalFormPage = () => {
     const {
@@ -61,37 +65,39 @@ const CompanyApprovalFormPage = () => {
                             </h3>
 
                             <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
-                                <div className="col-span-full">
-                                    <FormInput
-                                        type="text"
-                                        label="Company Name"
-                                        value={formData.companyName}
-                                        onChange={e => updateFormField('companyName', e.target.value)}
-                                        required
-                                    />
-                                </div>
+                                <Input
+                                    type="text"
+                                    label="Company Name"
+                                    className={formInputClass}
+                                    labelClassName={formLabelClass}
+                                    value={formData.companyName}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('companyName', e.target.value)}
+                                    required
+                                    wrapperClassName="col-span-full flex flex-col gap-1.5"
+                                />
 
-                                <div className="col-span-full">
-                                    <FormInput
-                                        type="text"
-                                        label="Registered Address"
-                                        value={formData.address}
-                                        onChange={e => updateFormField('address', e.target.value)}
-                                        required
-                                    />
-                                </div>
+                                <Input
+                                    type="text"
+                                    label="Registered Address"
+                                    className={formInputClass}
+                                    labelClassName={formLabelClass}
+                                    value={formData.address}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('address', e.target.value)}
+                                    required
+                                    wrapperClassName="col-span-full flex flex-col gap-1.5"
+                                />
 
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="block mb-2 text-[13px] font-semibold text-[#cbd5e1]">GST Number / Tax ID *</label>
-                                    <input
-                                        type="text"
-                                        className="w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border focus:outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] placeholder:text-[#64748b]"
-                                        value={formData.taxId}
-                                        onChange={e => updateFormField('taxId', e.target.value)}
-                                        placeholder="e.g., 29ABCDE1234F1Z5"
-                                        required
-                                    />
-                                </div>
+                                <Input
+                                    type="text"
+                                    label="GST Number / Tax ID *"
+                                    className={formInputClass}
+                                    labelClassName={formLabelClass}
+                                    value={formData.taxId}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('taxId', e.target.value)}
+                                    placeholder="e.g., 29ABCDE1234F1Z5"
+                                    required
+                                    wrapperClassName="flex flex-col gap-1.5"
+                                />
 
                                 <div className="flex flex-col gap-1.5">
                                     <label className="block mb-2 text-[13px] font-semibold text-[#cbd5e1]">Number of Employees *</label>
@@ -109,16 +115,16 @@ const CompanyApprovalFormPage = () => {
                                     </select>
                                 </div>
 
-                                <div className="col-span-full">
-                                    <label className="block mb-2 text-[13px] font-semibold text-[#cbd5e1]">Company Website</label>
-                                    <input
-                                        type="url"
-                                        className="w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border focus:outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] placeholder:text-[#64748b]"
-                                        value={formData.website}
-                                        onChange={e => updateFormField('website', e.target.value)}
-                                        placeholder="https://www.yourcompany.com"
-                                    />
-                                </div>
+                                <Input
+                                    type="url"
+                                    label="Company Website"
+                                    className={formInputClass}
+                                    labelClassName={formLabelClass}
+                                    value={formData.website}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('website', e.target.value)}
+                                    placeholder="https://www.yourcompany.com"
+                                    wrapperClassName="col-span-full flex flex-col gap-1.5"
+                                />
                             </div>
                         </section>
 
@@ -130,41 +136,41 @@ const CompanyApprovalFormPage = () => {
                             </h3>
 
                             <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="block mb-2 text-[13px] font-semibold text-[#cbd5e1]">Authorized Contact Person *</label>
-                                    <input
-                                        type="text"
-                                        className="w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border focus:outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] placeholder:text-[#64748b]"
-                                        value={formData.contactPerson}
-                                        onChange={e => updateFormField('contactPerson', e.target.value)}
-                                        placeholder="Full Name"
-                                        required
-                                    />
-                                </div>
+                                <Input
+                                    type="text"
+                                    label="Authorized Contact Person *"
+                                    className={formInputClass}
+                                    labelClassName={formLabelClass}
+                                    value={formData.contactPerson}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('contactPerson', e.target.value)}
+                                    placeholder="Full Name"
+                                    required
+                                    wrapperClassName="flex flex-col gap-1.5"
+                                />
 
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="block mb-2 text-[13px] font-semibold text-[#cbd5e1]">Business Email *</label>
-                                    <input
-                                        type="email"
-                                        className="w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border focus:outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] placeholder:text-[#64748b]"
-                                        value={formData.contactEmail}
-                                        onChange={e => updateFormField('contactEmail', e.target.value)}
-                                        placeholder="contact@company.com"
-                                        required
-                                    />
-                                </div>
+                                <Input
+                                    type="email"
+                                    label="Business Email *"
+                                    className={formInputClass}
+                                    labelClassName={formLabelClass}
+                                    value={formData.contactEmail}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('contactEmail', e.target.value)}
+                                    placeholder="contact@company.com"
+                                    required
+                                    wrapperClassName="flex flex-col gap-1.5"
+                                />
 
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="block mb-2 text-[13px] font-semibold text-[#cbd5e1]">Contact Phone *</label>
-                                    <input
-                                        type="tel"
-                                        className="w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border focus:outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] placeholder:text-[#64748b]"
-                                        value={formData.contactPhone}
-                                        onChange={e => updateFormField('contactPhone', e.target.value)}
-                                        placeholder="+91-9876543210"
-                                        required
-                                    />
-                                </div>
+                                <Input
+                                    type="tel"
+                                    label="Contact Phone *"
+                                    className={formInputClass}
+                                    labelClassName={formLabelClass}
+                                    value={formData.contactPhone}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('contactPhone', e.target.value)}
+                                    placeholder="+91-9876543210"
+                                    required
+                                    wrapperClassName="flex flex-col gap-1.5"
+                                />
                             </div>
                         </section>
 
@@ -188,8 +194,8 @@ const CompanyApprovalFormPage = () => {
                                         <div
                                             key={docType.key}
                                             className={`rounded-[14px] p-[18px] transition-all duration-200 border ${uploadedDoc
-                                                    ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.05)]'
-                                                    : 'border-[rgba(71,85,105,0.3)] bg-[rgba(30,41,59,0.5)]'
+                                                ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.05)]'
+                                                : 'border-[rgba(71,85,105,0.3)] bg-[rgba(30,41,59,0.5)]'
                                                 } hover:border-[rgba(99,102,241,0.4)] hover:-translate-y-0.5`}
                                         >
                                             <div className="flex gap-3 mb-3.5">
@@ -215,13 +221,13 @@ const CompanyApprovalFormPage = () => {
                                                             <span className="text-[#10b981] text-base font-bold">✓</span>
                                                             <span className="text-[13px] font-medium text-[#6ee7b7] whitespace-nowrap overflow-hidden text-ellipsis">{uploadedDoc.fileName}</span>
                                                         </div>
-                                                        <button
+                                                        <Button
                                                             type="button"
                                                             className="bg-[rgba(239,68,68,0.2)] border-none text-[#fca5a5] w-6 h-6 rounded-md cursor-pointer flex items-center justify-center text-sm font-bold transition-all duration-200 hover:bg-[rgba(239,68,68,0.4)] hover:text-white"
                                                             onClick={() => handleRemoveDocument(docType.key)}
                                                         >
                                                             ✕
-                                                        </button>
+                                                        </Button>
                                                     </div>
                                                 ) : (
                                                     <label className="block cursor-pointer">
@@ -254,8 +260,7 @@ const CompanyApprovalFormPage = () => {
 
                             <Button
                                 type="submit"
-                                variant="primary"
-                                className="w-full !py-4 !px-8 !text-base !font-bold !rounded-xl !flex items-center justify-center gap-2.5 !bg-linear-to-br !from-[#6366f1] !to-[#8b5cf6] !border-none !transition-all !duration-300 hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_40px_-10px_rgba(99,102,241,0.5)] disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="w-full py-4 px-8 text-base font-bold rounded-xl flex items-center justify-center gap-2.5 bg-linear-to-br from-[#6366f1] to-[#8b5cf6] border-none text-white cursor-pointer transition-all duration-300 hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_40px_-10px_rgba(99,102,241,0.5)] disabled:opacity-60 disabled:cursor-not-allowed"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? (

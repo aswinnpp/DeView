@@ -1,15 +1,16 @@
-import React from "react";
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import Background from "@components/Background/Background";
 import { useRegister } from "@/hooks/auth/useRegister";
 import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
+import { Input, Button } from "../../components/common";
 
-/* ─── Shared style constants ─── */
 const inputWrapperBase = "relative flex items-center bg-[rgba(255,255,255,0.05)] border rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]";
-const inputBase = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";
+const inputClass = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";
 const iconBase = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center";
-const passwordToggle = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-1 rounded transition-colors duration-300 hover:text-white text-xs min-w-10";
-const errorMsg = "text-brand-red text-sm mt-0.5 whitespace-nowrap block";
+const passwordIconClass = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center text-[10px] before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent";
+const toggleClass = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-1 rounded transition-colors duration-300 hover:text-white text-xs min-w-10";
+const errorMsgClass = "text-brand-red text-sm mt-0.5 whitespace-nowrap block";
 
 const GoogleIcon = () => (
   <svg className="shrink-0" viewBox="0 0 24 24" width="18" height="18">
@@ -22,7 +23,7 @@ const GoogleIcon = () => (
 
 const googleBtnClass = "w-full py-3 px-4 border border-[rgba(255,255,255,0.2)] rounded-xl text-sm font-medium cursor-pointer transition-all duration-300 flex items-center justify-center gap-3 bg-[rgba(255,255,255,0.05)] text-white hover:not-disabled:bg-[rgba(255,255,255,0.1)] hover:not-disabled:border-[rgba(255,255,255,0.3)] hover:not-disabled:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none";
 
-const RegisterPage: React.FC = () => {
+const RegisterPage = () => {
   const {
     selectedRole,
     handleRolePick,
@@ -66,25 +67,25 @@ const RegisterPage: React.FC = () => {
         <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
           {/* Left Section — Form */}
           <div className="py-6 px-8 flex flex-col justify-center relative text-center max-sm:py-5 max-sm:px-5">
-            {serverError && <p className={errorMsg}>{serverError}</p>}
-            {reduxError && !serverError && <p className={errorMsg}>{reduxError}</p>}
+            {serverError && <p className="text-brand-red text-sm mt-0.5 whitespace-nowrap block">{serverError}</p>}
+            {reduxError && !serverError && <p className="text-brand-red text-sm mt-0.5 whitespace-nowrap block">{reduxError}</p>}
 
             {/* Role Picker */}
             <div className="flex gap-2 mb-3">
-              <button
+              <Button
                 type="button"
                 onClick={() => handleRolePick("candidate")}
                 className={`flex-1 py-2.5 px-5 border-2 rounded-3xl text-sm font-semibold cursor-pointer transition-all duration-300 ${selectedRole === "candidate" ? "border-brand-primary bg-linear-to-br from-brand-primary to-brand-secondary text-white" : "border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.05)] text-[rgba(255,255,255,0.7)] hover:border-[rgba(102,126,234,0.5)] hover:bg-[rgba(102,126,234,0.1)] hover:text-white"}`}
               >
                 Candidate
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => handleRolePick("company")}
                 className={`flex-1 py-2.5 px-5 border-2 rounded-3xl text-sm font-semibold cursor-pointer transition-all duration-300 ${selectedRole === "company" ? "border-brand-primary bg-linear-to-br from-brand-primary to-brand-secondary text-white" : "border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.05)] text-[rgba(255,255,255,0.7)] hover:border-[rgba(102,126,234,0.5)] hover:bg-[rgba(102,126,234,0.1)] hover:text-white"}`}
               >
                 Company
-              </button>
+              </Button>
             </div>
 
             {/* Form */}
@@ -93,53 +94,53 @@ const RegisterPage: React.FC = () => {
               <div className="mb-3">
                 <div className={`${inputWrapperBase} ${errors.fullName ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                   <span className={`${iconBase} text-sm before:content-['●']`}></span>
-                  <input type="text" name="fullName" placeholder={selectedRole === "company" ? "Company Name" : "Full Name"} value={formData.fullName} onChange={handleInputChange} className={inputBase} />
+                  <Input type="text" name="fullName" placeholder={selectedRole === "company" ? "Company Name" : "Full Name"} value={formData.fullName} onChange={handleInputChange} className={inputClass} />
                 </div>
-                {errors.fullName && <span className={errorMsg}>{errors.fullName}</span>}
+                {errors.fullName && <span className={errorMsgClass}>{errors.fullName}</span>}
               </div>
 
               {/* Email */}
               <div className="mb-3">
                 <div className={`${inputWrapperBase} ${errors.email ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                   <span className={iconBase}>@</span>
-                  <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} className={inputBase} />
+                  <Input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} className={inputClass} />
                 </div>
-                {errors.email && <span className={errorMsg}>{errors.email}</span>}
+                {errors.email && <span className={errorMsgClass}>{errors.email}</span>}
               </div>
 
               {/* Password */}
               <div className="mb-3">
                 <div className={`${inputWrapperBase} ${errors.password ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
-                  <span className={`${iconBase} text-[10px] before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent`}></span>
-                  <input type={showPassword ? "text" : "password"} name="password" placeholder="Password (min 6 characters)" value={formData.password} onChange={handleInputChange} className={inputBase} />
-                  <button type="button" className={passwordToggle} onClick={togglePasswordVisibility}>{showPassword ? "Hide" : "Show"}</button>
+                  <span className={passwordIconClass}></span>
+                  <Input type={showPassword ? "text" : "password"} name="password" placeholder="Password (min 6 characters)" value={formData.password} onChange={handleInputChange} className={inputClass} />
+                  <Button type="button" className={toggleClass} onClick={togglePasswordVisibility}>{showPassword ? "Hide" : "Show"}</Button>
                 </div>
-                {errors.password && <span className={errorMsg}>{errors.password}</span>}
+                {errors.password && <span className={errorMsgClass}>{errors.password}</span>}
               </div>
 
               {/* Confirm Password */}
               <div className="mb-3">
                 <div className={`${inputWrapperBase} ${errors.confirmPassword ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
-                  <span className={`${iconBase} text-[10px] before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent`}></span>
-                  <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleInputChange} className={inputBase} />
-                  <button type="button" className={passwordToggle} onClick={toggleConfirmPasswordVisibility}>{showConfirmPassword ? "Hide" : "Show"}</button>
+                  <span className={passwordIconClass}></span>
+                  <Input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleInputChange} className={inputClass} />
+                  <Button type="button" className={toggleClass} onClick={toggleConfirmPasswordVisibility}>{showConfirmPassword ? "Hide" : "Show"}</Button>
                 </div>
-                {errors.confirmPassword && <span className={errorMsg}>{errors.confirmPassword}</span>}
+                {errors.confirmPassword && <span className={errorMsgClass}>{errors.confirmPassword}</span>}
               </div>
 
-              <button type="submit" className="w-full p-3 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-blue to-brand-blue-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={loading || apiLoading}>
+              <Button type="submit" className="w-full p-3 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-blue to-brand-blue-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={loading || apiLoading}>
                 {loading || apiLoading ? "Creating Account..." : "REGISTER"}
-              </button>
+              </Button>
 
               {/* Mobile Google Auth */}
               <div className="block mt-3 min-[680px]:hidden">
                 <div className="flex items-center my-3 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
                   <span className="px-4">OR</span>
                 </div>
-                <button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={loading || apiLoading || googleLoading}>
+                <Button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={loading || apiLoading || googleLoading}>
                   <GoogleIcon />
                   {googleLoading ? "Connecting..." : "Continue with Google"}
-                </button>
+                </Button>
               </div>
             </form>
 
@@ -166,10 +167,10 @@ const RegisterPage: React.FC = () => {
               <div className="flex items-center my-5 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
                 <span className="px-4">OR</span>
               </div>
-              <button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={loading || apiLoading || googleLoading}>
+              <Button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={loading || apiLoading || googleLoading}>
                 <GoogleIcon />
                 {googleLoading ? "Connecting..." : "Continue with Google"}
-              </button>
+              </Button>
 
               <div className="text-center mt-4 text-[rgba(255,255,255,0.7)] text-sm">
                 <span>Already have an account? </span>
@@ -183,4 +184,4 @@ const RegisterPage: React.FC = () => {
   );
 };
 
-export default React.memo(RegisterPage);
+export default memo(RegisterPage);

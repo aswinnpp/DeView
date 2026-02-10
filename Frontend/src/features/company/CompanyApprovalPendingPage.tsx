@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
+import { Button } from '../../components/common';
 
 interface CompanyApproval {
     id: string;
@@ -99,23 +100,12 @@ const CompanyApprovalPendingPage = () => {
                         <p style={{ color: '#94a3b8', fontSize: 14, marginBottom: 24 }}>
                             Please review the feedback and submit a new application with the required corrections.
                         </p>
-                        <button
+                        <Button
                             onClick={handleResubmit}
-                            style={{
-                                background: '#ef4444',
-                                border: 'none',
-                                padding: '10px 24px',
-                                borderRadius: 6,
-                                color: 'white',
-                                fontWeight: 'bold',
-                                cursor: 'pointer',
-                                transition: 'opacity 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-                            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                            className="bg-[#ef4444] border-none py-2.5 px-6 rounded-md text-white font-bold cursor-pointer transition-opacity duration-200 hover:opacity-80"
                         >
                             Submit New Application
-                        </button>
+                        </Button>
                     </div>
                 ) : (
                     /* Pending Mode */
@@ -146,24 +136,12 @@ const CompanyApprovalPendingPage = () => {
                             We usually reply within 24 hours.
                         </p>
 
-                        <button
+                        <Button
                             onClick={loadApproval}
-                            style={{
-                                marginTop: 20,
-                                background: '#334155',
-                                border: 'none',
-                                padding: '8px 20px',
-                                borderRadius: 6,
-                                color: '#e2e8f0',
-                                fontSize: 13,
-                                cursor: 'pointer',
-                                transition: 'opacity 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-                            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                            className="mt-5 bg-[#334155] border-none py-2 px-5 rounded-md text-[#e2e8f0] text-[13px] cursor-pointer transition-opacity duration-200 hover:opacity-80"
                         >
                             🔄 Refresh Status
-                        </button>
+                        </Button>
                     </div>
                 )}
 

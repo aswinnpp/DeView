@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Background from "@components/Background/Background";
 import { useEmailVerification } from "@/hooks/auth/useEmailVerification";
+import { Input, Button } from "../../components/common";
 
 interface IEmailVerificationPageProps {
   email?: string;
 }
 
-const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = "" }) => {
+const EmailVerificationPage = ({ email = "" }: IEmailVerificationPageProps) => {
   const {
     otpCode,
     successMessage,
@@ -69,7 +70,7 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
               </p>
 
               <form className="flex flex-col gap-3" onSubmit={(e) => handleVerifyOtp(e)}>
-                <input
+                <Input
                   type="text"
                   inputMode="numeric"
                   pattern="\d*"
@@ -80,14 +81,14 @@ const EmailVerificationPage: React.FC<IEmailVerificationPageProps> = ({ email = 
                   className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 text-white text-center text-2xl tracking-[10px] w-full outline-none transition-all duration-300 focus:border-brand-primary focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)] placeholder:text-[rgba(255,255,255,0.4)] placeholder:text-sm placeholder:tracking-normal"
                   aria-label="4-digit OTP"
                 />
-                <button
+                <Button
                   type="submit"
                   className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 bg-linear-to-br from-brand-green to-brand-green-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(16,185,129,0.3)] disabled:opacity-60 disabled:cursor-not-allowed"
                   disabled={isVerifying || otpCode.length !== 4}
                   aria-disabled={isVerifying || otpCode.length !== 4}
                 >
                   {isVerifying ? "Verifying..." : "Verify OTP"}
-                </button>
+                </Button>
 
                 <span
                   onClick={onResendClick}

@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../context/authSlice";
 import type { AppDispatch } from "../../context/store";
 import { SystemDataProvider } from "../../context/SystemDataContext";
+import { Button } from "../../components/common";
 
 const AdminLayout = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -34,7 +35,7 @@ const AdminLayout = () => {
                     </div>
 
                     <div className="flex items-center gap-3 relative">
-                        <button
+                        <Button
                             onClick={() => setShowNotifications((v) => !v)}
                             className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-[10px] py-2.5 px-3 text-[#94a3b8] cursor-pointer flex items-center justify-center relative transition-all duration-200 hover:bg-[rgba(255,255,255,0.08)]"
                         >
@@ -47,18 +48,18 @@ const AdminLayout = () => {
                                     {notifications.length}
                                 </span>
                             )}
-                        </button>
+                        </Button>
 
                         {showNotifications && (
                             <div className="absolute top-[50px] right-0 w-80 bg-[rgba(15,23,42,0.98)] border border-[rgba(255,255,255,0.08)] rounded-xl z-[1000] overflow-hidden">
                                 <div className="flex justify-between items-center py-3.5 px-4 border-b border-[rgba(255,255,255,0.06)]">
                                     <h3 className="m-0 text-sm font-semibold">Notifications</h3>
-                                    <button
+                                    <Button
                                         onClick={() => setShowNotifications(false)}
                                         className="bg-none border-none text-[#94a3b8] cursor-pointer text-lg p-0 leading-none hover:text-[#e5e7eb]"
                                     >
                                         ×
-                                    </button>
+                                    </Button>
                                 </div>
                                 <div className="max-h-70 overflow-y-auto">
                                     {notifications.map((n) => (
@@ -119,7 +120,7 @@ const AdminLayout = () => {
                         </nav>
 
                         {/* Logout Button */}
-                        <button
+                        <Button
                             onClick={() => dispatch(logout())}
                             className="mt-auto bg-linear-to-br from-[#ef4444] to-[#dc2626] border-none rounded-[10px] py-3 px-3.5 text-white font-semibold text-sm cursor-pointer flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(239,68,68,0.4)]"
                         >
@@ -129,7 +130,7 @@ const AdminLayout = () => {
                                 <line x1="21" y1="12" x2="9" y2="12" />
                             </svg>
                             Logout
-                        </button>
+                        </Button>
                     </aside>
 
                     {/* Main Content Area */}

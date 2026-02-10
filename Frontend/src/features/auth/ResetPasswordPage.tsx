@@ -1,14 +1,15 @@
 import { Link } from "react-router-dom";
 import Background from "@components/Background/Background";
 import { useResetPassword } from "@/hooks/auth/useResetPassword";
+import { Input, Button } from "../../components/common";
 
 const inputWrapperBase = "relative flex items-center bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]";
-const inputBase = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";
-const iconBase = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-[10px] min-w-5 flex items-center justify-center before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent";
-const passwordToggle = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-1 rounded transition-colors duration-300 hover:text-white text-xs min-w-10";
-const errorMsg = "text-brand-red text-sm mt-0.5 whitespace-nowrap block";
+const inputClass = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";
+const passwordIconClass = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-[10px] min-w-5 flex items-center justify-center before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent";
+const toggleClass = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-1 rounded transition-colors duration-300 hover:text-white text-xs min-w-10";
+const errorMsgClass = "text-brand-red text-sm mt-0.5 whitespace-nowrap block";
 
-const ResetPasswordPage: React.FC = () => {
+const ResetPasswordPage = () => {
   const {
     formData,
     showNewPassword,
@@ -59,42 +60,42 @@ const ResetPasswordPage: React.FC = () => {
                   {/* New Password */}
                   <div className="mb-3.5">
                     <div className={inputWrapperBase}>
-                      <span className={iconBase}></span>
-                      <input
+                      <span className={passwordIconClass}></span>
+                      <Input
                         type={showNewPassword ? "text" : "password"}
                         name="newPassword"
                         placeholder="New Password"
+                        className={inputClass}
                         value={formData.newPassword}
                         onChange={handleInputChange}
-                        className={inputBase}
                       />
-                      <button type="button" className={passwordToggle} onClick={toggleNewPasswordVisibility}>
+                      <Button type="button" className={toggleClass} onClick={toggleNewPasswordVisibility}>
                         {showNewPassword ? "Hide" : "Show"}
-                      </button>
+                      </Button>
                     </div>
-                    {errors.newPassword && <span className={errorMsg}>{errors.newPassword}</span>}
+                    {errors.newPassword && <span className={errorMsgClass}>{errors.newPassword}</span>}
                   </div>
                   {/* Confirm Password */}
                   <div className="mb-3.5">
                     <div className={inputWrapperBase}>
-                      <span className={iconBase}></span>
-                      <input
+                      <span className={passwordIconClass}></span>
+                      <Input
                         type={showConfirmPassword ? "text" : "password"}
                         name="confirmPassword"
                         placeholder="Confirm New Password"
+                        className={inputClass}
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
-                        className={inputBase}
                       />
-                      <button type="button" className={passwordToggle} onClick={toggleConfirmPasswordVisibility}>
+                      <Button type="button" className={toggleClass} onClick={toggleConfirmPasswordVisibility}>
                         {showConfirmPassword ? "Hide" : "Show"}
-                      </button>
+                      </Button>
                     </div>
-                    {errors.confirmPassword && <span className={errorMsg}>{errors.confirmPassword}</span>}
+                    {errors.confirmPassword && <span className={errorMsgClass}>{errors.confirmPassword}</span>}
                   </div>
-                  <button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-indigo to-brand-indigo-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(99,102,241,0.3)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
+                  <Button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-indigo to-brand-indigo-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(99,102,241,0.3)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
                     {isLoading ? "Resetting..." : "Reset Password"}
-                  </button>
+                  </Button>
                 </form>
               </div>
             ) : isSuccess ? (

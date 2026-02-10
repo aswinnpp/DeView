@@ -1,4 +1,5 @@
-import React from "react";
+
+import { Button } from "../../components/common";
 import {
     BarChart,
     Bar,
@@ -15,7 +16,7 @@ import {
 } from "recharts";
 import { useAdminDashboard } from "../../hooks/admin";
 
-const AdminDashboard: React.FC = () => {
+const AdminDashboard = () => {
     const {
         growthData,
         maxValue,
@@ -134,16 +135,16 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div className="flex bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-[10px] p-1 gap-1">
                         {timePeriodOptions.map((period) => (
-                            <button
+                            <Button
                                 key={period}
                                 onClick={() => setTimePeriod(period)}
                                 className={`border-none text-[13px] font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-200 capitalize ${timePeriod === period
-                                        ? 'bg-linear-to-br from-[#6366f1] to-[#4f46e5] text-white'
-                                        : 'bg-transparent text-[#94a3b8]'
+                                    ? 'bg-linear-to-br from-[#6366f1] to-[#4f46e5] text-white'
+                                    : 'bg-transparent text-[#94a3b8]'
                                     }`}
                             >
                                 {period}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 </div>
@@ -159,8 +160,8 @@ const AdminDashboard: React.FC = () => {
                                 <div className="w-full h-[200px] flex items-end justify-center">
                                     <div
                                         className={`w-[70%] rounded-t-lg relative transition-all duration-300 cursor-pointer hover:scale-y-105 ${isLast
-                                                ? 'bg-linear-to-b from-[#6366f1] to-[#4f46e5]'
-                                                : 'bg-linear-to-b from-[#475569] to-[#334155]'
+                                            ? 'bg-linear-to-b from-[#6366f1] to-[#4f46e5]'
+                                            : 'bg-linear-to-b from-[#475569] to-[#334155]'
                                             } hover:bg-linear-to-b hover:from-[#6366f1] hover:to-[#4f46e5]`}
                                         style={{
                                             height: `${heightPercent}%`,

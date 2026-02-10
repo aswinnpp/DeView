@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
 import Background from "@components/Background/Background";
 import { useForgotPassword } from "@/hooks/auth/useForgotPassword";
+import { Input, Button } from "../../components/common";
 
-const ForgotPasswordPage: React.FC = () => {
+const inputWrapperBase = "relative flex items-center bg-[rgba(255,255,255,0.05)] border rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]";
+const inputClass = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";
+const iconClass = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center";
+
+const ForgotPasswordPage = () => {
   const {
     email,
     isLoading,
@@ -36,21 +41,21 @@ const ForgotPasswordPage: React.FC = () => {
               </p>
               <form onSubmit={handleEmailSubmit} className="w-full">
                 <div className="mb-3.5">
-                  <div className={`relative flex items-center bg-[rgba(255,255,255,0.05)] border rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)] ${error ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
-                    <span className="text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center">@</span>
-                    <input
+                  <div className={`${inputWrapperBase} ${error ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
+                    <span className={iconClass}>@</span>
+                    <Input
                       type="email"
                       placeholder="Enter your email"
+                      className={inputClass}
                       value={email}
                       onChange={handleEmailChange}
-                      className="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]"
                     />
                   </div>
                   {error && <span className="text-brand-red text-sm mt-0.5 block">{error}</span>}
                 </div>
-                <button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-amber to-brand-amber-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(245,158,11,0.3)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
+                <Button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-amber to-brand-amber-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(245,158,11,0.3)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
                   {isLoading ? "Sending..." : "Send OTP"}
-                </button>
+                </Button>
               </form>
             </div>
             <div className="hidden max-[679px]:block text-center mt-5 text-[rgba(255,255,255,0.7)] text-sm">

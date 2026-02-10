@@ -1,4 +1,5 @@
 import { useAdminCompanyRequests } from "../../hooks/admin";
+import { Button } from "../../components/common";
 
 const AdminCompanyRequestsPage = () => {
     const {
@@ -130,12 +131,12 @@ const AdminCompanyRequestsPage = () => {
                                                     {new Date(company.createdAt).toLocaleDateString()}
                                                 </td>
                                                 <td className="p-4 align-middle text-[#e2e8f0] text-sm">
-                                                    <button
+                                                    <Button
                                                         onClick={() => selectCompany(company)}
                                                         className="py-2 px-[18px] bg-linear-to-br from-[#6366f1] to-[#8b5cf6] text-white border-none rounded-lg text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(99,102,241,0.4)]"
                                                     >
                                                         Review
-                                                    </button>
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         );
@@ -166,12 +167,12 @@ const AdminCompanyRequestsPage = () => {
                                     </p>
                                 </div>
                             </div>
-                            <button
+                            <Button
                                 onClick={clearSelectedCompany}
                                 className="bg-[rgba(100,116,139,0.2)] border-none text-[#94a3b8] text-xl cursor-pointer py-2 px-3 rounded-lg transition-all duration-200 hover:bg-[rgba(100,116,139,0.3)]"
                             >
                                 ✕
-                            </button>
+                            </Button>
                         </div>
 
                         <div className="p-8">
@@ -275,18 +276,18 @@ const AdminCompanyRequestsPage = () => {
                                                                             {uploadedDoc.fileName}
                                                                         </span>
                                                                     </div>
-                                                                    <button
+                                                                    <Button
                                                                         onClick={() => window.open(uploadedDoc.fileUrl, '_blank')}
                                                                         className="bg-[rgba(99,102,241,0.2)] border-none text-[#a5b4fc] py-1.5 px-3 rounded-md text-[11px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[rgba(99,102,241,0.3)]"
                                                                     >
                                                                         View
-                                                                    </button>
+                                                                    </Button>
                                                                 </div>
-                                                                <button
+                                                                <Button
                                                                     onClick={() => toggleDocVerification(docConfig.key)}
                                                                     className={`w-full py-2.5 px-4 rounded-lg text-xs font-semibold cursor-pointer flex items-center justify-center gap-1.5 transition-all duration-200 ${documentVerification[docConfig.key]
-                                                                            ? 'bg-[rgba(100,116,139,0.2)] border border-[rgba(100,116,139,0.3)] text-[#94a3b8]'
-                                                                            : 'bg-linear-to-br from-[#10b981] to-[#059669] border-none text-white'
+                                                                        ? 'bg-[rgba(100,116,139,0.2)] border border-[rgba(100,116,139,0.3)] text-[#94a3b8]'
+                                                                        : 'bg-linear-to-br from-[#10b981] to-[#059669] border-none text-white'
                                                                         }`}
                                                                 >
                                                                     {documentVerification[docConfig.key] ? (
@@ -294,7 +295,7 @@ const AdminCompanyRequestsPage = () => {
                                                                     ) : (
                                                                         <>Mark as Verified</>
                                                                     )}
-                                                                </button>
+                                                                </Button>
                                                             </div>
                                                         ) : (
                                                             <div className="flex items-center gap-2 bg-[rgba(239,68,68,0.1)] rounded-lg py-2.5 px-3">
@@ -314,24 +315,24 @@ const AdminCompanyRequestsPage = () => {
 
                             {/* Action Buttons */}
                             <div className="flex gap-3 justify-end mt-8 pt-6 border-t border-[rgba(71,85,105,0.3)]">
-                                <button
+                                <Button
                                     onClick={clearSelectedCompany}
                                     className="py-3 px-6 bg-[rgba(100,116,139,0.2)] text-[#94a3b8] border border-[rgba(100,116,139,0.3)] rounded-[10px] font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-[rgba(100,116,139,0.3)]"
                                 >
                                     Cancel
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     onClick={handleRejectClick}
                                     className="py-3 px-6 bg-linear-to-br from-[#dc2626] to-[#b91c1c] text-white border-none rounded-[10px] font-semibold text-sm cursor-pointer flex items-center gap-2 transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(220,38,38,0.4)]"
                                 >
                                     Reject Application
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     onClick={() => handleApprove(selectedCompany.id)}
                                     className="py-3 px-7 bg-linear-to-br from-[#10b981] to-[#059669] text-white border-none rounded-[10px] font-semibold text-sm cursor-pointer flex items-center gap-2 transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(16,185,129,0.4)]"
                                 >
                                     Approve Company
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -367,22 +368,22 @@ const AdminCompanyRequestsPage = () => {
                         />
 
                         <div className="flex gap-3 justify-end">
-                            <button
+                            <Button
                                 onClick={closeRejectModal}
                                 className="py-3 px-6 bg-[rgba(100,116,139,0.2)] text-[#94a3b8] border border-[rgba(100,116,139,0.3)] rounded-[10px] font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-[rgba(100,116,139,0.3)]"
                             >
                                 Cancel
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={handleRejectConfirm}
                                 disabled={!rejectionReason.trim()}
                                 className={`py-3 px-6 text-white border-none rounded-[10px] font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${rejectionReason.trim()
-                                        ? 'bg-linear-to-br from-[#dc2626] to-[#b91c1c] cursor-pointer opacity-100'
-                                        : 'bg-[rgba(100,116,139,0.3)] cursor-not-allowed opacity-60'
+                                    ? 'bg-linear-to-br from-[#dc2626] to-[#b91c1c] cursor-pointer opacity-100'
+                                    : 'bg-[rgba(100,116,139,0.3)] cursor-not-allowed opacity-60'
                                     }`}
                             >
                                 Confirm Rejection
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

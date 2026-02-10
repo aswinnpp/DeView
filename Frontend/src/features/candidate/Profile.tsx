@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { CandidateNavHeader } from '../../components/common';
+import { Input, Button } from '../../components/common';
+import CandidateNavHeader from './CandidateNavHeader';
 import { useCandidateProfile } from '../../hooks/useCandidateProfile';
-import { FormField, ProfileSection, ArrayField } from '../../components/form/ProfileFormComponents';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -15,7 +15,7 @@ interface LocationState {
     requiredPercentage?: number;
 }
 
-const Profile: React.FC = () => {
+const Profile = () => {
     const location = useLocation();
     const locationState = location.state as LocationState | null;
     const [showProfileWarning, setShowProfileWarning] = useState(
@@ -46,6 +46,9 @@ const Profile: React.FC = () => {
 
     const progressComplete = (locationState?.completionPercentage || 0) >= 80;
 
+    const errorBorderStyle = (fieldError?: string): React.CSSProperties =>
+        fieldError ? { borderColor: '#ef4444', boxShadow: '0 0 0 1px rgba(239, 68, 68, 0.3)' } : {};
+
     if (isLoading) {
         return (
             <div className="min-h-screen w-full bg-linear-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)] box-border">
@@ -71,13 +74,12 @@ const Profile: React.FC = () => {
                     {error && (
                         <div className="bg-[rgba(239,68,68,0.15)] border border-[rgba(239,68,68,0.4)] rounded-xl py-4 px-5 mb-5 flex justify-between items-center">
                             <span className="text-brand-red text-sm">⚠️ {error}</span>
-                            <button className="bg-[rgba(239,68,68,0.2)] border border-[rgba(239,68,68,0.4)] rounded-md text-brand-red py-1.5 px-3 text-xs cursor-pointer transition-colors duration-200 hover:bg-[rgba(239,68,68,0.3)]" onClick={clearError}>
+                            <Button className="bg-[rgba(239,68,68,0.2)] border border-[rgba(239,68,68,0.4)] rounded-md text-brand-red py-1.5 px-3 text-xs cursor-pointer transition-colors duration-200 hover:bg-[rgba(239,68,68,0.3)]" onClick={clearError}>
                                 Dismiss
-                            </button>
+                            </Button>
                         </div>
                     )}
 
-                    {/* Welcome for new profiles */}
                     {!profileExists && (
                         <div className="bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] border border-[rgba(102,126,234,0.2)] p-6 rounded-xl mb-6 text-center">
                             <h2 className="m-0 mb-2 text-white text-xl font-bold">Welcome! Let's set up your profile</h2>
@@ -110,12 +112,12 @@ const Profile: React.FC = () => {
                             )}
 
                             <div className="text-center mt-4">
-                                <button
+                                <Button
                                     className="py-2.5 px-6 bg-linear-to-br from-brand-violet to-brand-cyan border-none rounded-lg text-white text-sm font-semibold cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(139,92,246,0.3)]"
                                     onClick={() => setShowProfileWarning(false)}
                                 >
                                     Got it
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     )}
@@ -138,24 +140,24 @@ const Profile: React.FC = () => {
                             <div className="flex gap-3 items-center max-[900px]:w-full max-[900px]:justify-end">
                                 {!isEditing ? (
                                     <>
-                                        <button className="border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer bg-linear-to-br from-brand-primary to-brand-secondary text-white" onClick={() => setIsEditing(true)}>
+                                        <Button className="border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer bg-linear-to-br from-brand-primary to-brand-secondary text-white" onClick={() => setIsEditing(true)}>
                                             Edit Profile
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
                                             className="bg-linear-to-br from-brand-red to-brand-red-dark text-white border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer ml-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(239,68,68,0.3)]"
                                             onClick={handleLogout}
                                             disabled={isLoggingOut}
                                         >
                                             {isLoggingOut ? 'Logging out...' : 'Logout'}
-                                        </button>
+                                        </Button>
                                     </>
                                 ) : (
                                     <div className="flex gap-3 items-center">
-                                        <button className="border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer bg-linear-to-br from-brand-green to-brand-green-dark text-white disabled:opacity-60 disabled:cursor-not-allowed" onClick={handleSave} disabled={isSaving}>
+                                        <Button className="border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer bg-linear-to-br from-brand-green to-brand-green-dark text-white disabled:opacity-60 disabled:cursor-not-allowed" onClick={handleSave} disabled={isSaving}>
                                             {isSaving ? 'Saving...' : 'Save'}
-                                        </button>
+                                        </Button>
                                         {profileExists && (
-                                            <button className="border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer bg-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.9)]" onClick={handleCancel}>Cancel</button>
+                                            <Button className="border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer bg-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.9)]" onClick={handleCancel}>Cancel</Button>
                                         )}
                                     </div>
                                 )}
@@ -164,93 +166,228 @@ const Profile: React.FC = () => {
 
                         {/* Profile Sections */}
                         <div className="flex flex-col gap-6 mt-1.5">
-                            <ProfileSection title="Personal Information">
-                                <FormField label="Full Name" name="fullName" value={profileData.fullName} onChange={handleInputChange} disabled={!isEditing} placeholder="Enter your full name" required error={validationErrors.fullName} />
-                                <FormField label="Email" name="email" value={profileData.email} onChange={handleInputChange} disabled type="email" />
-                                <FormField label="Phone" name="phone" value={profileData.phone} onChange={handleInputChange} disabled={!isEditing} placeholder="+1 (555) 123-4567" error={validationErrors.phone} />
-                                <FormField label="Location" name="location" value={profileData.location} onChange={handleInputChange} disabled={!isEditing} placeholder="City, Country" />
-                                <FormField label="Date of Birth" name="dateOfBirth" value={profileData.dateOfBirth} onChange={handleInputChange} disabled={!isEditing} type="date" error={validationErrors.dateOfBirth} />
-                            </ProfileSection>
 
-                            <ProfileSection title="Professional Information" optional>
-                                <FormField label="Job Title" name="title" value={profileData.title} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Frontend Developer" />
-                                <FormField label="Current Company" name="currentCompany" value={profileData.currentCompany} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Google" />
-                                <FormField label="Current Salary" name="currentSalary" value={profileData.currentSalary} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., $80,000/year" />
-                                <FormField label="Years of Experience" name="experience" value={profileData.experience} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., 3 years" />
-                            </ProfileSection>
+                            {/* Personal Information */}
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Personal Information</h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                                    <Input label="Full Name *" name="fullName" value={profileData.fullName} onChange={handleInputChange} disabled={!isEditing} placeholder="Enter your full name" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.fullName} style={errorBorderStyle(validationErrors.fullName)} />
+                                    <Input label="Email" name="email" type="email" value={profileData.email} onChange={handleInputChange} disabled className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Phone" name="phone" value={profileData.phone} onChange={handleInputChange} disabled={!isEditing} placeholder="+1 (555) 123-4567" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.phone} style={errorBorderStyle(validationErrors.phone)} />
+                                    <Input label="Location" name="location" value={profileData.location} onChange={handleInputChange} disabled={!isEditing} placeholder="City, Country" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Date of Birth" name="dateOfBirth" type="date" value={profileData.dateOfBirth} onChange={handleInputChange} disabled={!isEditing} className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.dateOfBirth} style={errorBorderStyle(validationErrors.dateOfBirth)} />
+                                </div>
+                            </section>
 
-                            <ProfileSection title="About & Availability">
-                                <FormField label="Bio" name="bio" value={profileData.bio} onChange={handleInputChange} disabled={!isEditing} type="textarea" rows={4} placeholder="Tell employers about yourself..." required error={validationErrors.bio} />
-                                <FormField label="Expected Salary" name="expectedSalary" value={profileData.expectedSalary} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., $100,000/year" required error={validationErrors.expectedSalary} />
-                                <FormField
-                                    label="Notice Period"
-                                    name="noticePeriod"
-                                    value={profileData.noticePeriod}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                    type="select"
-                                    required
-                                    options={[
-                                        { value: '', label: 'Select notice period' },
-                                        { value: 'Immediate', label: 'Immediate' },
-                                        { value: '1 week', label: '1 week' },
-                                        { value: '2 weeks', label: '2 weeks' },
-                                        { value: '1 month', label: '1 month' },
-                                        { value: '2 months', label: '2 months' },
-                                        { value: '3 months', label: '3 months' }
-                                    ]}
-                                    error={validationErrors.noticePeriod}
-                                />
-                            </ProfileSection>
+                            {/* Professional Information */}
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Professional Information <span className="text-xs font-normal text-[rgba(255,255,255,0.5)]">(Optional)</span></h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                                    <Input label="Job Title" name="title" value={profileData.title} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Frontend Developer" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Current Company" name="currentCompany" value={profileData.currentCompany} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Google" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Current Salary" name="currentSalary" value={profileData.currentSalary} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., $80,000/year" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Years of Experience" name="experience" value={profileData.experience} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., 3 years" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                </div>
+                            </section>
 
-                            <ProfileSection title="Job Preferences">
-                                <FormField
-                                    label="Preferred Work Mode"
-                                    name="preferredWorkMode"
-                                    value={profileData.preferredWorkMode}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                    type="select"
-                                    options={[
-                                        { value: '', label: 'Select work mode' },
-                                        { value: 'Remote', label: 'Remote' },
-                                        { value: 'Hybrid', label: 'Hybrid' },
-                                        { value: 'On-site', label: 'On-site' },
-                                        { value: 'Flexible', label: 'Flexible' }
-                                    ]}
-                                />
-                                <FormField
-                                    label="Preferred Job Type"
-                                    name="preferredJobType"
-                                    value={profileData.preferredJobType}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                    type="select"
-                                    options={[
-                                        { value: '', label: 'Select job type' },
-                                        { value: 'Full-time', label: 'Full-time' },
-                                        { value: 'Part-time', label: 'Part-time' },
-                                        { value: 'Contract', label: 'Contract' },
-                                        { value: 'Freelance', label: 'Freelance' },
-                                        { value: 'Internship', label: 'Internship' }
-                                    ]}
-                                />
-                                <FormField label="Willing to Relocate" name="willingToRelocate" value={profileData.willingToRelocate} onChange={handleInputChange} disabled={!isEditing} type="checkbox" />
-                            </ProfileSection>
+                            {/* About & Availability */}
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">About & Availability</h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                                    {/* Bio - textarea */}
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Bio *</label>
+                                        <textarea
+                                            className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none resize-y min-h-16 placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70"
+                                            name="bio"
+                                            value={profileData.bio}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditing}
+                                            rows={4}
+                                            placeholder="Tell employers about yourself..."
+                                            style={errorBorderStyle(validationErrors.bio)}
+                                        />
+                                        {validationErrors.bio && <span className="text-[#ef4444] text-xs mt-1 block">{validationErrors.bio}</span>}
+                                    </div>
 
-                            <ArrayField items={profileData.skills} field="skills" isEditing={isEditing} onChange={handleArrayChange} onAdd={addArrayItem} onRemove={removeArrayItem} label="Skills" />
-                            <ArrayField items={profileData.languages} field="languages" isEditing={isEditing} onChange={handleArrayChange} onAdd={addArrayItem} onRemove={removeArrayItem} label="Languages" />
+                                    <Input label="Expected Salary *" name="expectedSalary" value={profileData.expectedSalary} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., $100,000/year" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.expectedSalary} style={errorBorderStyle(validationErrors.expectedSalary)} />
 
-                            <ProfileSection title="Education">
-                                <FormField label="Highest Qualification" name="education" value={profileData.education} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Bachelor of Science in Computer Science" />
-                                <FormField label="University/School" name="university" value={profileData.university} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Stanford University" />
-                                <FormField label="Graduation Year" name="graduationYear" value={profileData.graduationYear} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., 2021" />
-                            </ProfileSection>
+                                    {/* Notice Period - select */}
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Notice Period *</label>
+                                        <select
+                                            className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none appearance-none bg-no-repeat bg-[right_12px_center] pr-9 disabled:opacity-70 [&_option]:bg-[#1a1a2e] [&_option]:text-white"
+                                            name="noticePeriod"
+                                            value={profileData.noticePeriod}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditing}
+                                            style={{ ...errorBorderStyle(validationErrors.noticePeriod), backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.6)' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")" }}
+                                        >
+                                            <option value="">Select notice period</option>
+                                            <option value="Immediate">Immediate</option>
+                                            <option value="1 week">1 week</option>
+                                            <option value="2 weeks">2 weeks</option>
+                                            <option value="1 month">1 month</option>
+                                            <option value="2 months">2 months</option>
+                                            <option value="3 months">3 months</option>
+                                        </select>
+                                        {validationErrors.noticePeriod && <span className="text-[#ef4444] text-xs mt-1 block">{validationErrors.noticePeriod}</span>}
+                                    </div>
+                                </div>
+                            </section>
 
-                            <ProfileSection title="Links" optional>
-                                <FormField label="LinkedIn URL" name="linkedinUrl" value={profileData.linkedinUrl} onChange={handleInputChange} disabled={!isEditing} placeholder="https://linkedin.com/in/yourprofile" error={validationErrors.linkedinUrl} />
-                                <FormField label="GitHub URL" name="githubUrl" value={profileData.githubUrl} onChange={handleInputChange} disabled={!isEditing} placeholder="https://github.com/yourusername" error={validationErrors.githubUrl} />
-                            </ProfileSection>
+                            {/* Job Preferences */}
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Job Preferences</h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                                    {/* Preferred Work Mode - select */}
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Preferred Work Mode</label>
+                                        <select
+                                            className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none appearance-none bg-no-repeat bg-[right_12px_center] pr-9 disabled:opacity-70 [&_option]:bg-[#1a1a2e] [&_option]:text-white"
+                                            name="preferredWorkMode"
+                                            value={profileData.preferredWorkMode}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditing}
+                                            style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.6)' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")" }}
+                                        >
+                                            <option value="">Select work mode</option>
+                                            <option value="Remote">Remote</option>
+                                            <option value="Hybrid">Hybrid</option>
+                                            <option value="On-site">On-site</option>
+                                            <option value="Flexible">Flexible</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Preferred Job Type - select */}
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Preferred Job Type</label>
+                                        <select
+                                            className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none appearance-none bg-no-repeat bg-[right_12px_center] pr-9 disabled:opacity-70 [&_option]:bg-[#1a1a2e] [&_option]:text-white"
+                                            name="preferredJobType"
+                                            value={profileData.preferredJobType}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditing}
+                                            style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.6)' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")" }}
+                                        >
+                                            <option value="">Select job type</option>
+                                            <option value="Full-time">Full-time</option>
+                                            <option value="Part-time">Part-time</option>
+                                            <option value="Contract">Contract</option>
+                                            <option value="Freelance">Freelance</option>
+                                            <option value="Internship">Internship</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Willing to Relocate - checkbox */}
+                                    <div className="flex flex-row items-center gap-2">
+                                        <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold flex items-center gap-2.5 cursor-pointer text-sm">
+                                            <input
+                                                type="checkbox"
+                                                name="willingToRelocate"
+                                                checked={profileData.willingToRelocate as boolean}
+                                                onChange={handleInputChange}
+                                                disabled={!isEditing}
+                                                className="w-[18px] h-[18px] accent-brand-primary cursor-pointer"
+                                            />
+                                            Willing to Relocate
+                                        </label>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Skills */}
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Skills</h3>
+                                <div className="flex flex-wrap gap-2.5 items-center">
+                                    {profileData.skills.map((item, index) => (
+                                        <div key={index}>
+                                            {isEditing ? (
+                                                <div className="flex gap-2 items-center">
+                                                    <input
+                                                        className="py-2 px-2.5 rounded-lg border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)] text-[rgba(255,255,255,0.92)]"
+                                                        value={item}
+                                                        onChange={(e) => handleArrayChange('skills', index, e.target.value)}
+                                                        placeholder="Enter skill"
+                                                    />
+                                                    <Button
+                                                        className="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.3)] text-[#fca5a5] py-1.5 px-2.5 rounded-md cursor-pointer text-xs transition-all duration-200 hover:bg-[rgba(239,68,68,0.2)]"
+                                                        onClick={() => removeArrayItem('skills', index)}
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <span className="bg-[rgba(255,255,255,0.03)] text-[rgba(255,255,255,0.9)] py-2 px-3 rounded-full font-semibold">{item}</span>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {isEditing && (
+                                        <Button className="bg-[rgba(255,255,255,0.03)] border border-dashed border-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.9)] py-2 px-3 rounded-[10px] cursor-pointer font-bold" onClick={() => addArrayItem('skills')}>
+                                            Add Skill
+                                        </Button>
+                                    )}
+                                    {!isEditing && profileData.skills.length === 0 && (
+                                        <p className="text-[rgba(255,255,255,0.5)] italic text-sm m-0">No skills added yet</p>
+                                    )}
+                                </div>
+                            </section>
+
+                            {/* Languages */}
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Languages</h3>
+                                <div className="flex flex-wrap gap-2.5 items-center">
+                                    {profileData.languages.map((item, index) => (
+                                        <div key={index}>
+                                            {isEditing ? (
+                                                <div className="flex gap-2 items-center">
+                                                    <input
+                                                        className="py-2 px-2.5 rounded-lg border border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)] text-[rgba(255,255,255,0.92)]"
+                                                        value={item}
+                                                        onChange={(e) => handleArrayChange('languages', index, e.target.value)}
+                                                        placeholder="Enter language"
+                                                    />
+                                                    <Button
+                                                        className="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.3)] text-[#fca5a5] py-1.5 px-2.5 rounded-md cursor-pointer text-xs transition-all duration-200 hover:bg-[rgba(239,68,68,0.2)]"
+                                                        onClick={() => removeArrayItem('languages', index)}
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <span className="bg-[rgba(255,255,255,0.03)] text-[rgba(255,255,255,0.9)] py-2 px-3 rounded-full font-semibold">{item}</span>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {isEditing && (
+                                        <Button className="bg-[rgba(255,255,255,0.03)] border border-dashed border-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.9)] py-2 px-3 rounded-[10px] cursor-pointer font-bold" onClick={() => addArrayItem('languages')}>
+                                            Add Language
+                                        </Button>
+                                    )}
+                                    {!isEditing && profileData.languages.length === 0 && (
+                                        <p className="text-[rgba(255,255,255,0.5)] italic text-sm m-0">No languages added yet</p>
+                                    )}
+                                </div>
+                            </section>
+
+                            {/* Education */}
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Education</h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                                    <Input label="Highest Qualification" name="education" value={profileData.education} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Bachelor of Science in Computer Science" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="University/School" name="university" value={profileData.university} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Stanford University" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Graduation Year" name="graduationYear" value={profileData.graduationYear} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., 2021" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                </div>
+                            </section>
+
+                            {/* Links */}
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Links <span className="text-xs font-normal text-[rgba(255,255,255,0.5)]">(Optional)</span></h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                                    <Input label="LinkedIn URL" name="linkedinUrl" value={profileData.linkedinUrl} onChange={handleInputChange} disabled={!isEditing} placeholder="https://linkedin.com/in/yourprofile" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.linkedinUrl} style={errorBorderStyle(validationErrors.linkedinUrl)} />
+                                    <Input label="GitHub URL" name="githubUrl" value={profileData.githubUrl} onChange={handleInputChange} disabled={!isEditing} placeholder="https://github.com/yourusername" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.githubUrl} style={errorBorderStyle(validationErrors.githubUrl)} />
+                                </div>
+                            </section>
 
                             {/* Resume Upload */}
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">

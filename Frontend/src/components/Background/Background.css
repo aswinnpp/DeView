@@ -1,7 +1,3 @@
-/* Background.css — Floating light particles animation
-   These styles use unique per-element animation timings and positions
-   that are best kept in CSS rather than Tailwind utilities */
-
 body {
   background: rgba(15, 15, 25, 0.9);
 }

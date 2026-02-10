@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 
@@ -40,7 +40,7 @@ const LoadingFallback = () => (
 
 
 
-const AppRouter: React.FC = () => {
+const AppRouter = () => {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>

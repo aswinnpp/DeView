@@ -1,10 +1,17 @@
-import React from "react";
+
 import { Link } from "react-router-dom";
 import Background from "@components/Background/Background";
 import { useLogin } from "@/hooks/auth/useLogin";
 import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
+import { Input, Button } from "../../components/common";
 
-const LoginPage: React.FC = () => {
+const inputWrapperClass = "relative flex items-center bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]";
+const inputClass = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";
+const iconClass = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center";
+const passwordIconClass = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center text-[10px] before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent";
+const toggleClass = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-1 rounded transition-colors duration-300 hover:text-white text-xs min-w-10";
+
+const LoginPage = () => {
   const {
     formData,
     showPassword,
@@ -38,41 +45,36 @@ const LoginPage: React.FC = () => {
             {errorToShow && <div className="text-brand-red text-sm mb-3 block">{errorToShow}</div>}
             <form onSubmit={handleSubmit} className="w-full">
               <div className="mb-3.5">
-                <div className="relative flex items-center bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]">
-                  <span className="text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center">@</span>
-                  <input
+                <div className={inputWrapperClass}>
+                  <span className={iconClass}>@</span>
+                  <Input
                     type="email"
                     name="email"
                     placeholder="Email"
+                    className={inputClass}
                     value={formData.email}
                     onChange={handleInputChange}
                     required
                     autoComplete="email"
-                    className="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]"
                   />
                 </div>
               </div>
               <div className="mb-3.5">
-                <div className="relative flex items-center bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]">
-                  <span className="text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center text-[10px] before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent"></span>
-                  <input
+                <div className={inputWrapperClass}>
+                  <span className={passwordIconClass}></span>
+                  <Input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Password"
+                    className={inputClass}
                     value={formData.password}
                     onChange={handleInputChange}
                     required
                     autoComplete="current-password"
-                    className="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]"
                   />
-                  <button
-                    type="button"
-                    className="bg-none border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-1 rounded transition-colors duration-300 hover:text-white text-xs min-w-10"
-                    onClick={togglePasswordVisibility}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
+                  <Button type="button" className={toggleClass} onClick={togglePasswordVisibility} aria-label={showPassword ? "Hide password" : "Show password"}>
                     {showPassword ? "Hide" : "Show"}
-                  </button>
+                  </Button>
                 </div>
               </div>
               <div className="flex justify-between items-center mb-4">
@@ -81,9 +83,9 @@ const LoginPage: React.FC = () => {
                 </Link>
               </div>
 
-              <button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-pink to-brand-pink-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(236,72,153,0.3)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading || googleLoading}>
+              <Button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-pink to-brand-pink-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(236,72,153,0.3)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading || googleLoading}>
                 {isLoading ? "Logging in..." : "LOGIN"}
-              </button>
+              </Button>
 
               {/* Divider */}
               <div className="flex items-center my-4 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
@@ -91,7 +93,7 @@ const LoginPage: React.FC = () => {
               </div>
 
               {/* Google Login */}
-              <button
+              <Button
                 type="button"
                 onClick={() => initiateGoogleAuth()}
                 className="w-full py-3 px-4 border border-[rgba(255,255,255,0.2)] rounded-xl text-sm font-medium cursor-pointer transition-all duration-300 flex items-center justify-center gap-3 bg-[rgba(255,255,255,0.05)] text-white hover:not-disabled:bg-[rgba(255,255,255,0.1)] hover:not-disabled:border-[rgba(255,255,255,0.3)] hover:not-disabled:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
@@ -104,7 +106,7 @@ const LoginPage: React.FC = () => {
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
                 {googleLoading ? "Connecting..." : "Continue with Google"}
-              </button>
+              </Button>
             </form>
             {/* Mobile auth links */}
             <div className="hidden max-[679px]:block text-center mt-5 text-[rgba(255,255,255,0.7)] text-sm">

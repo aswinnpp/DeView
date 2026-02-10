@@ -1,8 +1,9 @@
-import React from 'react';
+
 import { Link, useNavigate } from 'react-router-dom';
 import Background from '@components/Background/Background';
+import { Button } from '../../components/common';
 
-const NotFoundPage: React.FC = () => {
+const NotFoundPage = () => {
     const navigate = useNavigate();
 
     return (
@@ -38,7 +39,7 @@ const NotFoundPage: React.FC = () => {
                         </svg>
                         Back to Home
                     </Link>
-                    <button
+                    <Button
                         onClick={() => navigate(-1)}
                         className="inline-flex items-center gap-2.5 py-4 px-7 rounded-xl font-semibold text-base no-underline transition-all duration-300 cursor-pointer bg-[rgba(255,255,255,0.05)] text-white border border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.3)] hover:-translate-y-0.5 max-md:w-full max-md:max-w-[280px] max-md:justify-center"
                     >
@@ -47,7 +48,7 @@ const NotFoundPage: React.FC = () => {
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
                         Go Back
-                    </button>
+                    </Button>
                 </div>
             </div>
 

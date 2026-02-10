@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Background from '@components/Background/Background';
 
-const LandingPage: React.FC = () => {
+const LandingPage = () => {
     return (
         <div className="min-h-screen relative font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-white overflow-x-hidden">
             <Background />

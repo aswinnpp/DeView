@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
+import { Button } from '../../components/common';
 
 interface CandidateNavHeaderProps {
     title: string;
@@ -13,7 +14,7 @@ interface Notification {
     time: string;
 }
 
-const CandidateNavHeader: React.FC<CandidateNavHeaderProps> = ({ title, currentPage }) => {
+const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => {
     const [showNotifications, setShowNotifications] = useState<boolean>(false);
     const notificationRef = useRef<HTMLDivElement>(null);
 
@@ -89,7 +90,7 @@ const CandidateNavHeader: React.FC<CandidateNavHeaderProps> = ({ title, currentP
                 )}
 
                 <div className="relative" ref={notificationRef}>
-                    <button
+                    <Button
                         className="bg-none border-none cursor-pointer text-xl text-[rgba(255,255,255,0.95)] relative"
                         onClick={() => setShowNotifications((v) => !v)}
                         aria-expanded={showNotifications}
@@ -104,7 +105,7 @@ const CandidateNavHeader: React.FC<CandidateNavHeaderProps> = ({ title, currentP
                                 {notifications.length}
                             </span>
                         )}
-                    </button>
+                    </Button>
 
                     {showNotifications && (
                         <div
@@ -114,12 +115,12 @@ const CandidateNavHeader: React.FC<CandidateNavHeaderProps> = ({ title, currentP
                         >
                             <div className="flex justify-between items-center py-3.5 px-4 border-b border-[rgba(255,255,255,0.04)]">
                                 <h3 className="m-0 text-white text-[15px]">Notifications</h3>
-                                <button
+                                <Button
                                     className="bg-none border-none text-[rgba(255,255,255,0.7)] cursor-pointer"
                                     onClick={() => setShowNotifications(false)}
                                 >
                                     ✕
-                                </button>
+                                </Button>
                             </div>
                             <div>
                                 {notifications.length === 0 ? (
