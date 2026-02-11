@@ -8,14 +8,27 @@ import { ForgotPasswordUseCase } from '../../../application/auth/use-cases/Forgo
 import { ResetPasswordUseCase } from '../../../application/auth/use-cases/ResetPasswordUseCase.js';
 import { VerifyPasswordResetOTPUseCase } from '../../../application/auth/use-cases/VerifyPasswordResetOTPUseCase.js';
 import { SecureJwtTokenService } from '../../../infrastructure/security/SecureJwtTokenService.js';
-import {
-  RegisterBody,
-  VerifyOTPBody,
-  LoginBody,
-  ResendOTPBody,
-  ForgotPasswordBody,
-  ResetPasswordBody
-} from '../types/requestTypes.js';
+import type { RegisterUserRequestDTO } from '../../../application/auth/dtos/RegisterUserRequestDTO.js';
+import type { LoginRequestDTO } from '../../../application/auth/dtos/LoginRequestDTO.js';
+import type { ResetPasswordRequest } from '../../../../Shared/contracts/auth/resetPassword.js';
+
+type RegisterBody = RegisterUserRequestDTO;
+type LoginBody = LoginRequestDTO;
+
+interface VerifyOTPBody {
+  email: string;
+  otp: string;
+}
+
+interface ResendOTPBody {
+  email: string;
+}
+
+interface ForgotPasswordBody {
+  email: string;
+}
+
+type ResetPasswordBody = ResetPasswordRequest;
 
 export class AuthController {
   constructor(

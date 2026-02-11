@@ -1,7 +1,9 @@
 import { z } from 'zod';
+import { verifyOtpRequestSchema } from '@shared/contracts/auth/otp';
 
 export const otpSchema = z.object({
-  otpCode: z.string().regex(/^\d{4}$/, { message: 'OTP must be a 4-digit code' }),
+  // UI uses otpCode, backend contract uses otp
+  otpCode: verifyOtpRequestSchema.shape.otp,
 });
 
 export type OtpFormValues = z.infer<typeof otpSchema>;

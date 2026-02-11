@@ -1,16 +1,8 @@
+import { resendOtpRequestSchema } from '../../../../Shared/contracts/auth/otp.js';
+import { zodToFastifyBody } from './schemaToFastify.js';
+
 export const resendOTPSchema = {
-    body: {
-        type: 'object',
-        required: ['email'],
-        properties: {
-            email: {
-                type: 'string',
-                format: 'email',
-                description: 'User email address'
-            }
-        },
-        additionalProperties: false
-    },
+    body: zodToFastifyBody(resendOtpRequestSchema),
     response: {
         200: {
             type: 'object',

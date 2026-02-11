@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm, type SubmitHandler, type UseFormReturn } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useApi } from '../useApi';
 import { forgotPasswordSchema, type ForgotPasswordFormValues } from '../../utils/validation/auth/forgotPasswordSchema';

@@ -1,8 +1,7 @@
 import { z } from 'zod';
+import { loginRequestSchema } from '@shared/contracts/auth/login';
 
-export const loginSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-});
+// UI schema (same as request contract for /auth/login)
+export const loginSchema = loginRequestSchema;
 
 export type LoginFormValues = z.infer<typeof loginSchema>;

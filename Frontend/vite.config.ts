@@ -10,12 +10,17 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@components': path.resolve(__dirname, './src/components'),
+      '@shared': path.resolve(__dirname, '../Shared'),
     },
   },
 
 
   server: {
     port: 5174,
-    strictPort: true
+    strictPort: true,
+    fs: {
+      // allow importing shared contracts outside Frontend/
+      allow: [path.resolve(__dirname, '..')],
+    },
   }
 })

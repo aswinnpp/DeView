@@ -1,14 +1,8 @@
+import { registerRequestSchema } from '../../../../Shared/contracts/auth/register.js';
+import { zodToFastifyBody } from './schemaToFastify.js';
+
 export const registerSchema = {
-    body: {
-        type: 'object',
-        required: ['fullName', 'email', 'password', 'role'],
-        properties: {
-            fullName: { type: 'string', minLength: 2, maxLength: 100 },
-            email: { type: 'string', format: 'email' },
-            password: { type: 'string', minLength: 6 },
-            role: { type: 'string', enum: ['admin', 'company', 'hr', 'interviewer', 'candidate'] },
-        },
-    },
+    body: zodToFastifyBody(registerRequestSchema),
     response: {
         201: {
             type: 'object',

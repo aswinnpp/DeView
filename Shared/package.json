@@ -1,0 +1,9 @@
+{
+  "name": "shared-contracts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}
+

@@ -398,6 +398,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
             hrName: details.hrName || "HR Partner",
             interviewerName: details.interviewerName || "Interviewer TBD",
             candidateName: details.candidateName,
+            candidateId,
             scheduledAt: details.scheduledAt || new Date().toISOString(),
             jd: details.jd || "Interview slot",
             jobId

@@ -12,11 +12,12 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "outDir": "./dist",
-        "rootDir": "./",
+        "rootDir": "../",
         "allowSyntheticDefaultImports": true
     },
     "include": [
-        "**/*.ts"
+        "**/*.ts",
+        "../Shared/**/*.ts"
     ],
     "exclude": [
         "node_modules",

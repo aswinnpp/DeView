@@ -1,12 +1,8 @@
+import { verifyOtpRequestSchema } from '../../../../Shared/contracts/auth/otp.js';
+import { zodToFastifyBody } from './schemaToFastify.js';
+
 export const verifyOTPSchema = {
-    body: {
-        type: 'object',
-        required: ['email', 'otp'],
-        properties: {
-            email: { type: 'string', format: 'email' },
-            otp: { type: 'string', minLength: 4, maxLength: 4 },
-        },
-    },
+    body: zodToFastifyBody(verifyOtpRequestSchema),
     response: {
         200: {
             type: 'object',

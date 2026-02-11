@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useForm, type SubmitHandler, type UseFormReturn } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useApi } from '../useApi';
 import { resetPasswordSchema, type ResetPasswordFormValues } from '../../utils/validation/auth/resetPasswordSchema';

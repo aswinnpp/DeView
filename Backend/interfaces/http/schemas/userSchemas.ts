@@ -1,3 +1,6 @@
+import { userContractSchema } from '../../../../Shared/contracts/auth/user.js';
+import { zodToFastifyBody } from './schemaToFastify.js';
+
 // Common error response schema
 const errorResponse = {
     type: 'object',
@@ -13,19 +16,8 @@ const messageResponse = {
     },
 };
 
-// User Schema
-export const userSchema = {
-    type: 'object',
-    properties: {
-        id: { type: 'string' },
-        fullName: { type: 'string' },
-        email: { type: 'string' },
-        role: { type: 'string' },
-        isActive: { type: 'boolean' },
-        isEmailVerified: { type: 'boolean' },
-        createdAt: { type: 'string', format: 'date-time' },
-    },
-};
+// User Schema (from Zod contract)
+export const userSchema = zodToFastifyBody(userContractSchema);
 
 export const getUserSchema = {
     response: {

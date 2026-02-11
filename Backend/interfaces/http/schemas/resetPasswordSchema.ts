@@ -1,13 +1,8 @@
+import { resetPasswordRequestSchema } from '../../../../Shared/contracts/auth/resetPassword.js';
+import { zodToFastifyBody } from './schemaToFastify.js';
+
 export const resetPasswordSchema = {
-    body: {
-        type: 'object',
-        required: ['email', 'otp', 'newPassword'],
-        properties: {
-            email: { type: 'string', format: 'email' },
-            otp: { type: 'string' },
-            newPassword: { type: 'string', minLength: 6 },
-        },
-    },
+    body: zodToFastifyBody(resetPasswordRequestSchema),
     response: {
         200: {
             type: 'object',

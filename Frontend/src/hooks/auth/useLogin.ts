@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { useForm, type SubmitHandler, type UseFormReturn } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useApi } from '../useApi';
 import { loginSchema, type LoginFormValues } from '../../utils/validation/auth/loginSchema';

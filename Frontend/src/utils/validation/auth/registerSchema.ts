@@ -1,12 +1,11 @@
 import { z } from 'zod';
+import { registerRequestSchema } from '@shared/contracts/auth/register';
 
 export const registerSchema = z
   .object({
-    fullName: z.string().min(2, { message: 'Full name must be at least 2 characters' }),
-    email: z.string().email({ message: 'Please enter a valid email' }),
-    password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+    ...registerRequestSchema.shape,
+    // UI-only field
     confirmPassword: z.string().min(1, { message: 'Please confirm your password' }),
-    role: z.enum(['candidate', 'company']),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ['confirmPassword'],

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useApi } from '../useApi';
-import { useForm, type SubmitHandler, type UseFormReturn } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { otpSchema, type OtpFormValues } from '../../utils/validation/auth/otpSchema';
 

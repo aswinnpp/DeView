@@ -1,12 +1,8 @@
+import { loginRequestSchema } from '../../../../Shared/contracts/auth/login.js';
+import { zodToFastifyBody } from './schemaToFastify.js';
+
 export const loginSchema = {
-    body: {
-        type: 'object',
-        required: ['email', 'password'],
-        properties: {
-            email: { type: 'string', format: 'email' },
-            password: { type: 'string', minLength: 6 },
-        },
-    },
+    body: zodToFastifyBody(loginRequestSchema),
     response: {
         200: {
             type: 'object',
@@ -20,8 +16,6 @@ export const loginSchema = {
                         role: { type: 'string' },
                     },
                 },
-                accessToken: { type: 'string' },
-                refreshToken: { type: 'string' },
             },
         },
     },
