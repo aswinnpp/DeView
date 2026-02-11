@@ -5,92 +5,56 @@ import { useApi } from '../useApi';
 import { setUser } from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
 
-// ===========================================
-// TYPES
-// ===========================================
-
-interface TokenExchangeRequest {
-    sessionId: string;
-}
-
-interface TokenExchangeResponse {
-    user: {
-        id: string;
-        fullName: string;
-        email: string;
-        role: string;
-    };
-    role: string;
-    // No tokens in response - they're in HTTP-only cookies
-}
-
-interface UseGoogleAuthData {
-    initiateGoogleAuth: (role?: string) => void;
-    handleCallback: () => Promise<boolean>;
-}
-
-interface UseGoogleAuthReturn {
-    isLoading: boolean;
-    error: string | null;
-    data: UseGoogleAuthData;
-}
-
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export function useGoogleAuth(): UseGoogleAuthReturn {
-    const navigate = useNavigate();
-    const dispatch = useDispatch<AppDispatch>();
-    const [searchParams] = useSearchParams();
-    const [error, setError] = useState<string | null>(null);
+type TokenExchangeResponse = {
+  user: { id: string; fullName: string; email: string; role: string };
+  role: string;
+};
 
-    const { loading: isLoading, execute } = useApi<TokenExchangeResponse>('/auth/google/exchange', 'GET');
+export function useGoogleAuth() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const [searchParams] = useSearchParams();
+  const [error, setError] = useState<string | null>(null);
 
-    // Start Google authentication
-    const initiateGoogleAuth = useCallback((role: string = 'candidate') => {
-        // Redirect to backend Google auth endpoint
-        window.location.href = `${API_BASE_URL}/auth/google?role=${role}`;
-    }, []);
+  const { loading: isLoading, execute } = useApi<TokenExchangeResponse>('/auth/google/exchange', 'GET');
 
-    // Handle the callback after Google redirects back
-    const handleCallback = useCallback(async (): Promise<boolean> => {
-        setError(null);
+  const initiateGoogleAuth = useCallback((role = 'candidate') => {
+    window.location.href = `${API_BASE_URL}/auth/google?role=${role}`;
+  }, []);
 
-        const sessionId = searchParams.get('sessionId');
+  const handleCallback = useCallback(async (): Promise<boolean> => {
+    setError(null);
+    const sessionId = searchParams.get('sessionId');
 
-        if (!sessionId) {
-            setError('Invalid callback. No session ID found.');
-            return false;
-        }
+    if (!sessionId) {
+      setError('Invalid callback. No session ID found.');
+      return false;
+    }
 
-        // Exchange session ID for user info (tokens set as cookies by backend)
-        const result = await execute({
-            params: { sessionId } as TokenExchangeRequest,
-        });
-        console.log(result, "sssssss");
+    const result = await execute({ params: { sessionId } });
 
-        if (result) {
-            // Store only user info in Redux (tokens are in HTTP-only cookies!)
-            dispatch(setUser(result.user));
+    if (!result) {
+      setError('Failed to complete Google sign in. Please try again.');
+      return false;
+    }
 
-            // Redirect based on role
-            const role = result.role;
-            if (role === 'candidate') {
-                navigate('/candidate/profile');
-            } else if (role === 'company') {
-                navigate('/company/dashboard');
-            } else if (role === 'hr') {
-                navigate('/hr/dashboard');
-            } else {
-                navigate('/');
-            }
+    dispatch(setUser(result.user));
+    const role = result.role;
 
-            return true;
-        }
+    if (role === 'candidate') {
+      navigate('/candidate/profile');
+    } else if (role === 'company') {
+      navigate('/company/dashboard');
+    } else if (role === 'hr') {
+      navigate('/hr/dashboard');
+    } else {
+      navigate('/');
+    }
 
-        setError('Failed to complete Google sign in. Please try again.');
-        return false;
-    }, [searchParams, execute, navigate, dispatch]);
+    return true;
+  }, [searchParams, execute, navigate, dispatch]);
 
-    return { isLoading, error, data: { initiateGoogleAuth, handleCallback } };
+  return { isLoading, error, data: { initiateGoogleAuth, handleCallback } };
 }

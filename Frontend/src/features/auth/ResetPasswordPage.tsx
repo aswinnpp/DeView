@@ -15,13 +15,13 @@ const ResetPasswordPage = () => {
     error,
     data,
   } = useResetPassword();
-  const { form, onSubmit, showNewPassword, showConfirmPassword, isSuccess, paramError, toggleNewPasswordVisibility, toggleConfirmPasswordVisibility } = data;
+  const { form, onSubmit, showNewPassword, showConfirmPassword, invalidSession, toggleNewPasswordVisibility, toggleConfirmPasswordVisibility } = data;
   const { register, handleSubmit, formState } = form;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
       <Background />
-      <div className="bg-[rgba(15,15,25,0.95)] rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.1)] w-full max-w-[820px] h-[520px] overflow-y-auto overflow-x-hidden relative flex flex-col max-md:rounded-2xl max-sm:rounded-xl max-sm:h-auto">
+      <div className="bg-[rgba(15,15,25,0.95)] rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.1)] w-full max-w-[960px] min-h-[600px] overflow-hidden relative flex flex-col max-md:rounded-2xl max-sm:rounded-xl max-sm:min-h-[520px]">
         {/* Header */}
         <div className="py-5 px-7 border-b border-[rgba(255,255,255,0.1)] flex justify-between items-center max-md:py-4 max-md:px-5">
           <div className="flex items-center gap-3">
@@ -33,16 +33,16 @@ const ResetPasswordPage = () => {
         <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
           {/* Form Section */}
           <div className="py-8 px-8 flex flex-col justify-center relative text-center max-sm:py-6 max-sm:px-5">
-            {paramError && (
+            {invalidSession && (
               <div>
                 <h1 className="text-white text-xl font-bold mb-2">Session Expired</h1>
-                <p className="text-brand-red text-sm mb-5">{data.paramError}</p>
+                <p className="text-brand-red text-sm mb-5">{error}</p>
                 <Link to="/forgot-password" className="block w-full p-3.5 border-none rounded-xl text-sm font-semibold no-underline text-center bg-linear-to-br from-brand-indigo to-brand-indigo-dark text-white">
                   Go to Forgot Password
                 </Link>
               </div>
             )}
-            {!isSuccess && !paramError ? (
+            {!invalidSession ? (
               <div>
                 <h1 className="text-white text-xl font-bold mb-2">Reset Password</h1>
                 <p className="text-[rgba(255,255,255,0.7)] text-sm leading-relaxed mb-5">
@@ -90,18 +90,6 @@ const ResetPasswordPage = () => {
                     {isLoading ? "Resetting..." : "Reset Password"}
                   </Button>
                 </form>
-              </div>
-            ) : isSuccess ? (
-              <div className="text-center">
-                <h2 className="text-white text-xl font-bold mb-2">Password Reset Successfully!</h2>
-                <p className="text-[rgba(255,255,255,0.7)] text-sm leading-relaxed mb-5">
-                  Your password has been updated. You can now log in with your new password.
-                </p>
-                <div>
-                  <Link to="/login" className="inline-block w-full p-3.5 border-none rounded-xl text-sm font-semibold no-underline text-center bg-linear-to-br from-brand-pink to-brand-pink-dark text-white">
-                    Continue to Login
-                  </Link>
-                </div>
               </div>
             ) : null}
             <div className="hidden max-[679px]:block text-center mt-5 text-[rgba(255,255,255,0.7)] text-sm">

@@ -1,124 +1,63 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useForm, type SubmitHandler, type UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useApi } from '../useApi';
+import { resetPasswordSchema, type ResetPasswordFormValues } from '../../utils/validation/auth/resetPasswordSchema';
 
+const STORAGE_KEY_PENDING_RESET = 'pendingResetEmail';
+const SESSION_EXPIRED_MESSAGE = 'Reset session expired. Please request a new password reset.';
 
-interface ResetPasswordRequest {
-    email: string;
-    otp: string;
-    newPassword: string;
-}
+type ResetPasswordResponse = { message: string };
 
-interface ResetPasswordResponse {
-    message: string;
-}
+export function useResetPassword() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-const resetPasswordSchema = z.object({
-    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'Passwords must match',
-});
+  const passedEmail = location.state.email;
+  const storedEmail = localStorage.getItem(STORAGE_KEY_PENDING_RESET);
+  const email = passedEmail || storedEmail || '';
+  const otp = location.state.email.otp || '';
+  const invalidSession = !email || !otp;
 
-type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+  const { loading: isLoading, execute, error: serverError } = useApi<ResetPasswordResponse>('/auth/reset-password', 'POST');
+  const error = invalidSession ? SESSION_EXPIRED_MESSAGE : serverError;
 
-interface UseResetPasswordData {
-    form: UseFormReturn<ResetPasswordFormValues>;
-    showNewPassword: boolean;
-    showConfirmPassword: boolean;
-    isSuccess: boolean;
-    paramError: string | null;
-    onSubmit: SubmitHandler<ResetPasswordFormValues>;
-    toggleNewPasswordVisibility: () => void;
-    toggleConfirmPasswordVisibility: () => void;
-}
+  const form = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { newPassword: '', confirmPassword: '' },
+    mode: 'onSubmit',
+  });
 
-interface UseResetPasswordReturn {
-    isLoading: boolean;
-    error: string | null;
-    data: UseResetPasswordData;
-}
+  const toggleNewPasswordVisibility = useCallback(() => setShowNewPassword(prev => !prev), []);
+  const toggleConfirmPasswordVisibility = useCallback(() => setShowConfirmPassword(prev => !prev), []);
 
+  const onSubmit: SubmitHandler<ResetPasswordFormValues> = async ({ newPassword }) => {
+    if (invalidSession) return;
 
-export function useResetPassword(): UseResetPasswordReturn {
-    const location = useLocation();
-
-    const [showNewPassword, setShowNewPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
-    const [paramError, setParamError] = useState<string | null>(null);
-
-    const locationState = location.state as { email?: string; otp?: string } | null;
-
-    const storedEmail = localStorage.getItem('pendingResetEmail');
-
-    const email = locationState?.email || storedEmail || '';
-    const otp = locationState?.otp || '';
-
-    const { loading: isLoading, execute, error: serverError } = useApi<ResetPasswordResponse>(
-        '/auth/reset-password',
-        'POST'
-    );
-
-    const form = useForm<ResetPasswordFormValues>({
-        resolver: zodResolver(resetPasswordSchema),
-        defaultValues: {
-            newPassword: '',
-            confirmPassword: '',
-        },
-        mode: 'onSubmit',
+    const result = await execute({
+      data: { email, otp, newPassword },
     });
 
-    useEffect(() => {
-        if (!email || !otp) {
-            setParamError('Reset session expired. Please request a new password reset.');
-        }
-    }, [email, otp]);
+    if (result) {
+      localStorage.removeItem(STORAGE_KEY_PENDING_RESET);
+      navigate('/login', { replace: true });
+    }
+  };
 
-    const toggleNewPasswordVisibility = useCallback(() => {
-        setShowNewPassword(prev => !prev);
-    }, []);
-
-    const toggleConfirmPasswordVisibility = useCallback(() => {
-        setShowConfirmPassword(prev => !prev);
-    }, []);
-
-    const onSubmit: SubmitHandler<ResetPasswordFormValues> = async ({ newPassword }) => {
-        if (!email || !otp) {
-            setParamError('Reset session expired. Please request a new password reset.');
-            return;
-        }
-
-        const result = await execute({
-            data: {
-                email,
-                otp,
-                newPassword,
-            } as ResetPasswordRequest,
-        });
-
-        if (result) {
-            localStorage.removeItem('pendingResetEmail');
-            setIsSuccess(true);
-        }
-    };
-
-    return {
-        isLoading,
-        error: serverError,
-        data: {
-            showNewPassword,
-            showConfirmPassword,
-            isSuccess,
-            paramError,
-            form,
-            onSubmit,
-            toggleNewPasswordVisibility,
-            toggleConfirmPasswordVisibility,
-        },
-    };
+  return {
+    isLoading,
+    error,
+    data: {
+      showNewPassword,
+      showConfirmPassword,
+      invalidSession,
+      form,
+      onSubmit,
+      toggleNewPasswordVisibility,
+      toggleConfirmPasswordVisibility,
+    },
+  };
 }

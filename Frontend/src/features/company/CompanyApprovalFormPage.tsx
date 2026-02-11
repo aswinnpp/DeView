@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Input, Button } from '../../components/common';
 import { useCompanyApprovalForm } from '../../hooks/company';
 
@@ -6,6 +7,7 @@ const formInputClass = "w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[
 const formLabelClass = "block mb-2 text-[13px] font-semibold text-[#cbd5e1]";
 
 const CompanyApprovalFormPage = () => {
+    const navigate = useNavigate();
     const {
         formData,
         documentTypes,
@@ -19,7 +21,7 @@ const CompanyApprovalFormPage = () => {
         getRequiredDocCount,
         getUploadedDoc,
         isDocUploading,
-    } = useCompanyApprovalForm();
+    } = useCompanyApprovalForm({ onSuccess: () => navigate('/company/approval-pending') });
 
     return (
         <div className="min-h-screen bg-linear-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-[#e2e8f0]">

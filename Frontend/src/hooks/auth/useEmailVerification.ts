@@ -1,165 +1,79 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { api } from '../useApi';
+import { useApi } from '../useApi';
 import { useForm, type SubmitHandler, type UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getErrorMessage } from '../../utils/validation/apiValidation';
+import { otpSchema, type OtpFormValues } from '../../utils/validation/auth/otpSchema';
 
-interface VerifyEmailOtpResponse {
-    message: string;
-}
+const STORAGE_KEY_VERIFY = 'pendingVerificationEmail';
+const STORAGE_KEY_RESET = 'pendingResetEmail';
 
-interface VerifyPasswordResetOtpResponse {
-    valid: boolean;
-}
+type VerifyOtpResponse = { message?: string; valid?: boolean };
+type ResendOtpResponse = { message: string; email?: string };
 
-interface ResendOtpResponse {
-    message: string;
-    email: string;
-}
+export function useEmailVerification() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const [invalidOtpMessage, setInvalidOtpMessage] = useState<string | null>(null);
 
-interface ForgotPasswordResponse {
-    message: string;
-}
+  const modeParam = searchParams.get('mode');
+  const mode = modeParam === 'password-reset' ? 'password-reset' : 'email-verification';
 
-const otpSchema = z.object({
-    otpCode: z
-        .string()
-        .regex(/^\d{4}$/, 'OTP must be a 4-digit code'),
-});
+  const locationState = location.state && typeof location.state === 'object' ? (location.state as { email?: string }) : null;
+  const storageKey = mode === 'password-reset' ? STORAGE_KEY_RESET : STORAGE_KEY_VERIFY;
+  const userEmail = locationState?.email || localStorage.getItem(storageKey) || '';
 
-type OtpFormValues = z.infer<typeof otpSchema>;
+  const { loading: verifyLoading, error: verifyError, execute: executeVerify } = useApi<VerifyOtpResponse>('/auth/verify-otp', 'POST');
+  const { loading: resendLoading, error: resendError, execute: executeResend } = useApi<ResendOtpResponse>('/auth/resend-otp', 'POST');
 
-interface UseEmailVerificationData {
-    form: UseFormReturn<OtpFormValues>;
-    mode: 'email-verification' | 'password-reset';
-    userEmail: string;
-    handleResendOtp: () => Promise<boolean>;
-    onSubmit: SubmitHandler<OtpFormValues>;
-}
+  const isLoading = verifyLoading || resendLoading;
+  const error = verifyError || resendError || invalidOtpMessage;
 
-interface UseEmailVerificationReturn {
-    isLoading: boolean;
-    error: string | null;
-    data: UseEmailVerificationData;
-}
+  const form = useForm<OtpFormValues>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: { otpCode: '' },
+    mode: 'onSubmit',
+  });
 
-export function useEmailVerification(): UseEmailVerificationReturn {
-    const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const location = useLocation();
+  const onSubmit: SubmitHandler<OtpFormValues> = async ({ otpCode }) => {
+    if (!userEmail) return;
+    setInvalidOtpMessage(null);
 
-    // Determine flow mode
-    const modeParam = searchParams.get('mode');
-    const mode: 'email-verification' | 'password-reset' =
-        modeParam === 'password-reset' ? 'password-reset' : 'email-verification';
-
-    const locationState = location.state as { email?: string } | null;
-
-    const storageKey = mode === 'password-reset' ? 'pendingResetEmail' : 'pendingVerificationEmail';
-    const storedEmail = localStorage.getItem(storageKey);
-
-    const userEmail = locationState?.email || storedEmail || '';
-
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-
-    const form = useForm<OtpFormValues>({
-        resolver: zodResolver(otpSchema),
-        defaultValues: {
-            otpCode: '',
-        },
-        mode: 'onSubmit',
+    const verifyUrl = mode === 'password-reset' ? '/auth/verify-password-reset-otp' : '/auth/verify-otp';
+    const result = await executeVerify({
+      url: verifyUrl,
+      data: { email: userEmail, otp: otpCode },
     });
 
-    const onSubmit: SubmitHandler<OtpFormValues> = async ({ otpCode }) => {
-        setIsLoading(true);
-        setError(null);
+    if (!result) return;
 
-        if (!userEmail) {
-            setError('Missing email for verification. Please restart the flow.');
-            setIsLoading(false);
-            return;
-        }
+    if (mode === 'password-reset') {
+      const valid = 'valid' in result && result.valid === true;
+      if (!valid) {
+        setInvalidOtpMessage('Incorrect OTP. Please try again.');
+        return;
+      }
+      localStorage.removeItem(STORAGE_KEY_RESET);
+      form.reset();
+      navigate('/reset-password', { state: { email: userEmail, otp: otpCode, verified: true } });
+    } else {
+      localStorage.removeItem(STORAGE_KEY_VERIFY);
+      form.reset();
+      navigate('/login', { state: { message: 'Email verified! You can now login.' } });
+    }
+  };
 
-        try {
-            if (mode === 'password-reset') {
-                const { data } = await api.post<VerifyPasswordResetOtpResponse>('/auth/verify-password-reset-otp', {
-                    email: userEmail,
-                    otp: otpCode,
-                });
+  const handleResendOtp = async (): Promise<boolean> => {
+    if (isLoading || !userEmail) return false;
+    const resendUrl = mode === 'password-reset' ? '/auth/forgot-password' : '/auth/resend-otp';
+    const result = await executeResend({ url: resendUrl, data: { email: userEmail } });
+    return result != null;
+  };
 
-                if (!data.valid) {
-                    setError('Incorrect OTP. Please try again.');
-                    return;
-                }
-
-                // Clean up stored email on success
-                localStorage.removeItem('pendingResetEmail');
-                form.reset();
-                setTimeout(() => {
-                    navigate('/reset-password', {
-                        state: { email: userEmail, otp: otpCode, verified: true },
-                    });
-                }, 1000);
-            } else {
-                await api.post<VerifyEmailOtpResponse>('/auth/verify-otp', {
-                    email: userEmail,
-                    otp: otpCode,
-                });
-
-                // Clean up stored email on success
-                localStorage.removeItem('pendingVerificationEmail');
-                form.reset();
-                setTimeout(() => {
-                    navigate('/login', {
-                        state: { message: 'Email verified! You can now login.' },
-                    });
-                }, 1000);
-            }
-        } catch (err) {
-            setError(getErrorMessage(err));
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleResendOtp = async (): Promise<boolean> => {
-        if (isLoading) return false;
-        setIsLoading(true);
-        setError(null);
-
-        if (!userEmail) {
-            setError('Missing email. Please restart verification.');
-            setIsLoading(false);
-            return false;
-        }
-
-        try {
-            if (mode === 'password-reset') {
-                await api.post<ForgotPasswordResponse>('/auth/forgot-password', { email: userEmail });
-            } else {
-                await api.post<ResendOtpResponse>('/auth/resend-otp', { email: userEmail });
-            }
-            return true;
-        } catch (err) {
-            setError(getErrorMessage(err));
-            return false;
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return {
-        isLoading,
-        error,
-        data: {
-            form,
-            mode,
-            userEmail,
-            handleResendOtp,
-            onSubmit,
-        },
-    };
+  return {
+    isLoading,
+    error,
+    data: { form, mode, userEmail, handleResendOtp, onSubmit },
+  };
 }

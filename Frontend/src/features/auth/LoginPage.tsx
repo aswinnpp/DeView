@@ -25,12 +25,18 @@ const LoginPage = () => {
   const googleLoading = google.isLoading;
   const googleError = google.error;
 
-  const errorToShow = error || googleError || formState.errors.root?.message;
+ 
+  const errorToShow =
+    error ||
+    googleError ||
+    formState.errors.root?.message ||
+    formState.errors.email?.message ||
+    formState.errors.password?.message; 
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
       <Background />
-      <div className="bg-[rgba(15,15,25,0.95)] rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.1)] w-full max-w-[820px] h-[520px] overflow-hidden relative flex flex-col max-md:rounded-2xl max-sm:rounded-xl max-sm:h-auto">
+      <div className="bg-[rgba(15,15,25,0.95)] rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.1)] w-full max-w-[960px] min-h-[600px] overflow-hidden relative flex flex-col max-md:rounded-2xl max-sm:rounded-xl max-sm:min-h-[520px]">
         {/* Auth Header */}
         <div className="py-5 px-7 border-b border-[rgba(255,255,255,0.1)] flex justify-between items-center max-md:py-4 max-md:px-5">
           <div className="flex items-center gap-3">
@@ -42,7 +48,6 @@ const LoginPage = () => {
         <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
           {/* Form Section */}
           <div className="py-8 px-8 flex flex-col justify-center relative text-center max-sm:py-6 max-sm:px-5">
-            {errorToShow && <div className="text-brand-red text-sm mb-3 block">{errorToShow}</div>}
             <form onSubmit={handleSubmit(onSubmit)} className="w-full">
               <div className="mb-3.5">
                 <div className={inputWrapperClass}>
@@ -56,6 +61,7 @@ const LoginPage = () => {
                     autoComplete="email"
                   />
                 </div>
+                
               </div>
               <div className="mb-3.5">
                 <div className={inputWrapperClass}>
@@ -77,6 +83,12 @@ const LoginPage = () => {
                     {showPassword ? "Hide" : "Show"}
                   </Button>
                 </div>
+            {errorToShow && (
+                <div className="text-brand-red text-sm mb-3 block" role="alert">
+                  {typeof errorToShow === "string" ? errorToShow : String(errorToShow)}
+                </div>
+              )}
+                
               </div>
               <div className="flex justify-between items-center mb-4">
                 <Link to="/forgot-password" className="text-brand-primary no-underline text-sm transition-colors duration-300 hover:text-[#5a67d8]">
