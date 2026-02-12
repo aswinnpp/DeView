@@ -41,26 +41,14 @@ export class AuthController {
     private readonly verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
     private readonly tokenService: SecureJwtTokenService
-  ) { }
+  ) {}
 
   register = async (
     request: FastifyRequest<{ Body: RegisterBody }>,
     reply: FastifyReply
   ) => {
-    const { fullName, email, password, role, companyName } = request.body;
-
-    const result = await this.registerUserUseCase.execute({
-      fullName,
-      email,
-      password,
-      role,
-      companyName,
-    });
-
-    reply.code(201).send({
-      message: result.message,
-      email: result.email,
-    });
+    const result = await this.registerUserUseCase.execute(request.body);
+    reply.code(201).send(result);
   };
 
   verifyOTP = async (
@@ -69,19 +57,16 @@ export class AuthController {
   ) => {
     const { email, otp } = request.body;
 
-    const result = await this.verifyOTPUseCase.execute({ email, otp });
+    await this.verifyOTPUseCase.execute(email, otp);
 
-    reply.code(200).send(result);
+    reply.code(200).send({ success: true });
   };
 
   resendOTP = async (
     request: FastifyRequest<{ Body: ResendOTPBody }>,
     reply: FastifyReply
   ) => {
-    const { email } = request.body;
-
-    const result = await this.resendOTPUseCase.execute({ email });
-
+    const result = await this.resendOTPUseCase.execute(request.body);
     reply.code(200).send(result);
   };
 
@@ -89,46 +74,43 @@ export class AuthController {
     request: FastifyRequest<{ Body: LoginBody }>,
     reply: FastifyReply
   ) => {
-    const { email, password } = request.body;
 
-    const result = await this.loginUseCase.execute({ email, password });
+    const {email ,password} =request.body
+    const result = await this.loginUseCase.execute(email, password);
 
-    // Set BOTH tokens as HTTP-only cookies
     this.setAccessTokenCookie(reply, result.accessToken);
     this.setRefreshTokenCookie(reply, result.refreshToken);
 
-    // Only send user info (no tokens in response body!)
-    reply.code(200).send({
-      user: result.user,
-    });
+    reply.code(200).send({ user: result.user,});
   };
 
   refresh = async (request: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = this.getCookie(request, 'refreshToken');
 
-    const result = await this.refreshTokenUseCase.execute({
-      refreshToken: refreshToken || '',
-    });
+   if (!refreshToken) {
+  reply.code(401).send({ error: "No refresh token" });
+  return;
+}
 
-    // Set new tokens as cookies
+const result = await this.refreshTokenUseCase.execute(refreshToken);
+
+
     this.setAccessTokenCookie(reply, result.accessToken);
     this.setRefreshTokenCookie(reply, result.newRefreshToken);
 
     reply.code(200).send({
       message: 'Token refreshed successfully',
-      role: result.role,
+      
     });
   };
 
   logout = async (request: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = this.getCookie(request, 'refreshToken');
+    const accessToken = this.getCookie(request, 'accessToken');
 
-    // Revoke token in Redis
-    if (refreshToken) {
-      await this.tokenService.revokeRefreshToken(refreshToken);
-    }
+    if (refreshToken) await this.tokenService.revokeRefreshToken(refreshToken);
+    if (accessToken) await this.tokenService.revokeAccessToken(accessToken);
 
-    // Clear both cookies
     this.clearCookie(reply, 'accessToken');
     this.clearCookie(reply, 'refreshToken');
 
@@ -139,14 +121,8 @@ export class AuthController {
     request: FastifyRequest<{ Body: ForgotPasswordBody }>,
     reply: FastifyReply
   ) => {
-    const { email } = request.body;
-
-    // Let the error propagate if email doesn't exist
-    await this.forgotPasswordUseCase.execute(email);
-
-    reply.code(200).send({
-      message: 'OTP has been sent to your email.',
-    });
+    await this.forgotPasswordUseCase.execute(request.body.email);
+    reply.code(200).send({ message: 'OTP has been sent to your email.' });
   };
 
   verifyPasswordResetOTP = async (
@@ -171,9 +147,7 @@ export class AuthController {
     reply.code(200).send({ message: 'Password reset successfully' });
   };
 
-  // =====================
-  // HELPER METHODS
-  // =====================
+  // ================= Helpers =================
 
   private getCookie(request: FastifyRequest, name: string): string | null {
     const cookies = request.headers.cookie || '';
@@ -183,45 +157,39 @@ export class AuthController {
 
   private setAccessTokenCookie(reply: FastifyReply, token: string): void {
     const isProduction = process.env.NODE_ENV === 'production';
-    const options = [
-      `accessToken=${token}`,
-      'Path=/',
-      'HttpOnly',
-      'SameSite=Strict',
-      'Max-Age=900', // 15 minutes
-      isProduction ? 'Secure' : '',
-    ].filter(Boolean).join('; ');
 
-    reply.header('Set-Cookie', options);
+    reply.header(
+      'Set-Cookie',
+      [
+        `accessToken=${token}`,
+        'Path=/',
+        'HttpOnly',
+        'SameSite=Lax',
+        'Max-Age=900',
+        isProduction ? 'Secure' : '',
+      ].filter(Boolean).join('; ')
+    );
   }
 
   private setRefreshTokenCookie(reply: FastifyReply, token: string): void {
     const isProduction = process.env.NODE_ENV === 'production';
-    const options = [
+
+    const cookie = [
       `refreshToken=${token}`,
       'Path=/',
       'HttpOnly',
-      'SameSite=Strict',
-      'Max-Age=604800', // 7 days
+      'SameSite=Lax',
+      'Max-Age=604800',
       isProduction ? 'Secure' : '',
     ].filter(Boolean).join('; ');
 
-    // Append to existing cookies
-    const existingCookie = reply.getHeader('Set-Cookie');
-    if (existingCookie) {
-      reply.header('Set-Cookie', [existingCookie as string, options]);
-    } else {
-      reply.header('Set-Cookie', options);
-    }
+    const existing = reply.getHeader('Set-Cookie');
+    reply.header('Set-Cookie', existing ? [existing as string, cookie] : cookie);
   }
 
   private clearCookie(reply: FastifyReply, name: string): void {
-    const cookie = `${name}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`;
-    const existingCookie = reply.getHeader('Set-Cookie');
-    if (existingCookie) {
-      reply.header('Set-Cookie', [existingCookie as string, cookie]);
-    } else {
-      reply.header('Set-Cookie', cookie);
-    }
+    const cookie = `${name}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+    const existing = reply.getHeader('Set-Cookie');
+    reply.header('Set-Cookie', existing ? [existing as string, cookie] : cookie);
   }
 }

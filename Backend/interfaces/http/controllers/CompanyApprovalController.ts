@@ -1,75 +1,91 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
-import { CompanyApprovalUseCase } from '../../../application/company/CompanyApprovalUseCase.js';
-import { CompanyDocuments } from '../../../infrastructure/persistence/mongodb/schemas/CompanyApprovalDocument.js';
+import { FastifyRequest, FastifyReply } from "fastify";
+import { CheckCompanyStatusUseCase } from "../../../application/company/use-cases/CheckCompanyStatusUseCase";
+import { SubmitCompanyApprovalUseCase } from "../../../application/company/use-cases/SubmitCompanyApprovalUseCase";
+import { CompanyDocuments } from "../../../infrastructure/persistence/mongodb/schemas/CompanyApprovalDocument";
+import {GetMyCompanyApprovalUseCase}  from "../../../application/company/use-cases/GetMyCompanyApprovalUseCase"
 
 interface CheckStatusBody {
-    userId: string;
+  userId: string;
 }
 
 interface SubmitApprovalBody {
-    companyName: string;
-    address: string;
-    contactPerson: string;
-    contactEmail: string;
-    contactPhone: string;
-    taxId: string;
-    website?: string;
-    numberOfEmployees: string;
-    documents: CompanyDocuments;
+  companyName: string;
+  address: string;
+  contactPerson: string;
+  contactEmail: string;
+  contactPhone: string;
+  taxId: string;
+  website?: string;
+  numberOfEmployees: string;
+  documents: CompanyDocuments;
 }
 
 export class CompanyApprovalController {
-    constructor(
-        private readonly companyApprovalUseCase: CompanyApprovalUseCase
-    ) {
-        this.checkStatus = this.checkStatus.bind(this);
-        this.submit = this.submit.bind(this);
+  constructor(
+    private readonly checkStatusUseCase: CheckCompanyStatusUseCase,
+    private readonly submitApprovalUseCase: SubmitCompanyApprovalUseCase,
+     private getMyApprovalUseCase: GetMyCompanyApprovalUseCase
+  ) {}
+
+  // POST /company/check-status
+  async checkStatus(
+    request: FastifyRequest<{ Body: CheckStatusBody }>,
+    reply: FastifyReply
+  ) {
+const result = await this.checkStatusUseCase.execute({
+  userId: request.body.userId,
+});
+
+    if (!result.success) {
+      return reply.status(400).send({ error: result.error });
     }
 
-    /**
-     * POST /company/check-status
-     * Check if company approval exists for a user (used during login)
-     */
-    async checkStatus(
-        request: FastifyRequest<{ Body: CheckStatusBody }>,
-        reply: FastifyReply
-    ): Promise<void> {
-        const result = await this.companyApprovalUseCase.checkStatus(request.body);
+    reply.status(200).send(result.data);
+  }
+getMyApproval = async (
+  request: FastifyRequest,
+  reply: FastifyReply
+) => {
+  const user = request.currentUser;
 
-        if (!result.success) {
-            return reply.status(400).send({ error: result.error });
-        }
+  if (!user) {
+    reply.code(401).send({ error: "Unauthorized" });
+    return;
+  }
 
-        return reply.status(200).send(result.data);
+  const approval = await this.getMyApprovalUseCase.execute(user.userId);
+
+  if (!approval) {
+    reply.code(404).send({ error: "No approval found" });
+    return;
+  }
+
+  reply.send(approval);
+};
+
+
+  async submit(
+    request: FastifyRequest<{ Body: SubmitApprovalBody }>,
+    reply: FastifyReply
+  ) {
+    const user = (request as any).user;
+
+    if (!user?.userId) {
+      return reply.status(401).send({ error: "Unauthorized" });
     }
 
-    /**
-     * POST /company/submit
-     * Submit a new company approval request
-     */
-    async submit(
-        request: FastifyRequest<{ Body: SubmitApprovalBody }>,
-        reply: FastifyReply
-    ): Promise<void> {
-        // Get userId from JWT token
-        const user = (request as any).user;
+    const result = await this.submitApprovalUseCase.execute({
+      userId: user.userId,
+      ...request.body,
+    });
 
-        if (!user?.id) {
-            return reply.status(401).send({ error: 'Unauthorized - Please login first' });
-        }
-
-        const result = await this.companyApprovalUseCase.submit({
-            userId: user.id,
-            ...request.body
-        });
-
-        if (!result.success) {
-            return reply.status(400).send({ error: result.error });
-        }
-
-        return reply.status(201).send({
-            message: result.message,
-            approvalId: result.data.approvalId
-        });
+    if (!result.success) {
+      return reply.status(400).send({ error: result.error });
     }
+
+    reply.status(201).send({
+      message: "Approval submitted",
+      approvalId: result.data,
+    });
+  }
 }

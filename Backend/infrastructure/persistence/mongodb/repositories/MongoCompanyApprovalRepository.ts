@@ -1,78 +1,77 @@
-import { Collection } from 'mongodb';
-import { CompanyApprovalDocument, CompanyDocuments } from '../schemas/CompanyApprovalDocument.js';
+import { Collection, ObjectId } from "mongodb";
+import { CompanyApprovalRepository } from "../../../../domain/company/repositories/CompanyApprovalRepository";
+import { CompanyApproval } from "../../../../domain/company/entities/CompanyApprovalEntitie";
+import { CompanyApprovalDocument } from "../schemas/CompanyApprovalDocument";
 
-export interface CompanyApprovalStatusResponse {
-    exists: boolean;
-    status: 'not_found' | 'pending' | 'approved' | 'rejected';
-    companyName?: string;
-    rejectionReason?: string;
-}
+export class MongoCompanyApprovalRepository implements CompanyApprovalRepository {
+  constructor(private collection: Collection<CompanyApprovalDocument>) {}
 
-export interface SubmitApprovalData {
-    userId: string;
-    companyName: string;
-    address: string;
-    contactPerson: string;
-    contactEmail: string;
-    contactPhone: string;
-    taxId: string;
-    website?: string;
-    numberOfEmployees: string;
-    documents: CompanyDocuments;
-}
+  async findById(id: string): Promise<CompanyApproval | null> {
+    const doc = await this.collection.findOne({ _id: new ObjectId(id) });
+    return doc ? this.toDomain(doc) : null;
+  }
 
-export class MongoCompanyApprovalRepository {
-    constructor(private readonly collection: Collection<CompanyApprovalDocument>) { }
+  async findByUserId(userId: string): Promise<CompanyApproval | null> {
+    const doc = await this.collection.findOne({ userId });
+    return doc ? this.toDomain(doc) : null;
+  }
 
-    /**
-     * Check if a company approval exists for a user and return its status
-     */
-    async checkStatus(userId: string): Promise<CompanyApprovalStatusResponse> {
-        const doc = await this.collection.findOne({ userId });
+  async findPending(): Promise<CompanyApproval[]> {
+    const docs = await this.collection.find({ status: "pending" }).toArray();
+    return docs.map(d => this.toDomain(d));
+  }
 
-        if (!doc) {
-            return {
-                exists: false,
-                status: 'not_found'
-            };
-        }
+  async save(approval: CompanyApproval): Promise<void> {
+    const doc = this.toDocument(approval);
 
-        return {
-            exists: true,
-            status: doc.status,
-            companyName: doc.companyName,
-            rejectionReason: doc.rejectionReason
-        };
+    if (!approval.id) {
+      await this.collection.insertOne(doc);
+      return;
     }
 
-    /**
-     * Find approval by user ID
-     */
-    async findByUserId(userId: string): Promise<CompanyApprovalDocument | null> {
-        return await this.collection.findOne({ userId });
-    }
+    const { _id, ...update } = doc;
 
-    /**
-     * Create a new company approval request
-     */
-    async create(data: SubmitApprovalData): Promise<string> {
-        const doc: CompanyApprovalDocument = {
-            userId: data.userId,
-            companyName: data.companyName,
-            address: data.address,
-            contactPerson: data.contactPerson,
-            contactEmail: data.contactEmail,
-            contactPhone: data.contactPhone,
-            taxId: data.taxId,
-            website: data.website,
-            numberOfEmployees: data.numberOfEmployees,
-            documents: data.documents,
-            status: 'pending',
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
+    await this.collection.updateOne(
+      { _id },
+      { $set: update }
+    );
+  }
 
-        const result = await this.collection.insertOne(doc);
-        return result.insertedId.toString();
-    }
+  private toDomain(doc: CompanyApprovalDocument): CompanyApproval {
+    return new CompanyApproval(
+      doc._id?.toString() || null,
+      doc.userId,
+      doc.companyName,
+      doc.address,
+      doc.contactPerson,
+      doc.contactEmail,
+      doc.contactPhone,
+      doc.taxId,
+      doc.numberOfEmployees,
+      doc.documents,
+      doc.website,
+      doc.status,
+      doc.rejectionReason
+    );
+  }
+
+  private toDocument(entity: CompanyApproval): CompanyApprovalDocument {
+    return {
+      ...(entity.id && { _id: new ObjectId(entity.id) }),
+      userId: entity.userId,
+      companyName: entity.companyName,
+      address: entity.address,
+      contactPerson: entity.contactPerson,
+      contactEmail: entity.contactEmail,
+      contactPhone: entity.contactPhone,
+      taxId: entity.taxId,
+      numberOfEmployees: entity.numberOfEmployees,
+      documents: entity.documents,
+      website: entity.website,
+      status: entity.status,
+      rejectionReason: entity.rejectionReason,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
 }

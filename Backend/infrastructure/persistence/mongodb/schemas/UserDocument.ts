@@ -10,7 +10,6 @@ export interface UserDocument {
     role: string;
     isActive: boolean;
     isEmailVerified: boolean;
-    authProvider: 'email' | 'google';
     googleId?: string;
     createdAt: Date;
     updatedAt: Date;

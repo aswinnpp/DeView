@@ -28,8 +28,10 @@ async function bootstrap() {
         exposedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
     });
 
-    // Initialize Redis connection
+     if (!redisClient.isOpen) {
     await redisClient.connect();
+    console.log(" Redis connected");
+  }
 
     const db = await initializeDatabase();
     fastify.decorate('db', db);

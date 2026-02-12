@@ -1,42 +1,31 @@
-import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
-import { OTPRepository } from '../../../domain/otp/repositories/OTPRepository.js';
-import { PasswordHasherPort } from '../ports/PasswordHasherPort.js';
-import { TokenServicePort } from '../ports/TokenServicePort.js';
-import { Email } from '../../../domain/user/value-objects/Email.js';
+import { UserRepository } from "../../../domain/user/repositories/UserRepository";
+import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
+import { Email } from "../../../domain/user/value-objects/Email";
+import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
+import { PasswordHasherPort } from "../ports/PasswordHasherPort";
+import { TokenServicePort } from "../ports/TokenServicePort";
 
 export class ResetPasswordUseCase {
-    constructor(
-        private userRepository: UserRepository,
-        private otpRepository: OTPRepository,
-        private passwordHasher: PasswordHasherPort,
-        private tokenService: TokenServicePort
-    ) { }
+  constructor(
+    private userRepo: UserRepository,
+    private otpRepo: OTPRepository,
+    private hasher: PasswordHasherPort,
+    private tokenService: TokenServicePort
+  ) {}
 
-    async execute(email: string, otp: string, newPassword: string): Promise<void> {
-        const emailVO = new Email(email);
+  async execute(emailStr: string, otpStr: string, newPassword: string) {
+    const email = new Email(emailStr);
+    const otp = new OTPCode(otpStr);
 
-        const storedOTP = await this.otpRepository.findOTP(emailVO.getValue());
+    const stored = await this.otpRepo.find(email.getValue());
+    if (!stored || !stored.equals(otp)) throw new Error("Invalid OTP");
 
-        if (!storedOTP || storedOTP !== otp) {
-            throw new Error('Invalid or expired OTP');
-        }
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) throw new Error("User not found");
 
-        const user = await this.userRepository.findByEmail(emailVO);
-
-        if (!user) {
-            throw new Error('User not found');
-        }
-
-        if (user.authProvider === 'google') {
-            throw new Error('Cannot reset password for Google accounts');
-        }
-
-        const hashedPassword = await this.passwordHasher.hash(newPassword);
-
-        await this.userRepository.updatePassword(user.id!, hashedPassword);
-
-        await this.otpRepository.deleteOTP(emailVO.getValue());
-
-        await this.tokenService.revokeAllUserTokens(user.id!);
-    }
+    const hash = await this.hasher.hash(newPassword);
+    await this.userRepo.save(user);
+    await this.otpRepo.delete(email.getValue());
+    await this.tokenService.revokeAllUserTokens(user.id!);
+  }
 }

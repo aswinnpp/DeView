@@ -1,19 +1,17 @@
+
+
 export class Email {
-    private readonly value: string;
+  private value: string;
 
-    constructor(email: string) {
-        this.value = email.toLowerCase().trim();
+  constructor(email: string) {
+    if (!email.includes("@")) {
+      throw new Error("Invalid email");
     }
 
-    getValue(): string {
-        return this.value;
-    }
+    this.value = email.toLowerCase().trim();
+  }
 
-    equals(other: Email): boolean {
-        return this.value === other.value;
-    }
-
-    toString(): string {
-        return this.value;
-    }
+  getValue(): string {
+    return this.value;
+  }
 }

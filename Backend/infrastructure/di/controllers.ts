@@ -1,43 +1,53 @@
-import { UseCases } from './useCases.js';
-import { Services } from './services.js';
-import { Repositories } from './repositories.js';
+import { UseCases } from './useCases';
+import { Services } from './services';
+import { Repositories } from './repositories';
 
-import { AuthController } from '../../interfaces/http/controllers/AuthController.js';
-import { GoogleAuthController } from '../../interfaces/http/controllers/GoogleAuthController.js';
-import { CompanyApprovalController } from '../../interfaces/http/controllers/CompanyApprovalController.js';
+import { AuthController } from '../../interfaces/http/controllers/AuthController';
+import { GoogleAuthController } from '../../interfaces/http/controllers/GoogleAuthController';
+import { CompanyApprovalController } from '../../interfaces/http/controllers/CompanyApprovalController';
+import { AdminCompanyApprovalController } from '../../interfaces/http/controllers/AdminCompanyApprovalController';
 
 export interface Controllers {
-    authController: AuthController;
-    googleAuthController: GoogleAuthController;
-    companyApprovalController: CompanyApprovalController;
+  authController: AuthController;
+  googleAuthController: GoogleAuthController;
+  companyApprovalController: CompanyApprovalController;
+  adminCompanyApprovalController: AdminCompanyApprovalController;
 }
 
 export function createControllers(
-    useCases: UseCases,
-    services: Services,
-    repositories: Repositories
+  useCases: UseCases,
+  services: Services,
+  repositories: Repositories
 ): Controllers {
-    return {
-        authController: new AuthController(
-            useCases.registerUserUseCase,
-            useCases.verifyOTPUseCase,
-            useCases.loginUseCase,
-            useCases.resendOTPUseCase,
-            useCases.refreshTokenUseCase,
-            useCases.forgotPasswordUseCase,
-            useCases.verifyPasswordResetOTPUseCase,
-            useCases.resetPasswordUseCase,
-            services.tokenService
-        ),
-        googleAuthController: new GoogleAuthController(
-            services.googleAuthService,
-            services.tokenService,
-            repositories.userRepository
-        ),
-        companyApprovalController: new CompanyApprovalController(
-            useCases.companyApprovalUseCase
-        ),
-    };
+  return {
+    authController: new AuthController(
+      useCases.registerUserUseCase,
+      useCases.verifyOTPUseCase,
+      useCases.loginUseCase,
+      useCases.resendOTPUseCase,
+      useCases.refreshTokenUseCase,
+      useCases.forgotPasswordUseCase,
+      useCases.verifyPasswordResetOTPUseCase,
+      useCases.resetPasswordUseCase,
+      services.tokenService
+    ),
+
+    googleAuthController: new GoogleAuthController(
+      services.googleAuthService,
+      services.tokenService,
+      repositories.userRepository
+    ),
+
+    companyApprovalController: new CompanyApprovalController(
+      useCases.checkCompanyStatusUseCase,
+      useCases.submitCompanyApprovalUseCase,
+      useCases.getMyApprovalUseCase
+    ),
+
+    adminCompanyApprovalController: new AdminCompanyApprovalController(
+      useCases.getPendingCompaniesUseCase,
+      useCases.approveCompanyUseCase,
+      useCases.rejectCompanyUseCase
+    ),
+  };
 }
-
-

@@ -1,41 +1,26 @@
-export type RoleType = 'admin' | 'company' | 'hr' | 'interviewer' | 'candidate';
+export type RoleType =
+  | "admin"
+  | "company"
+  | "hr"
+  | "interviewer"
+  | "candidate";
 
 export class Role {
-    private readonly value: RoleType;
+  private value: RoleType;
 
-    constructor(role: string) {
-        this.value = role as RoleType;
+  constructor(role: string) {
+    if (!["admin","company","hr","interviewer","candidate"].includes(role)) {
+      throw new Error("Invalid role");
     }
 
-    getValue(): RoleType {
-        return this.value;
-    }
+    this.value = role as RoleType;
+  }
 
-    isAdmin(): boolean {
-        return this.value === 'admin';
-    }
+  getValue(): RoleType {
+    return this.value;
+  }
 
-    isCompany(): boolean {
-        return this.value === 'company';
-    }
-
-    isHR(): boolean {
-        return this.value === 'hr';
-    }
-
-    isInterviewer(): boolean {
-        return this.value === 'interviewer';
-    }
-
-    isCandidate(): boolean {
-        return this.value === 'candidate';
-    }
-
-    equals(other: Role): boolean {
-        return this.value === other.value;
-    }
-
-    toString(): string {
-        return this.value;
-    }
+  isCompany() {
+    return this.value === "company";
+  }
 }

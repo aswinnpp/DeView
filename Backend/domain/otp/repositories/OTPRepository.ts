@@ -1,5 +1,8 @@
+
+import { OTPCode } from "../value-objects/OTPCode";
+
 export interface OTPRepository {
-    saveOTP(email: string, otp: string): Promise<void>;
-    findOTP(email: string): Promise<string | null>;
-    deleteOTP(email: string): Promise<void>;
+  save(email: string, otp: OTPCode): Promise<void>;
+  find(email: string): Promise<OTPCode | null>;
+  delete(email: string): Promise<void>;
 }

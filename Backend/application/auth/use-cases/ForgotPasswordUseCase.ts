@@ -1,39 +1,30 @@
-import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
-import { OTPRepository } from '../../../domain/otp/repositories/OTPRepository.js';
-import { EmailServicePort } from '../ports/EmailServicePort.js';
-import { Email } from '../../../domain/user/value-objects/Email.js';
-
-import { ValidationError } from '../../../shared/errors/ValidationError.js';
+import { UserRepository } from "../../../domain/user/repositories/UserRepository";
+import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
+import { Email } from "../../../domain/user/value-objects/Email";
+import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
+import { EmailServicePort } from "../ports/EmailServicePort";
 
 export class ForgotPasswordUseCase {
-    constructor(
-        private userRepository: UserRepository,
-        private otpRepository: OTPRepository,
-        private emailService: EmailServicePort
-    ) { }
+  constructor(
+    private userRepo: UserRepository,
+    private otpRepo: OTPRepository,
+    private emailService: EmailServicePort
+  ) {}
 
-    async execute(email: string): Promise<void> {
-        const emailVO = new Email(email);
-        const user = await this.userRepository.findByEmail(emailVO);
+  async execute(emailStr: string) {
+    const email = new Email(emailStr);
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) throw new Error("User not found");
 
-        if (!user) {
-            throw new ValidationError('Email does not exist');
-        }
+    const otp = OTPCode.generate();
 
-        if (user.authProvider === 'google') {
-            throw new Error('Password reset is not available for Google accounts. Please use Google to sign in.');
-        }
+    await this.otpRepo.delete(email.getValue());
+    await this.otpRepo.save(email.getValue(), otp);
 
-        await this.otpRepository.deleteOTP(user.email.getValue());
-
-        const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
-
-        await this.otpRepository.saveOTP(user.email.getValue(), otpCode);
-
-        await this.emailService.sendPasswordResetOTP(
-            user.email.getValue(),
-            otpCode,
-            user.fullName
-        );
-    }
+    await this.emailService.sendPasswordResetOTP(
+      email.getValue(),
+      otp.getValue(),
+      user.fullName
+    );
+  }
 }

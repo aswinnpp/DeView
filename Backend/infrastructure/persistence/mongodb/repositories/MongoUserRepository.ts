@@ -6,100 +6,60 @@ import { Role } from '../../../../domain/user/value-objects/Role';
 import { UserDocument } from '../schemas/UserDocument';
 
 export class MongoUserRepository implements UserRepository {
-    constructor(private readonly collection: Collection<UserDocument>) { }
-    async findByEmail(email: Email): Promise<User | null> {
-        const doc = await this.collection.findOne({ email: email.getValue() });
-        return doc ? this.toDomain(doc) : null;
-    }
-    async findById(id: string): Promise<User | null> {
-        const doc = await this.collection.findOne({ _id: new ObjectId(id) });
-        return doc ? this.toDomain(doc) : null;
+  constructor(private collection: Collection<UserDocument>) {}
+
+  async findByEmail(email: Email): Promise<User | null> {
+    const doc = await this.collection.findOne({ email: email.getValue() });
+    return doc ? this.toDomain(doc) : null;
+  }
+
+  async findById(id: string): Promise<User | null> {
+    const doc = await this.collection.findOne({ _id: new ObjectId(id) });
+    return doc ? this.toDomain(doc) : null;
+  }
+
+  async save(user: User): Promise<void> {
+    const doc = this.toDocument(user);
+
+    if (!user.id) {
+      await this.collection.insertOne(doc);
+      return;
     }
 
-    async findByRole(role: string): Promise<User[]> {
-        const docs = await this.collection.find({ role }).toArray();
-        return docs.map(doc => this.toDomain(doc));
-    }
+    const { _id, ...update } = doc;
 
-    async findByCompanyId(companyId: string): Promise<User[]> {
-        const docs = await this.collection.find({ companyId }).toArray();
-        return docs.map(doc => this.toDomain(doc));
-    }
+    await this.collection.updateOne(
+      { _id },
+      { $set: update }
+    );
+  }
 
-    async findByCompanyIdAndRole(companyId: string, role: string): Promise<User[]> {
-        const docs = await this.collection.find({ companyId, role }).toArray();
-        return docs.map(doc => this.toDomain(doc));
-    }
+  private toDomain(doc: UserDocument): User {
+    return new User(
+      doc._id?.toString() || null,
+      doc.fullName,
+      new Email(doc.email),
+      doc.passwordHash,
+      new Role(doc.role),
+      doc.companyId,
+      doc.isActive,
+      doc.isEmailVerified
+    );
+  }
 
-    async create(user: User): Promise<string> {
-        const doc = this.toDocument(user);
-        const result = await this.collection.insertOne(doc);
-        return result.insertedId.toString();
-    }
-    async update(user: User): Promise<void> {
-        const doc = this.toDocument(user);
-        const { _id, ...updateData } = doc;
-        await this.collection.updateOne(
-            { _id: new ObjectId(user.id) },
-            { $set: updateData }
-        );
-    }
-
-    async updatePassword(userId: string, newPasswordHash: string): Promise<User> {
-        const result = await this.collection.findOneAndUpdate(
-            { _id: new ObjectId(userId) },
-            {
-                $set: {
-                    passwordHash: newPasswordHash,
-                    updatedAt: new Date()
-                }
-            },
-            { returnDocument: 'after' }
-        );
-
-        if (!result) {
-            throw new Error('User not found');
-        }
-
-        return this.toDomain(result);
-    }
-
-    async delete(id: string): Promise<void> {
-        await this.collection.deleteOne({ _id: new ObjectId(id) });
-    }
-    private toDomain(doc: UserDocument): User {
-        return User.reconstitute({
-            id: doc._id?.toString(),
-            fullName: doc.fullName,
-            companyName: doc.companyName,
-            companyId: doc.companyId,
-            email: new Email(doc.email),
-            passwordHash: doc.passwordHash,
-            role: new Role(doc.role),
-            isActive: doc.isActive,
-            isEmailVerified: doc.isEmailVerified,
-            authProvider: doc.authProvider,
-            googleId: doc.googleId,
-            createdAt: doc.createdAt,
-            updatedAt: doc.updatedAt,
-        });
-    }
-    private toDocument(user: User): UserDocument {
-        const persistence = user.toPersistence();
-        return {
-            ...(user.id && { _id: new ObjectId(user.id) }),
-            fullName: persistence.fullName,
-            companyName: persistence.companyName,
-            companyId: persistence.companyId,
-            email: persistence.email,
-            passwordHash: persistence.passwordHash,
-            role: persistence.role,
-            isActive: persistence.isActive,
-            isEmailVerified: persistence.isEmailVerified,
-            authProvider: persistence.authProvider,
-            googleId: persistence.googleId,
-            createdAt: persistence.createdAt,
-            updatedAt: persistence.updatedAt,
-        };
-    }
+  private toDocument(user: User): UserDocument {
+    return {
+      ...(user.id && { _id: new ObjectId(user.id) }),
+      fullName: user.fullName,
+      companyId: user.companyId,
+      email: user.email.getValue(),
+      passwordHash: user.passwordHash,
+      role: user.role.getValue(),
+      isActive: user.isActive,
+      isEmailVerified: user.isEmailVerified,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
 }
+

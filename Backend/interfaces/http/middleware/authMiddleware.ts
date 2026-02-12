@@ -1,55 +1,60 @@
-import { FastifyRequest, FastifyReply, HookHandlerDoneFunction } from 'fastify';
-import { AppError } from '../../../shared/errors/AppError.js';
+import { FastifyRequest, FastifyReply, HookHandlerDoneFunction } from "fastify";
+import { AppError } from "../../../shared/errors/AppError";
 
 export interface AuthenticatedUser {
-    userId: string;
-    email: string;
-    role: string;
-    companyId?: string;
+  userId: string;
+  email: string;
+  role: string;
+  companyId?: string;
 }
 
-declare module 'fastify' {
-    interface FastifyRequest {
-        currentUser: AuthenticatedUser;
-    }
+declare module "fastify" {
+  interface FastifyRequest {
+    currentUser: AuthenticatedUser;
+  }
 }
 
-export function requireAuth(request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) {
-    const user = (request as any).user;
+// Internal helper (avoid duplication)
+function attachUser(request: FastifyRequest) {
+  const user = (request as any).user;
 
-    if (!user) {
-        throw AppError.unauthorized('Authentication required');
+  if (!user) {
+    throw AppError.unauthorized("Authentication required");
+  }
+
+  request.currentUser = {
+    userId: user.userId,
+    email: user.email,
+    role: user.role,
+    companyId: user.companyId,
+  };
+
+  return user;
+}
+
+// Require login
+export function requireAuth(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  done: HookHandlerDoneFunction
+) {
+  attachUser(request);
+  done();
+}
+
+// Require specific roles
+export function requireRoles(...roles: string[]) {
+  return (
+    request: FastifyRequest,
+    reply: FastifyReply,
+    done: HookHandlerDoneFunction
+  ) => {
+    const user = attachUser(request);
+
+    if (!roles.includes(user.role)) {
+      throw AppError.forbidden(`Access denied`);
     }
-
-    request.currentUser = {
-        userId: user.userId,
-        email: user.email,
-        role: user.role,
-        companyId: user.companyId,
-    };
 
     done();
-}
-
-export function requireRoles(...roles: string[]) {
-    return (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => {
-        const user = (request as any).user;
-
-        if (!user) {
-            throw AppError.unauthorized('Authentication required');
-        }
-
-        if (!roles.includes(user.role)) {
-            throw AppError.forbidden(`Access denied. Required roles: ${roles.join(', ')}`);
-        }
-
-        request.currentUser = {
-            userId: user.userId,
-            email: user.email,
-            role: user.role,
-            companyId: user.companyId,
-        };
-
-        done();
-    };
+  };
 }

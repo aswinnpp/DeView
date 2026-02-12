@@ -1,39 +1,28 @@
-import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
-import { OTPRepository } from '../../../domain/otp/repositories/OTPRepository.js';
-import { Email } from '../../../domain/user/value-objects/Email.js';
-import { ValidationError } from '../../../shared/errors/ValidationError.js';
-import { VerifyOTPRequestDTO } from '../dtos/VerifyOTPRequestDTO.js';
-import { VerifyOTPResponseDTO } from '../dtos/VerifyOTPResponseDTO.js';
+import { UserRepository } from "../../../domain/user/repositories/UserRepository";
+import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
+import { Email } from "../../../domain/user/value-objects/Email";
+import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 
 export class VerifyOTPUseCase {
-    constructor(
-        private readonly userRepository: UserRepository,
-        private readonly otpRepository: OTPRepository
-    ) { }
+  constructor(
+    private userRepo: UserRepository,
+    private otpRepo: OTPRepository
+  ) {}
 
-    async execute(dto: VerifyOTPRequestDTO): Promise<VerifyOTPResponseDTO> {
-        const email = new Email(dto.email);
-        const user = await this.userRepository.findByEmail(email);
+  async execute(emailStr: string, otpStr: string) {
+    const email = new Email(emailStr);
+    const otp = new OTPCode(otpStr);
 
-        if (!user) {
-            throw new ValidationError('User not found');
-        }
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) throw new Error("User not found");
 
-        if (user.isEmailVerified) {
-            throw new ValidationError('Email already verified');
-        }
+    const stored = await this.otpRepo.find(email.getValue());
+    if (!stored || !stored.equals(otp)) throw new Error("Invalid OTP");
 
-        const storedOTP = await this.otpRepository.findOTP(email.getValue());
-        if (!storedOTP || storedOTP !== dto.otp) {
-            throw new ValidationError('Invalid or expired OTP');
-        }
+    user.markEmailAsVerified();
 
-        user.markEmailAsVerified();
-        await this.userRepository.update(user);
-        await this.otpRepository.deleteOTP(email.getValue());
+    await this.userRepo.save(user);
 
-        return {
-            message: 'Email verified successfully. You can now login.',
-        };
-    }
+    await this.otpRepo.delete(email.getValue());
+  }
 }

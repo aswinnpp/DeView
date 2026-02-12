@@ -1,89 +1,106 @@
-import { FastifyInstance } from 'fastify';
-import crypto from 'crypto';
-import { TokenServicePort, TokenPayload, RefreshTokenData } from '../../application/auth/ports/TokenServicePort.js';
-import { RedisRefreshTokenRepository } from '../persistence/redis/RedisRefreshTokenRepository.js';
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+
+import {
+  TokenServicePort,
+  TokenPayload,
+  RefreshTokenData,
+  RefreshTokenPayload,
+} from "../../application/auth/ports/TokenServicePort";
+
+import { RedisRefreshTokenRepository } from "../persistence/redis/RedisRefreshTokenRepository";
+import { RedisAccessTokenRepository } from "../persistence/redis/RedisAccessTokenRepository";
 
 export class SecureJwtTokenService implements TokenServicePort {
-    private refreshTokenRepo: RedisRefreshTokenRepository;
+  constructor(
+    private refreshRepo: RedisRefreshTokenRepository,
+    private accessRepo: RedisAccessTokenRepository,
+    private jwtSecret: string
+  ) {}
 
-    constructor(private readonly fastify: FastifyInstance) {
-        this.refreshTokenRepo = new RedisRefreshTokenRepository();
+  // ================= ACCESS TOKEN =================
+
+  async signAccessToken(payload: TokenPayload): Promise<string> {
+    const jti = crypto.randomUUID();
+
+    const token = jwt.sign(
+      { ...payload, jti },
+      this.jwtSecret,
+      { expiresIn: "15m" }
+    );
+
+    await this.accessRepo.save(jti, payload.userId);
+
+    return token;
+  }
+
+  verifyAccessToken(token: string): TokenPayload {
+    return jwt.verify(token, this.jwtSecret) as TokenPayload;
+  }
+
+  // ================= REFRESH TOKEN =================
+
+  async generateRefreshToken(userId: string): Promise<RefreshTokenData> {
+    const tokenId = crypto.randomUUID();
+
+    const token = jwt.sign(
+      { userId, jti: tokenId },
+      this.jwtSecret,
+      { expiresIn: "7d" }
+    );
+
+    await this.refreshRepo.save(userId, tokenId);
+
+    return {
+      token,
+      tokenHash: tokenId,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    };
+  }
+
+  async verifyRefreshToken(token: string): Promise<RefreshTokenPayload | null> {
+    try {
+      const decoded = jwt.verify(token, this.jwtSecret) as RefreshTokenPayload;
+
+      const exists = await this.refreshRepo.exists(decoded.jti);
+      if (!exists) return null;
+
+      return decoded;
+    } catch {
+      return null;
     }
+  }
 
-    // Generate access token (15 min)
-    signAccessToken(payload: TokenPayload): string {
-        return this.fastify.jwt.sign(payload, { expiresIn: '15m' });
-    }
+  async rotateRefreshToken(oldToken: string): Promise<RefreshTokenData | null> {
+    const decoded = await this.verifyRefreshToken(oldToken);
+    if (!decoded) return null;
 
-    // Generate refresh token (7 days) and store in Redis
-    async generateRefreshToken(userId: string): Promise<RefreshTokenData> {
-        const tokenId = crypto.randomUUID();
+    await this.refreshRepo.delete(decoded.jti);
 
-        const token = this.fastify.jwt.sign(
-            { userId, jti: tokenId },
-            { expiresIn: '7d' }
-        );
+    return this.generateRefreshToken(decoded.userId);
+  }
 
-        // Store in Redis for revocation
-        await this.refreshTokenRepo.save(userId, tokenId);
+  // ================= REVOKE =================
 
-        return {
-            token,
-            tokenHash: tokenId,
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        };
-    }
+  async revokeAccessToken(token: string): Promise<void> {
+    try {
+      const decoded = jwt.decode(token) as { jti?: string } | null;
+      if (decoded?.jti) {
+        await this.accessRepo.delete(decoded.jti);
+      }
+    } catch {}
+  }
 
-    // Verify access token
-    verifyAccessToken(token: string): TokenPayload {
-        return this.fastify.jwt.verify(token) as TokenPayload;
-    }
+  async revokeRefreshToken(token: string): Promise<void> {
+    try {
+      const decoded = jwt.decode(token) as { jti?: string } | null;
+      if (decoded?.jti) {
+        await this.refreshRepo.delete(decoded.jti);
+      }
+    } catch {}
+  }
 
-    // Verify refresh token and check Redis
-    async verifyRefreshToken(token: string): Promise<{ userId: string; jti: string } | null> {
-        try {
-            const decoded = this.fastify.jwt.verify(token) as { userId: string; jti: string };
-
-            // Check if token exists in Redis (not revoked)
-            const exists = await this.refreshTokenRepo.exists(decoded.jti);
-            if (!exists) {
-                return null;
-            }
-
-            return decoded;
-        } catch {
-            return null;
-        }
-    }
-
-    // Rotate refresh token (delete old, create new)
-    async rotateRefreshToken(oldToken: string): Promise<RefreshTokenData | null> {
-        const decoded = await this.verifyRefreshToken(oldToken);
-        if (!decoded) {
-            return null;
-        }
-
-        // Delete old token from Redis
-        await this.refreshTokenRepo.delete(decoded.jti);
-
-        // Generate new token
-        return this.generateRefreshToken(decoded.userId);
-    }
-
-    // Revoke a specific refresh token (logout)
-    async revokeRefreshToken(token: string): Promise<void> {
-        try {
-            const decoded = this.fastify.jwt.decode(token) as { jti: string } | null;
-            if (decoded?.jti) {
-                await this.refreshTokenRepo.delete(decoded.jti);
-            }
-        } catch {
-            // Ignore decode errors
-        }
-    }
-
-
-    async revokeAllUserTokens(userId: string): Promise<void> {
-        await this.refreshTokenRepo.deleteAllForUser(userId);
-    }
+  async revokeAllUserTokens(userId: string): Promise<void> {
+    await this.refreshRepo.deleteAllForUser(userId);
+  }
 }

@@ -1,26 +1,32 @@
-import { OTPRepository } from '../../../domain/otp/repositories/OTPRepository.js';
-import { redisClient } from '../../cache/RedisClient.js';
+import { RedisClientType } from "redis";
+import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
+import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 
 export class RedisOTPRepository implements OTPRepository {
-    private readonly OTP_PREFIX = 'otp:';
-    private readonly OTP_TTL_SECONDS = 60;
+  private readonly PREFIX = "otp:";
+  private readonly TTL_SECONDS = 60;
 
-    private getKey(email: string): string {
-        return `${this.OTP_PREFIX}${email.toLowerCase()}`;
-    }
+  constructor(private readonly redis: RedisClientType) {}
 
-    async saveOTP(email: string, otp: string): Promise<void> {
-        const key = this.getKey(email);
-        await redisClient.setex(key, this.OTP_TTL_SECONDS, otp);
-    }
+  private key(email: string): string {
+    return `${this.PREFIX}${email.toLowerCase()}`;
+  }
 
-    async findOTP(email: string): Promise<string | null> {
-        const key = this.getKey(email);
-        return await redisClient.get(key);
-    }
+  async save(email: string, otp: OTPCode): Promise<void> {
+    await this.redis.set(this.key(email), otp.getValue(), {
+      EX: this.TTL_SECONDS,
+    });
+  }
 
-    async deleteOTP(email: string): Promise<void> {
-        const key = this.getKey(email);
-        await redisClient.del(key);
-    }
+  async find(email: string): Promise<OTPCode | null> {
+    const value = await this.redis.get(this.key(email));
+
+    if (!value) return null;
+
+    return new OTPCode(value);
+  }
+
+  async delete(email: string): Promise<void> {
+    await this.redis.del(this.key(email));
+  }
 }

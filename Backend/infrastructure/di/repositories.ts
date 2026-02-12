@@ -4,6 +4,7 @@ import { MongoCompanyApprovalRepository } from '../persistence/mongodb/repositor
 import { RedisOTPRepository } from '../persistence/redis/RedisOTPRepository.js';
 import { UserDocument } from '../persistence/mongodb/schemas/UserDocument.js';
 import { CompanyApprovalDocument } from '../persistence/mongodb/schemas/CompanyApprovalDocument.js';
+import { redisClient } from '../cache/RedisClient.js';
 
 export interface Repositories {
     userRepository: MongoUserRepository;
@@ -15,10 +16,11 @@ export function createRepositories(db: Db): Repositories {
     const usersCollection = db.collection<UserDocument>('users');
     const companyApprovalsCollection = db.collection<CompanyApprovalDocument>('companyApprovals');
 
-    return {
-        userRepository: new MongoUserRepository(usersCollection),
-        otpRepository: new RedisOTPRepository(),
-        companyApprovalRepository: new MongoCompanyApprovalRepository(companyApprovalsCollection),
-    };
+   return {
+  userRepository: new MongoUserRepository(usersCollection),
+  otpRepository: new RedisOTPRepository(redisClient),
+  companyApprovalRepository: new MongoCompanyApprovalRepository(companyApprovalsCollection),
+};
+
 }
 
