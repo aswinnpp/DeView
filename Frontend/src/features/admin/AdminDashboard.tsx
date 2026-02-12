@@ -137,11 +137,9 @@ const AdminDashboard = () => {
                         {timePeriodOptions.map((period) => (
                             <Button
                                 key={period}
+                                variant={timePeriod === period ? 'primary' : 'secondary'}
                                 onClick={() => setTimePeriod(period)}
-                                className={`border-none text-[13px] font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-200 capitalize ${timePeriod === period
-                                    ? 'bg-linear-to-br from-[#6366f1] to-[#4f46e5] text-white'
-                                    : 'bg-transparent text-[#94a3b8]'
-                                    }`}
+                                className={`text-[13px] font-semibold py-2 px-4 rounded-lg capitalize ${timePeriod !== period ? '!bg-transparent !text-[#94a3b8] border-none' : 'border-none'}`}
                             >
                                 {period}
                             </Button>

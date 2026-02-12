@@ -91,7 +91,8 @@ const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => 
 
                 <div className="relative" ref={notificationRef}>
                     <Button
-                        className="bg-none border-none cursor-pointer text-xl text-[rgba(255,255,255,0.95)] relative"
+                        variant="secondary"
+                        className="!bg-none !border-none cursor-pointer text-xl text-[rgba(255,255,255,0.95)] relative"
                         onClick={() => setShowNotifications((v) => !v)}
                         aria-expanded={showNotifications}
                         aria-controls="notification-list"
@@ -116,7 +117,8 @@ const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => 
                             <div className="flex justify-between items-center py-3.5 px-4 border-b border-[rgba(255,255,255,0.04)]">
                                 <h3 className="m-0 text-white text-[15px]">Notifications</h3>
                                 <Button
-                                    className="bg-none border-none text-[rgba(255,255,255,0.7)] cursor-pointer"
+                                    variant="secondary"
+                                    className="!bg-none !border-none text-[rgba(255,255,255,0.7)] cursor-pointer"
                                     onClick={() => setShowNotifications(false)}
                                 >
                                     ✕

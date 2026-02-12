@@ -74,7 +74,7 @@ const Profile = () => {
                     {error && (
                         <div className="bg-[rgba(239,68,68,0.15)] border border-[rgba(239,68,68,0.4)] rounded-xl py-4 px-5 mb-5 flex justify-between items-center">
                             <span className="text-brand-red text-sm">⚠️ {error}</span>
-                            <Button className="bg-[rgba(239,68,68,0.2)] border border-[rgba(239,68,68,0.4)] rounded-md text-brand-red py-1.5 px-3 text-xs cursor-pointer transition-colors duration-200 hover:bg-[rgba(239,68,68,0.3)]" onClick={clearError}>
+                            <Button variant="danger" className="py-1.5 px-3 text-xs" onClick={clearError}>
                                 Dismiss
                             </Button>
                         </div>
@@ -113,7 +113,8 @@ const Profile = () => {
 
                             <div className="text-center mt-4">
                                 <Button
-                                    className="py-2.5 px-6 bg-linear-to-br from-brand-violet to-brand-cyan border-none rounded-lg text-white text-sm font-semibold cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(139,92,246,0.3)]"
+                                    variant="primary"
+                                    className="py-2.5 px-6 rounded-lg text-sm font-semibold"
                                     onClick={() => setShowProfileWarning(false)}
                                 >
                                     Got it
@@ -140,11 +141,12 @@ const Profile = () => {
                             <div className="flex gap-3 items-center max-[900px]:w-full max-[900px]:justify-end">
                                 {!isEditing ? (
                                     <>
-                                        <Button className="border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer bg-linear-to-br from-brand-primary to-brand-secondary text-white" onClick={() => setIsEditing(true)}>
+                                        <Button variant="primary" className="py-2.5 px-4 rounded-[10px] font-bold" onClick={() => setIsEditing(true)}>
                                             Edit Profile
                                         </Button>
                                         <Button
-                                            className="bg-linear-to-br from-brand-red to-brand-red-dark text-white border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer ml-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(239,68,68,0.3)]"
+                                            variant="danger"
+                                            className="py-2.5 px-4 rounded-[10px] font-bold ml-3"
                                             onClick={handleLogout}
                                             disabled={isLoggingOut}
                                         >
@@ -153,11 +155,11 @@ const Profile = () => {
                                     </>
                                 ) : (
                                     <div className="flex gap-3 items-center">
-                                        <Button className="border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer bg-linear-to-br from-brand-green to-brand-green-dark text-white disabled:opacity-60 disabled:cursor-not-allowed" onClick={handleSave} disabled={isSaving}>
+                                        <Button variant="primary" className="py-2.5 px-4 rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed" onClick={handleSave} disabled={isSaving}>
                                             {isSaving ? 'Saving...' : 'Save'}
                                         </Button>
                                         {profileExists && (
-                                            <Button className="border-none py-2.5 px-4 rounded-[10px] font-bold cursor-pointer bg-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.9)]" onClick={handleCancel}>Cancel</Button>
+                                            <Button variant="secondary" className="py-2.5 px-4 rounded-[10px] font-bold" onClick={handleCancel}>Cancel</Button>
                                         )}
                                     </div>
                                 )}
@@ -311,7 +313,8 @@ const Profile = () => {
                                                         placeholder="Enter skill"
                                                     />
                                                     <Button
-                                                        className="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.3)] text-[#fca5a5] py-1.5 px-2.5 rounded-md cursor-pointer text-xs transition-all duration-200 hover:bg-[rgba(239,68,68,0.2)]"
+                                                        variant="danger"
+                                                        className="py-1.5 px-2.5 rounded-md text-xs"
                                                         onClick={() => removeArrayItem('skills', index)}
                                                     >
                                                         Remove
@@ -323,7 +326,7 @@ const Profile = () => {
                                         </div>
                                     ))}
                                     {isEditing && (
-                                        <Button className="bg-[rgba(255,255,255,0.03)] border border-dashed border-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.9)] py-2 px-3 rounded-[10px] cursor-pointer font-bold" onClick={() => addArrayItem('skills')}>
+                                        <Button variant="secondary" className="!bg-[rgba(255,255,255,0.03)] border border-dashed border-[rgba(255,255,255,0.06)] !text-[rgba(255,255,255,0.9)] py-2 px-3 rounded-[10px] font-bold" onClick={() => addArrayItem('skills')}>
                                             Add Skill
                                         </Button>
                                     )}
@@ -348,7 +351,8 @@ const Profile = () => {
                                                         placeholder="Enter language"
                                                     />
                                                     <Button
-                                                        className="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.3)] text-[#fca5a5] py-1.5 px-2.5 rounded-md cursor-pointer text-xs transition-all duration-200 hover:bg-[rgba(239,68,68,0.2)]"
+                                                        variant="danger"
+                                                        className="py-1.5 px-2.5 rounded-md text-xs"
                                                         onClick={() => removeArrayItem('languages', index)}
                                                     >
                                                         Remove
@@ -360,7 +364,7 @@ const Profile = () => {
                                         </div>
                                     ))}
                                     {isEditing && (
-                                        <Button className="bg-[rgba(255,255,255,0.03)] border border-dashed border-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.9)] py-2 px-3 rounded-[10px] cursor-pointer font-bold" onClick={() => addArrayItem('languages')}>
+                                        <Button variant="secondary" className="!bg-[rgba(255,255,255,0.03)] border border-dashed border-[rgba(255,255,255,0.06)] !text-[rgba(255,255,255,0.9)] py-2 px-3 rounded-[10px] font-bold" onClick={() => addArrayItem('languages')}>
                                             Add Language
                                         </Button>
                                     )}

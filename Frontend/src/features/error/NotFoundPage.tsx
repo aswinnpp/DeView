@@ -40,8 +40,9 @@ const NotFoundPage = () => {
                         Back to Home
                     </Link>
                     <Button
+                        variant="secondary"
                         onClick={() => navigate(-1)}
-                        className="inline-flex items-center gap-2.5 py-4 px-7 rounded-xl font-semibold text-base no-underline transition-all duration-300 cursor-pointer bg-[rgba(255,255,255,0.05)] text-white border border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.3)] hover:-translate-y-0.5 max-md:w-full max-md:max-w-[280px] max-md:justify-center"
+                        className="inline-flex items-center gap-2.5 py-4 px-7 rounded-xl font-semibold text-base max-md:w-full max-md:max-w-[280px] max-md:justify-center"
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <line x1="19" y1="12" x2="5" y2="12"></line>

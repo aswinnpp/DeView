@@ -36,8 +36,9 @@ const AdminLayout = () => {
 
                     <div className="flex items-center gap-3 relative">
                         <Button
+                            variant="secondary"
                             onClick={() => setShowNotifications((v) => !v)}
-                            className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-[10px] py-2.5 px-3 text-[#94a3b8] cursor-pointer flex items-center justify-center relative transition-all duration-200 hover:bg-[rgba(255,255,255,0.08)]"
+                            className="!bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-[10px] py-2.5 px-3 text-[#94a3b8] flex items-center justify-center relative"
                         >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -55,8 +56,9 @@ const AdminLayout = () => {
                                 <div className="flex justify-between items-center py-3.5 px-4 border-b border-[rgba(255,255,255,0.06)]">
                                     <h3 className="m-0 text-sm font-semibold">Notifications</h3>
                                     <Button
+                                        variant="secondary"
                                         onClick={() => setShowNotifications(false)}
-                                        className="bg-none border-none text-[#94a3b8] cursor-pointer text-lg p-0 leading-none hover:text-[#e5e7eb]"
+                                        className="!bg-none !border-none text-[#94a3b8] text-lg p-0 leading-none hover:text-[#e5e7eb]"
                                     >
                                         ×
                                     </Button>
@@ -121,8 +123,9 @@ const AdminLayout = () => {
 
                         {/* Logout Button */}
                         <Button
+                            variant="danger"
                             onClick={() => dispatch(logout())}
-                            className="mt-auto bg-linear-to-br from-[#ef4444] to-[#dc2626] border-none rounded-[10px] py-3 px-3.5 text-white font-semibold text-sm cursor-pointer flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(239,68,68,0.4)]"
+                            className="mt-auto rounded-[10px] py-3 px-3.5 font-semibold text-sm flex items-center justify-center gap-2"
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

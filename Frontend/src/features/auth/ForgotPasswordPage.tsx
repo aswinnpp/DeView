@@ -53,7 +53,7 @@ const ForgotPasswordPage = () => {
                     </span>
                   )}
                 </div>
-                <Button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-amber to-brand-amber-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(245,158,11,0.3)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
+                <Button type="submit" variant="primary" className="w-full p-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
                   {isLoading ? "Sending..." : "Send OTP"}
                 </Button>
               </form>

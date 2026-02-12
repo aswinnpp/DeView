@@ -31,8 +31,9 @@ const AuthCallbackPage = () => {
                         <h2 className="text-[#fca5a5] m-0 text-xl font-semibold">Authentication Failed</h2>
                         <p className="text-[rgba(255,255,255,0.6)] m-0 text-sm">{error || 'Something went wrong'}</p>
                         <Button
+                            variant="primary"
                             onClick={() => navigate('/login')}
-                            className="bg-linear-to-br from-brand-primary to-brand-secondary text-white border-none py-3 px-6 rounded-lg text-sm font-semibold cursor-pointer mt-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(102,126,234,0.3)]"
+                            className="py-3 px-6 rounded-lg text-sm font-semibold mt-2"
                         >
                             Back to Login
                         </Button>

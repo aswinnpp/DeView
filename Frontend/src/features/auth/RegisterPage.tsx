@@ -68,15 +68,17 @@ const RegisterPage = () => {
             <div className="flex gap-2 mb-3">
               <Button
                 type="button"
+                variant={selectedRole === "candidate" ? "primary" : "secondary"}
                 onClick={() => setValue("role", "candidate")}
-                className={`flex-1 py-2.5 px-5 border-2 rounded-3xl text-sm font-semibold cursor-pointer transition-all duration-300 ${selectedRole === "candidate" ? "border-brand-primary bg-linear-to-br from-brand-primary to-brand-secondary text-white" : "border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.05)] text-[rgba(255,255,255,0.7)] hover:border-[rgba(102,126,234,0.5)] hover:bg-[rgba(102,126,234,0.1)] hover:text-white"}`}
+                className={`flex-1 py-2.5 px-5 border-2 rounded-3xl text-sm font-semibold ${selectedRole !== "candidate" ? "!bg-[rgba(255,255,255,0.05)] !text-[rgba(255,255,255,0.7)] border-[rgba(255,255,255,0.2)]" : "border-brand-primary"}`}
               >
                 Candidate
               </Button>
               <Button
                 type="button"
+                variant={selectedRole === "company" ? "primary" : "secondary"}
                 onClick={() => setValue("role", "company")}
-                className={`flex-1 py-2.5 px-5 border-2 rounded-3xl text-sm font-semibold cursor-pointer transition-all duration-300 ${selectedRole === "company" ? "border-brand-primary bg-linear-to-br from-brand-primary to-brand-secondary text-white" : "border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.05)] text-[rgba(255,255,255,0.7)] hover:border-[rgba(102,126,234,0.5)] hover:bg-[rgba(102,126,234,0.1)] hover:text-white"}`}
+                className={`flex-1 py-2.5 px-5 border-2 rounded-3xl text-sm font-semibold ${selectedRole !== "company" ? "!bg-[rgba(255,255,255,0.05)] !text-[rgba(255,255,255,0.7)] border-[rgba(255,255,255,0.2)]" : "border-brand-primary"}`}
               >
                 Company
               </Button>
@@ -122,7 +124,7 @@ const RegisterPage = () => {
                     className={inputClass}
                     {...register("password")}
                   />
-                  <Button type="button" className={toggleClass} onClick={() => setShowPassword((prev) => !prev)}>
+                  <Button type="button" variant="secondary" className={`${toggleClass} !bg-none !text-[rgba(255,255,255,0.6)]`} onClick={() => setShowPassword((prev) => !prev)}>
                     {showPassword ? "Hide" : "Show"}
                   </Button>
                 </div>
@@ -139,7 +141,7 @@ const RegisterPage = () => {
                     className={inputClass}
                     {...register("confirmPassword")}
                   />
-                  <Button type="button" className={toggleClass} onClick={() => setShowConfirmPassword((prev) => !prev)}>
+                  <Button type="button" variant="secondary" className={`${toggleClass} !bg-none !text-[rgba(255,255,255,0.6)]`} onClick={() => setShowConfirmPassword((prev) => !prev)}>
                     {showConfirmPassword ? "Hide" : "Show"}
                   </Button>
                 </div>
@@ -148,7 +150,7 @@ const RegisterPage = () => {
                 )}
               </div>
 
-              <Button type="submit" className="w-full p-3 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-blue to-brand-blue-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading}>
+              <Button type="submit" variant="primary" className="w-full p-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading}>
                 {isLoading ? "Creating Account..." : "REGISTER"}
               </Button>
 
@@ -157,7 +159,7 @@ const RegisterPage = () => {
                 <div className="flex items-center my-3 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
                   <span className="px-4">OR</span>
                 </div>
-                <Button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={isLoading || googleLoading}>
+                <Button type="button" variant="secondary" onClick={handleGoogleRegister} className={`${googleBtnClass} !bg-[rgba(255,255,255,0.05)] !text-white`} disabled={isLoading || googleLoading}>
                   <GoogleIcon />
                   {googleLoading ? "Connecting..." : "Continue with Google"}
                 </Button>
@@ -187,7 +189,7 @@ const RegisterPage = () => {
               <div className="flex items-center my-5 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
                 <span className="px-4">OR</span>
               </div>
-              <Button type="button" onClick={handleGoogleRegister} className={googleBtnClass} disabled={isLoading || googleLoading}>
+              <Button type="button" variant="secondary" onClick={handleGoogleRegister} className={`${googleBtnClass} !bg-[rgba(255,255,255,0.05)] !text-white`} disabled={isLoading || googleLoading}>
                 <GoogleIcon />
                 {googleLoading ? "Connecting..." : "Continue with Google"}
               </Button>

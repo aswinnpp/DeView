@@ -76,7 +76,8 @@ const LoginPage = () => {
                   />
                   <Button
                     type="button"
-                    className={toggleClass}
+                    variant="secondary"
+                    className={`${toggleClass} !bg-none !text-[rgba(255,255,255,0.6)]`}
                     onClick={togglePasswordVisibility}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
@@ -96,7 +97,7 @@ const LoginPage = () => {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-pink to-brand-pink-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(236,72,153,0.3)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading || googleLoading}>
+              <Button type="submit" variant="primary" className="w-full p-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading || googleLoading}>
                 {isLoading ? "Logging in..." : "LOGIN"}
               </Button>
 
@@ -108,8 +109,9 @@ const LoginPage = () => {
               {/* Google Login */}
               <Button
                 type="button"
+                variant="secondary"
                 onClick={() => initiateGoogleAuth()}
-                className="w-full py-3 px-4 border border-[rgba(255,255,255,0.2)] rounded-xl text-sm font-medium cursor-pointer transition-all duration-300 flex items-center justify-center gap-3 bg-[rgba(255,255,255,0.05)] text-white hover:not-disabled:bg-[rgba(255,255,255,0.1)] hover:not-disabled:border-[rgba(255,255,255,0.3)] hover:not-disabled:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full py-3 px-4 border border-[rgba(255,255,255,0.2)] rounded-xl text-sm font-medium flex items-center justify-center gap-3 !bg-[rgba(255,255,255,0.05)] !text-white disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
                 disabled={isLoading || googleLoading}
               >
                 <svg className="shrink-0" viewBox="0 0 24 24" width="18" height="18">

@@ -60,7 +60,7 @@ const ResetPasswordPage = () => {
                         className={inputClass}
                         {...register("newPassword")}
                       />
-                      <Button type="button" className={toggleClass} onClick={toggleNewPasswordVisibility}>
+                      <Button type="button" variant="secondary" className={`${toggleClass} !bg-none !text-[rgba(255,255,255,0.6)]`} onClick={toggleNewPasswordVisibility}>
                         {showNewPassword ? "Hide" : "Show"}
                       </Button>
                     </div>
@@ -78,7 +78,7 @@ const ResetPasswordPage = () => {
                         className={inputClass}
                         {...register("confirmPassword")}
                       />
-                      <Button type="button" className={toggleClass} onClick={toggleConfirmPasswordVisibility}>
+                      <Button type="button" variant="secondary" className={`${toggleClass} !bg-none !text-[rgba(255,255,255,0.6)]`} onClick={toggleConfirmPasswordVisibility}>
                         {showConfirmPassword ? "Hide" : "Show"}
                       </Button>
                     </div>
@@ -86,7 +86,7 @@ const ResetPasswordPage = () => {
                       <span className={errorMsgClass}>{formState.errors.confirmPassword.message}</span>
                     )}
                   </div>
-                  <Button type="submit" className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 bg-linear-to-br from-brand-indigo to-brand-indigo-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(99,102,241,0.3)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
+                  <Button type="submit" variant="primary" className="w-full p-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
                     {isLoading ? "Resetting..." : "Reset Password"}
                   </Button>
                 </form>

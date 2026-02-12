@@ -8,7 +8,6 @@ import { loginSchema, type LoginFormValues } from '../../utils/validation/auth/l
 import { setUser } from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
 
-// API response shape - user and tokens
 type LoginResponse = {
   user: { id: string; fullName: string; email: string; role: string };
 };
@@ -44,13 +43,13 @@ export function useLogin() {
 
   const togglePasswordVisibility = () => setShowPassword(prev => !prev);
 
-  // Navigate company user based on approval status
   const navigateCompanyUser = async (userId: string): Promise<void> => {
     const result = await checkCompanyApproval({ data: { userId } });
     if (!result) {
       navigate('/company/approval-form');
       return;
     }
+
     switch (result.status) {
       case 'approved':
         navigate('/company/dashboard');
@@ -74,10 +73,12 @@ export function useLogin() {
 
     dispatch(setUser(result.user));
     const { role, id: userId } = result.user;
-
+  console.log("role",role);
+  
     if (role === 'candidate') {
       navigate('/candidate/profile');
     } else if (role === 'company') {
+
       await navigateCompanyUser(userId);
     } else if (role === 'hr') {
       navigate('/hr/dashboard');

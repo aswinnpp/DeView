@@ -18,9 +18,7 @@ const CompanyApprovalPendingPage = () => {
     const [approval, setApproval] = useState<CompanyApproval | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const { execute: fetchApproval } = useApi('/company-approvals/my-approval', 'GET');
-
-    const { execute: deleteApproval } = useApi('/company-approvals', 'DELETE');
+    const { execute: fetchApproval } = useApi('/company/my-approval', 'GET');
 
     useEffect(() => {
         loadApproval();
@@ -29,38 +27,28 @@ const CompanyApprovalPendingPage = () => {
     const loadApproval = async () => {
         try {
             setLoading(true);
-            const response = await fetchApproval() as any;
-            if (response?.data) {
-                setApproval(response.data);
+            const response = await fetchApproval() as CompanyApproval | null;
+            if (response) {
+                setApproval(response);
 
                 // If approved, redirect to company dashboard
-                if (response.data.status === 'approved') {
+                if (response.status === 'approved') {
                     navigate('/company/dashboard');
                 }
             } else {
                 // No approval found, redirect to form
-                navigate('/company/approval');
+                navigate('/company/approval-form');
             }
         } catch (err) {
             console.error('Failed to load approval:', err);
-            navigate('/company/approval');
+            navigate('/company/approval-form');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleResubmit = async () => {
-        if (!approval?.id) return;
-
-        try {
-            // Delete the rejected approval
-            await deleteApproval({ url: `/company-approvals/${approval.id}` });
-            // Navigate to form
-            navigate('/company/approval');
-        } catch (err) {
-            console.error('Failed to delete approval:', err);
-            alert('Failed to prepare resubmission. Please try again.');
-        }
+    const handleResubmit = () => {
+        navigate('/company/approval-form');
     };
 
     if (loading) {
@@ -101,8 +89,9 @@ const CompanyApprovalPendingPage = () => {
                             Please review the feedback and submit a new application with the required corrections.
                         </p>
                         <Button
+                            variant="danger"
                             onClick={handleResubmit}
-                            className="bg-[#ef4444] border-none py-2.5 px-6 rounded-md text-white font-bold cursor-pointer transition-opacity duration-200 hover:opacity-80"
+                            className="py-2.5 px-6 rounded-md font-bold"
                         >
                             Submit New Application
                         </Button>
@@ -137,8 +126,9 @@ const CompanyApprovalPendingPage = () => {
                         </p>
 
                         <Button
+                            variant="secondary"
                             onClick={loadApproval}
-                            className="mt-5 bg-[#334155] border-none py-2 px-5 rounded-md text-[#e2e8f0] text-[13px] cursor-pointer transition-opacity duration-200 hover:opacity-80"
+                            className="mt-5 py-2 px-5 rounded-md text-[13px]"
                         >
                             🔄 Refresh Status
                         </Button>

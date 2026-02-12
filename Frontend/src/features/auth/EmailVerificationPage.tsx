@@ -75,7 +75,8 @@ const EmailVerificationPage = () => {
                 />
                 <Button
                   type="submit"
-                  className="w-full p-3.5 border-none rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 bg-linear-to-br from-brand-green to-brand-green-dark text-white hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_25px_rgba(16,185,129,0.3)] disabled:opacity-60 disabled:cursor-not-allowed"
+                  variant="primary"
+                  className="w-full p-3.5 rounded-xl text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                   disabled={isLoading || (watch("otpCode")?.length ?? 0) !== 4}
                   aria-disabled={isLoading || (watch("otpCode")?.length ?? 0) !== 4}
                 >

@@ -5,27 +5,29 @@ const AdminCompanyRequestsPage = () => {
     const {
         pendingCompanies,
         filteredCompanies,
-        selectedCompany,
-        documentVerification,
-        documentConfig,
+        isLoading,
+        error,
+        fetchPendingCompanies,
         searchQuery,
         setSearchQuery,
+        selectedCompany,
+        documentConfig,
+        documentVerification,
         showRejectModal,
-        rejectionReason,
-        setRejectionReason,
+        rejectForm,
+        onRejectSubmit,
         selectCompany,
         clearSelectedCompany,
-        handleApprove,
-        handleRejectClick,
-        handleRejectConfirm,
-        closeRejectModal,
-        toggleDocVerification,
         getDocumentCount,
         getRequiredDocsUploaded,
         getVerifiedCount,
         getUploadedDocsCount,
         areAllDocsVerified,
         getUploadedDoc,
+        toggleDocVerification,
+        handleApprove,
+        openRejectModal,
+        closeRejectModal,
     } = useAdminCompanyRequests();
 
     return (
@@ -36,6 +38,16 @@ const AdminCompanyRequestsPage = () => {
                     Review company documents and approve registrations
                 </p>
             </header>
+
+            {/* Error */}
+            {error && (
+                <div className="mb-4 p-4 bg-[rgba(239,68,68,0.15)] border border-[rgba(239,68,68,0.3)] rounded-xl flex justify-between items-center">
+                    <p className="m-0 text-[#f87171] text-sm">{error}</p>
+                    <Button variant="secondary" onClick={fetchPendingCompanies} className="py-1.5 px-4 text-xs">
+                        Retry
+                    </Button>
+                </div>
+            )}
 
             {/* Search Section */}
             <div className="flex justify-end mb-4">
@@ -53,7 +65,17 @@ const AdminCompanyRequestsPage = () => {
                 </div>
             </div>
 
-            {pendingCompanies.length === 0 ? (
+            {isLoading ? (
+                <div className="bg-linear-to-br from-[#1e293b] to-[#0f172a] border border-[#334155] rounded-xl p-15 text-center">
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold bg-[rgba(99,102,241,0.15)] text-[#6366f1] animate-pulse">
+                        …
+                    </div>
+                    <h3 className="m-0 mb-2 text-[#f1f5f9]">Loading...</h3>
+                    <p className="m-0 text-[#64748b] text-sm">
+                        Fetching pending company requests
+                    </p>
+                </div>
+            ) : pendingCompanies.length === 0 ? (
                 <div className="bg-linear-to-br from-[#1e293b] to-[#0f172a] border border-[#334155] rounded-xl p-15 text-center">
                     <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold bg-[rgba(16,185,129,0.15)] text-[#10b981]">OK</div>
                     <h3 className="m-0 mb-2 text-[#f1f5f9]">All caught up!</h3>
@@ -132,8 +154,9 @@ const AdminCompanyRequestsPage = () => {
                                                 </td>
                                                 <td className="p-4 align-middle text-[#e2e8f0] text-sm">
                                                     <Button
+                                                        variant="primary"
                                                         onClick={() => selectCompany(company)}
-                                                        className="py-2 px-[18px] bg-linear-to-br from-[#6366f1] to-[#8b5cf6] text-white border-none rounded-lg text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(99,102,241,0.4)]"
+                                                        className="py-2 px-[18px] rounded-lg text-[13px] font-semibold"
                                                     >
                                                         Review
                                                     </Button>
@@ -168,8 +191,9 @@ const AdminCompanyRequestsPage = () => {
                                 </div>
                             </div>
                             <Button
+                                variant="secondary"
                                 onClick={clearSelectedCompany}
-                                className="bg-[rgba(100,116,139,0.2)] border-none text-[#94a3b8] text-xl cursor-pointer py-2 px-3 rounded-lg transition-all duration-200 hover:bg-[rgba(100,116,139,0.3)]"
+                                className="text-xl py-2 px-3 rounded-lg"
                             >
                                 ✕
                             </Button>
@@ -277,18 +301,17 @@ const AdminCompanyRequestsPage = () => {
                                                                         </span>
                                                                     </div>
                                                                     <Button
+                                                                        variant="primary"
                                                                         onClick={() => window.open(uploadedDoc.fileUrl, '_blank')}
-                                                                        className="bg-[rgba(99,102,241,0.2)] border-none text-[#a5b4fc] py-1.5 px-3 rounded-md text-[11px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[rgba(99,102,241,0.3)]"
+                                                                        className="py-1.5 px-3 rounded-md text-[11px] font-semibold"
                                                                     >
                                                                         View
                                                                     </Button>
                                                                 </div>
                                                                 <Button
+                                                                    variant={documentVerification[docConfig.key] ? 'secondary' : 'primary'}
                                                                     onClick={() => toggleDocVerification(docConfig.key)}
-                                                                    className={`w-full py-2.5 px-4 rounded-lg text-xs font-semibold cursor-pointer flex items-center justify-center gap-1.5 transition-all duration-200 ${documentVerification[docConfig.key]
-                                                                        ? 'bg-[rgba(100,116,139,0.2)] border border-[rgba(100,116,139,0.3)] text-[#94a3b8]'
-                                                                        : 'bg-linear-to-br from-[#10b981] to-[#059669] border-none text-white'
-                                                                        }`}
+                                                                    className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
                                                                 >
                                                                     {documentVerification[docConfig.key] ? (
                                                                         <><span>✓</span> Verified - Click to Unverify</>
@@ -316,20 +339,23 @@ const AdminCompanyRequestsPage = () => {
                             {/* Action Buttons */}
                             <div className="flex gap-3 justify-end mt-8 pt-6 border-t border-[rgba(71,85,105,0.3)]">
                                 <Button
+                                    variant="secondary"
                                     onClick={clearSelectedCompany}
-                                    className="py-3 px-6 bg-[rgba(100,116,139,0.2)] text-[#94a3b8] border border-[rgba(100,116,139,0.3)] rounded-[10px] font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-[rgba(100,116,139,0.3)]"
+                                    className="py-3 px-6 rounded-[10px] font-semibold text-sm"
                                 >
                                     Cancel
                                 </Button>
                                 <Button
-                                    onClick={handleRejectClick}
-                                    className="py-3 px-6 bg-linear-to-br from-[#dc2626] to-[#b91c1c] text-white border-none rounded-[10px] font-semibold text-sm cursor-pointer flex items-center gap-2 transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(220,38,38,0.4)]"
+                                    variant="danger"
+                                    onClick={openRejectModal}
+                                    className="py-3 px-6 rounded-[10px] font-semibold text-sm flex items-center gap-2"
                                 >
                                     Reject Application
                                 </Button>
                                 <Button
+                                    variant="primary"
                                     onClick={() => handleApprove(selectedCompany.id)}
-                                    className="py-3 px-7 bg-linear-to-br from-[#10b981] to-[#059669] text-white border-none rounded-[10px] font-semibold text-sm cursor-pointer flex items-center gap-2 transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(16,185,129,0.4)]"
+                                    className="py-3 px-7 rounded-[10px] font-semibold text-sm flex items-center gap-2"
                                 >
                                     Approve Company
                                 </Button>
@@ -355,36 +381,40 @@ const AdminCompanyRequestsPage = () => {
                             </div>
                         </div>
 
-                        <p className="m-0 mb-4 text-[#94a3b8] text-sm leading-relaxed">
-                            Please provide a detailed reason for rejection. This will be sent to the company for their reference.
-                        </p>
+                        <form onSubmit={rejectForm.handleSubmit(onRejectSubmit)}>
+                            <p className="m-0 mb-4 text-[#94a3b8] text-sm leading-relaxed">
+                                Please provide a detailed reason for rejection. This will be sent to the company for their reference.
+                            </p>
 
-                        <textarea
-                            value={rejectionReason}
-                            onChange={(e) => setRejectionReason(e.target.value)}
-                            placeholder="e.g., Documents are unclear, Tax ID doesn't match company name, Missing required documents..."
-                            rows={4}
-                            className="w-full bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] p-3.5 text-[#e2e8f0] text-sm box-border font-[inherit] resize-y mb-6 focus:outline-none focus:border-[#6366f1]"
-                        />
+                            <textarea
+                                {...rejectForm.register("reason")}
+                                placeholder="e.g., Documents are unclear, Tax ID doesn't match company name, Missing required documents..."
+                                rows={4}
+                                className="w-full bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] p-3.5 text-[#e2e8f0] text-sm box-border font-[inherit] resize-y mb-2 focus:outline-none focus:border-[#6366f1]"
+                            />
+                            {rejectForm.formState.errors.reason && (
+                                <p className="m-0 mb-4 text-[#f87171] text-sm">{rejectForm.formState.errors.reason.message}</p>
+                            )}
 
-                        <div className="flex gap-3 justify-end">
-                            <Button
-                                onClick={closeRejectModal}
-                                className="py-3 px-6 bg-[rgba(100,116,139,0.2)] text-[#94a3b8] border border-[rgba(100,116,139,0.3)] rounded-[10px] font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-[rgba(100,116,139,0.3)]"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                onClick={handleRejectConfirm}
-                                disabled={!rejectionReason.trim()}
-                                className={`py-3 px-6 text-white border-none rounded-[10px] font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${rejectionReason.trim()
-                                    ? 'bg-linear-to-br from-[#dc2626] to-[#b91c1c] cursor-pointer opacity-100'
-                                    : 'bg-[rgba(100,116,139,0.3)] cursor-not-allowed opacity-60'
-                                    }`}
-                            >
-                                Confirm Rejection
-                            </Button>
-                        </div>
+                            <div className="flex gap-3 justify-end mt-6">
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    onClick={closeRejectModal}
+                                    className="py-3 px-6 rounded-[10px] font-semibold text-sm"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    variant="danger"
+                                    disabled={rejectForm.formState.isSubmitting}
+                                    className="py-3 px-6 rounded-[10px] font-semibold text-sm flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    Confirm Rejection
+                                </Button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

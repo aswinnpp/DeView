@@ -1,5 +1,3 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Input, Button } from '../../components/common';
 import { useCompanyApprovalForm } from '../../hooks/company';
 
@@ -7,21 +5,17 @@ const formInputClass = "w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[
 const formLabelClass = "block mb-2 text-[13px] font-semibold text-[#cbd5e1]";
 
 const CompanyApprovalFormPage = () => {
-    const navigate = useNavigate();
     const {
-        formData,
-        documentTypes,
+        loading,
         error,
-        isSubmitting,
-        updateFormField,
-        handleFileUpload,
-        handleRemoveDocument,
-        handleSubmit,
-        getDocumentCount,
-        getRequiredDocCount,
-        getUploadedDoc,
-        isDocUploading,
-    } = useCompanyApprovalForm({ onSuccess: () => navigate('/company/approval-pending') });
+        form,
+        docs,
+        documentTypes,
+        submit,
+    } = useCompanyApprovalForm();
+
+    const { register, formState: { errors } } = form;
+    const { remove, getDocumentCount, getRequiredDocCount, getUploadedDoc, isDocUploading, handleFileUpload } = docs;
 
     return (
         <div className="min-h-screen bg-linear-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-[#e2e8f0]">
@@ -35,7 +29,7 @@ const CompanyApprovalFormPage = () => {
                         <span className="text-xs text-[#94a3b8] font-semibold">Documents: {getDocumentCount()}/{documentTypes.length}</span>
                         <div className="w-[120px] h-1.5 bg-[rgba(100,116,139,0.3)] rounded-sm overflow-hidden max-md:w-full">
                             <div
-                                className="h-full bg-linear-to-r from-[#6366f1] to-[#10b981] rounded-sm transition-[width] duration-300"
+                                className="h-full bg-linear-to-r from-[#6366f1] to-[#10b981] rounded-sm transition-all duration-300"
                                 style={{ width: `${(getDocumentCount() / documentTypes.length) * 100}%` }}
                             />
                         </div>
@@ -58,7 +52,7 @@ const CompanyApprovalFormPage = () => {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+                    <form onSubmit={submit} className="flex flex-col gap-8">
                         {/* Company Information Section */}
                         <section className="bg-[rgba(15,23,42,0.5)] border border-[rgba(71,85,105,0.3)] rounded-2xl p-6">
                             <h3 className="flex items-center gap-2.5 m-0 mb-5 text-lg font-bold text-[#f1f5f9]">
@@ -72,10 +66,9 @@ const CompanyApprovalFormPage = () => {
                                     label="Company Name"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
-                                    value={formData.companyName}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('companyName', e.target.value)}
-                                    required
+                                    error={errors.companyName?.message}
                                     wrapperClassName="col-span-full flex flex-col gap-1.5"
+                                    {...register('companyName')}
                                 />
 
                                 <Input
@@ -83,10 +76,9 @@ const CompanyApprovalFormPage = () => {
                                     label="Registered Address"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
-                                    value={formData.address}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('address', e.target.value)}
-                                    required
+                                    error={errors.address?.message}
                                     wrapperClassName="col-span-full flex flex-col gap-1.5"
+                                    {...register('address')}
                                 />
 
                                 <Input
@@ -94,20 +86,17 @@ const CompanyApprovalFormPage = () => {
                                     label="GST Number / Tax ID *"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
-                                    value={formData.taxId}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('taxId', e.target.value)}
                                     placeholder="e.g., 29ABCDE1234F1Z5"
-                                    required
+                                    error={errors.taxId?.message}
                                     wrapperClassName="flex flex-col gap-1.5"
+                                    {...register('taxId')}
                                 />
 
                                 <div className="flex flex-col gap-1.5">
                                     <label className="block mb-2 text-[13px] font-semibold text-[#cbd5e1]">Number of Employees *</label>
                                     <select
                                         className="w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border cursor-pointer focus:outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] [&_option]:bg-[#1e293b] [&_option]:text-[#e2e8f0]"
-                                        value={formData.numberOfEmployees}
-                                        onChange={e => updateFormField('numberOfEmployees', e.target.value)}
-                                        required
+                                        {...register('numberOfEmployees')}
                                     >
                                         <option value="1-10">1-10 Employees</option>
                                         <option value="10-50">10-50 Employees</option>
@@ -115,6 +104,9 @@ const CompanyApprovalFormPage = () => {
                                         <option value="100-500">100-500 Employees</option>
                                         <option value="500+">500+ Employees</option>
                                     </select>
+                                    {errors.numberOfEmployees && (
+                                        <span className="text-[#f87171] text-sm">{errors.numberOfEmployees.message}</span>
+                                    )}
                                 </div>
 
                                 <Input
@@ -122,10 +114,10 @@ const CompanyApprovalFormPage = () => {
                                     label="Company Website"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
-                                    value={formData.website}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('website', e.target.value)}
                                     placeholder="https://www.yourcompany.com"
+                                    error={errors.website?.message}
                                     wrapperClassName="col-span-full flex flex-col gap-1.5"
+                                    {...register('website')}
                                 />
                             </div>
                         </section>
@@ -143,11 +135,10 @@ const CompanyApprovalFormPage = () => {
                                     label="Authorized Contact Person *"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
-                                    value={formData.contactPerson}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('contactPerson', e.target.value)}
                                     placeholder="Full Name"
-                                    required
+                                    error={errors.contactPerson?.message}
                                     wrapperClassName="flex flex-col gap-1.5"
+                                    {...register('contactPerson')}
                                 />
 
                                 <Input
@@ -155,11 +146,10 @@ const CompanyApprovalFormPage = () => {
                                     label="Business Email *"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
-                                    value={formData.contactEmail}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('contactEmail', e.target.value)}
                                     placeholder="contact@company.com"
-                                    required
+                                    error={errors.contactEmail?.message}
                                     wrapperClassName="flex flex-col gap-1.5"
+                                    {...register('contactEmail')}
                                 />
 
                                 <Input
@@ -167,11 +157,10 @@ const CompanyApprovalFormPage = () => {
                                     label="Contact Phone *"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
-                                    value={formData.contactPhone}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormField('contactPhone', e.target.value)}
                                     placeholder="+91-9876543210"
-                                    required
+                                    error={errors.contactPhone?.message}
                                     wrapperClassName="flex flex-col gap-1.5"
+                                    {...register('contactPhone')}
                                 />
                             </div>
                         </section>
@@ -186,9 +175,12 @@ const CompanyApprovalFormPage = () => {
                             <p className="-mt-3 mb-5 text-[#64748b] text-[13px]">
                                 Upload clear, legible copies of the following documents. Accepted formats: PDF, JPG, PNG (Max 5MB each)
                             </p>
+                            {errors.documents && (
+                                <p className="text-[#f87171] text-sm mb-4">{errors.documents.message}</p>
+                            )}
 
                             <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
-                                {documentTypes.map((docType, index) => {
+                                {documentTypes.map((docType: { key: string; label: string; description: string; required: boolean }, index: number) => {
                                     const uploadedDoc = getUploadedDoc(docType.key);
                                     const isUploading = isDocUploading(docType.key);
 
@@ -225,8 +217,9 @@ const CompanyApprovalFormPage = () => {
                                                         </div>
                                                         <Button
                                                             type="button"
-                                                            className="bg-[rgba(239,68,68,0.2)] border-none text-[#fca5a5] w-6 h-6 rounded-md cursor-pointer flex items-center justify-center text-sm font-bold transition-all duration-200 hover:bg-[rgba(239,68,68,0.4)] hover:text-white"
-                                                            onClick={() => handleRemoveDocument(docType.key)}
+                                                            variant="danger"
+                                                            className="w-6 h-6 rounded-md flex items-center justify-center text-sm font-bold p-0 min-w-0"
+                                                            onClick={() => remove(docType.key)}
                                                         >
                                                             ✕
                                                         </Button>
@@ -262,10 +255,11 @@ const CompanyApprovalFormPage = () => {
 
                             <Button
                                 type="submit"
-                                className="w-full py-4 px-8 text-base font-bold rounded-xl flex items-center justify-center gap-2.5 bg-linear-to-br from-[#6366f1] to-[#8b5cf6] border-none text-white cursor-pointer transition-all duration-300 hover:not-disabled:-translate-y-0.5 hover:not-disabled:shadow-[0_10px_40px_-10px_rgba(99,102,241,0.5)] disabled:opacity-60 disabled:cursor-not-allowed"
-                                disabled={isSubmitting}
+                                variant="primary"
+                                className="w-full py-4 px-8 text-base font-bold rounded-xl flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                                disabled={loading}
                             >
-                                {isSubmitting ? (
+                                {loading ? (
                                     <>
                                         <span className="w-[18px] h-[18px] border-2 border-[rgba(255,255,255,0.3)] border-t-white rounded-full animate-spin" />
                                         Submitting Application...

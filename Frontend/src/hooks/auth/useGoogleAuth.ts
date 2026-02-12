@@ -12,6 +12,14 @@ type TokenExchangeResponse = {
   role: string;
 };
 
+
+type CompanyStatusResponse = {
+  exists: boolean;
+  status: 'not_found' | 'pending' | 'approved' | 'rejected';
+  companyName?: string;
+  rejectionReason?: string;
+};
+
 export function useGoogleAuth() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -19,6 +27,8 @@ export function useGoogleAuth() {
   const [error, setError] = useState<string | null>(null);
 
   const { loading: isLoading, execute } = useApi<TokenExchangeResponse>('/auth/google/exchange', 'GET');
+    const { execute: checkCompanyApproval } = useApi<CompanyStatusResponse>('/company/check-status', 'POST');
+  
 
   const initiateGoogleAuth = useCallback((role = 'candidate') => {
     window.location.href = `${API_BASE_URL}/auth/google?role=${role}`;
@@ -40,15 +50,40 @@ export function useGoogleAuth() {
       return false;
     }
 
-    dispatch(setUser(result.user));
-    const role = result.role;
 
-    if (role === 'candidate') {
+     const navigateCompanyUser = async (userId: string): Promise<void> => {
+    const result = await checkCompanyApproval({ data: { userId } });
+    if (!result) {
+      navigate('/company/approval-form');
+      return;
+    }
+
+    switch (result.status) {
+      case 'approved':
+        navigate('/company/dashboard');
+        break;
+      case 'pending':
+      case 'rejected':
+        navigate('/company/approval-pending');
+        break;
+      default:
+        navigate('/company/approval-form');
+    }
+  };
+
+
+    dispatch(setUser(result.user));
+     const { role, id: userId } = result.user;
+
+      if (role === 'candidate') {
       navigate('/candidate/profile');
     } else if (role === 'company') {
-      navigate('/company/dashboard');
+
+      await navigateCompanyUser(userId);
     } else if (role === 'hr') {
       navigate('/hr/dashboard');
+    } else if (role === 'admin') {
+      navigate('/admin');
     } else {
       navigate('/');
     }
