@@ -13,7 +13,6 @@ import jwtPlugin from './infrastructure/plugins/fastifyJwt.js';
 import { createContainer } from './infrastructure/di/container.js';
 import { registerRoutes } from './infrastructure/di/routes.js';
 import { redisClient } from './infrastructure/cache/RedisClient.js';
-import { uploadRoutes } from './interfaces/http/routes/uploadRoutes.js';
 
 async function bootstrap() {
   const fastify = Fastify({
@@ -47,17 +46,16 @@ async function bootstrap() {
   // ✅ JWT AFTER cookie
   await fastify.register(jwtPlugin);
 
-  const container = createContainer(fastify, db);
-  await registerRoutes(fastify, container.controllers);
-
-  // File upload support
+  // File upload support (must be registered before routes that use multipart)
   await fastify.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB max
   await fastify.register(fastifyStatic, {
     root: path.join(process.cwd(), 'uploads'),
     prefix: '/uploads/',
     decorateReply: false,
   });
-  await fastify.register(async (app) => uploadRoutes(app));
+
+  const container = createContainer(fastify, db);
+  await registerRoutes(fastify, container.controllers);
 
   const gracefulShutdown = async () => {
     console.log('🛑 Shutting down gracefully...');

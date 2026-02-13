@@ -20,6 +20,7 @@ import { GetPendingCompaniesUseCase } from '../../application/admin/use-cases/Ge
 import { ApproveCompanyUseCase } from '../../application/admin/use-cases/ApproveCompanyUseCase';
 import { RejectCompanyUseCase } from '../../application/admin/use-cases/RejectCompanyUseCase';
 import { MarkDocumentUseCase } from '../../application/admin/use-cases/MarkDocumentUseCase';
+import { UploadFileUseCase } from '../../application/upload/use-cases/UploadFileUseCase';
 
 export interface UseCases {
   registerUserUseCase: RegisterUserUseCase;
@@ -39,6 +40,7 @@ export interface UseCases {
   approveCompanyUseCase: ApproveCompanyUseCase;
   rejectCompanyUseCase: RejectCompanyUseCase;
   markDocumentUseCase: MarkDocumentUseCase;
+  uploadFileUseCase: UploadFileUseCase;
 }
 
 
@@ -65,6 +67,8 @@ export function createUseCases(repositories: Repositories, services: Services): 
     approveCompanyUseCase: new ApproveCompanyUseCase(companyApprovalRepository),
     rejectCompanyUseCase: new RejectCompanyUseCase(companyApprovalRepository),
     markDocumentUseCase: new MarkDocumentUseCase(companyApprovalRepository),
+
+    uploadFileUseCase: new UploadFileUseCase(services.fileStorageService),
   };
 
 }

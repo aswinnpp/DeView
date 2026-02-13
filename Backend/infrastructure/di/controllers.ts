@@ -6,12 +6,14 @@ import { AuthController } from '../../interfaces/http/controllers/AuthController
 import { GoogleAuthController } from '../../interfaces/http/controllers/GoogleAuthController';
 import { CompanyApprovalController } from '../../interfaces/http/controllers/CompanyApprovalController';
 import { AdminCompanyApprovalController } from '../../interfaces/http/controllers/AdminCompanyApprovalController';
+import { UploadController } from '../../interfaces/http/controllers/UploadController';
 
 export interface Controllers {
   authController: AuthController;
   googleAuthController: GoogleAuthController;
   companyApprovalController: CompanyApprovalController;
   adminCompanyApprovalController: AdminCompanyApprovalController;
+  uploadController: UploadController;
 }
 
 export function createControllers(
@@ -49,6 +51,10 @@ export function createControllers(
       useCases.approveCompanyUseCase,
       useCases.rejectCompanyUseCase,
       useCases.markDocumentUseCase
+    ),
+
+    uploadController: new UploadController(
+      useCases.uploadFileUseCase
     ),
   };
 }

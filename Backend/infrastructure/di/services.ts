@@ -2,6 +2,7 @@ import { BcryptPasswordHasher } from '../security/BcryptPasswordHasher.js';
 import { SecureJwtTokenService } from '../security/SecureJwtTokenService.js';
 import { NodemailerEmailService } from '../email/NodemailerEmailService.js';
 import { GoogleAuthService } from '../auth/GoogleAuthService.js';
+import { LocalFileStorageService } from '../storage/LocalFileStorageService.js';
 import { env } from '../config/env.js';
 import { redisClient } from '../cache/RedisClient.js';
 import { RedisAccessTokenRepository } from '../persistence/redis/RedisAccessTokenRepository.js';
@@ -13,6 +14,7 @@ export interface Services {
   tokenService: SecureJwtTokenService;
   emailService: NodemailerEmailService;
   googleAuthService: GoogleAuthService;
+  fileStorageService: LocalFileStorageService;
 }
 
 export function createServices(_: any, __: Repositories): Services {
@@ -32,9 +34,11 @@ export function createServices(_: any, __: Repositories): Services {
     emailService: new NodemailerEmailService(),
 
     googleAuthService: new GoogleAuthService(
-      env.GOOGLE_CLIENT_ID || '',
-      env.GOOGLE_CLIENT_SECRET || '',
-      env.GOOGLE_CALLBACK_URL || 'http://localhost:5001/auth/google/callback'
+      env.GOOGLE_CLIENT_ID || "",
+      env.GOOGLE_CLIENT_SECRET || "",
+      env.GOOGLE_CALLBACK_URL || ""
     ),
+
+    fileStorageService: new LocalFileStorageService(),
   };
 }
