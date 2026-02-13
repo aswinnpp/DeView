@@ -2,32 +2,26 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { GetPendingCompaniesUseCase } from "../../../application/admin/use-cases/GetPendingCompaniesUseCase";
 import { ApproveCompanyUseCase } from "../../../application/admin/use-cases/ApproveCompanyUseCase";
 import { RejectCompanyUseCase } from "../../../application/admin/use-cases/RejectCompanyUseCase";
+import { MarkDocumentUseCase } from "../../../application/admin/use-cases/MarkDocumentUseCase";
 
 interface RejectBody {
   reason: string;
 }
 
-/**
- * Admin controller for company approval requests.
- * All routes require admin role.
- */
 export class AdminCompanyApprovalController {
   constructor(
     private readonly getPendingUseCase: GetPendingCompaniesUseCase,
     private readonly approveUseCase: ApproveCompanyUseCase,
-    private readonly rejectUseCase: RejectCompanyUseCase
-  ) {
-    this.getPending = this.getPending.bind(this);
-    this.approve = this.approve.bind(this);
-    this.reject = this.reject.bind(this);
-  }
+    private readonly rejectUseCase: RejectCompanyUseCase,
+    private readonly markDocumentUseCase: MarkDocumentUseCase
+  ) { }
 
-  // GET /admin/company-requests
-  async getPending(_request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  // GET /admin/company-requests/pending
+  getPending = async (_: FastifyRequest, reply: FastifyReply) => {
     const companies = await this.getPendingUseCase.execute();
 
     reply.status(200).send(
-      companies.map((c) => ({
+      companies.map(c => ({
         id: c.id,
         userId: c.userId,
         companyName: c.companyName,
@@ -40,30 +34,47 @@ export class AdminCompanyApprovalController {
         numberOfEmployees: c.numberOfEmployees,
         documents: c.documents,
         status: c.status,
-        
       }))
     );
-  }
+  };
 
   // POST /admin/company-requests/:id/approve
-  async approve(
+  approve = async (
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
-  ): Promise<void> {
+  ) => {
     await this.approveUseCase.execute(request.params.id);
-    reply.status(200).send({ message: "Company approved successfully" });
-  }
+
+    reply.status(200).send({
+      message: "Company approved successfully",
+    });
+  };
 
   // POST /admin/company-requests/:id/reject
-  async reject(
+  reject = async (
     request: FastifyRequest<{ Params: { id: string }; Body: RejectBody }>,
     reply: FastifyReply
-  ): Promise<void> {
+  ) => {
     const { id } = request.params;
-    const { reason } = request.body ?? {};
+    const { reason } = request.body;
 
-    await this.rejectUseCase.execute(id, reason ?? "");
+    await this.rejectUseCase.execute(id, reason);
 
-    reply.status(200).send({ message: "Company rejected successfully" });
-  }
+    reply.status(200).send({
+      message: "Company rejected successfully",
+    });
+  };
+
+  // PATCH /admin/company-requests/:id/documents/:key/mark
+  markDocument = async (
+    request: FastifyRequest<{ Params: { id: string; key: string }; Body: { verified: boolean } }>,
+    reply: FastifyReply
+  ) => {
+    const { id, key } = request.params;
+    const { verified } = request.body;
+
+    const result = await this.markDocumentUseCase.execute(id, key, verified);
+
+    reply.status(200).send(result);
+  };
 }

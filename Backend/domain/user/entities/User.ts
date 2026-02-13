@@ -1,5 +1,6 @@
 import { Email } from "../value-objects/Email";
 import { Role } from "../value-objects/Role";
+import { DomainError } from "../../../shared/errors/DomainError";
 
 export type AuthProvider = "email" | "google";
 
@@ -16,7 +17,7 @@ export class User {
     public authProvider: AuthProvider = "email"
   ) {}
 
-  // ✅ Factory method (THIS fixes your error)
+  // ✅ Factory (good)
   static create(params: {
     fullName: string;
     email: Email;
@@ -32,8 +33,8 @@ export class User {
       params.passwordHash,
       params.role,
       params.companyId,
-      true, // isActive
-      params.authProvider === "google", // auto verify Google
+      true,
+      params.authProvider === "google",
       params.authProvider ?? "email"
     );
   }
@@ -51,7 +52,10 @@ export class User {
   }
 
   updateName(name: string) {
-    if (!name.trim()) throw new Error("Name required");
+    if (!name.trim()) {
+      throw new DomainError("Name required");
+    }
+
     this.fullName = name;
   }
 

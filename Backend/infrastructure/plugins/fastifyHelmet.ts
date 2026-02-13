@@ -1,5 +1,7 @@
 import helmet from '@fastify/helmet';
 import { FastifyInstance } from 'fastify';
+import { env } from '../config/env.js';
+
 export async function registerHelmet(fastify: FastifyInstance): Promise<void> {
     await fastify.register(helmet, {
         contentSecurityPolicy: {
@@ -8,9 +10,13 @@ export async function registerHelmet(fastify: FastifyInstance): Promise<void> {
                 styleSrc: ["'self'", "'unsafe-inline'"],
                 scriptSrc: ["'self'"],
                 imgSrc: ["'self'", 'data:', 'https:'],
+                frameSrc: ["'self'", env.FRONTEND_URL],
+                frameAncestors: ["'self'", env.FRONTEND_URL],
             },
         },
         crossOriginEmbedderPolicy: false,
+        // Let CSP frame-ancestors handle framing instead of the blanket X-Frame-Options
+        frameguard: false,
     });
     console.log('✅ Security headers (Helmet) registered');
 }

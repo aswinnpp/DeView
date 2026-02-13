@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useState } from 'react';
 import { Button } from '../../components/common';
+import { SystemDataProvider } from '../../context/SystemDataContext';
 
 interface CompanyData {
     companyName: string;
@@ -27,9 +28,9 @@ const CompanyLayout = () => {
 
     return (
         <div className="hr-theme min-h-screen w-full bg-linear-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)] box-border">
-            <div className="w-full min-h-screen bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px] overflow-hidden">
+            <div className="w-full min-h-screen bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px]">
                 {/* Header */}
-                <div className="flex justify-between items-center py-[18px] px-10 border-b border-[rgba(255,255,255,0.03)] bg-[rgba(255,255,255,0.01)]">
+                <div className="flex justify-between items-center py-[18px] px-10 border-b border-[rgba(255,255,255,0.03)] bg-[rgba(255,255,255,0.01)] sticky top-0 z-[100] backdrop-blur-[10px]">
                     <div className="flex items-center gap-3">
                         <h2 className="text-[#e5e7eb] m-0">
                             {companyName} Dashboard
@@ -70,7 +71,7 @@ const CompanyLayout = () => {
                 </div>
 
                 <div className="grid grid-cols-[260px_1fr] min-h-[calc(100vh-80px)] max-lg:grid-cols-1">
-                    <aside className="flex flex-col justify-start py-5 px-4 gap-3 min-w-[220px] box-border bg-[rgba(255,255,255,0.03)] border-r border-[rgba(255,255,255,0.08)] max-lg:border-r-0 max-lg:border-b max-lg:border-b-[rgba(255,255,255,0.08)]">
+                    <aside className="flex flex-col justify-start py-5 px-4 gap-3 min-w-[220px] box-border bg-[rgba(255,255,255,0.03)] border-r border-[rgba(255,255,255,0.08)] h-[calc(100vh-73px)] sticky top-[73px] max-lg:border-r-0 max-lg:border-b max-lg:border-b-[rgba(255,255,255,0.08)] max-lg:sticky max-lg:h-auto">
                         <nav className="flex flex-col gap-2 mb-3">
                             <NavLink to="/company/dashboard" className={({ isActive }) => navTabClass(isActive)}>
                                 Dashboard
@@ -102,12 +103,14 @@ const CompanyLayout = () => {
                         </NavLink>
                     </aside>
 
-                    <main className="bg-[rgba(255,255,255,0.01)]" style={{ padding: '24px 32px' }}>
-                        <div className="flex flex-col h-full">
-                            <div className="flex-1 overflow-y-auto">
-                                <Outlet />
+                    <main className="bg-[rgba(255,255,255,0.01)] overflow-y-auto" style={{ padding: '24px 32px' }}>
+                        <SystemDataProvider>
+                            <div className="flex flex-col h-full">
+                                <div className="flex-1 overflow-y-auto">
+                                    <Outlet />
+                                </div>
                             </div>
-                        </div>
+                        </SystemDataProvider>
                     </main>
                 </div>
             </div>

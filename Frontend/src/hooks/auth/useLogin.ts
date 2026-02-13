@@ -1,23 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useApi } from '../useApi';
+import { authService } from '../../services/auth.service';
 import { loginSchema, type LoginFormValues } from '../../utils/validation/auth/loginSchema';
 import { setUser } from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
-
-type LoginResponse = {
-  user: { id: string; fullName: string; email: string; role: string };
-};
-
-type CompanyStatusResponse = {
-  exists: boolean;
-  status: 'not_found' | 'pending' | 'approved' | 'rejected';
-  companyName?: string;
-  rejectionReason?: string;
-};
+import { extractApiError } from '../../api/axios';
 
 export type { LoginFormValues };
 
@@ -27,9 +17,7 @@ export function useLogin() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const { loading: isLoading, execute, error: serverError } = useApi<LoginResponse>('/auth/login', 'POST');
-  const { execute: checkCompanyApproval } = useApi<CompanyStatusResponse>('/company/check-status', 'POST');
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -37,61 +25,69 @@ export function useLogin() {
     mode: 'onSubmit',
   });
 
-  useEffect(() => {
-    if (serverError) setError(serverError);
-  }, [serverError]);
-
   const togglePasswordVisibility = () => setShowPassword(prev => !prev);
 
   const navigateCompanyUser = async (userId: string): Promise<void> => {
-    const result = await checkCompanyApproval({ data: { userId } });
-    if (!result) {
-      navigate('/company/approval-form');
-      return;
-    }
+    try {
+      const { data: result } = await authService.checkCompanyStatus({ userId });
+      console.log("resul", result.status);
 
-    switch (result.status) {
-      case 'approved':
-        navigate('/company/dashboard');
-        break;
-      case 'pending':
-      case 'rejected':
-        navigate('/company/approval-pending');
-        break;
-      default:
+      if (!result) {
         navigate('/company/approval-form');
+        return;
+      }
+
+      switch (result.status) {
+        case 'approved':
+          navigate('/company/dashboard');
+          break;
+        case 'pending':
+        case 'rejected':
+          navigate('/company/approval-pending');
+          break;
+        default:
+          navigate('/company/approval-form');
+      }
+    } catch {
+      navigate('/company/approval-form');
     }
   };
 
   const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
     setError(null);
-    const result = await execute({
-      data: { email: values.email, password: values.password },
-    });
+    setIsLoading(true);
 
-    if (!result) return;
+    try {
+      const { data: result } = await authService.login({
+        email: values.email,
+        password: values.password,
+      });
 
-    dispatch(setUser(result.user));
-    const { role, id: userId } = result.user;
-  console.log("role",role);
-  
-    if (role === 'candidate') {
-      navigate('/candidate/profile');
-    } else if (role === 'company') {
+      dispatch(setUser(result.user));
+      const { role, id: userId } = result.user;
+      console.log("role", role);
 
-      await navigateCompanyUser(userId);
-    } else if (role === 'hr') {
-      navigate('/hr/dashboard');
-    } else if (role === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/');
+      if (role === 'candidate') {
+        navigate('/candidate/profile');
+      } else if (role === 'company') {
+        await navigateCompanyUser(userId);
+      } else if (role === 'hr') {
+        navigate('/hr/dashboard');
+      } else if (role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      setError(extractApiError(err));
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return {
     isLoading,
-    error: error ?? serverError,
+    error,
     data: { form, showPassword, togglePasswordVisibility, onSubmit },
   };
 }

@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useApi } from "../useApi";
+import { companyApprovalService } from "../../services/companyApproval.service";
 import { useDocumentsForForm } from "./useDocumentsForForm";
 import { DOCUMENT_TYPES } from "./constants";
 import { companyApprovalFormSchema, type CompanyApprovalFormValues } from "@/utils/validation/companyApproval/companyApprovalSchema";
+import { extractApiError } from "../../api/axios";
 
 const INITIAL = {
   companyName: "",
   address: "",
   contactPerson: "",
-  contactEmail: "",
   contactPhone: "",
   taxId: "",
   website: "",
@@ -25,7 +25,7 @@ type Options = {
 export function useCompanyApprovalForm({ documentTypes = DOCUMENT_TYPES }: Options = {}) {
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const { execute, error: apiError } = useApi<{ message?: string }>("/company/submit", "POST");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<CompanyApprovalFormValues>({
     resolver: zodResolver(companyApprovalFormSchema),
@@ -35,19 +35,36 @@ export function useCompanyApprovalForm({ documentTypes = DOCUMENT_TYPES }: Optio
 
   const docs = useDocumentsForForm<CompanyApprovalFormValues>(documentTypes, form.setValue, form.watch);
 
-  const onSubmit: SubmitHandler<CompanyApprovalFormValues> = async (values) => {
+  const onSubmit = async (values: CompanyApprovalFormValues) => {
     setError("");
-    const res = await execute({ data: values });
-    if (res) navigate("/company/approval-pending");
+    setIsSubmitting(true);
+
+    console.log("Submitting payload:", JSON.stringify(values, null, 2));
+
+    try {
+      const { data: res } = await companyApprovalService.submit(values);
+
+      console.log(res, "res");
+
+      if (res) navigate("/company/approval-pending");
+    } catch (err: any) {
+      console.log("Submit error response:", JSON.stringify(err?.response?.data, null, 2));
+      setError(extractApiError(err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return {
-    loading: form.formState.isSubmitting,
-    error: error || apiError || null,
+    loading: isSubmitting || form.formState.isSubmitting,
+    error: error || null,
     form,
     docs,
     documentTypes,
-    submit: form.handleSubmit(onSubmit),
+    onSubmit: form.handleSubmit(onSubmit, (validationErrors) => {
+      console.log('Form validation errors:', validationErrors);
+      setError('Please fix the errors above before submitting.');
+    }),
   };
 }
 

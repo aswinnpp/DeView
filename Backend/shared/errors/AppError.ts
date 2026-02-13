@@ -1,34 +1,32 @@
 export class AppError extends Error {
-    constructor(
-        public readonly message: string,
-        public readonly statusCode: number = 500,
-        public readonly code: string = 'INTERNAL_ERROR'
-    ) {
-        super(message);
-        this.name = 'AppError';
-    }
+  constructor(
+    public readonly message: string,
+    public readonly statusCode: number
+  ) {
+    super(message);
+  }
 
-    static badRequest(message: string): AppError {
-        return new AppError(message, 400, 'BAD_REQUEST');
-    }
+  static badRequest(message: string) {
+    return new AppError(message, 400);
+  }
 
-    static unauthorized(message: string = 'Unauthorized'): AppError {
-        return new AppError(message, 401, 'UNAUTHORIZED');
-    }
+  static unauthorized(message = "Unauthorized") {
+    return new AppError(message, 401);
+  }
 
-    static forbidden(message: string = 'Forbidden'): AppError {
-        return new AppError(message, 403, 'FORBIDDEN');
-    }
+  static forbidden(message = "Forbidden") {
+    return new AppError(message, 403);
+  }
 
-    static notFound(message: string = 'Not found'): AppError {
-        return new AppError(message, 404, 'NOT_FOUND');
-    }
+  static conflict(message: string) {
+    return new AppError(message, 409);
+  }
 
-    static conflict(message: string): AppError {
-        return new AppError(message, 409, 'CONFLICT');
-    }
+  static notFound(message: string) {
+    return new AppError(message, 404);
+  }
 
-    static internal(message: string = 'Internal server error'): AppError {
-        return new AppError(message, 500, 'INTERNAL_ERROR');
-    }
+  static internal(message = "Internal server error") {
+    return new AppError(message, 500);
+  }
 }

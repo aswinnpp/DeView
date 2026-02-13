@@ -3,7 +3,8 @@ import { useState, useCallback } from "react";
 export type DocumentUpload = {
   fileName: string;
   fileUrl: string;
-  uploadedAt: Date;
+  uploadedAt: string;
+  marked: boolean;
 };
 
 export function useDocuments(documentTypes: readonly any[]) {
@@ -18,7 +19,8 @@ export function useDocuments(documentTypes: readonly any[]) {
       [key]: {
         fileName: file.name,
         fileUrl: `fake/${Date.now()}-${file.name}`,
-        uploadedAt: new Date()
+        uploadedAt: new Date().toISOString(),
+        marked: false,
       }
     }));
 

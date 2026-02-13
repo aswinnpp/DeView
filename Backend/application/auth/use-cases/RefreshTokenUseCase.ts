@@ -1,5 +1,6 @@
 import { TokenServicePort } from "../ports/TokenServicePort";
 import { UserRepository } from "../../../domain/user/repositories/UserRepository";
+import { AppError } from "../../../shared/errors/AppError";
 
 export class RefreshTokenUseCase {
   constructor(
@@ -8,14 +9,31 @@ export class RefreshTokenUseCase {
   ) {}
 
   async execute(refreshToken: string) {
+    if (!refreshToken) {
+      throw AppError.unauthorized("Refresh token missing");
+    }
+
     const payload = await this.tokenService.verifyRefreshToken(refreshToken);
-    if (!payload) throw new Error("Invalid refresh token");
+
+    if (!payload) {
+      throw AppError.unauthorized("Invalid or expired refresh token");
+    }
 
     const rotated = await this.tokenService.rotateRefreshToken(refreshToken);
-    if (!rotated) throw new Error("Rotation failed");
+
+    if (!rotated) {
+      throw AppError.unauthorized("Refresh token rotation failed");
+    }
 
     const user = await this.userRepo.findById(payload.userId);
-    if (!user) throw new Error("User not found");
+
+    if (!user) {
+      throw AppError.unauthorized("User not found");
+    }
+
+    if (!user.isActive) {
+      throw AppError.forbidden("Account is deactivated");
+    }
 
     const accessToken = await this.tokenService.signAccessToken({
       userId: user.id!,
@@ -26,6 +44,7 @@ export class RefreshTokenUseCase {
     return {
       accessToken,
       newRefreshToken: rotated.token,
+      role: user.role.getValue()
     };
   }
 }

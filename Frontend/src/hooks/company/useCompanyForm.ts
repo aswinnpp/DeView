@@ -4,7 +4,6 @@ const INITIAL = {
   companyName: "",
   address: "",
   contactPerson: "",
-  contactEmail: "",
   contactPhone: "",
   taxId: "",
   website: "",

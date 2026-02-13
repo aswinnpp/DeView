@@ -3,7 +3,7 @@ import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 import { EmailServicePort } from "../ports/EmailServicePort";
-
+import { AppError } from "../../../shared/errors/AppError";
 export class ForgotPasswordUseCase {
   constructor(
     private userRepo: UserRepository,
@@ -14,7 +14,7 @@ export class ForgotPasswordUseCase {
   async execute(emailStr: string) {
     const email = new Email(emailStr);
     const user = await this.userRepo.findByEmail(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw AppError.notFound("User not found");
 
     const otp = OTPCode.generate();
 

@@ -33,10 +33,10 @@ export function createControllers(
     ),
 
     googleAuthController: new GoogleAuthController(
-      services.googleAuthService,
-      services.tokenService,
-      repositories.userRepository
+      useCases.googleOAuthUseCase,
+      services.googleAuthService
     ),
+
 
     companyApprovalController: new CompanyApprovalController(
       useCases.checkCompanyStatusUseCase,
@@ -47,7 +47,8 @@ export function createControllers(
     adminCompanyApprovalController: new AdminCompanyApprovalController(
       useCases.getPendingCompaniesUseCase,
       useCases.approveCompanyUseCase,
-      useCases.rejectCompanyUseCase
+      useCases.rejectCompanyUseCase,
+      useCases.markDocumentUseCase
     ),
   };
 }

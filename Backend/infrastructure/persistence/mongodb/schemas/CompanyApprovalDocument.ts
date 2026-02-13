@@ -31,4 +31,5 @@ export interface DocumentUpload {
     fileName: string;
     fileUrl: string;
     uploadedAt: Date;
+    marked: boolean;
 }

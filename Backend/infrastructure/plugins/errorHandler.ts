@@ -1,52 +1,29 @@
-import { FastifyInstance, FastifyError, FastifyRequest, FastifyReply } from 'fastify';
-import { AppError } from '../../shared/errors/AppError.js';
-import { DomainError } from '../../shared/errors/DomainError.js';
-import { ConflictError } from '../../shared/errors/ConflictError.js';
-import { ValidationError } from '../../shared/errors/ValidationError.js';
+import { FastifyInstance } from "fastify";
+import { AppError } from "../../shared/errors/AppError";
 
-export function registerErrorHandler(fastify: FastifyInstance): void {
-    fastify.setErrorHandler((error: FastifyError | Error, request: FastifyRequest, reply: FastifyReply) => {
-        console.error('❌ Error:', error);
+export function registerErrorHandler(app: FastifyInstance) {
+  app.setErrorHandler((error, request, reply) => {
 
-        if (error instanceof AppError) {
-            return reply.code(error.statusCode).send({
-                error: error.code,
-                message: error.message,
-            });
-        }
+    if (error instanceof AppError) {
+      return reply.status(error.statusCode).send({
+        success: false,
+        message: error.message
+      });
+    }
 
-        if (error instanceof ConflictError) {
-            return reply.code(409).send({
-                error: 'CONFLICT',
-                message: error.message,
-            });
-        }
+    if ((error as any).validation) {
+      return reply.status(400).send({
+        success: false,
+        message: "Validation error",
+        errors: (error as any).validation
+      });
+    }
 
-        if (error instanceof ValidationError) {
-            return reply.code(400).send({
-                error: 'VALIDATION_ERROR',
-                message: error.message,
-            });
-        }
+    console.error(error); 
 
-        if (error instanceof DomainError) {
-            return reply.code(400).send({
-                error: 'DOMAIN_ERROR',
-                message: error.message,
-            });
-        }
-
-        const fastifyError = error as FastifyError;
-        if (fastifyError.statusCode) {
-            return reply.code(fastifyError.statusCode).send({
-                error: fastifyError.code || 'ERROR',
-                message: fastifyError.message,
-            });
-        }
-
-        return reply.code(500).send({
-            error: 'INTERNAL_ERROR',
-            message: 'Internal server error',
-        });
+    return reply.status(500).send({
+      success: false,
+      message: "Internal server error"
     });
+  });
 }

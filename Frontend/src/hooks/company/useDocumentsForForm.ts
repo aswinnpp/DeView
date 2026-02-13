@@ -1,10 +1,12 @@
 import { useState, useCallback } from "react";
-import type { UseFormSetValue, UseFormWatch } from "react-hook-form";
+import type { UseFormSetValue, UseFormWatch, Path, PathValue } from "react-hook-form";
+import { uploadService } from "../../services/upload.service";
 
 export type DocumentUpload = {
   fileName: string;
   fileUrl: string;
-  uploadedAt: Date | string;
+  uploadedAt: string;
+  marked: boolean;
 };
 
 type FormWithDocuments = { documents?: Record<string, DocumentUpload> };
@@ -15,18 +17,30 @@ export function useDocumentsForForm<T extends FormWithDocuments>(
   watch: UseFormWatch<T>
 ) {
   const [uploading, setUploading] = useState<string | null>(null);
-  const documents = watch("documents") ?? {};
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const documents = (watch("documents" as Path<T>) ?? {}) as Record<string, DocumentUpload>;
 
   const upload = useCallback(
-    (key: string, file: File) => {
+    async (key: string, file: File) => {
       setUploading(key);
-      const doc: DocumentUpload = {
-        fileName: file.name,
-        fileUrl: `fake/${Date.now()}-${file.name}`,
-        uploadedAt: new Date(),
-      };
-      setValue("documents", { ...documents, [key]: doc }, { shouldValidate: true });
-      setUploading(null);
+      setUploadError(null);
+
+      try {
+        const { data } = await uploadService.uploadFile(file);
+
+        const doc: DocumentUpload = {
+          fileName: data.fileName,
+          fileUrl: data.fileUrl,
+          uploadedAt: data.uploadedAt,
+          marked: false,
+        };
+        setValue("documents" as Path<T>, { ...documents, [key]: doc } as PathValue<T, Path<T>>, { shouldValidate: true });
+      } catch (err) {
+        console.error('File upload failed:', err);
+        setUploadError(`Failed to upload ${file.name}`);
+      } finally {
+        setUploading(null);
+      }
     },
     [documents, setValue]
   );
@@ -35,7 +49,7 @@ export function useDocumentsForForm<T extends FormWithDocuments>(
     (key: string) => {
       const next = { ...documents };
       delete next[key];
-      setValue("documents", next, { shouldValidate: true });
+      setValue("documents" as Path<T>, next as PathValue<T, Path<T>>, { shouldValidate: true });
     },
     [documents, setValue]
   );
@@ -70,6 +84,7 @@ export function useDocumentsForForm<T extends FormWithDocuments>(
     upload,
     remove,
     uploading,
+    uploadError,
     validateRequired,
     getDocumentCount,
     getRequiredDocCount,

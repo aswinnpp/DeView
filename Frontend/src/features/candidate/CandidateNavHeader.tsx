@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { useApi } from '../../hooks/useApi';
+import { candidateService } from '../../services/candidate.service';
 import { Button } from '../../components/common';
 
 interface CandidateNavHeaderProps {
@@ -17,14 +17,20 @@ interface Notification {
 const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => {
     const [showNotifications, setShowNotifications] = useState<boolean>(false);
     const notificationRef = useRef<HTMLDivElement>(null);
-
-    const { data: profileData, execute: fetchProfile } = useApi<{ hasProfile: boolean; data?: { fullName?: string } }>(
-        '/candidate/profile',
-        'GET'
-    );
+    const [candidateName, setCandidateName] = useState<string>(localStorage.getItem('userName') || '');
 
     useEffect(() => {
-        fetchProfile();
+        const loadProfile = async () => {
+            try {
+                const { data: profileData } = await candidateService.getProfile();
+                if (profileData?.profile?.fullName) {
+                    setCandidateName(profileData.profile.fullName);
+                }
+            } catch {
+                // Silently fail — use fallback name
+            }
+        };
+        loadProfile();
     }, []);
 
     const getInitials = (name?: string): string => {
@@ -32,8 +38,6 @@ const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => 
         const firstName = name.trim().split(' ')[0];
         return firstName ? firstName.charAt(0).toUpperCase() : 'C';
     };
-
-    const candidateName = profileData?.data?.fullName || localStorage.getItem('userName') || '';
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

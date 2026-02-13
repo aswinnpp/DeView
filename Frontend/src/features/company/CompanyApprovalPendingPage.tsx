@@ -1,33 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApi } from '../../hooks/useApi';
+import { companyApprovalService, type CompanyApprovalStatus } from '../../services/companyApproval.service';
 import { Button } from '../../components/common';
-
-interface CompanyApproval {
-    id: string;
-    companyName: string;
-    contactPerson: string;
-    contactEmail: string;
-    status: 'pending' | 'approved' | 'rejected';
-    rejectionReason?: string;
-    createdAt: string;
-}
 
 const CompanyApprovalPendingPage = () => {
     const navigate = useNavigate();
-    const [approval, setApproval] = useState<CompanyApproval | null>(null);
+    const [approval, setApproval] = useState<CompanyApprovalStatus | null>(null);
     const [loading, setLoading] = useState(true);
-
-    const { execute: fetchApproval } = useApi('/company/my-approval', 'GET');
-
-    useEffect(() => {
-        loadApproval();
-    }, []);
 
     const loadApproval = async () => {
         try {
             setLoading(true);
-            const response = await fetchApproval() as CompanyApproval | null;
+            const { data: response } = await companyApprovalService.getMyApproval();
             if (response) {
                 setApproval(response);
 
@@ -46,6 +30,10 @@ const CompanyApprovalPendingPage = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        loadApproval();
+    }, []);
 
     const handleResubmit = () => {
         navigate('/company/approval-form');

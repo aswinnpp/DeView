@@ -1,5 +1,4 @@
-// application/admin/usecases/RejectCompanyUseCase.ts
-
+import { AppError } from "../../../shared/errors/AppError";
 import { CompanyApprovalRepository } from "../../../domain/company/repositories/CompanyApprovalRepository";
 
 export class RejectCompanyUseCase {
@@ -9,13 +8,13 @@ export class RejectCompanyUseCase {
     const approval = await this.repo.findById(approvalId);
 
     if (!approval) {
-      throw new Error("Company approval not found");
+      throw  AppError.notFound("Company approval not found");
     }
 
-    // Domain behavior
+   
     approval.reject(reason);
 
-    // Persist change
+    
     await this.repo.save(approval);
   }
 }

@@ -4,7 +4,6 @@ export interface SubmitCompanyApprovalDTO {
   companyName: string;
   address: string;
   contactPerson: string;
-  contactEmail: string;
   contactPhone: string;
   taxId: string;
   website?: string;

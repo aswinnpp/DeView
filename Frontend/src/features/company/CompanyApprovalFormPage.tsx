@@ -3,6 +3,7 @@ import { useCompanyApprovalForm } from '../../hooks/company';
 
 const formInputClass = "w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border focus:outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] placeholder:text-[#64748b]";
 const formLabelClass = "block mb-2 text-[13px] font-semibold text-[#cbd5e1]";
+const formErrorClass = "text-[#f87171] text-sm mt-1";
 
 const CompanyApprovalFormPage = () => {
     const {
@@ -11,7 +12,7 @@ const CompanyApprovalFormPage = () => {
         form,
         docs,
         documentTypes,
-        submit,
+        onSubmit,
     } = useCompanyApprovalForm();
 
     const { register, formState: { errors } } = form;
@@ -52,7 +53,7 @@ const CompanyApprovalFormPage = () => {
                         </div>
                     )}
 
-                    <form onSubmit={submit} className="flex flex-col gap-8">
+                    <form onSubmit={onSubmit} className="flex flex-col gap-8">
                         {/* Company Information Section */}
                         <section className="bg-[rgba(15,23,42,0.5)] border border-[rgba(71,85,105,0.3)] rounded-2xl p-6">
                             <h3 className="flex items-center gap-2.5 m-0 mb-5 text-lg font-bold text-[#f1f5f9]">
@@ -63,9 +64,10 @@ const CompanyApprovalFormPage = () => {
                             <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
                                 <Input
                                     type="text"
-                                    label="Company Name"
+                                    label="Company Name *"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
+                                    errorClassName={formErrorClass}
                                     error={errors.companyName?.message}
                                     wrapperClassName="col-span-full flex flex-col gap-1.5"
                                     {...register('companyName')}
@@ -73,9 +75,10 @@ const CompanyApprovalFormPage = () => {
 
                                 <Input
                                     type="text"
-                                    label="Registered Address"
+                                    label="Registered Address *"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
+                                    errorClassName={formErrorClass}
                                     error={errors.address?.message}
                                     wrapperClassName="col-span-full flex flex-col gap-1.5"
                                     {...register('address')}
@@ -86,6 +89,7 @@ const CompanyApprovalFormPage = () => {
                                     label="GST Number / Tax ID *"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
+                                    errorClassName={formErrorClass}
                                     placeholder="e.g., 29ABCDE1234F1Z5"
                                     error={errors.taxId?.message}
                                     wrapperClassName="flex flex-col gap-1.5"
@@ -114,6 +118,7 @@ const CompanyApprovalFormPage = () => {
                                     label="Company Website"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
+                                    errorClassName={formErrorClass}
                                     placeholder="https://www.yourcompany.com"
                                     error={errors.website?.message}
                                     wrapperClassName="col-span-full flex flex-col gap-1.5"
@@ -135,28 +140,22 @@ const CompanyApprovalFormPage = () => {
                                     label="Authorized Contact Person *"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
+                                    errorClassName={formErrorClass}
                                     placeholder="Full Name"
                                     error={errors.contactPerson?.message}
                                     wrapperClassName="flex flex-col gap-1.5"
                                     {...register('contactPerson')}
                                 />
 
-                                <Input
-                                    type="email"
-                                    label="Business Email *"
-                                    className={formInputClass}
-                                    labelClassName={formLabelClass}
-                                    placeholder="contact@company.com"
-                                    error={errors.contactEmail?.message}
-                                    wrapperClassName="flex flex-col gap-1.5"
-                                    {...register('contactEmail')}
-                                />
+
+
 
                                 <Input
                                     type="tel"
                                     label="Contact Phone *"
                                     className={formInputClass}
                                     labelClassName={formLabelClass}
+                                    errorClassName={formErrorClass}
                                     placeholder="+91-9876543210"
                                     error={errors.contactPhone?.message}
                                     wrapperClassName="flex flex-col gap-1.5"
@@ -176,7 +175,9 @@ const CompanyApprovalFormPage = () => {
                                 Upload clear, legible copies of the following documents. Accepted formats: PDF, JPG, PNG (Max 5MB each)
                             </p>
                             {errors.documents && (
-                                <p className="text-[#f87171] text-sm mb-4">{errors.documents.message}</p>
+                                <p className="text-[#f87171] text-sm mb-4">
+                                    {errors.documents.message || errors.documents.root?.message}
+                                </p>
                             )}
 
                             <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
@@ -258,6 +259,7 @@ const CompanyApprovalFormPage = () => {
                                 variant="primary"
                                 className="w-full py-4 px-8 text-base font-bold rounded-xl flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed"
                                 disabled={loading}
+
                             >
                                 {loading ? (
                                     <>

@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { CompanyApprovalController } from '../controllers/CompanyApprovalController.js';
 import { checkStatusSchema, submitCompanyApprovalSchema } from '../schemas/companyApprovalSchema.js';
+import { requireAuth } from '../middleware/authMiddleware.js';
 
 export async function companyApprovalRoutes(
     fastify: FastifyInstance,
@@ -15,14 +16,14 @@ export async function companyApprovalRoutes(
 
     // Get current user's approval (requires auth)
     fastify.get('/my-approval', {
-        preHandler: [fastify.authenticate],
+        preHandler: [requireAuth],
         handler: controller.getMyApproval,
     });
 
     // Submit company approval request (requires auth)
     fastify.post('/submit', {
         schema: submitCompanyApprovalSchema,
-        preHandler: [fastify.authenticate],
+        preHandler: [requireAuth],
         handler: controller.submit,
     });
 

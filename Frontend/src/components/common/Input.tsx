@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes } from 'react';
+import { forwardRef, type InputHTMLAttributes } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -8,18 +8,18 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     errorClassName?: string;
 }
 
-const Input = ({
+const Input = forwardRef<HTMLInputElement, InputProps>(({
     label,
     error,
     wrapperClassName,
     labelClassName,
     errorClassName,
     ...props
-}: InputProps) => {
+}, ref) => {
     const content = (
         <>
             {label && <label className={labelClassName}>{label}</label>}
-            <input {...props} />
+            <input ref={ref} {...props} />
             {error && <span className={errorClassName}>{error}</span>}
         </>
     );
@@ -29,6 +29,8 @@ const Input = ({
     }
 
     return content;
-};
+});
+
+Input.displayName = 'Input';
 
 export default Input;

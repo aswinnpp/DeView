@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useApi, api } from './useApi';
+import { candidateService } from '../services/candidate.service';
+import { authService } from '../services/auth.service';
 import type { RootState, AppDispatch } from '../context/store';
 import { logout } from '../context/authSlice';
 import {
@@ -10,12 +11,10 @@ import {
   getInitialProfileData,
   type ProfileData,
 } from '../utils/validation/profileSchema';
-import { getErrorMessage } from '../utils/validation/apiValidation';
+import { extractApiError } from '../api/axios';
 
 const MAX_RESUME_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_RESUME_TYPE = 'application/pdf';
-
-type ProfileResponse = { profile: ProfileData };
 
 export function useCandidateProfile() {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,22 +27,21 @@ export function useCandidateProfile() {
   const [profileExists, setProfileExists] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  const { loading: isLoading, execute: fetchProfile, reset: resetFetch, error: fetchError } = useApi<ProfileResponse>('/candidate/profile', 'GET');
-
-  const displayError = localError ?? fetchError;
+  const displayError = localError;
   const clearError = useCallback(() => setLocalError(null), []);
 
   // Load profile on mount
-  useEffect(() => {
-    if (!userEmail) return;
-
-    const loadProfile = async () => {
-      const result = await fetchProfile();
+  const fetchProfile = useCallback(async () => {
+    setIsLoading(true);
+    setLocalError(null);
+    try {
+      const { data: result } = await candidateService.getProfile();
       if (result?.profile) {
         const loaded = { ...getInitialProfileData(userEmail), ...result.profile, email: userEmail };
         setProfileData(loaded);
@@ -54,9 +52,19 @@ export function useCandidateProfile() {
         setProfileExists(false);
         setIsEditing(true);
       }
-    };
+    } catch (err) {
+      setLocalError(extractApiError(err));
+      setProfileData(getInitialProfileData(userEmail));
+      setProfileExists(false);
+      setIsEditing(true);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userEmail]);
 
-    loadProfile();
+  useEffect(() => {
+    if (!userEmail) return;
+    fetchProfile();
   }, [userEmail, fetchProfile]);
 
   const handleInputChange = useCallback(
@@ -109,21 +117,17 @@ export function useCandidateProfile() {
     setIsSaving(true);
     try {
       const cleanedData = cleanProfileData(profileData);
-      const method = profileExists ? 'PATCH' : 'POST';
-      const response = await api.request({
-        url: '/candidate/profile',
-        method,
-        data: cleanedData,
-      });
-
-      if (response.data) {
-        setOriginalProfile({ ...profileData });
-        setProfileExists(true);
-        return true;
+      if (profileExists) {
+        await candidateService.updateProfile(cleanedData);
+      } else {
+        await candidateService.createProfile(cleanedData);
       }
-      return false;
+
+      setOriginalProfile({ ...profileData });
+      setProfileExists(true);
+      return true;
     } catch (err) {
-      setLocalError(getErrorMessage(err));
+      setLocalError(extractApiError(err));
       return false;
     } finally {
       setIsSaving(false);
@@ -158,38 +162,26 @@ export function useCandidateProfile() {
     setIsUploading(true);
     setLocalError(null);
     try {
-      const formData = new FormData();
-      formData.append('resume', file);
-      const response = await api.post('/candidate/profile/resume', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      const resumeUrl = response.data?.resumeUrl;
+      const { data } = await candidateService.uploadResume(file);
+      const resumeUrl = data?.resumeUrl;
       if (resumeUrl) {
         setProfileData(prev => ({ ...prev, resumeUrl }));
       }
     } catch (err) {
-      setLocalError(getErrorMessage(err));
+      setLocalError(extractApiError(err));
     } finally {
       setIsUploading(false);
     }
   }, []);
 
   const refreshProfile = useCallback(async () => {
-    resetFetch();
-    const result = await fetchProfile();
-    if (result?.profile) {
-      const loaded = { ...getInitialProfileData(userEmail), ...result.profile, email: userEmail };
-      setProfileData(loaded);
-      setOriginalProfile(loaded);
-      setProfileExists(true);
-    }
-  }, [fetchProfile, resetFetch, userEmail]);
+    await fetchProfile();
+  }, [fetchProfile]);
 
   const handleLogout = useCallback(async () => {
     setIsLoggingOut(true);
     try {
-      await api.post('/auth/logout');
+      await authService.logout();
     } catch {
       // Still logout locally even if API fails
     } finally {

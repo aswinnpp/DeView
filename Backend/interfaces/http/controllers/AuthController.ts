@@ -1,34 +1,34 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
-import { RegisterUserUseCase } from '../../../application/auth/use-cases/RegisterUserUseCase.js';
-import { VerifyOTPUseCase } from '../../../application/auth/use-cases/VerifyOTPUseCase.js';
-import { LoginUseCase } from '../../../application/auth/use-cases/LoginUseCase.js';
-import { ResendOTPUseCase } from '../../../application/auth/use-cases/ResendOTPUseCase.js';
-import { RefreshTokenUseCase } from '../../../application/auth/use-cases/RefreshTokenUseCase.js';
-import { ForgotPasswordUseCase } from '../../../application/auth/use-cases/ForgotPasswordUseCase.js';
-import { ResetPasswordUseCase } from '../../../application/auth/use-cases/ResetPasswordUseCase.js';
-import { VerifyPasswordResetOTPUseCase } from '../../../application/auth/use-cases/VerifyPasswordResetOTPUseCase.js';
-import { SecureJwtTokenService } from '../../../infrastructure/security/SecureJwtTokenService.js';
-import type { RegisterUserRequestDTO } from '../../../application/auth/dtos/RegisterUserRequestDTO.js';
-import type { LoginRequestDTO } from '../../../application/auth/dtos/LoginRequestDTO.js';
-import type { ResetPasswordRequest } from '../../../../Shared/contracts/auth/resetPassword.js';
+import { FastifyRequest, FastifyReply } from "fastify";
 
-type RegisterBody = RegisterUserRequestDTO;
-type LoginBody = LoginRequestDTO;
+import { RegisterUserUseCase } from "../../../application/auth/use-cases/RegisterUserUseCase";
+import { VerifyOTPUseCase } from "../../../application/auth/use-cases/VerifyOTPUseCase";
+import { LoginUseCase } from "../../../application/auth/use-cases/LoginUseCase";
+import { ResendOTPUseCase } from "../../../application/auth/use-cases/ResendOTPUseCase";
+import { RefreshTokenUseCase } from "../../../application/auth/use-cases/RefreshTokenUseCase";
+import { ForgotPasswordUseCase } from "../../../application/auth/use-cases/ForgotPasswordUseCase";
+import { VerifyPasswordResetOTPUseCase } from "../../../application/auth/use-cases/VerifyPasswordResetOTPUseCase";
+import { ResetPasswordUseCase } from "../../../application/auth/use-cases/ResetPasswordUseCase";
+import { SecureJwtTokenService } from "../../../infrastructure/security/SecureJwtTokenService";
+
+import {
+  getCookie,
+  setAccessTokenCookie,
+  setRefreshTokenCookie,
+  clearCookie,
+} from "../cookies/cookieHelper";
+
+import type { RegisterUserRequestDTO } from "../../../application/auth/dtos/RegisterUserRequestDTO";
+import type { LoginRequestDTO } from "../../../application/auth/dtos/LoginRequestDTO";
+import type { ResetPasswordRequest } from "../../../../Shared/contracts/auth/resetPassword";
 
 interface VerifyOTPBody {
   email: string;
   otp: string;
 }
 
-interface ResendOTPBody {
+interface EmailBody {
   email: string;
 }
-
-interface ForgotPasswordBody {
-  email: string;
-}
-
-type ResetPasswordBody = ResetPasswordRequest;
 
 export class AuthController {
   constructor(
@@ -43,153 +43,117 @@ export class AuthController {
     private readonly tokenService: SecureJwtTokenService
   ) {}
 
+  // ---------------- REGISTER ----------------
+
   register = async (
-    request: FastifyRequest<{ Body: RegisterBody }>,
+    request: FastifyRequest<{ Body: RegisterUserRequestDTO }>,
     reply: FastifyReply
   ) => {
     const result = await this.registerUserUseCase.execute(request.body);
     reply.code(201).send(result);
   };
 
+  // ---------------- VERIFY OTP ----------------
+
   verifyOTP = async (
     request: FastifyRequest<{ Body: VerifyOTPBody }>,
     reply: FastifyReply
   ) => {
-    const { email, otp } = request.body;
+    await this.verifyOTPUseCase.execute(
+      request.body.email,
+      request.body.otp
+    );
 
-    await this.verifyOTPUseCase.execute(email, otp);
-
-    reply.code(200).send({ success: true });
+    reply.send({ success: true });
   };
 
   resendOTP = async (
-    request: FastifyRequest<{ Body: ResendOTPBody }>,
+    request: FastifyRequest<{ Body: EmailBody }>,
     reply: FastifyReply
   ) => {
     const result = await this.resendOTPUseCase.execute(request.body);
-    reply.code(200).send(result);
+    reply.send(result);
   };
+
+  // ---------------- LOGIN ----------------
 
   login = async (
-    request: FastifyRequest<{ Body: LoginBody }>,
+    request: FastifyRequest<{ Body: LoginRequestDTO }>,
     reply: FastifyReply
   ) => {
+    const { email, password } = request.body;
 
-    const {email ,password} =request.body
     const result = await this.loginUseCase.execute(email, password);
 
-    this.setAccessTokenCookie(reply, result.accessToken);
-    this.setRefreshTokenCookie(reply, result.refreshToken);
+    setAccessTokenCookie(reply, result.accessToken);
+    setRefreshTokenCookie(reply, result.refreshToken);
 
-    reply.code(200).send({ user: result.user,});
+    reply.send({ user: result.user });
   };
+
+  // ---------------- REFRESH ----------------
 
   refresh = async (request: FastifyRequest, reply: FastifyReply) => {
-    const refreshToken = this.getCookie(request, 'refreshToken');
+    const refreshToken = getCookie(request, "refreshToken");
 
-   if (!refreshToken) {
-  reply.code(401).send({ error: "No refresh token" });
-  return;
-}
+    if (!refreshToken) {
+      reply.code(401).send({ error: "No refresh token" });
+      return;
+    }
 
-const result = await this.refreshTokenUseCase.execute(refreshToken);
+    const result = await this.refreshTokenUseCase.execute(refreshToken);
 
+    setAccessTokenCookie(reply, result.accessToken);
+    setRefreshTokenCookie(reply, result.newRefreshToken);
 
-    this.setAccessTokenCookie(reply, result.accessToken);
-    this.setRefreshTokenCookie(reply, result.newRefreshToken);
-
-    reply.code(200).send({
-      message: 'Token refreshed successfully',
-      
-    });
+    reply.send({ success: true });
   };
 
+  // ---------------- LOGOUT ----------------
+
   logout = async (request: FastifyRequest, reply: FastifyReply) => {
-    const refreshToken = this.getCookie(request, 'refreshToken');
-    const accessToken = this.getCookie(request, 'accessToken');
+    const refreshToken = getCookie(request, "refreshToken");
+    const accessToken = getCookie(request, "accessToken");
 
     if (refreshToken) await this.tokenService.revokeRefreshToken(refreshToken);
     if (accessToken) await this.tokenService.revokeAccessToken(accessToken);
 
-    this.clearCookie(reply, 'accessToken');
-    this.clearCookie(reply, 'refreshToken');
+    clearCookie(reply, "accessToken");
+    clearCookie(reply, "refreshToken");
 
-    reply.code(200).send({ message: 'Logged out successfully' });
+    reply.send({ success: true });
   };
 
+  // ---------------- PASSWORD RESET ----------------
+
   forgotPassword = async (
-    request: FastifyRequest<{ Body: ForgotPasswordBody }>,
+    request: FastifyRequest<{ Body: EmailBody }>,
     reply: FastifyReply
   ) => {
     await this.forgotPasswordUseCase.execute(request.body.email);
-    reply.code(200).send({ message: 'OTP has been sent to your email.' });
+    reply.send({ success: true });
   };
 
   verifyPasswordResetOTP = async (
     request: FastifyRequest<{ Body: VerifyOTPBody }>,
     reply: FastifyReply
   ) => {
-    const { email, otp } = request.body;
+    const result = await this.verifyPasswordResetOTPUseCase.execute(
+      request.body.email,
+      request.body.otp
+    );
 
-    const result = await this.verifyPasswordResetOTPUseCase.execute(email, otp);
-
-    reply.code(200).send(result);
+    reply.send(result);
   };
 
   resetPassword = async (
-    request: FastifyRequest<{ Body: ResetPasswordBody }>,
+    request: FastifyRequest<{ Body: ResetPasswordRequest }>,
     reply: FastifyReply
   ) => {
     const { email, otp, newPassword } = request.body;
 
     await this.resetPasswordUseCase.execute(email, otp, newPassword);
 
-    reply.code(200).send({ message: 'Password reset successfully' });
+    reply.send({ success: true });
   };
-
-  // ================= Helpers =================
-
-  private getCookie(request: FastifyRequest, name: string): string | null {
-    const cookies = request.headers.cookie || '';
-    const match = cookies.match(new RegExp(`${name}=([^;]+)`));
-    return match ? match[1] : null;
-  }
-
-  private setAccessTokenCookie(reply: FastifyReply, token: string): void {
-    const isProduction = process.env.NODE_ENV === 'production';
-
-    reply.header(
-      'Set-Cookie',
-      [
-        `accessToken=${token}`,
-        'Path=/',
-        'HttpOnly',
-        'SameSite=Lax',
-        'Max-Age=900',
-        isProduction ? 'Secure' : '',
-      ].filter(Boolean).join('; ')
-    );
-  }
-
-  private setRefreshTokenCookie(reply: FastifyReply, token: string): void {
-    const isProduction = process.env.NODE_ENV === 'production';
-
-    const cookie = [
-      `refreshToken=${token}`,
-      'Path=/',
-      'HttpOnly',
-      'SameSite=Lax',
-      'Max-Age=604800',
-      isProduction ? 'Secure' : '',
-    ].filter(Boolean).join('; ');
-
-    const existing = reply.getHeader('Set-Cookie');
-    reply.header('Set-Cookie', existing ? [existing as string, cookie] : cookie);
-  }
-
-  private clearCookie(reply: FastifyReply, name: string): void {
-    const cookie = `${name}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
-    const existing = reply.getHeader('Set-Cookie');
-    reply.header('Set-Cookie', existing ? [existing as string, cookie] : cookie);
-  }
 }

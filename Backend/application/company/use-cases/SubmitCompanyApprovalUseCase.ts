@@ -1,42 +1,43 @@
 import { CompanyApprovalRepository } from "../../../domain/company/repositories/CompanyApprovalRepository";
+import { UserRepository } from "../../../domain/user/repositories/UserRepository";
 import { CompanyApproval } from "../../../domain/company/entities/CompanyApprovalEntitie";
 import { SubmitCompanyApprovalDTO } from "../dtos/SubmitCompanyApprovalDTO";
+import { AppError } from "../../../shared/errors/AppError";
 
 export class SubmitCompanyApprovalUseCase {
-  constructor(private repo: CompanyApprovalRepository) {}
+  constructor(
+    private repo: CompanyApprovalRepository,
+    private userRepo: UserRepository
+  ) { }
 
   async execute(dto: SubmitCompanyApprovalDTO) {
     if (!dto.userId) {
-      return {
-        success: false,
-        error: "UserId is required",
-      };
+      throw AppError.badRequest("UserId is required");
     }
 
     const existing = await this.repo.findById(dto.userId);
 
-    if (existing && existing.status === "pending") {
-      return {
-        success: false,
-        error: "You already have a pending approval request",
-      };
+    if (existing?.status === "pending") {
+      throw AppError.badRequest("You already have a pending approval request");
     }
 
-    if (existing && existing.status === "approved") {
-      return {
-        success: false,
-        error: "Company already approved",
-      };
+    if (existing?.status === "approved") {
+      throw AppError.conflict("Company already approved");
     }
 
-    // Create domain entity
+    // Fetch the user's email from the User collection
+    const user = await this.userRepo.findById(dto.userId);
+    if (!user) {
+      throw AppError.badRequest("User not found");
+    }
+
     const approval = new CompanyApproval(
       null,
       dto.userId,
       dto.companyName,
       dto.address,
       dto.contactPerson,
-      dto.contactEmail,
+      user.email.getValue(),
       dto.contactPhone,
       dto.taxId,
       dto.numberOfEmployees,
@@ -47,8 +48,7 @@ export class SubmitCompanyApprovalUseCase {
     const approvalId = await this.repo.save(approval);
 
     return {
-      success: true,
-      data: approvalId,
+      approvalId,
     };
   }
 }

@@ -2,7 +2,7 @@ import { UserRepository } from "../../../domain/user/repositories/UserRepository
 import { Email } from "../../../domain/user/value-objects/Email";
 import { PasswordHasherPort } from "../ports/PasswordHasherPort";
 import { TokenServicePort } from "../ports/TokenServicePort";
-
+import { AppError } from "../../../shared/errors/AppError";
 export class LoginUseCase {
   constructor(
     private userRepo: UserRepository,
@@ -14,11 +14,21 @@ export class LoginUseCase {
     const email = new Email(emailStr);
     const user = await this.userRepo.findByEmail(email);
 
-    if (!user) throw new Error("Invalid credentials");
-    if (!user.isEmailVerified) throw new Error("Email not verified");
-
+ if (!user) {
+      throw AppError.unauthorized("Invalid email or password");
+    }    
+  if (!user.isEmailVerified) {
+      throw AppError.forbidden("Email not verified");
+    }
     const ok = await this.hasher.compare(password, user.passwordHash);
-    if (!ok) throw new Error("Invalid credentials");
+    if (!ok) {
+      throw AppError.unauthorized("Invalid email or password");
+    }
+
+    if (!user.isActive) {
+      throw AppError.forbidden("Account is deactivated");
+    }
+
 
     const accessToken = await this.tokenService.signAccessToken({
       userId: user.id!,
