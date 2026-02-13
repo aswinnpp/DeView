@@ -12,6 +12,9 @@ const CompanyApprovalFormPage = () => {
         form,
         docs,
         documentTypes,
+        isResubmission,
+        lockedDocKeys,
+        rejectionReason,
         onSubmit,
     } = useCompanyApprovalForm();
 
@@ -40,8 +43,35 @@ const CompanyApprovalFormPage = () => {
 
             <main className="py-10 px-10 max-w-[900px] mx-auto max-md:py-5 max-md:px-5">
                 <div className="bg-[rgba(30,41,59,0.6)] backdrop-blur-[12px] border border-[rgba(99,102,241,0.15)] rounded-[20px] p-10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] max-md:p-6">
+
+                    {/* Resubmission Banner */}
+                    {isResubmission && (
+                        <div className="mb-8 bg-[rgba(245,158,11,0.1)] border border-[rgba(245,158,11,0.3)] rounded-2xl p-6">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 rounded-xl bg-[rgba(245,158,11,0.2)] flex items-center justify-center text-xl">🔄</div>
+                                <div>
+                                    <h3 className="m-0 text-lg font-bold text-[#fbbf24]">Resubmitting Application</h3>
+                                    <p className="m-0 text-[13px] text-[#94a3b8]">Your previous application was rejected. Please correct the issues below.</p>
+                                </div>
+                            </div>
+                            {rejectionReason && (
+                                <div className="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.25)] rounded-xl p-4 mt-3">
+                                    <p className="m-0 text-sm text-[#fca5a5]">
+                                        <strong className="text-[#f87171]">Rejection Reason:</strong> {rejectionReason}
+                                    </p>
+                                </div>
+                            )}
+                            <p className="m-0 mt-3 text-xs text-[#64748b]">
+                                ✅ Verified documents are locked. Only unmarked documents need to be re-uploaded.
+                                All other fields are pre-filled but editable.
+                            </p>
+                        </div>
+                    )}
+
                     <div className="mb-8 text-center">
-                        <h2 className="m-0 mb-3 text-[28px] font-bold text-white">Company Verification</h2>
+                        <h2 className="m-0 mb-3 text-[28px] font-bold text-white">
+                            {isResubmission ? 'Resubmit Verification' : 'Company Verification'}
+                        </h2>
                         <p className="m-0 text-[#94a3b8] text-[15px] leading-relaxed">Please provide your company details and upload required documents for verification.
                             Our team will review your application within 2-3 business days.</p>
                     </div>
@@ -147,9 +177,6 @@ const CompanyApprovalFormPage = () => {
                                     {...register('contactPerson')}
                                 />
 
-
-
-
                                 <Input
                                     type="tel"
                                     label="Contact Phone *"
@@ -184,17 +211,23 @@ const CompanyApprovalFormPage = () => {
                                 {documentTypes.map((docType: { key: string; label: string; description: string; required: boolean }, index: number) => {
                                     const uploadedDoc = getUploadedDoc(docType.key);
                                     const isUploading = isDocUploading(docType.key);
+                                    const isLocked = lockedDocKeys.has(docType.key);
 
                                     return (
                                         <div
                                             key={docType.key}
-                                            className={`rounded-[14px] p-[18px] transition-all duration-200 border ${uploadedDoc
-                                                ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.05)]'
-                                                : 'border-[rgba(71,85,105,0.3)] bg-[rgba(30,41,59,0.5)]'
-                                                } hover:border-[rgba(99,102,241,0.4)] hover:-translate-y-0.5`}
+                                            className={`rounded-[14px] p-[18px] transition-all duration-200 border ${isLocked
+                                                    ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.08)]'
+                                                    : uploadedDoc
+                                                        ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.05)]'
+                                                        : 'border-[rgba(71,85,105,0.3)] bg-[rgba(30,41,59,0.5)]'
+                                                } ${!isLocked ? 'hover:border-[rgba(99,102,241,0.4)] hover:-translate-y-0.5' : ''}`}
                                         >
                                             <div className="flex gap-3 mb-3.5">
-                                                <span className="flex items-center justify-center w-8 h-8 bg-linear-to-br from-[#334155] to-[#475569] rounded-[10px] text-sm font-bold text-[#e2e8f0] shrink-0">{index + 1}</span>
+                                                <span className={`flex items-center justify-center w-8 h-8 rounded-[10px] text-sm font-bold shrink-0 ${isLocked
+                                                        ? 'bg-[rgba(16,185,129,0.2)] text-[#10b981]'
+                                                        : 'bg-linear-to-br from-[#334155] to-[#475569] text-[#e2e8f0]'
+                                                    }`}>{index + 1}</span>
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="m-0 mb-1 text-sm font-semibold text-[#f1f5f9] flex items-center gap-1">
                                                         {docType.label}
@@ -205,7 +238,18 @@ const CompanyApprovalFormPage = () => {
                                             </div>
 
                                             <div className="min-h-[50px]">
-                                                {isUploading ? (
+                                                {isLocked && uploadedDoc ? (
+                                                    /* Verified document — locked, cannot remove */
+                                                    <div className="flex items-center justify-between py-3 px-3.5 bg-[rgba(16,185,129,0.15)] border border-[rgba(16,185,129,0.4)] rounded-[10px]">
+                                                        <div className="flex items-center gap-2 min-w-0">
+                                                            <span className="text-[#10b981] text-base font-bold">✓</span>
+                                                            <span className="text-[13px] font-medium text-[#6ee7b7] whitespace-nowrap overflow-hidden text-ellipsis">{uploadedDoc.fileName}</span>
+                                                        </div>
+                                                        <span className="text-[10px] font-bold uppercase py-1 px-2 rounded bg-[rgba(16,185,129,0.25)] text-[#10b981] shrink-0">
+                                                            Verified
+                                                        </span>
+                                                    </div>
+                                                ) : isUploading ? (
                                                     <div className="flex items-center justify-center gap-2.5 py-3.5 bg-[rgba(99,102,241,0.1)] rounded-[10px] text-[#a5b4fc] text-[13px]">
                                                         <div className="w-[18px] h-[18px] border-2 border-[rgba(99,102,241,0.3)] border-t-[#6366f1] rounded-full animate-spin" />
                                                         <span>Uploading...</span>
@@ -233,9 +277,14 @@ const CompanyApprovalFormPage = () => {
                                                             onChange={(e) => handleFileUpload(docType.key, e)}
                                                             className="hidden"
                                                         />
-                                                        <div className="flex items-center justify-center gap-2 py-3.5 bg-[rgba(99,102,241,0.1)] border-2 border-dashed border-[rgba(99,102,241,0.3)] rounded-[10px] transition-all duration-200 hover:bg-[rgba(99,102,241,0.15)] hover:border-[rgba(99,102,241,0.5)]">
-                                                            <span className="text-lg font-bold text-[#a5b4fc]">↑</span>
-                                                            <span className="text-[13px] font-semibold text-[#a5b4fc]">Click to upload</span>
+                                                        <div className={`flex items-center justify-center gap-2 py-3.5 rounded-[10px] transition-all duration-200 ${isResubmission
+                                                                ? 'bg-[rgba(245,158,11,0.1)] border-2 border-dashed border-[rgba(245,158,11,0.4)] hover:bg-[rgba(245,158,11,0.15)] hover:border-[rgba(245,158,11,0.6)]'
+                                                                : 'bg-[rgba(99,102,241,0.1)] border-2 border-dashed border-[rgba(99,102,241,0.3)] hover:bg-[rgba(99,102,241,0.15)] hover:border-[rgba(99,102,241,0.5)]'
+                                                            }`}>
+                                                            <span className={`text-lg font-bold ${isResubmission ? 'text-[#fbbf24]' : 'text-[#a5b4fc]'}`}>↑</span>
+                                                            <span className={`text-[13px] font-semibold ${isResubmission ? 'text-[#fbbf24]' : 'text-[#a5b4fc]'}`}>
+                                                                {isResubmission ? 'Re-upload this document' : 'Click to upload'}
+                                                            </span>
                                                         </div>
                                                     </label>
                                                 )}
@@ -267,7 +316,7 @@ const CompanyApprovalFormPage = () => {
                                         Submitting Application...
                                     </>
                                 ) : (
-                                    'Submit for Verification'
+                                    isResubmission ? 'Resubmit for Verification' : 'Submit for Verification'
                                 )}
                             </Button>
                         </div>

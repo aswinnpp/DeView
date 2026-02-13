@@ -8,8 +8,19 @@ export type SubmitCompanyApprovalResponse = { message?: string };
 export type CompanyApprovalStatus = {
     id: string;
     companyName: string;
+    address: string;
     contactPerson: string;
     contactEmail: string;
+    contactPhone: string;
+    taxId: string;
+    website?: string;
+    numberOfEmployees: string;
+    documents?: Record<string, {
+        fileName: string;
+        fileUrl: string;
+        uploadedAt: string;
+        marked: boolean;
+    }>;
     status: 'pending' | 'approved' | 'rejected';
     rejectionReason?: string;
     createdAt: string;

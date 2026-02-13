@@ -14,6 +14,7 @@ export interface CompanyApprovalDocument {
     documents: CompanyDocuments;
     status: 'pending' | 'approved' | 'rejected';
     rejectionReason?: string;
+    isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

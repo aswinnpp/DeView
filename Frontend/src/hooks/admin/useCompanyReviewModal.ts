@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { adminApprovalService } from "../../services/adminApproval.service";
 import {
     DOCUMENT_CONFIG,
     type CompanyApproval,
@@ -20,9 +21,24 @@ export function useCompanyReviewModal(company: CompanyApproval) {
         setDocumentVerification(map);
     }, [company]);
 
-    const toggleDocVerification = useCallback((key: string) => {
-        setDocumentVerification((prev) => ({ ...prev, [key]: !prev[key] }));
-    }, []);
+    const toggleDocVerification = useCallback(
+        async (key: string) => {
+            const newValue = !documentVerification[key];
+
+            // Optimistically update local state
+            setDocumentVerification((prev) => ({ ...prev, [key]: newValue }));
+
+            try {
+                // Persist to backend
+                await adminApprovalService.markDocument(company.id, key, newValue);
+            } catch (err) {
+                // Revert on failure
+                console.error("Failed to mark document:", err);
+                setDocumentVerification((prev) => ({ ...prev, [key]: !newValue }));
+            }
+        },
+        [documentVerification, company.id]
+    );
 
     const getVerifiedCount = useCallback(
         () => Object.values(documentVerification).filter(Boolean).length,

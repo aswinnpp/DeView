@@ -26,7 +26,8 @@ const Profile = lazy(() => import("../features/candidate/Profile"));
 const AdminDashboard = lazy(() => import("../features/admin/AdminDashboard"));
 const AdminLayout = lazy(() => import("../features/admin/AdminLayout"));
 const AdminCompanyRequestsPage = lazy(() => import("../features/admin/AdminCompanyRequestsPage"));
-const AdminDocumentViewPage = lazy(() => import("../features/admin/AdminDocumentViewPage"));
+const AdminCompanyManagement = lazy(() => import("../features/admin/AdminCompanyManagement"));
+
 
 const CompanyLayout = lazy(() => import("../features/company/CompanyLayout"));
 
@@ -65,7 +66,7 @@ const AppRouter = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="company-requests" element={<AdminCompanyRequestsPage />} />
-          <Route path="company-requests/document" element={<AdminDocumentViewPage />} />
+          <Route path="companies" element={<AdminCompanyManagement />} />
 
         </Route>
 

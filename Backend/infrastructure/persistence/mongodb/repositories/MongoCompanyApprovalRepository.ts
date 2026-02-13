@@ -4,7 +4,7 @@ import { CompanyApproval } from "../../../../domain/company/entities/CompanyAppr
 import { CompanyApprovalDocument } from "../schemas/CompanyApprovalDocument";
 
 export class MongoCompanyApprovalRepository implements CompanyApprovalRepository {
-  constructor(private collection: Collection<CompanyApprovalDocument>) {}
+  constructor(private collection: Collection<CompanyApprovalDocument>) { }
 
   async findById(id: string): Promise<CompanyApproval | null> {
     const doc = await this.collection.findOne({ _id: new ObjectId(id) });
@@ -18,6 +18,11 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
 
   async findPending(): Promise<CompanyApproval[]> {
     const docs = await this.collection.find({ status: "pending" }).toArray();
+    return docs.map(d => this.toDomain(d));
+  }
+
+  async findApproved(): Promise<CompanyApproval[]> {
+    const docs = await this.collection.find({ status: "approved" }).toArray();
     return docs.map(d => this.toDomain(d));
   }
 
@@ -51,7 +56,10 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
       doc.documents,
       doc.website,
       doc.status,
-      doc.rejectionReason
+      doc.rejectionReason,
+      doc.isActive ?? true,
+      doc.createdAt,
+      doc.updatedAt
     );
   }
 
@@ -70,8 +78,9 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
       website: entity.website,
       status: entity.status,
       rejectionReason: entity.rejectionReason,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      isActive: entity.isActive,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt
     };
   }
 }

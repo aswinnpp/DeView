@@ -7,4 +7,7 @@ export { DOCUMENT_CONFIG } from './useAdminCompanyRequests';
 
 export { useCompanyReviewModal } from './useCompanyReviewModal';
 export { useRejectCompanyModal } from './useRejectCompanyModal';
-export { useDocumentView } from './useDocumentView';
+
+export { useAdminCompanyManagement } from './useAdminCompanyManagement';
+export { DOCUMENT_CONFIG as COMPANY_MGMT_DOCUMENT_CONFIG } from './useAdminCompanyManagement';
+export type { CompanyApproval as ManagedCompany, DocumentUpload as ManagedDocumentUpload } from './useAdminCompanyManagement';

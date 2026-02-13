@@ -15,6 +15,11 @@ export async function adminCompanyApprovalRoutes(
         handler: controller.getPending,
     });
 
+    fastify.get('/approved', {
+        preHandler: adminOnly,
+        handler: controller.getApproved,
+    });
+
     fastify.post('/:id/approve', {
         schema: approveCompanySchema,
         preHandler: adminOnly,
@@ -25,6 +30,11 @@ export async function adminCompanyApprovalRoutes(
         schema: rejectCompanySchema,
         preHandler: adminOnly,
         handler: controller.reject,
+    });
+
+    fastify.post('/:id/toggle-active', {
+        preHandler: adminOnly,
+        handler: controller.toggleActive,
     });
 
     fastify.patch('/:id/documents/:key/mark', {

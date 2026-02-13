@@ -85,9 +85,6 @@ const AdminCompanyRequestsPage = () => {
             ) : (
                 <div className="flex flex-col gap-6">
                     <div className="bg-linear-to-br from-[#1e293b] to-[#0f172a] border border-[#334155] rounded-xl overflow-hidden">
-                        <div className="py-4 px-6 border-b border-[#334155] bg-[rgba(255,255,255,0.02)]">
-                            <h3 className="m-0 text-base font-semibold text-[#f1f5f9]">Pending Verification ({filteredCompanies.length} of {pendingCompanies.length})</h3>
-                        </div>
                         <div className="overflow-x-auto w-full">
                             <table className="w-full border-collapse table-fixed min-w-[800px] max-[1200px]:min-w-[700px]">
                                 <thead className="bg-[rgba(15,23,42,0.8)] border-b border-[#334155]">

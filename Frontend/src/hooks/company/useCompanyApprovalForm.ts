@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { companyApprovalService } from "../../services/companyApproval.service";
+import { companyApprovalService, type CompanyApprovalStatus } from "../../services/companyApproval.service";
 import { useDocumentsForForm } from "./useDocumentsForForm";
 import { DOCUMENT_TYPES } from "./constants";
 import { companyApprovalFormSchema, type CompanyApprovalFormValues } from "@/utils/validation/companyApproval/companyApprovalSchema";
 import { extractApiError } from "../../api/axios";
 
-const INITIAL = {
+const INITIAL: Omit<CompanyApprovalFormValues, 'documents'> = {
   companyName: "",
   address: "",
   contactPerson: "",
@@ -24,12 +24,37 @@ type Options = {
 
 export function useCompanyApprovalForm({ documentTypes = DOCUMENT_TYPES }: Options = {}) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Get previous approval data from router state (when resubmitting after rejection)
+  const previousApproval = (location.state as { previousApproval?: CompanyApprovalStatus } | null)?.previousApproval;
+
+  // Build default values: use previous data if available, otherwise use empty initial
+  const defaultValues: CompanyApprovalFormValues = previousApproval
+    ? {
+      companyName: previousApproval.companyName || "",
+      address: previousApproval.address || "",
+      contactPerson: previousApproval.contactPerson || "",
+      contactPhone: previousApproval.contactPhone || "",
+      taxId: previousApproval.taxId || "",
+      website: previousApproval.website || "",
+      numberOfEmployees: previousApproval.numberOfEmployees || "1-10",
+      // Only include documents that were NOT marked (verified) by admin
+      documents: previousApproval.documents
+        ? Object.fromEntries(
+          Object.entries(previousApproval.documents).filter(
+            ([, doc]) => doc.marked
+          )
+        )
+        : {},
+    }
+    : { ...INITIAL, documents: {} };
+
   const form = useForm<CompanyApprovalFormValues>({
     resolver: zodResolver(companyApprovalFormSchema),
-    defaultValues: { ...INITIAL, documents: {} },
+    defaultValues,
     mode: "onSubmit",
   });
 
@@ -55,12 +80,25 @@ export function useCompanyApprovalForm({ documentTypes = DOCUMENT_TYPES }: Optio
     }
   };
 
+  // Determine which documents are "locked" (marked/verified by admin — kept from previous submission)
+  const getLockedDocKeys = (): Set<string> => {
+    if (!previousApproval?.documents) return new Set();
+    return new Set(
+      Object.entries(previousApproval.documents)
+        .filter(([, doc]) => doc.marked)
+        .map(([key]) => key)
+    );
+  };
+
   return {
     loading: isSubmitting || form.formState.isSubmitting,
     error: error || null,
     form,
     docs,
     documentTypes,
+    isResubmission: !!previousApproval,
+    lockedDocKeys: getLockedDocKeys(),
+    rejectionReason: previousApproval?.rejectionReason,
     onSubmit: form.handleSubmit(onSubmit, (validationErrors) => {
       console.log('Form validation errors:', validationErrors);
       setError('Please fix the errors above before submitting.');

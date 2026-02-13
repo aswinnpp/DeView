@@ -24,6 +24,7 @@ export type CompanyApproval = {
     documents?: Record<string, DocumentUpload>;
     status: 'pending' | 'approved' | 'rejected';
     rejectionReason?: string;
+    isActive: boolean;
     createdAt: string;
     updatedAt: string;
 };

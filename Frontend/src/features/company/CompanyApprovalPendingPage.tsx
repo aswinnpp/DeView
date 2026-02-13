@@ -36,7 +36,9 @@ const CompanyApprovalPendingPage = () => {
     }, []);
 
     const handleResubmit = () => {
-        navigate('/company/approval-form');
+        navigate('/company/approval-form', {
+            state: { previousApproval: approval }
+        });
     };
 
     if (loading) {

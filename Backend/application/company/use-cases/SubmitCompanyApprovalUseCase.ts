@@ -15,7 +15,7 @@ export class SubmitCompanyApprovalUseCase {
       throw AppError.badRequest("UserId is required");
     }
 
-    const existing = await this.repo.findById(dto.userId);
+    const existing = await this.repo.findByUserId(dto.userId);
 
     if (existing?.status === "pending") {
       throw AppError.badRequest("You already have a pending approval request");
@@ -31,6 +31,27 @@ export class SubmitCompanyApprovalUseCase {
       throw AppError.badRequest("User not found");
     }
 
+    // If the user was previously rejected, update the existing record
+    if (existing?.status === "rejected") {
+      existing.companyName = dto.companyName;
+      existing.address = dto.address;
+      existing.contactPerson = dto.contactPerson;
+      existing.contactEmail = user.email.getValue();
+      existing.contactPhone = dto.contactPhone;
+      existing.taxId = dto.taxId;
+      existing.numberOfEmployees = dto.numberOfEmployees;
+      existing.documents = dto.documents;
+      existing.website = dto.website;
+      existing.status = "pending";
+      existing.rejectionReason = undefined;
+      existing.updatedAt = new Date();
+
+      await this.repo.save(existing);
+
+      return { approvalId: existing.id };
+    }
+
+    // Brand new submission
     const approval = new CompanyApproval(
       null,
       dto.userId,
@@ -52,3 +73,4 @@ export class SubmitCompanyApprovalUseCase {
     };
   }
 }
+

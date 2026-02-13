@@ -3,6 +3,8 @@ import { GetPendingCompaniesUseCase } from "../../../application/admin/use-cases
 import { ApproveCompanyUseCase } from "../../../application/admin/use-cases/ApproveCompanyUseCase";
 import { RejectCompanyUseCase } from "../../../application/admin/use-cases/RejectCompanyUseCase";
 import { MarkDocumentUseCase } from "../../../application/admin/use-cases/MarkDocumentUseCase";
+import { GetApprovedCompaniesUseCase } from "../../../application/admin/use-cases/GetApprovedCompaniesUseCase";
+import { ToggleCompanyActiveUseCase } from "../../../application/admin/use-cases/ToggleCompanyActiveUseCase";
 
 interface RejectBody {
   reason: string;
@@ -13,7 +15,9 @@ export class AdminCompanyApprovalController {
     private readonly getPendingUseCase: GetPendingCompaniesUseCase,
     private readonly approveUseCase: ApproveCompanyUseCase,
     private readonly rejectUseCase: RejectCompanyUseCase,
-    private readonly markDocumentUseCase: MarkDocumentUseCase
+    private readonly markDocumentUseCase: MarkDocumentUseCase,
+    private readonly getApprovedUseCase: GetApprovedCompaniesUseCase,
+    private readonly toggleActiveUseCase: ToggleCompanyActiveUseCase
   ) { }
 
   // GET /admin/company-requests/pending
@@ -34,8 +38,34 @@ export class AdminCompanyApprovalController {
         numberOfEmployees: c.numberOfEmployees,
         documents: c.documents,
         status: c.status,
+        isActive: c.isActive,
       }))
     );
+  };
+
+  // GET /admin/company-requests/approved
+  getApproved = async (_: FastifyRequest, reply: FastifyReply) => {
+    const companies = await this.getApprovedUseCase.execute();
+
+    reply.status(200).send({
+      approvals: companies.map(c => ({
+        id: c.id,
+        userId: c.userId,
+        companyName: c.companyName,
+        address: c.address,
+        contactPerson: c.contactPerson,
+        contactEmail: c.contactEmail,
+        contactPhone: c.contactPhone,
+        taxId: c.taxId,
+        website: c.website,
+        numberOfEmployees: c.numberOfEmployees,
+        documents: c.documents,
+        status: c.status,
+        isActive: c.isActive,
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+      }))
+    });
   };
 
   // POST /admin/company-requests/:id/approve
@@ -62,6 +92,19 @@ export class AdminCompanyApprovalController {
 
     reply.status(200).send({
       message: "Company rejected successfully",
+    });
+  };
+
+  // POST /admin/company-requests/:id/toggle-active
+  toggleActive = async (
+    request: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply
+  ) => {
+    const result = await this.toggleActiveUseCase.execute(request.params.id);
+
+    reply.status(200).send({
+      message: "Company status toggled successfully",
+      isActive: result.isActive,
     });
   };
 

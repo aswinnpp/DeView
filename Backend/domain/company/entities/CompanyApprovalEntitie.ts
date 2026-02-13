@@ -16,6 +16,7 @@ export class CompanyApproval {
     public website?: string,
     public status: CompanyStatus = "pending",
     public rejectionReason?: string,
+    public isActive: boolean = true,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) { }
@@ -26,6 +27,7 @@ export class CompanyApproval {
     }
 
     this.status = "approved";
+    this.isActive = true;
     this.updatedAt = new Date();
   }
 
@@ -40,6 +42,33 @@ export class CompanyApproval {
 
     this.status = "rejected";
     this.rejectionReason = reason;
+    this.isActive = false;
+    this.updatedAt = new Date();
+  }
+
+  deactivate() {
+    if (this.status !== "approved") {
+      throw new DomainError("Only approved companies can be deactivated");
+    }
+
+    if (!this.isActive) {
+      throw new DomainError("Company is already deactivated");
+    }
+
+    this.isActive = false;
+    this.updatedAt = new Date();
+  }
+
+  activate() {
+    if (this.status !== "approved") {
+      throw new DomainError("Only approved companies can be activated");
+    }
+
+    if (this.isActive) {
+      throw new DomainError("Company is already active");
+    }
+
+    this.isActive = true;
     this.updatedAt = new Date();
   }
 

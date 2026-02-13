@@ -50,7 +50,9 @@ export function createControllers(
       useCases.getPendingCompaniesUseCase,
       useCases.approveCompanyUseCase,
       useCases.rejectCompanyUseCase,
-      useCases.markDocumentUseCase
+      useCases.markDocumentUseCase,
+      useCases.getApprovedCompaniesUseCase,
+      useCases.toggleCompanyActiveUseCase
     ),
 
     uploadController: new UploadController(

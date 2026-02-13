@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useCompanyReviewModal } from "../../hooks/admin";
 import type { CompanyApproval } from "../../hooks/admin";
 import { Button } from "../common";
@@ -6,8 +5,8 @@ import { Button } from "../common";
 type CompanyReviewModalProps = {
     company: CompanyApproval;
     onClose: () => void;
-    onApprove: (id: string) => void;
     onReject: () => void;
+    onApprove?: (id: string) => void;
 };
 
 const CompanyReviewModal = ({
@@ -25,8 +24,6 @@ const CompanyReviewModal = ({
         areAllDocsVerified,
         getUploadedDoc,
     } = useCompanyReviewModal(company);
-
-    const navigate = useNavigate();
 
     return (
         <div className="fixed inset-0 bg-[rgba(0,0,0,0.8)] backdrop-blur-[8px] flex items-center justify-center z-[1000] p-5">
@@ -158,9 +155,7 @@ const CompanyReviewModal = ({
                                                             </div>
                                                             <Button
                                                                 variant="primary"
-                                                                onClick={() => navigate('/admin/company-requests/document', {
-                                                                    state: { company, documentKey: docConfig.key }
-                                                                })}
+                                                                onClick={() => window.open(uploadedDoc.fileUrl, '_blank')}
                                                                 className="py-1.5 px-3 rounded-md text-[11px] font-semibold"
                                                             >
                                                                 View
@@ -201,7 +196,7 @@ const CompanyReviewModal = ({
                             onClick={onClose}
                             className="py-3 px-6 rounded-[10px] font-semibold text-sm"
                         >
-                            Cancel
+                            {onApprove ? 'Cancel' : 'Close'}
                         </Button>
                         <Button
                             variant="danger"
@@ -210,13 +205,15 @@ const CompanyReviewModal = ({
                         >
                             Reject Application
                         </Button>
-                        <Button
-                            variant="primary"
-                            onClick={() => onApprove(company.id)}
-                            className="py-3 px-7 rounded-[10px] font-semibold text-sm flex items-center gap-2"
-                        >
-                            Approve Company
-                        </Button>
+                        {onApprove && (
+                            <Button
+                                variant="primary"
+                                onClick={() => onApprove(company.id)}
+                                className="py-3 px-7 rounded-[10px] font-semibold text-sm flex items-center gap-2"
+                            >
+                                Approve Company
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
