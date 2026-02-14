@@ -16,7 +16,7 @@ export type RegisterPayload = {
 export type RegisterResponse = { message: string; userId?: string };
 
 export type VerifyOtpPayload = { email: string; otp: string };
-export type VerifyOtpResponse = { message?: string; valid?: boolean };
+export type VerifyOtpResponse = { success?: boolean; message?: string; valid?: boolean };
 
 export type ResendOtpPayload = { email: string };
 export type ResendOtpResponse = { message: string; email?: string };

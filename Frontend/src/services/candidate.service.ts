@@ -1,5 +1,5 @@
 import { api } from '../api/axios';
-import type { ProfileData } from '../utils/validation/profileSchema';
+import type { CandidateProfileData as ProfileData } from '@shared/contracts/candidateProfile/profile';
 
 // ─── Types ──────────────────────────────────────────────────────
 

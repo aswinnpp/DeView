@@ -17,6 +17,8 @@ const NotFoundPage = lazy(() => import("../features/error/NotFoundPage"));
 const CompanyApprovalFormPage = lazy(() => import("../features/company/CompanyApprovalFormPage"));
 const CompanyApprovalPendingPage = lazy(() => import("../features/company/CompanyApprovalPendingPage"));
 const CompanyDashboardPage = lazy(() => import("../features/company/CompanyDashboardPage"));
+const CompanyLayout = lazy(() => import("../features/company/CompanyLayout"));
+const ManageHRPage = lazy(() => import("../features/company/ManageHRPage"));
 
 
 const Profile = lazy(() => import("../features/candidate/Profile"));
@@ -29,7 +31,8 @@ const AdminCompanyRequestsPage = lazy(() => import("../features/admin/AdminCompa
 const AdminCompanyManagement = lazy(() => import("../features/admin/AdminCompanyManagement"));
 
 
-const CompanyLayout = lazy(() => import("../features/company/CompanyLayout"));
+
+
 
 
 
@@ -74,6 +77,7 @@ const AppRouter = () => {
         <Route path="/company" element={<CompanyLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<CompanyDashboardPage />} />
+          <Route path="team" element={<ManageHRPage />} />
 
         </Route>
 

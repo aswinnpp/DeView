@@ -3,6 +3,7 @@ import { SecureJwtTokenService } from '../security/SecureJwtTokenService.js';
 import { NodemailerEmailService } from '../email/NodemailerEmailService.js';
 import { GoogleAuthService } from '../auth/GoogleAuthService.js';
 import { LocalFileStorageService } from '../storage/LocalFileStorageService.js';
+import { FileStoragePort } from '../../application/upload/ports/FileStoragePort.js';
 import { env } from '../config/env.js';
 import { redisClient } from '../cache/RedisClient.js';
 import { RedisAccessTokenRepository } from '../persistence/redis/RedisAccessTokenRepository.js';
@@ -14,7 +15,7 @@ export interface Services {
   tokenService: SecureJwtTokenService;
   emailService: NodemailerEmailService;
   googleAuthService: GoogleAuthService;
-  fileStorageService: LocalFileStorageService;
+  fileStorageService: FileStoragePort;
 }
 
 export function createServices(_: any, __: Repositories): Services {

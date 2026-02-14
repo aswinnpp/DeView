@@ -3,7 +3,7 @@ export class OTPCode {
   private value: string;
 
   constructor(otp: string) {
-   
+
 
     this.value = otp;
   }
@@ -17,7 +17,7 @@ export class OTPCode {
   }
 
   static generate(): OTPCode {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
     return new OTPCode(otp);
   }
 }

@@ -7,6 +7,8 @@ import { GoogleAuthController } from '../../interfaces/http/controllers/GoogleAu
 import { CompanyApprovalController } from '../../interfaces/http/controllers/CompanyApprovalController';
 import { AdminCompanyApprovalController } from '../../interfaces/http/controllers/AdminCompanyApprovalController';
 import { UploadController } from '../../interfaces/http/controllers/UploadController';
+import { CompanyTeamController } from '../../interfaces/http/controllers/CompanyTeamController';
+import { CandidateProfileController } from '../../interfaces/http/controllers/CandidateProfileController';
 
 export interface Controllers {
   authController: AuthController;
@@ -14,6 +16,8 @@ export interface Controllers {
   companyApprovalController: CompanyApprovalController;
   adminCompanyApprovalController: AdminCompanyApprovalController;
   uploadController: UploadController;
+  companyTeamController: CompanyTeamController;
+  candidateProfileController: CandidateProfileController;
 }
 
 export function createControllers(
@@ -57,6 +61,21 @@ export function createControllers(
 
     uploadController: new UploadController(
       useCases.uploadFileUseCase
+    ),
+
+    companyTeamController: new CompanyTeamController(
+      useCases.createTeamMemberUseCase,
+      useCases.listTeamMembersUseCase,
+      useCases.toggleTeamMemberStatusUseCase,
+      repositories.companyApprovalRepository,
+      repositories.userRepository
+    ),
+
+    candidateProfileController: new CandidateProfileController(
+      useCases.createCandidateProfileUseCase,
+      useCases.getCandidateProfileUseCase,
+      useCases.updateCandidateProfileUseCase,
+      useCases.uploadCandidateResumeUseCase
     ),
   };
 }

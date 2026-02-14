@@ -1,10 +1,17 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useForm, type SubmitHandler } from 'react-hook-form';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { authService } from '../../services/auth.service';
-import { otpSchema, type OtpFormValues } from '../../utils/validation/auth/otpSchema';
+import { verifyOtpRequestSchema } from '@shared/contracts/auth/otp';
 import { extractApiError } from '../../api/axios';
+
+// UI schema — uses otpCode field name (maps to backend's otp)
+const otpSchema = z.object({
+  otpCode: verifyOtpRequestSchema.shape.otp,
+});
+type OtpFormValues = z.infer<typeof otpSchema>;
 
 const STORAGE_KEY_VERIFY = 'pendingVerificationEmail';
 const STORAGE_KEY_RESET = 'pendingResetEmail';
@@ -41,8 +48,7 @@ export function useEmailVerification() {
       const { data: result } = await authService.verifyOtp(verifyUrl, { email: userEmail, otp: otpCode });
 
       if (mode === 'password-reset') {
-        const valid = 'valid' in result && result.valid === true;
-        if (!valid) {
+        if (!result.success) {
           setInvalidOtpMessage('Incorrect OTP. Please try again.');
           return;
         }

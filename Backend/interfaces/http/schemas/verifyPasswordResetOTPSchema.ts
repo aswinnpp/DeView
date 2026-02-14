@@ -7,7 +7,7 @@ export const verifyPasswordResetOTPSchema = {
         200: {
             type: 'object',
             properties: {
-                valid: { type: 'boolean' },
+                success: { type: 'boolean' },
             },
         },
     },

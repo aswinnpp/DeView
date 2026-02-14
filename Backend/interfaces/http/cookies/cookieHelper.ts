@@ -1,14 +1,12 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 
-// ─── Cookie Options ───────────────────────────────────────────────
-// Shared settings for all cookies (keeps things DRY)
-// In production (HTTPS), secure=true so cookies only travel over HTTPS
+
 const isProduction = process.env.NODE_ENV === "production";
 
 const COOKIE_BASE = {
   httpOnly: true,            // JS on the browser CANNOT read these cookies (security)
   secure: isProduction,      // true in production (HTTPS only), false in dev (localhost)
-  sameSite: "lax" as const,  // protects against CSRF
+  sameSite: "lax" as const,
   path: "/",                 // cookie is sent on ALL routes
 };
 

@@ -5,10 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { companyApprovalService, type CompanyApprovalStatus } from "../../services/companyApproval.service";
 import { useDocumentsForForm } from "./useDocumentsForForm";
 import { DOCUMENT_TYPES } from "./constants";
-import { companyApprovalFormSchema, type CompanyApprovalFormValues } from "@/utils/validation/companyApproval/companyApprovalSchema";
+import { submitCompanyApprovalRequestSchema, type SubmitCompanyApprovalRequest } from "@shared/contracts/companyApproval/submit";
 import { extractApiError } from "../../api/axios";
 
-const INITIAL: Omit<CompanyApprovalFormValues, 'documents'> = {
+const INITIAL: Omit<SubmitCompanyApprovalRequest, 'documents'> = {
   companyName: "",
   address: "",
   contactPerson: "",
@@ -32,7 +32,7 @@ export function useCompanyApprovalForm({ documentTypes = DOCUMENT_TYPES }: Optio
   const previousApproval = (location.state as { previousApproval?: CompanyApprovalStatus } | null)?.previousApproval;
 
   // Build default values: use previous data if available, otherwise use empty initial
-  const defaultValues: CompanyApprovalFormValues = previousApproval
+  const defaultValues: SubmitCompanyApprovalRequest = previousApproval
     ? {
       companyName: previousApproval.companyName || "",
       address: previousApproval.address || "",
@@ -52,15 +52,15 @@ export function useCompanyApprovalForm({ documentTypes = DOCUMENT_TYPES }: Optio
     }
     : { ...INITIAL, documents: {} };
 
-  const form = useForm<CompanyApprovalFormValues>({
-    resolver: zodResolver(companyApprovalFormSchema),
+  const form = useForm<SubmitCompanyApprovalRequest>({
+    resolver: zodResolver(submitCompanyApprovalRequestSchema),
     defaultValues,
     mode: "onSubmit",
   });
 
-  const docs = useDocumentsForForm<CompanyApprovalFormValues>(documentTypes, form.setValue, form.watch);
+  const docs = useDocumentsForForm<SubmitCompanyApprovalRequest>(documentTypes, form.setValue, form.watch);
 
-  const onSubmit = async (values: CompanyApprovalFormValues) => {
+  const onSubmit = async (values: SubmitCompanyApprovalRequest) => {
     setError("");
     setIsSubmitting(true);
 

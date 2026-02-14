@@ -15,7 +15,7 @@ export class NodemailerEmailService implements EmailServicePort {
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
-            subject: 'Verify Your Email - Intervu App',
+            subject: 'Verify Your Email - DeViewS App',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #333;">Welcome to Intervu, ${userName}!</h2>
@@ -44,7 +44,7 @@ export class NodemailerEmailService implements EmailServicePort {
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
-            subject: 'Reset Your Password - Intervu App',
+            subject: 'Reset Your Password - DeView App',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #333;">Password Reset Request</h2>
@@ -52,7 +52,7 @@ export class NodemailerEmailService implements EmailServicePort {
                         Hi ${userName},
                     </p>
                     <p style="color: #666; font-size: 16px;">
-                        We received a request to reset your password for your Intervu account. 
+                        We received a request to reset your password for your DeView account. 
                         Click the button below to reset your password:
                     </p>
                     <div style="text-align: center; margin: 30px 0;">
@@ -86,7 +86,7 @@ export class NodemailerEmailService implements EmailServicePort {
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
-            subject: 'Reset Your Password - Intervu App',
+            subject: 'Reset Your Password - DeView App',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #333;">Password Reset Request</h2>
@@ -94,7 +94,7 @@ export class NodemailerEmailService implements EmailServicePort {
                         Hi ${userName},
                     </p>
                     <p style="color: #666; font-size: 16px;">
-                        We received a request to reset your password for your Intervu account. 
+                        We received a request to reset your password for your DeView account. 
                         Use the verification code below to reset your password:
                     </p>
                     <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; text-align: center; margin: 20px 0;">
@@ -107,6 +107,50 @@ export class NodemailerEmailService implements EmailServicePort {
                     <p style="color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
                         If you didn't request a password reset, please ignore this email or contact support if you have concerns.
                         Your password will not be changed unless you enter this code.
+                    </p>
+                </div>
+            `,
+        };
+        await this.transporter.sendMail(mailOptions);
+    }
+
+    async sendWelcomeEmail(email: string, userName: string, role: string, temporaryPassword: string): Promise<void> {
+        const loginUrl = `${process.env.FRONTEND_URL}/login`;
+        const roleLabel = role === 'hr' ? 'HR' : 'Interviewer';
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: `Welcome to DeView - Your ${roleLabel} Account is Ready!`,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #333;">Welcome to DeView, ${userName}!</h2>
+                    <p style="color: #666; font-size: 16px;">
+                        Your company has created a <strong>${roleLabel}</strong> account for you on the DeView platform.
+                    </p>
+                    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <p style="color: #333; font-size: 14px; margin: 0 0 12px 0;"><strong>Your login credentials:</strong></p>
+                        <p style="color: #555; font-size: 14px; margin: 4px 0;">
+                            📧 <strong>Email:</strong> ${email}
+                        </p>
+                        <p style="color: #555; font-size: 14px; margin: 4px 0;">
+                            🔑 <strong>Temporary Password:</strong> 
+                            <code style="background: #e8e8e8; padding: 2px 8px; border-radius: 4px; font-size: 15px; letter-spacing: 1px;">${temporaryPassword}</code>
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${loginUrl}" 
+                           style="background-color: #6366f1; color: white; padding: 14px 28px; 
+                                  text-decoration: none; border-radius: 5px; font-size: 16px; 
+                                  display: inline-block;">
+                            Login Now
+                        </a>
+                    </div>
+                    <p style="color: #e74c3c; font-size: 14px; font-weight: bold;">
+                        ⚠️ Please change your password after your first login for security.
+                    </p>
+                    <p style="color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+                        If you weren't expecting this email, please contact your company admin.
                     </p>
                 </div>
             `,

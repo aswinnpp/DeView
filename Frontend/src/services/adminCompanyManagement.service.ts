@@ -35,17 +35,17 @@ type GetApprovedResponse = {
 // ─── Service functions ──────────────────────────────────────────
 
 export const adminCompanyManagementService = {
-    /** Fetch all approved companies */
-    getApproved() {
-        return api.get<GetApprovedResponse>('/admin/company-requests/approved');
+
+    getApproved(search?: string) {
+        return api.get<GetApprovedResponse>('/admin/company-requests/approved', {
+            params: { search },
+        });
     },
 
-    /** Reject an approved company */
     reject(id: string, reason: string) {
         return api.post(`/admin/company-requests/${id}/reject`, { reason });
     },
 
-    /** Toggle active/inactive status of a company */
     toggleActive(id: string) {
         return api.post(`/admin/company-requests/${id}/toggle-active`);
     },

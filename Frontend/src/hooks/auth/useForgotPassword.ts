@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { authService } from '../../services/auth.service';
-import { forgotPasswordSchema, type ForgotPasswordFormValues } from '../../utils/validation/auth/forgotPasswordSchema';
+import { forgotPasswordRequestSchema, type ForgotPasswordRequest } from '@shared/contracts/auth/forgotPassword';
 import { extractApiError } from '../../api/axios';
 
 const STORAGE_KEY_PENDING_RESET = 'pendingResetEmail';
@@ -13,13 +13,13 @@ export function useForgotPassword() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<ForgotPasswordFormValues>({
-    resolver: zodResolver(forgotPasswordSchema),
+  const form = useForm<ForgotPasswordRequest>({
+    resolver: zodResolver(forgotPasswordRequestSchema),
     defaultValues: { email: '' },
     mode: 'onSubmit',
   });
 
-  const onSubmit: SubmitHandler<ForgotPasswordFormValues> = async ({ email }) => {
+  const onSubmit: SubmitHandler<ForgotPasswordRequest> = async ({ email }) => {
     setError(null);
     setIsLoading(true);
 

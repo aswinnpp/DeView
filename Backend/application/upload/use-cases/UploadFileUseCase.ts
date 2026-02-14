@@ -1,9 +1,9 @@
-import { LocalFileStorageService } from '../../../infrastructure/storage/LocalFileStorageService.js';
+import { FileStoragePort } from '../ports/FileStoragePort.js';
 import { UploadFileInputDTO, UploadFileOutputDTO } from '../dtos/UploadFileDTO.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 export class UploadFileUseCase {
-    constructor(private readonly fileStorage: LocalFileStorageService) { }
+    constructor(private readonly fileStorage: FileStoragePort) { }
 
     async execute(dto: UploadFileInputDTO): Promise<UploadFileOutputDTO> {
         if (!dto.fileName || !dto.fileBuffer || dto.fileBuffer.length === 0) {

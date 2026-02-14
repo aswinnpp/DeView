@@ -6,7 +6,7 @@ import { Role } from '../../../../domain/user/value-objects/Role';
 import { UserDocument } from '../schemas/UserDocument';
 
 export class MongoUserRepository implements UserRepository {
-  constructor(private collection: Collection<UserDocument>) {}
+  constructor(private collection: Collection<UserDocument>) { }
 
   async findByEmail(email: Email): Promise<User | null> {
     const doc = await this.collection.findOne({ email: email.getValue() });
@@ -16,6 +16,33 @@ export class MongoUserRepository implements UserRepository {
   async findById(id: string): Promise<User | null> {
     const doc = await this.collection.findOne({ _id: new ObjectId(id) });
     return doc ? this.toDomain(doc) : null;
+  }
+
+  async findByCompanyIdAndRole(companyId: string, role: string): Promise<User[]> {
+    const docs = await this.collection.find({ companyId, role }).toArray();
+    return docs.map((doc) => this.toDomain(doc));
+  }
+
+  async searchByCompanyIdAndRole(
+    companyId: string,
+    role: string,
+    search?: string,
+    status?: string
+  ): Promise<User[]> {
+    const filter: Record<string, any> = { companyId, role };
+
+    // search filter — matches fullName or email
+    if (search && search.trim()) {
+      const regex = { $regex: search.trim(), $options: 'i' };
+      filter.$or = [{ fullName: regex }, { email: regex }];
+    }
+
+    // status filter — active / inactive
+    if (status === 'active') filter.isActive = true;
+    if (status === 'inactive') filter.isActive = false;
+
+    const docs = await this.collection.find(filter).toArray();
+    return docs.map((doc) => this.toDomain(doc));
   }
 
   async save(user: User): Promise<void> {

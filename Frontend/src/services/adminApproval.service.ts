@@ -32,9 +32,11 @@ export type CompanyApproval = {
 // ─── Service functions ──────────────────────────────────────────
 
 export const adminApprovalService = {
-    /** Fetch all pending company-approval requests */
-    getPending() {
-        return api.get<CompanyApproval[]>('/admin/company-requests/pending');
+    /** Fetch pending company-approval requests (with optional search) */
+    getPending(search?: string) {
+        return api.get<CompanyApproval[]>('/admin/company-requests/pending', {
+            params: { search },
+        });
     },
 
     /** Approve a company request */

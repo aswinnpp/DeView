@@ -23,6 +23,13 @@ import { MarkDocumentUseCase } from '../../application/admin/use-cases/MarkDocum
 import { GetApprovedCompaniesUseCase } from '../../application/admin/use-cases/GetApprovedCompaniesUseCase';
 import { ToggleCompanyActiveUseCase } from '../../application/admin/use-cases/ToggleCompanyActiveUseCase';
 import { UploadFileUseCase } from '../../application/upload/use-cases/UploadFileUseCase';
+import { CreateTeamMemberUseCase } from '../../application/company/use-cases/CreateTeamMemberUseCase';
+import { ListTeamMembersUseCase } from '../../application/company/use-cases/ListTeamMembersUseCase';
+import { CreateCandidateProfileUseCase } from '../../application/candidate/use-cases/CreateCandidateProfileUseCase';
+import { GetCandidateProfileUseCase } from '../../application/candidate/use-cases/GetCandidateProfileUseCase';
+import { UpdateCandidateProfileUseCase } from '../../application/candidate/use-cases/UpdateCandidateProfileUseCase';
+import { UploadCandidateResumeUseCase } from '../../application/candidate/use-cases/UploadCandidateResumeUseCase';
+import { ToggleTeamMemberStatusUseCase } from '../../application/company/use-cases/ToggleTeamMemberStatusUseCase';
 
 export interface UseCases {
   registerUserUseCase: RegisterUserUseCase;
@@ -45,11 +52,18 @@ export interface UseCases {
   getApprovedCompaniesUseCase: GetApprovedCompaniesUseCase;
   toggleCompanyActiveUseCase: ToggleCompanyActiveUseCase;
   uploadFileUseCase: UploadFileUseCase;
+  createTeamMemberUseCase: CreateTeamMemberUseCase;
+  listTeamMembersUseCase: ListTeamMembersUseCase;
+  toggleTeamMemberStatusUseCase: ToggleTeamMemberStatusUseCase;
+  createCandidateProfileUseCase: CreateCandidateProfileUseCase;
+  getCandidateProfileUseCase: GetCandidateProfileUseCase;
+  updateCandidateProfileUseCase: UpdateCandidateProfileUseCase;
+  uploadCandidateResumeUseCase: UploadCandidateResumeUseCase;
 }
 
 
 export function createUseCases(repositories: Repositories, services: Services): UseCases {
-  const { userRepository, otpRepository, companyApprovalRepository, oauthSessionRepository } = repositories;
+  const { userRepository, otpRepository, companyApprovalRepository, candidateProfileRepository, oauthSessionRepository } = repositories;
   const { passwordHasher, tokenService, emailService } = services;
 
   return {
@@ -68,13 +82,22 @@ export function createUseCases(repositories: Repositories, services: Services): 
     getMyApprovalUseCase: new GetMyCompanyApprovalUseCase(companyApprovalRepository),
 
     getPendingCompaniesUseCase: new GetPendingCompaniesUseCase(companyApprovalRepository),
-    approveCompanyUseCase: new ApproveCompanyUseCase(companyApprovalRepository),
+    approveCompanyUseCase: new ApproveCompanyUseCase(companyApprovalRepository, userRepository),
     rejectCompanyUseCase: new RejectCompanyUseCase(companyApprovalRepository),
     markDocumentUseCase: new MarkDocumentUseCase(companyApprovalRepository),
     getApprovedCompaniesUseCase: new GetApprovedCompaniesUseCase(companyApprovalRepository),
     toggleCompanyActiveUseCase: new ToggleCompanyActiveUseCase(companyApprovalRepository),
 
     uploadFileUseCase: new UploadFileUseCase(services.fileStorageService),
+
+    createTeamMemberUseCase: new CreateTeamMemberUseCase(userRepository, passwordHasher, emailService),
+    listTeamMembersUseCase: new ListTeamMembersUseCase(userRepository),
+    toggleTeamMemberStatusUseCase: new ToggleTeamMemberStatusUseCase(userRepository),
+
+    createCandidateProfileUseCase: new CreateCandidateProfileUseCase(candidateProfileRepository),
+    getCandidateProfileUseCase: new GetCandidateProfileUseCase(candidateProfileRepository),
+    updateCandidateProfileUseCase: new UpdateCandidateProfileUseCase(candidateProfileRepository),
+    uploadCandidateResumeUseCase: new UploadCandidateResumeUseCase(candidateProfileRepository, services.fileStorageService),
   };
 
 }

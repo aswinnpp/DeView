@@ -3,7 +3,7 @@ import { CompanyApprovalRepository } from "../../../domain/company/repositories/
 export class GetApprovedCompaniesUseCase {
     constructor(private repo: CompanyApprovalRepository) { }
 
-    async execute() {
-        return await this.repo.findApproved();
+    async execute(search?: string) {
+        return await this.repo.searchApproved(search);
     }
 }

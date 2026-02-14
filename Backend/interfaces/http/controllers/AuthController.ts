@@ -41,7 +41,7 @@ export class AuthController {
     private readonly verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
     private readonly tokenService: SecureJwtTokenService
-  ) {}
+  ) { }
 
   // ---------------- REGISTER ----------------
 
@@ -138,12 +138,12 @@ export class AuthController {
     request: FastifyRequest<{ Body: VerifyOTPBody }>,
     reply: FastifyReply
   ) => {
-    const result = await this.verifyPasswordResetOTPUseCase.execute(
+    await this.verifyPasswordResetOTPUseCase.execute(
       request.body.email,
       request.body.otp
     );
 
-    reply.send(result);
+    reply.send({ success: true });
   };
 
   resetPassword = async (

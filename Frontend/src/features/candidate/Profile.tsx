@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Input, Button } from '../../components/common';
 import CandidateNavHeader from './CandidateNavHeader';
-import { useCandidateProfile } from '../../hooks/useCandidateProfile';
+import { useCandidateProfile } from '../../hooks/candidate/useCandidateProfile';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 
 interface LocationState {
     from?: string;
@@ -23,6 +23,7 @@ const Profile = () => {
     );
 
     const {
+        form,
         profileData,
         isEditing,
         setIsEditing,
@@ -30,11 +31,9 @@ const Profile = () => {
         isSaving,
         isUploading,
         isLoggingOut,
-        error,
-        clearError,
+
         validationErrors,
         profileExists,
-        handleInputChange,
         handleArrayChange,
         addArrayItem,
         removeArrayItem,
@@ -43,6 +42,8 @@ const Profile = () => {
         handleResumeUpload,
         handleLogout,
     } = useCandidateProfile();
+
+    const { register } = form;
 
     const progressComplete = (locationState?.completionPercentage || 0) >= 80;
 
@@ -70,15 +71,7 @@ const Profile = () => {
 
                 <div className="py-7 px-12 pb-20 w-full box-border max-[480px]:p-[18px]">
 
-                    {/* Error Alert */}
-                    {error && (
-                        <div className="bg-[rgba(239,68,68,0.15)] border border-[rgba(239,68,68,0.4)] rounded-xl py-4 px-5 mb-5 flex justify-between items-center">
-                            <span className="text-brand-red text-sm">⚠️ {error}</span>
-                            <Button variant="danger" className="py-1.5 px-3 text-xs" onClick={clearError}>
-                                Dismiss
-                            </Button>
-                        </div>
-                    )}
+
 
                     {!profileExists && (
                         <div className="bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] border border-[rgba(102,126,234,0.2)] p-6 rounded-xl mb-6 text-center">
@@ -173,11 +166,11 @@ const Profile = () => {
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 text-base font-bold text-white">Personal Information</h3>
                                 <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
-                                    <Input label="Full Name *" name="fullName" value={profileData.fullName} onChange={handleInputChange} disabled={!isEditing} placeholder="Enter your full name" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.fullName} style={errorBorderStyle(validationErrors.fullName)} />
-                                    <Input label="Email" name="email" type="email" value={profileData.email} onChange={handleInputChange} disabled className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
-                                    <Input label="Phone" name="phone" value={profileData.phone} onChange={handleInputChange} disabled={!isEditing} placeholder="+1 (555) 123-4567" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.phone} style={errorBorderStyle(validationErrors.phone)} />
-                                    <Input label="Location" name="location" value={profileData.location} onChange={handleInputChange} disabled={!isEditing} placeholder="City, Country" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
-                                    <Input label="Date of Birth" name="dateOfBirth" type="date" value={profileData.dateOfBirth} onChange={handleInputChange} disabled={!isEditing} className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.dateOfBirth} style={errorBorderStyle(validationErrors.dateOfBirth)} />
+                                    <Input label="Full Name *" {...register('fullName')} disabled={!isEditing} placeholder="Enter your full name" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.fullName?.message} style={errorBorderStyle(validationErrors.fullName?.message)} />
+                                    <Input label="Email" {...register('email')} type="email" disabled className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Phone *" {...register('phone')} disabled={!isEditing} placeholder="+1 (555) 123-4567" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.phone?.message} style={errorBorderStyle(validationErrors.phone?.message)} />
+                                    <Input label="Location *" {...register('location')} disabled={!isEditing} placeholder="City, Country" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.location?.message} style={errorBorderStyle(validationErrors.location?.message)} />
+                                    <Input label="Date of Birth *" {...register('dateOfBirth')} type="date" disabled={!isEditing} className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.dateOfBirth?.message} style={errorBorderStyle(validationErrors.dateOfBirth?.message)} />
                                 </div>
                             </section>
 
@@ -185,10 +178,10 @@ const Profile = () => {
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 text-base font-bold text-white">Professional Information <span className="text-xs font-normal text-[rgba(255,255,255,0.5)]">(Optional)</span></h3>
                                 <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
-                                    <Input label="Job Title" name="title" value={profileData.title} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Frontend Developer" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
-                                    <Input label="Current Company" name="currentCompany" value={profileData.currentCompany} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Google" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
-                                    <Input label="Current Salary" name="currentSalary" value={profileData.currentSalary} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., $80,000/year" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
-                                    <Input label="Years of Experience" name="experience" value={profileData.experience} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., 3 years" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Job Title" {...register('title')} disabled={!isEditing} placeholder="e.g., Frontend Developer" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Current Company" {...register('currentCompany')} disabled={!isEditing} placeholder="e.g., Google" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Current Salary" {...register('currentSalary')} disabled={!isEditing} placeholder="e.g., $80,000/year" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Years of Experience" {...register('experience')} disabled={!isEditing} placeholder="e.g., 3 years" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
                                 </div>
                             </section>
 
@@ -201,29 +194,25 @@ const Profile = () => {
                                         <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Bio *</label>
                                         <textarea
                                             className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none resize-y min-h-16 placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70"
-                                            name="bio"
-                                            value={profileData.bio}
-                                            onChange={handleInputChange}
+                                            {...register('bio')}
                                             disabled={!isEditing}
                                             rows={4}
                                             placeholder="Tell employers about yourself..."
-                                            style={errorBorderStyle(validationErrors.bio)}
+                                            style={errorBorderStyle(validationErrors.bio?.message)}
                                         />
-                                        {validationErrors.bio && <span className="text-[#ef4444] text-xs mt-1 block">{validationErrors.bio}</span>}
+                                        {validationErrors.bio?.message && <span className="text-[#ef4444] text-xs mt-1 block">{validationErrors.bio.message}</span>}
                                     </div>
 
-                                    <Input label="Expected Salary *" name="expectedSalary" value={profileData.expectedSalary} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., $100,000/year" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.expectedSalary} style={errorBorderStyle(validationErrors.expectedSalary)} />
+                                    <Input label="Expected Salary *" {...register('expectedSalary')} disabled={!isEditing} placeholder="e.g., $100,000/year" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.expectedSalary?.message} style={errorBorderStyle(validationErrors.expectedSalary?.message)} />
 
                                     {/* Notice Period - select */}
                                     <div className="flex flex-col gap-2">
                                         <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Notice Period *</label>
                                         <select
                                             className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none appearance-none bg-no-repeat bg-[right_12px_center] pr-9 disabled:opacity-70 [&_option]:bg-[#1a1a2e] [&_option]:text-white"
-                                            name="noticePeriod"
-                                            value={profileData.noticePeriod}
-                                            onChange={handleInputChange}
+                                            {...register('noticePeriod')}
                                             disabled={!isEditing}
-                                            style={{ ...errorBorderStyle(validationErrors.noticePeriod), backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.6)' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")" }}
+                                            style={{ ...errorBorderStyle(validationErrors.noticePeriod?.message), backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.6)' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")" }}
                                         >
                                             <option value="">Select notice period</option>
                                             <option value="Immediate">Immediate</option>
@@ -233,7 +222,7 @@ const Profile = () => {
                                             <option value="2 months">2 months</option>
                                             <option value="3 months">3 months</option>
                                         </select>
-                                        {validationErrors.noticePeriod && <span className="text-[#ef4444] text-xs mt-1 block">{validationErrors.noticePeriod}</span>}
+                                        {validationErrors.noticePeriod?.message && <span className="text-[#ef4444] text-xs mt-1 block">{validationErrors.noticePeriod.message}</span>}
                                     </div>
                                 </div>
                             </section>
@@ -247,9 +236,7 @@ const Profile = () => {
                                         <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Preferred Work Mode</label>
                                         <select
                                             className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none appearance-none bg-no-repeat bg-[right_12px_center] pr-9 disabled:opacity-70 [&_option]:bg-[#1a1a2e] [&_option]:text-white"
-                                            name="preferredWorkMode"
-                                            value={profileData.preferredWorkMode}
-                                            onChange={handleInputChange}
+                                            {...register('preferredWorkMode')}
                                             disabled={!isEditing}
                                             style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.6)' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")" }}
                                         >
@@ -266,9 +253,7 @@ const Profile = () => {
                                         <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Preferred Job Type</label>
                                         <select
                                             className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none appearance-none bg-no-repeat bg-[right_12px_center] pr-9 disabled:opacity-70 [&_option]:bg-[#1a1a2e] [&_option]:text-white"
-                                            name="preferredJobType"
-                                            value={profileData.preferredJobType}
-                                            onChange={handleInputChange}
+                                            {...register('preferredJobType')}
                                             disabled={!isEditing}
                                             style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.6)' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")" }}
                                         >
@@ -286,9 +271,7 @@ const Profile = () => {
                                         <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold flex items-center gap-2.5 cursor-pointer text-sm">
                                             <input
                                                 type="checkbox"
-                                                name="willingToRelocate"
-                                                checked={profileData.willingToRelocate as boolean}
-                                                onChange={handleInputChange}
+                                                {...register('willingToRelocate')}
                                                 disabled={!isEditing}
                                                 className="w-[18px] h-[18px] accent-brand-primary cursor-pointer"
                                             />
@@ -300,9 +283,9 @@ const Profile = () => {
 
                             {/* Skills */}
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Skills</h3>
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Skills *</h3>
                                 <div className="flex flex-wrap gap-2.5 items-center">
-                                    {profileData.skills.map((item, index) => (
+                                    {profileData.skills.map((item: string, index: number) => (
                                         <div key={index}>
                                             {isEditing ? (
                                                 <div className="flex gap-2 items-center">
@@ -338,9 +321,9 @@ const Profile = () => {
 
                             {/* Languages */}
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Languages</h3>
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Languages *</h3>
                                 <div className="flex flex-wrap gap-2.5 items-center">
-                                    {profileData.languages.map((item, index) => (
+                                    {profileData.languages.map((item: string, index: number) => (
                                         <div key={index}>
                                             {isEditing ? (
                                                 <div className="flex gap-2 items-center">
@@ -372,15 +355,16 @@ const Profile = () => {
                                         <p className="text-[rgba(255,255,255,0.5)] italic text-sm m-0">No languages added yet</p>
                                     )}
                                 </div>
+                                {validationErrors.languages?.message && <span className="text-[#ef4444] text-xs mt-2 block">{validationErrors.languages.message}</span>}
                             </section>
 
                             {/* Education */}
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 text-base font-bold text-white">Education</h3>
                                 <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
-                                    <Input label="Highest Qualification" name="education" value={profileData.education} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Bachelor of Science in Computer Science" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
-                                    <Input label="University/School" name="university" value={profileData.university} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., Stanford University" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
-                                    <Input label="Graduation Year" name="graduationYear" value={profileData.graduationYear} onChange={handleInputChange} disabled={!isEditing} placeholder="e.g., 2021" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Highest Qualification *" {...register('education')} disabled={!isEditing} placeholder="e.g., Bachelor of Science in Computer Science" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.education?.message} style={errorBorderStyle(validationErrors.education?.message)} />
+                                    <Input label="University/School *" {...register('university')} disabled={!isEditing} placeholder="e.g., Stanford University" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.university?.message} style={errorBorderStyle(validationErrors.university?.message)} />
+                                    <Input label="Graduation Year *" {...register('graduationYear')} disabled={!isEditing} placeholder="e.g., 2021" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.graduationYear?.message} style={errorBorderStyle(validationErrors.graduationYear?.message)} />
                                 </div>
                             </section>
 
@@ -388,8 +372,8 @@ const Profile = () => {
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 text-base font-bold text-white">Links <span className="text-xs font-normal text-[rgba(255,255,255,0.5)]">(Optional)</span></h3>
                                 <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
-                                    <Input label="LinkedIn URL" name="linkedinUrl" value={profileData.linkedinUrl} onChange={handleInputChange} disabled={!isEditing} placeholder="https://linkedin.com/in/yourprofile" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.linkedinUrl} style={errorBorderStyle(validationErrors.linkedinUrl)} />
-                                    <Input label="GitHub URL" name="githubUrl" value={profileData.githubUrl} onChange={handleInputChange} disabled={!isEditing} placeholder="https://github.com/yourusername" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.githubUrl} style={errorBorderStyle(validationErrors.githubUrl)} />
+                                    <Input label="LinkedIn URL" {...register('linkedinUrl')} disabled={!isEditing} placeholder="https://linkedin.com/in/yourprofile" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.linkedinUrl?.message} style={errorBorderStyle(validationErrors.linkedinUrl?.message)} />
+                                    <Input label="GitHub URL" {...register('githubUrl')} disabled={!isEditing} placeholder="https://github.com/yourusername" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.githubUrl?.message} style={errorBorderStyle(validationErrors.githubUrl?.message)} />
                                 </div>
                             </section>
 
@@ -401,7 +385,7 @@ const Profile = () => {
                                         <div className="flex items-center gap-3 p-4 bg-[rgba(102,126,234,0.1)] border border-[rgba(102,126,234,0.2)] rounded-[10px]">
                                             <span className="text-2xl">📄</span>
                                             <a
-                                                href={`${API_BASE_URL}${profileData.resumeUrl}`}
+                                                href={profileData.resumeUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="text-brand-primary no-underline font-medium transition-colors duration-200 hover:text-brand-secondary hover:underline"

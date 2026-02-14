@@ -10,6 +10,10 @@ interface RejectBody {
   reason: string;
 }
 
+interface SearchQuery {
+  search?: string;
+}
+
 export class AdminCompanyApprovalController {
   constructor(
     private readonly getPendingUseCase: GetPendingCompaniesUseCase,
@@ -20,9 +24,13 @@ export class AdminCompanyApprovalController {
     private readonly toggleActiveUseCase: ToggleCompanyActiveUseCase
   ) { }
 
-  // GET /admin/company-requests/pending
-  getPending = async (_: FastifyRequest, reply: FastifyReply) => {
-    const companies = await this.getPendingUseCase.execute();
+  // GET /admin/company-requests/pending?search=...
+  getPending = async (
+    request: FastifyRequest<{ Querystring: SearchQuery }>,
+    reply: FastifyReply
+  ) => {
+    const { search } = request.query;
+    const companies = await this.getPendingUseCase.execute(search);
 
     reply.status(200).send(
       companies.map(c => ({
@@ -43,9 +51,13 @@ export class AdminCompanyApprovalController {
     );
   };
 
-  // GET /admin/company-requests/approved
-  getApproved = async (_: FastifyRequest, reply: FastifyReply) => {
-    const companies = await this.getApprovedUseCase.execute();
+  // GET /admin/company-requests/approved?search=...
+  getApproved = async (
+    request: FastifyRequest<{ Querystring: SearchQuery }>,
+    reply: FastifyReply
+  ) => {
+    const { search } = request.query;
+    const companies = await this.getApprovedUseCase.execute(search);
 
     reply.status(200).send({
       approvals: companies.map(c => ({

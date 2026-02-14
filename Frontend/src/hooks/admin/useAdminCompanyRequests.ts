@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { adminApprovalService } from "../../services/adminApproval.service";
 import { extractApiError } from "../../api/axios";
 import type { CompanyApproval, DocumentUpload } from "../../services/adminApproval.service";
@@ -27,11 +27,13 @@ export function useAdminCompanyRequests() {
   const [selectedCompany, setSelectedCompany] = useState<CompanyApproval | null>(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
 
-  const fetchPendingCompanies = useCallback(async () => {
+  // ── Fetch (with optional search) ────────────────────────────────
+
+  const fetchPendingCompanies = useCallback(async (search?: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const { data } = await adminApprovalService.getPending();
+      const { data } = await adminApprovalService.getPending(search);
       setPendingCompanies(data ?? []);
     } catch (err) {
       setError(extractApiError(err));
@@ -44,16 +46,14 @@ export function useAdminCompanyRequests() {
     fetchPendingCompanies();
   }, [fetchPendingCompanies]);
 
-  const filteredCompanies = useMemo(() => {
-    const q = searchQuery.toLowerCase();
-    if (!q) return pendingCompanies;
-    return pendingCompanies.filter(
-      (c) =>
-        c.companyName.toLowerCase().includes(q) ||
-        c.contactEmail.toLowerCase().includes(q) ||
-        (c.contactPerson ?? "").toLowerCase().includes(q)
-    );
-  }, [pendingCompanies, searchQuery]);
+  // ── Search handler (called by SearchInput debounce) ─────────────
+
+  const handleSearch = useCallback(async (query: string) => {
+    setSearchQuery(query);
+    await fetchPendingCompanies(query || undefined);
+  }, [fetchPendingCompanies]);
+
+  // ── Select / deselect ─────────────────────────────────────────
 
   const selectCompany = useCallback((company: CompanyApproval) => {
     setSelectedCompany(company);
@@ -94,12 +94,11 @@ export function useAdminCompanyRequests() {
 
   return {
     pendingCompanies,
-    filteredCompanies,
     isLoading,
     error,
     fetchPendingCompanies,
     searchQuery,
-    setSearchQuery,
+    handleSearch,
     selectedCompany,
     selectCompany,
     clearSelectedCompany,

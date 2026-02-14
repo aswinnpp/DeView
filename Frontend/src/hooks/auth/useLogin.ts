@@ -4,12 +4,12 @@ import { useDispatch } from 'react-redux';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { authService } from '../../services/auth.service';
-import { loginSchema, type LoginFormValues } from '../../utils/validation/auth/loginSchema';
+import { loginRequestSchema, type LoginRequest } from '@shared/contracts/auth/login';
 import { setUser } from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
 import { extractApiError } from '../../api/axios';
 
-export type { LoginFormValues };
+export type { LoginRequest };
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -19,8 +19,8 @@ export function useLogin() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<LoginRequest>({
+    resolver: zodResolver(loginRequestSchema),
     defaultValues: { email: '', password: '' },
     mode: 'onSubmit',
   });
@@ -53,7 +53,7 @@ export function useLogin() {
     }
   };
 
-  const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
+  const onSubmit: SubmitHandler<LoginRequest> = async (values) => {
     setError(null);
     setIsLoading(true);
 

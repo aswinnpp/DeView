@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { adminCompanyManagementService } from "../../services/adminCompanyManagement.service";
 import { extractApiError } from "../../api/axios";
 import type { CompanyApproval, DocumentUpload } from "../../services/adminCompanyManagement.service";
@@ -27,13 +27,17 @@ export function useAdminCompanyManagement() {
     const [selectedCompany, setSelectedCompany] = useState<CompanyApproval | null>(null);
     const [showRejectModal, setShowRejectModal] = useState(false);
 
-    // ── Fetch approved companies ──────────────────────────────────
+    // ── Toggle confirmation state ─────────────────────────────────
+    const [toggleTarget, setToggleTarget] = useState<CompanyApproval | null>(null);
+    const [isToggling, setIsToggling] = useState(false);
 
-    const fetchCompanies = useCallback(async () => {
+    // ── Fetch (with optional search) ──────────────────────────────
+
+    const fetchCompanies = useCallback(async (search?: string) => {
         setIsLoading(true);
         setError(null);
         try {
-            const { data } = await adminCompanyManagementService.getApproved();
+            const { data } = await adminCompanyManagementService.getApproved(search);
             setCompanies(data?.approvals ?? []);
         } catch (err) {
             setError(extractApiError(err));
@@ -46,16 +50,12 @@ export function useAdminCompanyManagement() {
         fetchCompanies();
     }, [fetchCompanies]);
 
-    // ── Filtered list ─────────────────────────────────────────────
+    // ── Search handler (called by SearchInput debounce) ───────────
 
-    const filteredCompanies = useMemo(() => {
-        const q = searchQuery.trim().toLowerCase();
-        if (!q) return companies;
-        return companies.filter((c) => {
-            const blob = `${c.companyName} ${c.contactEmail} ${c.contactPerson ?? ""}`.toLowerCase();
-            return blob.includes(q);
-        });
-    }, [companies, searchQuery]);
+    const handleSearch = useCallback(async (query: string) => {
+        setSearchQuery(query);
+        await fetchCompanies(query || undefined);
+    }, [fetchCompanies]);
 
     // ── Select / deselect ─────────────────────────────────────────
 
@@ -67,17 +67,30 @@ export function useAdminCompanyManagement() {
         setSelectedCompany(null);
     }, []);
 
-    // ── Toggle active / inactive ──────────────────────────────────
+    // ── Toggle active / inactive (confirmation flow) ──────────────
 
-    const handleToggleActive = useCallback(async (companyId: string) => {
+    const requestToggle = useCallback((company: CompanyApproval) => {
+        setToggleTarget(company);
+    }, []);
+
+    const cancelToggle = useCallback(() => {
+        setToggleTarget(null);
+    }, []);
+
+    const confirmToggle = useCallback(async () => {
+        if (!toggleTarget) return;
+        setIsToggling(true);
         try {
-            await adminCompanyManagementService.toggleActive(companyId);
+            await adminCompanyManagementService.toggleActive(toggleTarget.id);
+            setToggleTarget(null);
             fetchCompanies();
-            alert("Company status toggled successfully");
         } catch (err) {
-            alert(extractApiError(err));
+            setError(extractApiError(err));
+            setToggleTarget(null);
+        } finally {
+            setIsToggling(false);
         }
-    }, [fetchCompanies]);
+    }, [toggleTarget, fetchCompanies]);
 
     // ── Reject flow ───────────────────────────────────────────────
 
@@ -98,19 +111,22 @@ export function useAdminCompanyManagement() {
     return {
         // state
         companies,
-        filteredCompanies,
         isLoading,
         error,
         searchQuery,
-        setSearchQuery,
         selectedCompany,
-        selectCompany,
-        clearSelectedCompany,
         showRejectModal,
+        toggleTarget,
+        isToggling,
 
         // actions
+        handleSearch,
+        selectCompany,
+        clearSelectedCompany,
         fetchCompanies,
-        handleToggleActive,
+        requestToggle,
+        confirmToggle,
+        cancelToggle,
         openRejectModal,
         closeRejectModal,
         handleRejectSuccess,

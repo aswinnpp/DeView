@@ -1,12 +1,26 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, type SubmitHandler } from 'react-hook-form';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { authService } from '../../services/auth.service';
-import { registerSchema, type RegisterFormValues } from '../../utils/validation/auth/registerSchema';
+import { registerRequestSchema } from '@shared/contracts/auth/register';
 import { extractApiError } from '../../api/axios';
 
 const STORAGE_KEY_PENDING_EMAIL = 'pendingVerificationEmail';
+
+// UI schema extends shared contract with confirmPassword
+const registerSchema = z
+  .object({
+    ...registerRequestSchema.shape,
+    confirmPassword: z.string().min(1, { message: 'Please confirm your password' }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords must match',
+  });
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export type { RegisterFormValues };
 

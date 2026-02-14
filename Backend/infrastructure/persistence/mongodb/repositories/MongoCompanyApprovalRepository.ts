@@ -26,6 +26,30 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
     return docs.map(d => this.toDomain(d));
   }
 
+  async searchPending(search?: string): Promise<CompanyApproval[]> {
+    const filter: Record<string, any> = { status: "pending" };
+
+    if (search && search.trim()) {
+      const regex = { $regex: search.trim(), $options: 'i' };
+      filter.$or = [{ companyName: regex }, { contactEmail: regex }, { contactPerson: regex }];
+    }
+
+    const docs = await this.collection.find(filter).toArray();
+    return docs.map(d => this.toDomain(d));
+  }
+
+  async searchApproved(search?: string): Promise<CompanyApproval[]> {
+    const filter: Record<string, any> = { status: "approved" };
+
+    if (search && search.trim()) {
+      const regex = { $regex: search.trim(), $options: 'i' };
+      filter.$or = [{ companyName: regex }, { contactEmail: regex }, { contactPerson: regex }];
+    }
+
+    const docs = await this.collection.find(filter).toArray();
+    return docs.map(d => this.toDomain(d));
+  }
+
   async save(approval: CompanyApproval): Promise<void> {
     const doc = this.toDocument(approval);
 

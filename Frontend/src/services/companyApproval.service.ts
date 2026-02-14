@@ -1,5 +1,5 @@
 import { api } from '../api/axios';
-import type { CompanyApprovalFormValues } from '@/utils/validation/companyApproval/companyApprovalSchema';
+import type { SubmitCompanyApprovalRequest } from '@shared/contracts/companyApproval/submit';
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -30,7 +30,7 @@ export type CompanyApprovalStatus = {
 
 export const companyApprovalService = {
     /** Submit the company approval form */
-    submit(data: CompanyApprovalFormValues) {
+    submit(data: SubmitCompanyApprovalRequest) {
         return api.post<SubmitCompanyApprovalResponse>('/company/submit', data);
     },
 

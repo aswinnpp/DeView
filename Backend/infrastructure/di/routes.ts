@@ -6,6 +6,8 @@ import { googleAuthRoutes } from '../../interfaces/http/routes/googleAuthRoutes.
 import { companyApprovalRoutes } from '../../interfaces/http/routes/companyApprovalRoutes.js';
 import { adminCompanyApprovalRoutes } from '../../interfaces/http/routes/adminCompanyApprovalRoutes.js';
 import { uploadRoutes } from '../../interfaces/http/routes/uploadRoutes.js';
+import { companyTeamRoutes } from '../../interfaces/http/routes/companyTeamRoutes.js';
+import { candidateProfileRoutes } from '../../interfaces/http/routes/candidateProfileRoutes.js';
 
 export async function registerRoutes(
     fastify: FastifyInstance,
@@ -20,10 +22,11 @@ export async function registerRoutes(
         { prefix: '/auth' }
     );
 
-    // Company approval routes
+    // Company routes (approval + team management)
     await fastify.register(
         async (instance) => {
             await companyApprovalRoutes(instance, controllers.companyApprovalController);
+            await companyTeamRoutes(instance, controllers.companyTeamController);
         },
         { prefix: '/company' }
     );
@@ -41,6 +44,14 @@ export async function registerRoutes(
         async (instance) => {
             await uploadRoutes(instance, controllers.uploadController);
         },
+    );
+
+    // Candidate profile routes
+    await fastify.register(
+        async (instance) => {
+            await candidateProfileRoutes(instance, controllers.candidateProfileController);
+        },
+        { prefix: '/candidate' }
     );
 }
 
