@@ -19,12 +19,19 @@ export class MongoCandidateProfileRepository implements CandidateProfileReposito
             return;
         }
 
-        const { _id, ...update } = doc;
+        const { _id, ...rest } = doc;
+        const update = Object.fromEntries(
+            Object.entries(rest).filter(([, v]) => v !== undefined)
+        ) as Omit<CandidateProfileDocument, "_id">;
 
-        await this.collection.updateOne(
-            { _id },
+        const result = await this.collection.updateOne(
+            { userId: profile.userId },
             { $set: update }
         );
+
+        if (result.matchedCount === 0) {
+            throw new Error("Candidate profile not found for update");
+        }
     }
 
     // ── Mappers ──────────────────────────────────────────────────

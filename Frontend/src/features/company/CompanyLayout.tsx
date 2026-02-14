@@ -83,7 +83,7 @@ const CompanyLayout = () => {
                                 Applications
                             </NavLink>
                             <NavLink to="/company/team" className={({ isActive }) => navTabClass(isActive)}>
-                                HR Manage
+                                Team Management
                             </NavLink>
                         </nav>
 

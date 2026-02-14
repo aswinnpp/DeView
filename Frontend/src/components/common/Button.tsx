@@ -9,7 +9,7 @@ type ButtonProps = {
 
 const variantStyles: Record<Variant, string> = {
   primary: "bg-blue-600 text-white",
-  secondary: " text-black",
+  secondary: " text-white",
   danger: "bg-red-600 text-white",
 };
 

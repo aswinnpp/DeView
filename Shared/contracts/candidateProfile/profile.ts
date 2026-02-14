@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 
+/** Optional fields: URL (linkedin, github, resume) and Professional (title, company, salary, experience) */
 const optionalString = z.string().catch('');
 
 const NOTICE_PERIOD_OPTIONS = [
@@ -19,7 +20,10 @@ export const candidateProfileSchema = z.object({
         .min(1, { message: 'Full name is required' })
         .min(2, { message: 'Full name must be at least 2 characters' })
         .max(100, { message: 'Full name must be less than 100 characters' }),
-    email: z.string().email().optional().or(z.literal('')),
+    email: z
+        .string()
+        .min(1, { message: 'Email is required' })
+        .email({ message: 'Please enter a valid email' }),
     phone: z
         .string()
         .min(1, { message: 'Phone number is required' })
@@ -45,6 +49,7 @@ export const candidateProfileSchema = z.object({
             },
             { message: 'You must be at least 16 years old' }
         ),
+    // Optional: Professional information
     title: optionalString,
     currentCompany: optionalString,
     currentSalary: optionalString,
@@ -62,8 +67,8 @@ export const candidateProfileSchema = z.object({
             (val) => NOTICE_PERIOD_OPTIONS.includes(val as typeof NOTICE_PERIOD_OPTIONS[number]),
             { message: 'Please select a valid notice period' }
         ),
-    preferredWorkMode: optionalString,
-    preferredJobType: optionalString,
+    preferredWorkMode: z.string().min(1, { message: 'Preferred work mode is required' }),
+    preferredJobType: z.string().min(1, { message: 'Preferred job type is required' }),
     willingToRelocate: z.boolean().catch(false),
     skills: z.array(z.string()).catch(['']).refine(
         (arr) => arr.some((s) => s.trim() !== ''),
@@ -112,3 +117,6 @@ export const candidateProfileSchema = z.object({
 });
 
 export type CandidateProfileData = z.infer<typeof candidateProfileSchema>;
+
+/** For PATCH: all fields optional; when present they are validated. */
+export const candidateProfileUpdateSchema = candidateProfileSchema.partial();

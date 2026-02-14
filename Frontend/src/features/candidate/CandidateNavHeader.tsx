@@ -61,7 +61,7 @@ const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => 
     ];
 
     return (
-        <div className="flex justify-between items-center py-[18px] px-10 border-b border-[rgba(255,255,255,0.03)] bg-[rgba(255,255,255,0.01)] max-[480px]:py-3 max-[480px]:px-4">
+        <header className="sticky top-0 z-1000 max-md:py-3 max-md:px-4 flex justify-between items-center py-[18px] px-10 border-b border-[rgba(255,255,255,0.03)] bg-[rgba(15,15,25,0.98)] backdrop-blur-md max-[480px]:py-3 max-[480px]:px-4 zinde">
             <div className="flex gap-3 items-center">
                 <h2 className="m-0 text-lg font-bold text-white">{title}</h2>
             </div>
@@ -164,7 +164,7 @@ const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => 
                     </NavLink>
                 )}
             </div>
-        </div>
+        </header>
     );
 };
 

@@ -1,6 +1,10 @@
 import { FastifyInstance } from "fastify";
 import { CandidateProfileController } from "../controllers/CandidateProfileController.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
+import {
+    createCandidateProfileSchema,
+    updateCandidateProfileSchema,
+} from "../schemas/candidateProfileSchema.js";
 
 export async function candidateProfileRoutes(
     fastify: FastifyInstance,
@@ -14,13 +18,15 @@ export async function candidateProfileRoutes(
         handler: controller.getProfile,
     });
 
-    // POST /candidate/profile — create a new profile
+    // POST /candidate/profile — create a new profile (all required except URL & professional)
     fastify.post("/profile", {
+        schema: createCandidateProfileSchema,
         handler: controller.createProfile,
     });
 
-    // PATCH /candidate/profile — update existing profile
+    // PATCH /candidate/profile — update existing profile (all fields optional)
     fastify.patch("/profile", {
+        schema: updateCandidateProfileSchema,
         handler: controller.updateProfile,
     });
 

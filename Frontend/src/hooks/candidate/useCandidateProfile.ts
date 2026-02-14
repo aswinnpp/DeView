@@ -127,34 +127,20 @@ export function useCandidateProfile() {
     [form]
   );
 
-  // ─── Clean data before sending ────────────────────────────────
-  const cleanProfileData = (data: CandidateProfileData): Partial<CandidateProfileData> => {
-    const cleaned: Partial<CandidateProfileData> = {};
-    for (const [key, value] of Object.entries(data)) {
-      if (key === 'skills' || key === 'languages') {
-        const filtered = (value as string[]).filter((item: string) => item.trim() !== '');
-        if (filtered.length > 0) {
-          (cleaned as Record<string, unknown>)[key] = filtered;
-        }
-      } else if (typeof value === 'string' && value.trim() !== '') {
-        (cleaned as Record<string, unknown>)[key] = value.trim();
-      } else if (typeof value === 'boolean') {
-        (cleaned as Record<string, unknown>)[key] = value;
-      }
-    }
-    return cleaned;
-  };
+
 
   // ─── Submit (save) ────────────────────────────────────────────
   const onSubmit = async (values: CandidateProfileData) => {
     setLocalError(null);
     setIsSaving(true);
     try {
-      const cleanedData = cleanProfileData(values);
+    
       if (profileExists) {
-        await candidateService.updateProfile(cleanedData);
+        await candidateService.updateProfile(values);
+        await fetchProfile();
       } else {
-        await candidateService.createProfile(cleanedData);
+        await candidateService.createProfile(values);
+        await fetchProfile();
       }
       setProfileExists(true);
       setIsEditing(false);
@@ -165,9 +151,9 @@ export function useCandidateProfile() {
     }
   };
 
-  const handleSave = () => {
-    // If no changes were made, just exit edit mode without validation
+  const handleFormSubmit = (e?: React.BaseSyntheticEvent) => {
     if (!form.formState.isDirty) {
+      e?.preventDefault();
       setLocalError(null);
       setIsEditing(false);
       return;
@@ -175,7 +161,7 @@ export function useCandidateProfile() {
     form.handleSubmit(onSubmit, (validationErrors) => {
       const firstError = Object.values(validationErrors)[0];
       setLocalError(firstError?.message ?? 'Please fix the errors above.');
-    })();
+    })(e);
   };
 
   const handleCancel = useCallback(() => {
@@ -183,6 +169,21 @@ export function useCandidateProfile() {
     setLocalError(null);
     setIsEditing(false);
   }, [form]);
+
+  /** Validate specific fields (for step-by-step). Returns true if valid. */
+  const validateStep = useCallback(
+    async (fields: (keyof CandidateProfileData)[]) => {
+      const valid = await form.trigger(fields);
+      if (!valid) {
+        const firstError = Object.values(form.formState.errors)[0];
+        setLocalError(firstError?.message ?? 'Please fix the errors above.');
+      } else {
+        setLocalError(null);
+      }
+      return valid;
+    },
+    [form]
+  );
 
   // ─── Resume upload ────────────────────────────────────────────
   const handleResumeUpload = useCallback(
@@ -246,8 +247,9 @@ export function useCandidateProfile() {
     handleArrayChange,
     addArrayItem,
     removeArrayItem,
-    handleSave,
+    handleFormSubmit,
     handleCancel,
+    validateStep,
     handleResumeUpload,
     handleLogout,
   };
