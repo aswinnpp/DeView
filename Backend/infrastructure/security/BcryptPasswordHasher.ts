@@ -1,5 +1,8 @@
+import { injectable } from 'inversify';
 import bcrypt from 'bcrypt';
 import { PasswordHasherPort } from '../../application/auth/ports/PasswordHasherPort';
+
+@injectable()
 export class BcryptPasswordHasher implements PasswordHasherPort {
     private readonly saltRounds = 10;
     async hash(password: string): Promise<string> {

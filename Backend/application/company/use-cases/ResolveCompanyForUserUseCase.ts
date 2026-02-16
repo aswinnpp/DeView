@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../../../infrastructure/di/types';
 import { CompanyApprovalRepository } from '../../../domain/company/repositories/CompanyApprovalRepository.js';
 import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
@@ -7,10 +9,11 @@ import { AppError } from '../../../shared/errors/AppError.js';
  * Uses companyId from token if present; otherwise loads approved company approval and backfills user.companyId.
  * @throws AppError.forbidden when user has no associated company
  */
+@injectable()
 export class ResolveCompanyForUserUseCase {
     constructor(
-        private readonly companyApprovalRepo: CompanyApprovalRepository,
-        private readonly userRepo: UserRepository
+        @inject(TYPES.CompanyApprovalRepository) private readonly companyApprovalRepo: CompanyApprovalRepository,
+        @inject(TYPES.UserRepository) private readonly userRepo: UserRepository
     ) {}
 
     async execute(userId: string, companyIdFromToken?: string): Promise<string> {

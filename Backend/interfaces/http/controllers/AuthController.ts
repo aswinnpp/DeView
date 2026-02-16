@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
@@ -32,17 +33,18 @@ interface EmailBody {
   email: string;
 }
 
+@injectable()
 export class AuthController {
   constructor(
-    private readonly registerUserUseCase: RegisterUserUseCase,
-    private readonly verifyOTPUseCase: VerifyOTPUseCase,
-    private readonly loginUseCase: LoginUseCase,
-    private readonly resendOTPUseCase: ResendOTPUseCase,
-    private readonly refreshTokenUseCase: RefreshTokenUseCase,
-    private readonly logoutUseCase: LogoutUseCase,
-    private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
-    private readonly verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCase,
-    private readonly resetPasswordUseCase: ResetPasswordUseCase
+    @inject(RegisterUserUseCase) private readonly registerUserUseCase: RegisterUserUseCase,
+    @inject(VerifyOTPUseCase) private readonly verifyOTPUseCase: VerifyOTPUseCase,
+    @inject(LoginUseCase) private readonly loginUseCase: LoginUseCase,
+    @inject(ResendOTPUseCase) private readonly resendOTPUseCase: ResendOTPUseCase,
+    @inject(RefreshTokenUseCase) private readonly refreshTokenUseCase: RefreshTokenUseCase,
+    @inject(LogoutUseCase) private readonly logoutUseCase: LogoutUseCase,
+    @inject(ForgotPasswordUseCase) private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
+    @inject(VerifyPasswordResetOTPUseCase) private readonly verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCase,
+    @inject(ResetPasswordUseCase) private readonly resetPasswordUseCase: ResetPasswordUseCase
   ) {}
 
   // ---------------- REGISTER ----------------

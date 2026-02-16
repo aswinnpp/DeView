@@ -1,16 +1,19 @@
+import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { GoogleOAuthUseCase } from "../../../application/auth/use-cases/GoogleOAuthUseCase";
-import { GoogleAuthService } from "../../../infrastructure/auth/GoogleAuthService";
+import { GoogleAuthPort } from "../../../application/auth/ports/GoogleAuthPort";
+import { TYPES } from "../../../infrastructure/di/types";
 import {
   setAccessTokenCookie,
   setRefreshTokenCookie,
 } from "../cookies/cookieHelper";
 
+@injectable()
 export class GoogleAuthController {
   constructor(
-    private readonly googleOAuthUseCase: GoogleOAuthUseCase,
-    private readonly googleAuthService: GoogleAuthService
+    @inject(GoogleOAuthUseCase) private readonly googleOAuthUseCase: GoogleOAuthUseCase,
+    @inject(TYPES.GoogleAuthPort) private readonly googleAuthService: GoogleAuthPort
   ) {}
 
   initiateAuth = async (

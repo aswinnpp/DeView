@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from "../../../infrastructure/di/types";
 import { UserRepository } from "../../../domain/user/repositories/UserRepository";
 import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
 import { Email } from "../../../domain/user/value-objects/Email";
@@ -7,11 +9,12 @@ import { AppError } from "../../../shared/errors/AppError";
 import { ResendOTPRequestDTO } from "../dtos/ResendOTPRequestDTO";
 import { ResendOTPResponseDTO } from "../dtos/ResendOTPResponseDTO";
 
+@injectable()
 export class ResendOTPUseCase {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly otpRepository: OTPRepository,
-    private readonly emailService: EmailServicePort
+    @inject(TYPES.UserRepository) private readonly userRepository: UserRepository,
+    @inject(TYPES.OTPRepository) private readonly otpRepository: OTPRepository,
+    @inject(TYPES.EmailServicePort) private readonly emailService: EmailServicePort
   ) {}
 
   async execute(dto: ResendOTPRequestDTO): Promise<ResendOTPResponseDTO> {

@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { Controllers } from './controllers.js';
-
+import { getControllers } from './container.js';
 import { authRoutes } from '../../interfaces/http/routes/authRoutes.js';
 import { googleAuthRoutes } from '../../interfaces/http/routes/googleAuthRoutes.js';
 import { companyApprovalRoutes } from '../../interfaces/http/routes/companyApprovalRoutes.js';
@@ -9,10 +8,7 @@ import { uploadRoutes } from '../../interfaces/http/routes/uploadRoutes.js';
 import { companyTeamRoutes } from '../../interfaces/http/routes/companyTeamRoutes.js';
 import { candidateProfileRoutes } from '../../interfaces/http/routes/candidateProfileRoutes.js';
 
-export async function registerRoutes(
-    fastify: FastifyInstance,
-    controllers: Controllers
-): Promise<void> {
+export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     // Auth routes
     await fastify.register(
         async (instance) => {

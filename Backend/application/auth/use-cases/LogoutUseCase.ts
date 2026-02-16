@@ -1,7 +1,10 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from "../../../infrastructure/di/types";
 import { TokenServicePort } from "../ports/TokenServicePort";
 
+@injectable()
 export class LogoutUseCase {
-  constructor(private readonly tokenService: TokenServicePort) {}
+  constructor(@inject(TYPES.TokenServicePort) private readonly tokenService: TokenServicePort) {}
 
   async execute(refreshToken?: string, accessToken?: string): Promise<{ success: true }> {
     if (refreshToken) {

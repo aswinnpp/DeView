@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from "../../../infrastructure/di/types";
 import { UserRepository } from "../../../domain/user/repositories/UserRepository";
 import { TokenServicePort } from "../ports/TokenServicePort";
 import { OAuthSessionPort } from "../ports/OAuthSessionPort";
@@ -22,13 +24,14 @@ function parseRoleFromState(state: string | undefined): string {
   }
 }
 
+@injectable()
 export class GoogleOAuthUseCase {
   constructor(
-    private readonly userRepo: UserRepository,
-    private readonly tokenService: TokenServicePort,
-    private readonly sessionRepo: OAuthSessionPort,
-    private readonly googleAuth: GoogleAuthPort,
-    private readonly cryptoRandom: CryptoRandomPort
+    @inject(TYPES.UserRepository) private readonly userRepo: UserRepository,
+    @inject(TYPES.TokenServicePort) private readonly tokenService: TokenServicePort,
+    @inject(TYPES.OAuthSessionPort) private readonly sessionRepo: OAuthSessionPort,
+    @inject(TYPES.GoogleAuthPort) private readonly googleAuth: GoogleAuthPort,
+    @inject(TYPES.CryptoRandomPort) private readonly cryptoRandom: CryptoRandomPort
   ) {}
 
   /**
