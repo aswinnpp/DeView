@@ -12,6 +12,7 @@ import {
   type CandidateProfileData,
 } from '@shared/contracts/candidateProfile/profile';
 import { extractApiError } from '../../api/axios';
+import { useFileUpload } from '../useFileUpload';
 
 const MAX_RESUME_SIZE_BYTES = 100 * 1024 * 1024; // 100MB (matches backend)
 const ACCEPTED_RESUME_TYPES = ['application/pdf', 'application/x-pdf'];
@@ -55,11 +56,9 @@ export function useCandidateProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
-  /** File selected but not uploaded until user clicks Save (last step). */
-  const [pendingResumeFile, setPendingResumeFile] = useState<File | null>(null);
+  const resumeUploader = useFileUpload();
 
   const form = useForm<CandidateProfileData>({
     resolver: zodResolver(candidateProfileSchema),
@@ -148,23 +147,6 @@ export function useCandidateProfile() {
       }
       setProfileExists(true);
 
-      // Upload resume only after profile exists (when user clicked Save / last Next).
-      if (pendingResumeFile) {
-        setIsUploading(true);
-        try {
-          const { data } = await candidateService.uploadResume(pendingResumeFile);
-          if (data?.resumeUrl) form.setValue('resumeUrl', data.resumeUrl, { shouldDirty: false });
-          setPendingResumeFile(null);
-          await fetchProfile();
-        } catch (err) {
-          const msg = extractApiError(err) || 'Resume upload failed. Please try again.';
-          setLocalError(msg);
-          console.error('Resume upload failed:', err);
-        } finally {
-          setIsUploading(false);
-        }
-      }
-
       setIsEditing(false);
     } catch (err) {
       const msg = extractApiError(err) || 'Request failed. Please try again.';
@@ -194,7 +176,6 @@ export function useCandidateProfile() {
   const handleCancel = useCallback(() => {
     form.reset();
     setLocalError(null);
-    setPendingResumeFile(null);
     setIsEditing(false);
   }, [form]);
 
@@ -213,9 +194,9 @@ export function useCandidateProfile() {
     [form]
   );
 
-  // ─── Resume: store file; upload runs only on Save (last step) ───
+  // ─── Resume: upload immediately to Cloudinary ──────────────────
   const handleResumeUpload = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
@@ -231,10 +212,18 @@ export function useCandidateProfile() {
         return;
       }
       setLocalError(null);
-      setPendingResumeFile(file);
+      resumeUploader.clearError();
+      event.target.value = '';
+      try {
+        const url = await resumeUploader.uploadFile('resume', file);
+        form.setValue('resumeUrl', url, { shouldDirty: true, shouldValidate: true });
+      } catch (err) {
+        const msg = extractApiError(err) || 'Resume upload failed. Please try again.';
+        setLocalError(msg);
+      }
       event.target.value = '';
     },
-    []
+    [form, resumeUploader]
   );
 
   // ─── Logout ───────────────────────────────────────────────────
@@ -258,13 +247,12 @@ export function useCandidateProfile() {
     setIsEditing,
     isLoading,
     isSaving,
-    isUploading,
+    isUploading: resumeUploader.uploading,
     isLoggingOut,
     error: localError,
     clearError,
     validationErrors: form.formState.errors,
     profileExists,
-    pendingResumeFile,
     handleArrayChange,
     addArrayItem,
     removeArrayItem,

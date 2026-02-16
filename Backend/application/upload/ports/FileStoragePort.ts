@@ -1,4 +1,6 @@
+import { GenerateUploadSignatureOutputDTO } from '../dtos/GenerateUploadSignatureDTO.js';
+
 export interface FileStoragePort {
-    save(originalName: string, data: Buffer): Promise<string>;
+    generateUploadSignature(category: string, userId: string): Promise<GenerateUploadSignatureOutputDTO>;
     getPublicUrl(storedName: string): string;
 }

@@ -23,14 +23,13 @@ import { RejectCompanyUseCase } from '../../application/admin/use-cases/RejectCo
 import { MarkDocumentUseCase } from '../../application/admin/use-cases/MarkDocumentUseCase';
 import { GetApprovedCompaniesUseCase } from '../../application/admin/use-cases/GetApprovedCompaniesUseCase';
 import { ToggleCompanyActiveUseCase } from '../../application/admin/use-cases/ToggleCompanyActiveUseCase';
-import { UploadFileUseCase } from '../../application/upload/use-cases/UploadFileUseCase';
+import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/GenerateUploadSignatureUseCase';
 import { ResolveCompanyForUserUseCase } from '../../application/company/use-cases/ResolveCompanyForUserUseCase';
 import { CreateTeamMemberUseCase } from '../../application/company/use-cases/CreateTeamMemberUseCase';
 import { ListTeamMembersUseCase } from '../../application/company/use-cases/ListTeamMembersUseCase';
 import { CreateCandidateProfileUseCase } from '../../application/candidate/use-cases/CreateCandidateProfileUseCase';
 import { GetCandidateProfileUseCase } from '../../application/candidate/use-cases/GetCandidateProfileUseCase';
 import { UpdateCandidateProfileUseCase } from '../../application/candidate/use-cases/UpdateCandidateProfileUseCase';
-import { UploadCandidateResumeUseCase } from '../../application/candidate/use-cases/UploadCandidateResumeUseCase';
 import { ToggleTeamMemberStatusUseCase } from '../../application/company/use-cases/ToggleTeamMemberStatusUseCase';
 
 export interface UseCases {
@@ -54,7 +53,7 @@ export interface UseCases {
   markDocumentUseCase: MarkDocumentUseCase;
   getApprovedCompaniesUseCase: GetApprovedCompaniesUseCase;
   toggleCompanyActiveUseCase: ToggleCompanyActiveUseCase;
-  uploadFileUseCase: UploadFileUseCase;
+  generateUploadSignatureUseCase: GenerateUploadSignatureUseCase;
   resolveCompanyForUserUseCase: ResolveCompanyForUserUseCase;
   createTeamMemberUseCase: CreateTeamMemberUseCase;
   listTeamMembersUseCase: ListTeamMembersUseCase;
@@ -62,7 +61,6 @@ export interface UseCases {
   createCandidateProfileUseCase: CreateCandidateProfileUseCase;
   getCandidateProfileUseCase: GetCandidateProfileUseCase;
   updateCandidateProfileUseCase: UpdateCandidateProfileUseCase;
-  uploadCandidateResumeUseCase: UploadCandidateResumeUseCase;
 }
 
 
@@ -94,7 +92,7 @@ export function createUseCases(repositories: Repositories, services: Services): 
     getApprovedCompaniesUseCase: new GetApprovedCompaniesUseCase(companyApprovalRepository),
     toggleCompanyActiveUseCase: new ToggleCompanyActiveUseCase(companyApprovalRepository),
 
-    uploadFileUseCase: new UploadFileUseCase(services.fileStorageService),
+    generateUploadSignatureUseCase: new GenerateUploadSignatureUseCase(services.fileStorageService),
 
     resolveCompanyForUserUseCase,
     createTeamMemberUseCase: new CreateTeamMemberUseCase(userRepository, passwordHasher, emailService, resolveCompanyForUserUseCase),
@@ -104,7 +102,6 @@ export function createUseCases(repositories: Repositories, services: Services): 
     createCandidateProfileUseCase: new CreateCandidateProfileUseCase(candidateProfileRepository),
     getCandidateProfileUseCase: new GetCandidateProfileUseCase(candidateProfileRepository),
     updateCandidateProfileUseCase: new UpdateCandidateProfileUseCase(candidateProfileRepository),
-    uploadCandidateResumeUseCase: new UploadCandidateResumeUseCase(candidateProfileRepository, services.fileStorageService),
   };
 
 }

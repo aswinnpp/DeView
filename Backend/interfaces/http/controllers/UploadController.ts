@@ -1,18 +1,21 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { UploadFileUseCase } from '../../../application/upload/use-cases/UploadFileUseCase.js';
+import { GenerateUploadSignatureUseCase } from '../../../application/upload/use-cases/GenerateUploadSignatureUseCase.js';
 
 export class UploadController {
-    constructor(private readonly uploadFileUseCase: UploadFileUseCase) {}
+    constructor(private readonly generateSignatureUseCase: GenerateUploadSignatureUseCase) {}
 
-    upload = async (request: FastifyRequest, reply: FastifyReply) => {
-        const data = await request.file();
-        const buffer = data ? await data.toBuffer() : Buffer.from([]);
+    generateSignature = async (
+        request: FastifyRequest<{ Body: { category: string } }>,
+        reply: FastifyReply
+    ) => {
+        const user = request.currentUser;
+        const { category } = request.body;
 
-        const result = await this.uploadFileUseCase.execute({
-            fileName: data?.filename ?? '',
-            fileBuffer: buffer,
+        const result = await this.generateSignatureUseCase.execute({
+            category,
+            userId: user.userId,
         });
 
-        reply.status(201).send(result);
+        reply.send(result);
     };
 }

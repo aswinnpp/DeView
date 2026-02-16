@@ -40,7 +40,6 @@ const Profile = () => {
         handleResumeUpload,
         handleLogout,
         error: formError,
-        pendingResumeFile,
     } = useCandidateProfile();
 
     const handleEditClick = () => setIsEditing(true);
@@ -385,10 +384,10 @@ const Profile = () => {
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 text-base font-bold text-white">Resume</h3>
                                 <div className="py-4">
-                                    {profileData.resumeUrl || pendingResumeFile ? (
+                                    {profileData.resumeUrl || isUploading ? (
                                         <div className="flex flex-wrap items-center gap-3 p-4 bg-[rgba(102,126,234,0.1)] border border-[rgba(102,126,234,0.2)] rounded-[10px]">
                                             <span className="text-2xl">📄</span>
-                                            {profileData.resumeUrl && !pendingResumeFile && (
+                                            {profileData.resumeUrl && (
                                                 <a
                                                     href={profileData.resumeUrl}
                                                     target="_blank"
@@ -398,14 +397,14 @@ const Profile = () => {
                                                     View Resume
                                                 </a>
                                             )}
-                                            {pendingResumeFile && (
-                                                <span className="text-[rgba(255,255,255,0.9)] text-sm">
-                                                    {profileData.resumeUrl ? 'New file: ' : ''}<strong>{pendingResumeFile.name}</strong> — uploads when you click Save
+                                            {isUploading && (
+                                                <span className="text-[rgba(255,255,255,0.75)] text-sm">
+                                                    Uploading…
                                                 </span>
                                             )}
                                             {isEditing && (
                                                 <label className="ml-auto py-2 px-4 bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.2)] rounded-md text-white text-[13px] cursor-pointer transition-all duration-200 hover:bg-[rgba(255,255,255,0.15)]">
-                                                    {pendingResumeFile ? 'Change file' : 'Replace'}
+                                                    {profileData.resumeUrl ? 'Replace' : 'Upload'}
                                                     <input
                                                         type="file"
                                                         accept=".pdf"
@@ -420,33 +419,16 @@ const Profile = () => {
                                         <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[rgba(255,255,255,0.2)] rounded-[10px] bg-[rgba(255,255,255,0.02)] transition-all duration-200 hover:border-[rgba(102,126,234,0.4)] hover:bg-[rgba(102,126,234,0.05)]">
                                             {isEditing ? (
                                                 <div className="flex flex-col items-center">
-                                                    {pendingResumeFile ? (
-                                                        <>
-                                                            <p className="text-[rgba(255,255,255,0.9)] text-sm m-0 mb-2">
-                                                                Selected: <strong>{typeof pendingResumeFile !== 'undefined' && pendingResumeFile !== null ? (pendingResumeFile as File).name : 'file'}</strong>
-                                                            </p>
-                                                            <p className="text-[rgba(255,255,255,0.5)] text-xs m-0">Will upload when you click Save</p>
-                                                            <label className="mt-2 text-brand-primary text-sm cursor-pointer hover:underline">
-                                                                Choose different file
-                                                                <input
-                                                                    type="file"
-                                                                    accept=".pdf"
-                                                                    onChange={handleResumeUpload}
-                                                                    className="hidden"
-                                                                />
-                                                            </label>
-                                                        </>
-                                                    ) : (
-                                                        <label className="inline-flex items-center gap-2 py-3 px-6 bg-linear-to-br from-brand-primary to-brand-secondary rounded-lg text-white text-sm font-medium cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(102,126,234,0.3)]">
-                                                            📤 Upload Resume (PDF)
-                                                            <input
-                                                                type="file"
-                                                                accept=".pdf"
-                                                                onChange={handleResumeUpload}
-                                                                className="hidden"
-                                                            />
-                                                        </label>
-                                                    )}
+                                                    <label className="inline-flex items-center gap-2 py-3 px-6 bg-linear-to-br from-brand-primary to-brand-secondary rounded-lg text-white text-sm font-medium cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(102,126,234,0.3)]">
+                                                        {isUploading ? 'Uploading…' : '📤 Upload Resume (PDF)'}
+                                                        <input
+                                                            type="file"
+                                                            accept=".pdf"
+                                                            onChange={handleResumeUpload}
+                                                            className="hidden"
+                                                            disabled={isUploading}
+                                                        />
+                                                    </label>
                                                 </div>
                                             ) : (
                                                 <p className="text-[rgba(255,255,255,0.5)] italic text-sm m-0">No resume uploaded yet</p>

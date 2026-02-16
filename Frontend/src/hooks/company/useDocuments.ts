@@ -1,4 +1,6 @@
 import { useState, useCallback } from "react";
+import { useFileUpload } from "../useFileUpload";
+import type { UploadCategory } from "../../services/upload.service";
 
 export type DocumentUpload = {
   fileName: string;
@@ -7,25 +9,28 @@ export type DocumentUpload = {
   marked: boolean;
 };
 
-export function useDocuments(documentTypes: readonly any[]) {
+export function useDocuments(documentTypes: readonly { key: UploadCategory; label: string; description: string; required: boolean }[]) {
   const [documents, setDocuments] = useState<Record<string, DocumentUpload>>({});
   const [uploading, setUploading] = useState<string | null>(null);
+  const uploader = useFileUpload();
 
-  const upload = useCallback((key: string, file: File) => {
+  const upload = useCallback(async (key: UploadCategory, file: File) => {
     setUploading(key);
-
-    setDocuments(prev => ({
-      ...prev,
-      [key]: {
-        fileName: file.name,
-        fileUrl: `fake/${Date.now()}-${file.name}`,
-        uploadedAt: new Date().toISOString(),
-        marked: false,
-      }
-    }));
-
-    setUploading(null);
-  }, []);
+    try {
+      const fileUrl = await uploader.uploadFile(key, file);
+      setDocuments(prev => ({
+        ...prev,
+        [key]: {
+          fileName: file.name,
+          fileUrl,
+          uploadedAt: new Date().toISOString(),
+          marked: false,
+        }
+      }));
+    } finally {
+      setUploading(null);
+    }
+  }, [uploader]);
 
   const remove = useCallback((key: string) => {
     setDocuments(prev => {
@@ -46,7 +51,7 @@ export function useDocuments(documentTypes: readonly any[]) {
   const getUploadedDoc = useCallback((key: string) => documents[key], [documents]);
   const isDocUploading = useCallback((key: string) => uploading === key, [uploading]);
 
-  const handleFileUpload = useCallback((key: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback((key: UploadCategory, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) upload(key, file);
   }, [upload]);

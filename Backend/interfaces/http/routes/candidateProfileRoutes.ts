@@ -4,7 +4,6 @@ import { requireAuth } from "../middleware/authMiddleware.js";
 import {
     createCandidateProfileSchema,
     updateCandidateProfileSchema,
-    uploadResumeSchema,
 } from "../schemas/candidateProfileSchema.js";
 
 export async function candidateProfileRoutes(
@@ -25,11 +24,6 @@ export async function candidateProfileRoutes(
     fastify.patch("/profile", {
         schema: updateCandidateProfileSchema,
         handler: controller.updateProfile,
-    });
-
-    fastify.post("/profile/resume", {
-        schema: uploadResumeSchema,
-        handler: controller.uploadResume,
     });
 
     console.log(" Candidate profile routes registered");

@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import type { UseFormSetValue, UseFormWatch, Path, PathValue } from "react-hook-form";
-import { uploadService } from "../../services/upload.service";
+import { useFileUpload } from "../useFileUpload";
+import type { UploadCategory } from "../../services/upload.service";
 
 export type DocumentUpload = {
   fileName: string;
@@ -12,13 +13,14 @@ export type DocumentUpload = {
 type FormWithDocuments = { documents?: Record<string, DocumentUpload> };
 
 export function useDocumentsForForm<T extends FormWithDocuments>(
-  documentTypes: readonly { key: string; label: string; description: string; required: boolean }[],
+  documentTypes: readonly { key: UploadCategory; label: string; description: string; required: boolean }[],
   setValue: UseFormSetValue<T>,
   watch: UseFormWatch<T>
 ) {
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const documents = (watch("documents" as Path<T>) ?? {}) as Record<string, DocumentUpload>;
+  const uploader = useFileUpload();
 
   const upload = useCallback(
     async (key: string, file: File) => {
@@ -26,12 +28,13 @@ export function useDocumentsForForm<T extends FormWithDocuments>(
       setUploadError(null);
 
       try {
-        const { data } = await uploadService.uploadFile(file);
+        // key is the Cloudinary upload category for company docs
+        const fileUrl = await uploader.uploadFile(key as UploadCategory, file);
 
         const doc: DocumentUpload = {
-          fileName: data.fileName,
-          fileUrl: data.fileUrl,
-          uploadedAt: data.uploadedAt,
+          fileName: file.name,
+          fileUrl,
+          uploadedAt: new Date().toISOString(),
           marked: false,
         };
         setValue("documents" as Path<T>, { ...documents, [key]: doc } as PathValue<T, Path<T>>, { shouldValidate: true });
@@ -42,7 +45,7 @@ export function useDocumentsForForm<T extends FormWithDocuments>(
         setUploading(null);
       }
     },
-    [documents, setValue]
+    [documents, setValue, uploader]
   );
 
   const remove = useCallback(

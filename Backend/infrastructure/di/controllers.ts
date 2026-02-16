@@ -60,7 +60,7 @@ export function createControllers(
     ),
 
     uploadController: new UploadController(
-      useCases.uploadFileUseCase
+      useCases.generateUploadSignatureUseCase
     ),
 
     companyTeamController: new CompanyTeamController(
@@ -72,8 +72,7 @@ export function createControllers(
     candidateProfileController: new CandidateProfileController(
       useCases.createCandidateProfileUseCase,
       useCases.getCandidateProfileUseCase,
-      useCases.updateCandidateProfileUseCase,
-      useCases.uploadCandidateResumeUseCase
+      useCases.updateCandidateProfileUseCase
     ),
   };
 }
