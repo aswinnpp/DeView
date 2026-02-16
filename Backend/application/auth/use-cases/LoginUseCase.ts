@@ -1,13 +1,17 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from "../../../infrastructure/di/types";
 import { UserRepository } from "../../../domain/user/repositories/UserRepository";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { PasswordHasherPort } from "../ports/PasswordHasherPort";
 import { TokenServicePort } from "../ports/TokenServicePort";
 import { AppError } from "../../../shared/errors/AppError";
+
+@injectable()
 export class LoginUseCase {
   constructor(
-    private userRepo: UserRepository,
-    private hasher: PasswordHasherPort,
-    private tokenService: TokenServicePort
+    @inject(TYPES.UserRepository) private userRepo: UserRepository,
+    @inject(TYPES.PasswordHasherPort) private hasher: PasswordHasherPort,
+    @inject(TYPES.TokenServicePort) private tokenService: TokenServicePort
   ) {}
 
   async execute(emailStr: string, password: string) {

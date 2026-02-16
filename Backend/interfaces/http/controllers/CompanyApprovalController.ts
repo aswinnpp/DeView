@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
@@ -21,11 +22,12 @@ interface SubmitApprovalBody {
   documents: CompanyDocuments;
 }
 
+@injectable()
 export class CompanyApprovalController {
   constructor(
-    private readonly checkStatusUseCase: CheckCompanyStatusUseCase,
-    private readonly submitApprovalUseCase: SubmitCompanyApprovalUseCase,
-    private readonly getMyApprovalUseCase: GetMyCompanyApprovalUseCase,
+    @inject(CheckCompanyStatusUseCase) private readonly checkStatusUseCase: CheckCompanyStatusUseCase,
+    @inject(SubmitCompanyApprovalUseCase) private readonly submitApprovalUseCase: SubmitCompanyApprovalUseCase,
+    @inject(GetMyCompanyApprovalUseCase) private readonly getMyApprovalUseCase: GetMyCompanyApprovalUseCase,
   ) {}
 
   // POST /company/check-status

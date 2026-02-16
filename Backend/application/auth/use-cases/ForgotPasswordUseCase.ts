@@ -1,14 +1,17 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from "../../../infrastructure/di/types";
 import { UserRepository } from "../../../domain/user/repositories/UserRepository";
 import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 import { EmailServicePort } from "../ports/EmailServicePort";
 import { AppError } from "../../../shared/errors/AppError";
+@injectable()
 export class ForgotPasswordUseCase {
   constructor(
-    private userRepo: UserRepository,
-    private otpRepo: OTPRepository,
-    private emailService: EmailServicePort
+    @inject(TYPES.UserRepository) private userRepo: UserRepository,
+    @inject(TYPES.OTPRepository) private otpRepo: OTPRepository,
+    @inject(TYPES.EmailServicePort) private emailService: EmailServicePort
   ) {}
 
   async execute(emailStr: string) {

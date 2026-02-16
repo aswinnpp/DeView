@@ -1,13 +1,16 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from "../../../infrastructure/di/types";
 import { CompanyApprovalRepository } from "../../../domain/company/repositories/CompanyApprovalRepository";
 import { UserRepository } from "../../../domain/user/repositories/UserRepository";
 import { CompanyApproval } from "../../../domain/company/entities/CompanyApprovalEntitie";
 import { SubmitCompanyApprovalDTO } from "../dtos/SubmitCompanyApprovalDTO";
 import { AppError } from "../../../shared/errors/AppError";
 
+@injectable()
 export class SubmitCompanyApprovalUseCase {
   constructor(
-    private repo: CompanyApprovalRepository,
-    private userRepo: UserRepository
+    @inject(TYPES.CompanyApprovalRepository) private repo: CompanyApprovalRepository,
+    @inject(TYPES.UserRepository) private userRepo: UserRepository
   ) { }
 
   async execute(dto: SubmitCompanyApprovalDTO) {

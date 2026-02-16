@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { UserRepository } from "../../../domain/user/repositories/UserRepository";
 import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
 import { User } from "../../../domain/user/entities/User";
@@ -7,6 +8,7 @@ import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 import { PasswordHasherPort } from "../ports/PasswordHasherPort";
 import { EmailServicePort } from "../ports/EmailServicePort";
 import { AppError } from "../../../shared/errors/AppError";
+import { TYPES } from "../../../infrastructure/di/types";
 
 export interface RegisterUserDTO {
   fullName: string;
@@ -15,12 +17,13 @@ export interface RegisterUserDTO {
   role: string;
 }
 
+@injectable()
 export class RegisterUserUseCase {
   constructor(
-    private readonly userRepo: UserRepository,
-    private readonly otpRepo: OTPRepository,
-    private readonly passwordHasher: PasswordHasherPort,
-    private readonly emailService: EmailServicePort
+    @inject(TYPES.UserRepository) private readonly userRepo: UserRepository,
+    @inject(TYPES.OTPRepository) private readonly otpRepo: OTPRepository,
+    @inject(TYPES.PasswordHasherPort) private readonly passwordHasher: PasswordHasherPort,
+    @inject(TYPES.EmailServicePort) private readonly emailService: EmailServicePort
   ) {}
 
   async execute(dto: RegisterUserDTO): Promise<{ message: string; email: string }> {
@@ -30,7 +33,7 @@ export class RegisterUserUseCase {
     const existingUser = await this.userRepo.findByEmail(email);
 
     if (existingUser && existingUser.isEmailVerified) {
-    AppError.notFound("User not found");
+    throw AppError.notFound("User not found");
     }
 
     const passwordHash = await this.passwordHasher.hash(dto.password);

@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from "../../../infrastructure/di/types";
 import { UserRepository } from "../../../domain/user/repositories/UserRepository";
 import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
 import { Email } from "../../../domain/user/value-objects/Email";
@@ -6,12 +8,13 @@ import { PasswordHasherPort } from "../ports/PasswordHasherPort";
 import { TokenServicePort } from "../ports/TokenServicePort";
 import { AppError } from "../../../shared/errors/AppError";
 
+@injectable()
 export class ResetPasswordUseCase {
   constructor(
-    private userRepo: UserRepository,
-    private otpRepo: OTPRepository,
-    private hasher: PasswordHasherPort,
-    private tokenService: TokenServicePort
+    @inject(TYPES.UserRepository) private userRepo: UserRepository,
+    @inject(TYPES.OTPRepository) private otpRepo: OTPRepository,
+    @inject(TYPES.PasswordHasherPort) private hasher: PasswordHasherPort,
+    @inject(TYPES.TokenServicePort) private tokenService: TokenServicePort
   ) {}
 
   async execute(emailStr: string, otpStr: string, newPassword: string) {

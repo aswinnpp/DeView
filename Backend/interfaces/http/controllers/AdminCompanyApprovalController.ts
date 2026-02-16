@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
@@ -16,14 +17,15 @@ interface SearchQuery {
   search?: string;
 }
 
+@injectable()
 export class AdminCompanyApprovalController {
   constructor(
-    private readonly getPendingUseCase: GetPendingCompaniesUseCase,
-    private readonly approveUseCase: ApproveCompanyUseCase,
-    private readonly rejectUseCase: RejectCompanyUseCase,
-    private readonly markDocumentUseCase: MarkDocumentUseCase,
-    private readonly getApprovedUseCase: GetApprovedCompaniesUseCase,
-    private readonly toggleActiveUseCase: ToggleCompanyActiveUseCase
+    @inject(GetPendingCompaniesUseCase) private readonly getPendingUseCase: GetPendingCompaniesUseCase,
+    @inject(ApproveCompanyUseCase) private readonly approveUseCase: ApproveCompanyUseCase,
+    @inject(RejectCompanyUseCase) private readonly rejectUseCase: RejectCompanyUseCase,
+    @inject(MarkDocumentUseCase) private readonly markDocumentUseCase: MarkDocumentUseCase,
+    @inject(GetApprovedCompaniesUseCase) private readonly getApprovedUseCase: GetApprovedCompaniesUseCase,
+    @inject(ToggleCompanyActiveUseCase) private readonly toggleActiveUseCase: ToggleCompanyActiveUseCase
   ) { }
 
   getPending = async (

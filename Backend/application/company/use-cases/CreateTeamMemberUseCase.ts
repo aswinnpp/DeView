@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../../../infrastructure/di/types';
 import { UserRepository } from "../../../domain/user/repositories/UserRepository.js";
 import { PasswordHasherPort } from "../../auth/ports/PasswordHasherPort.js";
 import { EmailServicePort } from "../../auth/ports/EmailServicePort.js";
@@ -16,13 +18,14 @@ export interface CreateTeamMemberDTO {
     companyIdFromToken?: string;
 }
 
+@injectable()
 export class CreateTeamMemberUseCase {
     constructor(
-        private readonly userRepository: UserRepository,
-        private readonly passwordHasher: PasswordHasherPort,
-        private readonly emailService: EmailServicePort,
-        private readonly resolveCompany: ResolveCompanyForUserUseCase,
-        private readonly cryptoRandom: CryptoRandomPort
+        @inject(TYPES.UserRepository) private readonly userRepository: UserRepository,
+        @inject(TYPES.PasswordHasherPort) private readonly passwordHasher: PasswordHasherPort,
+        @inject(TYPES.EmailServicePort) private readonly emailService: EmailServicePort,
+        @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase,
+        @inject(TYPES.CryptoRandomPort) private readonly cryptoRandom: CryptoRandomPort
     ) {}
 
     async execute(dto: CreateTeamMemberDTO): Promise<{ message: string; userId: string }> {

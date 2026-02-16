@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
@@ -8,7 +9,7 @@ import { initializeDatabase } from './infrastructure/database/index.js';
 import { registerHelmet } from './infrastructure/plugins/fastifyHelmet.js';
 import { registerErrorHandler } from './infrastructure/plugins/errorHandler.js';
 import jwtPlugin from './infrastructure/plugins/fastifyJwt.js';
-import { createContainer } from './infrastructure/di/container.js';
+import { createContainer, getControllers } from './infrastructure/di/container.js';
 import { registerRoutes } from './infrastructure/di/routes.js';
 import { redisClient } from './infrastructure/cache/RedisClient.js';
 
@@ -46,8 +47,9 @@ async function bootstrap() {
 
   await fastify.register(multipart, { limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB max for resume uploads
 
-  const container = createContainer(fastify, db);
-  await registerRoutes(fastify, container.controllers);
+  const ioc = createContainer(db);
+  const controllers = getControllers(ioc);
+  await registerRoutes(fastify, controllers);
 
   const gracefulShutdown = async () => {
     console.log('🛑 Shutting down gracefully...');

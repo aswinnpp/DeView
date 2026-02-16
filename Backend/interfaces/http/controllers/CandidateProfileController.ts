@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
@@ -31,11 +32,12 @@ interface ProfileBody {
     resumeUrl?: string;
 }
 
+@injectable()
 export class CandidateProfileController {
     constructor(
-        private readonly createProfileUseCase: CreateCandidateProfileUseCase,
-        private readonly getProfileUseCase: GetCandidateProfileUseCase,
-        private readonly updateProfileUseCase: UpdateCandidateProfileUseCase
+        @inject(CreateCandidateProfileUseCase) private readonly createProfileUseCase: CreateCandidateProfileUseCase,
+        @inject(GetCandidateProfileUseCase) private readonly getProfileUseCase: GetCandidateProfileUseCase,
+        @inject(UpdateCandidateProfileUseCase) private readonly updateProfileUseCase: UpdateCandidateProfileUseCase
     ) { }
 
     // GET /candidate/profile

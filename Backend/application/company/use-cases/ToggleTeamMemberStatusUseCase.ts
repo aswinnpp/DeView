@@ -1,11 +1,14 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../../../infrastructure/di/types';
 import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
 
+@injectable()
 export class ToggleTeamMemberStatusUseCase {
     constructor(
-        private readonly userRepository: UserRepository,
-        private readonly resolveCompany: ResolveCompanyForUserUseCase
+        @inject(TYPES.UserRepository) private readonly userRepository: UserRepository,
+        @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase
     ) {}
 
     async execute(

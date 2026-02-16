@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { success } from '../../../shared/http/apiResponse';
 import { HttpStatus } from '../../../shared/http/HttpStatus';
@@ -19,11 +20,12 @@ interface SearchQuery {
     status?: string;
 }
 
+@injectable()
 export class CompanyTeamController {
     constructor(
-        private readonly createTeamMemberUseCase: CreateTeamMemberUseCase,
-        private readonly listTeamMembersUseCase: ListTeamMembersUseCase,
-        private readonly toggleTeamMemberStatusUseCase: ToggleTeamMemberStatusUseCase
+        @inject(CreateTeamMemberUseCase) private readonly createTeamMemberUseCase: CreateTeamMemberUseCase,
+        @inject(ListTeamMembersUseCase) private readonly listTeamMembersUseCase: ListTeamMembersUseCase,
+        @inject(ToggleTeamMemberStatusUseCase) private readonly toggleTeamMemberStatusUseCase: ToggleTeamMemberStatusUseCase
     ) {}
 
     listHRs = async (
