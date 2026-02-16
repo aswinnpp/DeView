@@ -1,4 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import { success } from "../../../shared/http/apiResponse";
+import { HttpStatus } from "../../../shared/http/HttpStatus";
 
 import { RegisterUserUseCase } from "../../../application/auth/use-cases/RegisterUserUseCase";
 import { VerifyOTPUseCase } from "../../../application/auth/use-cases/VerifyOTPUseCase";
@@ -50,7 +52,7 @@ export class AuthController {
     reply: FastifyReply
   ) => {
     const result = await this.registerUserUseCase.execute(request.body);
-    reply.code(201).send(result);
+    reply.code(HttpStatus.CREATED).send(success(result));
   };
 
   // ---------------- VERIFY OTP ----------------
@@ -64,7 +66,7 @@ export class AuthController {
       request.body.otp
     );
 
-    reply.send({ success: true });
+    reply.send(success({ success: true }));
   };
 
   resendOTP = async (
@@ -72,7 +74,7 @@ export class AuthController {
     reply: FastifyReply
   ) => {
     const result = await this.resendOTPUseCase.execute(request.body);
-    reply.send(result);
+    reply.send(success(result));
   };
 
   // ---------------- LOGIN ----------------
@@ -88,7 +90,7 @@ export class AuthController {
     setAccessTokenCookie(reply, result.accessToken);
     setRefreshTokenCookie(reply, result.refreshToken);
 
-    reply.send({ user: result.user });
+    reply.send(success({ user: result.user }));
   };
 
   // ---------------- REFRESH ----------------
@@ -102,7 +104,7 @@ export class AuthController {
     setAccessTokenCookie(reply, result.accessToken);
     setRefreshTokenCookie(reply, result.newRefreshToken);
 
-    reply.send({ success: true });
+    reply.send(success({ success: true }));
   };
 
   logout = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -114,7 +116,7 @@ export class AuthController {
     clearCookie(reply, "accessToken");
     clearCookie(reply, "refreshToken");
 
-    reply.send(result);
+    reply.send(success(result));
   };
 
   // ---------------- PASSWORD RESET ----------------
@@ -124,7 +126,7 @@ export class AuthController {
     reply: FastifyReply
   ) => {
     await this.forgotPasswordUseCase.execute(request.body.email);
-    reply.send({ success: true });
+    reply.send(success({ success: true }));
   };
 
   verifyPasswordResetOTP = async (
@@ -136,7 +138,7 @@ export class AuthController {
       request.body.otp
     );
 
-    reply.send({ success: true });
+    reply.send(success({ success: true }));
   };
 
   resetPassword = async (
@@ -147,6 +149,6 @@ export class AuthController {
 
     await this.resetPasswordUseCase.execute(email, otp, newPassword);
 
-    reply.send({ success: true });
+    reply.send(success({ success: true }));
   };
 }

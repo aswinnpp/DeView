@@ -1,4 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import { success } from "../../../shared/http/apiResponse";
+import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { CreateCandidateProfileUseCase } from "../../../application/candidate/use-cases/CreateCandidateProfileUseCase";
 import { GetCandidateProfileUseCase } from "../../../application/candidate/use-cases/GetCandidateProfileUseCase";
 import { UpdateCandidateProfileUseCase } from "../../../application/candidate/use-cases/UpdateCandidateProfileUseCase";
@@ -43,7 +45,7 @@ export class CandidateProfileController {
 
         const profile = await this.getProfileUseCase.execute(user.userId);
 
-        reply.send({ profile });
+        reply.send(success({ profile }));
     };
 
     createProfile = async (
@@ -52,19 +54,14 @@ export class CandidateProfileController {
     ) => {
         const user = request.currentUser;
         const body = request.body;
-        if (!body || typeof body !== "object") {
-            return reply.code(400).send({
-                success: false,
-                message: "Request body is required",
-            });
-        }
+      
         const result = await this.createProfileUseCase.execute({
             ...body,
             userId: user.userId,
             email: body.email ?? user.email,
         });
 
-        reply.code(201).send(result);
+        reply.code(HttpStatus.CREATED).send(success(result));
     };
 
     // PATCH /candidate/profile
@@ -80,6 +77,6 @@ export class CandidateProfileController {
             ...body,
         });
 
-        reply.send(result);
+        reply.send(success(result));
     };
 }

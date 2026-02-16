@@ -1,4 +1,5 @@
 import { api } from '../api/axios';
+import { API_ROUTES } from '../constants/routes';
 import type { CandidateProfileData as ProfileData } from '@shared/contracts/candidateProfile/profile';
 
 // ─── Types ──────────────────────────────────────────────────────
@@ -9,14 +10,14 @@ export type ProfileResponse = { profile: ProfileData };
 
 export const candidateService = {
     getProfile() {
-        return api.get<ProfileResponse>('/candidate/profile');
+        return api.get<ProfileResponse>(API_ROUTES.CANDIDATE.PROFILE);
     },
 
     createProfile(data: Partial<ProfileData>) {
-        return api.post('/candidate/profile', data);
+        return api.post(API_ROUTES.CANDIDATE.PROFILE, data);
     },
 
     updateProfile(data: Partial<ProfileData>) {
-        return api.patch('/candidate/profile', data);
+        return api.patch(API_ROUTES.CANDIDATE.PROFILE, data);
     },
 };

@@ -1,5 +1,7 @@
 import rateLimit from '@fastify/rate-limit';
 import { FastifyInstance } from 'fastify';
+import { HttpStatus } from '../../shared/http/HttpStatus';
+
 export async function registerRateLimit(fastify: FastifyInstance): Promise<void> {
     await fastify.register(rateLimit, {
         global: true,
@@ -9,7 +11,7 @@ export async function registerRateLimit(fastify: FastifyInstance): Promise<void>
             return {
                 error: 'Too Many Requests',
                 message: `Rate limit exceeded. You can make ${context.max} requests per ${context.after}. Try again later.`,
-                statusCode: 429,
+                statusCode: HttpStatus.TOO_MANY_REQUESTS,
             };
         },
     });
@@ -27,7 +29,7 @@ export async function registerAuthRateLimit(fastify: FastifyInstance): Promise<v
             return {
                 error: 'Too Many Requests',
                 message: 'Too many authentication attempts. Please try again in 1 minute.',
-                statusCode: 429,
+                statusCode: HttpStatus.TOO_MANY_REQUESTS,
             };
         },
     });

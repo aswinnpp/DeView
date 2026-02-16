@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import { success } from "../../../shared/http/apiResponse";
 import { GoogleOAuthUseCase } from "../../../application/auth/use-cases/GoogleOAuthUseCase";
 import { GoogleAuthService } from "../../../infrastructure/auth/GoogleAuthService";
 import {
@@ -42,6 +43,6 @@ export class GoogleAuthController {
     setAccessTokenCookie(reply, result.accessToken);
     setRefreshTokenCookie(reply, result.refreshToken);
 
-    reply.send({ user: result.user });
+    reply.send(success({ user: result.user }));
   };
 }

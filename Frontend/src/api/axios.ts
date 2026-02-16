@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { AxiosRequestConfig, AxiosError } from 'axios';
 import store from '../context/store';
 import { logout } from '../context/authSlice';
+import { API_ROUTES, APP_ROUTES } from '../constants/routes';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -31,8 +32,17 @@ const processQueue = (error: unknown) => {
     failedQueue = [];
 };
 
+/** Common API envelope: { success: true, data: T } */
+type ApiEnvelope<T> = { success: boolean; data?: T };
+
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        const body = response.data as ApiEnvelope<unknown> | undefined;
+        if (body && body.success === true && 'data' in body) {
+            response.data = body.data;
+        }
+        return response;
+    },
 
     async (error: AxiosError) => {
         const originalRequest = error.config as AxiosRequestConfig & {
@@ -41,8 +51,8 @@ api.interceptors.response.use(
 
         const isUnauthorized = error.response?.status === 401;
         const alreadyRetried = originalRequest?._retry;
-        const isRefreshRoute = originalRequest?.url?.includes('/auth/refresh');
-        const isLoginRoute = originalRequest?.url?.includes('/auth/login');
+        const isRefreshRoute = originalRequest?.url?.includes(API_ROUTES.AUTH.REFRESH);
+        const isLoginRoute = originalRequest?.url?.includes(API_ROUTES.AUTH.LOGIN);
 
         if (!isUnauthorized || alreadyRetried || isRefreshRoute || isLoginRoute) {
             return Promise.reject(error);
@@ -60,7 +70,7 @@ api.interceptors.response.use(
         isRefreshing = true;
 
         try {
-            await api.post('/auth/refresh');
+            await api.post(API_ROUTES.AUTH.REFRESH);
 
             processQueue(null);
 
@@ -70,7 +80,7 @@ api.interceptors.response.use(
 
             store.dispatch(logout());
 
-            window.location.href = '/login';
+            window.location.href = APP_ROUTES.LOGIN;
 
             return Promise.reject(refreshError);
         } finally {

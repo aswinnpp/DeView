@@ -1,12 +1,12 @@
-import crypto from 'crypto';
-import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
-import { PasswordHasherPort } from '../../auth/ports/PasswordHasherPort.js';
-import { EmailServicePort } from '../../auth/ports/EmailServicePort.js';
-import { User } from '../../../domain/user/entities/User.js';
-import { Email } from '../../../domain/user/value-objects/Email.js';
-import { Role, RoleType } from '../../../domain/user/value-objects/Role.js';
-import { AppError } from '../../../shared/errors/AppError.js';
-import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
+import { UserRepository } from "../../../domain/user/repositories/UserRepository.js";
+import { PasswordHasherPort } from "../../auth/ports/PasswordHasherPort.js";
+import { EmailServicePort } from "../../auth/ports/EmailServicePort.js";
+import { User } from "../../../domain/user/entities/User.js";
+import { Email } from "../../../domain/user/value-objects/Email.js";
+import { Role, RoleType } from "../../../domain/user/value-objects/Role.js";
+import { AppError } from "../../../shared/errors/AppError.js";
+import { ResolveCompanyForUserUseCase } from "./ResolveCompanyForUserUseCase.js";
+import { CryptoRandomPort } from "../../shared/ports/CryptoRandomPort";
 
 export interface CreateTeamMemberDTO {
     fullName: string;
@@ -21,7 +21,8 @@ export class CreateTeamMemberUseCase {
         private readonly userRepository: UserRepository,
         private readonly passwordHasher: PasswordHasherPort,
         private readonly emailService: EmailServicePort,
-        private readonly resolveCompany: ResolveCompanyForUserUseCase
+        private readonly resolveCompany: ResolveCompanyForUserUseCase,
+        private readonly cryptoRandom: CryptoRandomPort
     ) {}
 
     async execute(dto: CreateTeamMemberDTO): Promise<{ message: string; userId: string }> {
@@ -64,13 +65,9 @@ export class CreateTeamMemberUseCase {
     }
 
     private generatePassword(): string {
-        // Generate a 12-character random password
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
-        const bytes = crypto.randomBytes(12);
-        let password = '';
-        for (let i = 0; i < 12; i++) {
-            password += chars[bytes[i] % chars.length];
-        }
-        return password;
+        const chars =
+            "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%";
+
+        return this.cryptoRandom.generateRandomString(12, chars);
     }
 }

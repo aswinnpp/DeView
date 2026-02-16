@@ -1,5 +1,5 @@
-import { Repositories } from './repositories';
-import { Services } from './services';
+import { Repositories } from "./repositories";
+import { Services } from "./services";
 
 import { RegisterUserUseCase } from '../../application/auth/use-cases/RegisterUserUseCase';
 import { VerifyOTPUseCase } from '../../application/auth/use-cases/VerifyOTPUseCase';
@@ -64,9 +64,23 @@ export interface UseCases {
 }
 
 
-export function createUseCases(repositories: Repositories, services: Services): UseCases {
-  const { userRepository, otpRepository, companyApprovalRepository, candidateProfileRepository, oauthSessionRepository } = repositories;
-  const { passwordHasher, tokenService, emailService } = services;
+export function createUseCases(
+  repositories: Repositories,
+  services: Services
+): UseCases {
+  const {
+    userRepository,
+    otpRepository,
+    companyApprovalRepository,
+    candidateProfileRepository,
+    oauthSessionRepository,
+  } = repositories;
+  const {
+    passwordHasher,
+    tokenService,
+    emailService,
+    cryptoRandomService,
+  } = services;
   const resolveCompanyForUserUseCase = new ResolveCompanyForUserUseCase(companyApprovalRepository, userRepository);
 
   return {
@@ -79,7 +93,13 @@ export function createUseCases(repositories: Repositories, services: Services): 
     forgotPasswordUseCase: new ForgotPasswordUseCase(userRepository, otpRepository, emailService),
     verifyPasswordResetOTPUseCase: new VerifyPasswordResetOTPUseCase(otpRepository),
     resetPasswordUseCase: new ResetPasswordUseCase(userRepository, otpRepository, passwordHasher, tokenService),
-    googleOAuthUseCase: new GoogleOAuthUseCase(userRepository, tokenService, oauthSessionRepository, services.googleAuthService),
+    googleOAuthUseCase: new GoogleOAuthUseCase(
+      userRepository,
+      tokenService,
+      oauthSessionRepository,
+      services.googleAuthService,
+      cryptoRandomService
+    ),
 
     checkCompanyStatusUseCase: new CheckCompanyStatusUseCase(companyApprovalRepository),
     submitCompanyApprovalUseCase: new SubmitCompanyApprovalUseCase(companyApprovalRepository, userRepository),
@@ -95,7 +115,13 @@ export function createUseCases(repositories: Repositories, services: Services): 
     generateUploadSignatureUseCase: new GenerateUploadSignatureUseCase(services.fileStorageService),
 
     resolveCompanyForUserUseCase,
-    createTeamMemberUseCase: new CreateTeamMemberUseCase(userRepository, passwordHasher, emailService, resolveCompanyForUserUseCase),
+    createTeamMemberUseCase: new CreateTeamMemberUseCase(
+      userRepository,
+      passwordHasher,
+      emailService,
+      resolveCompanyForUserUseCase,
+      cryptoRandomService
+    ),
     listTeamMembersUseCase: new ListTeamMembersUseCase(userRepository, resolveCompanyForUserUseCase),
     toggleTeamMemberStatusUseCase: new ToggleTeamMemberStatusUseCase(userRepository, resolveCompanyForUserUseCase),
 

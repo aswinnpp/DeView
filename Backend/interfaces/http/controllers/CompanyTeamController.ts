@@ -1,4 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { success } from '../../../shared/http/apiResponse';
+import { HttpStatus } from '../../../shared/http/HttpStatus';
 import { CreateTeamMemberUseCase } from '../../../application/company/use-cases/CreateTeamMemberUseCase.js';
 import { ListTeamMembersUseCase } from '../../../application/company/use-cases/ListTeamMembersUseCase.js';
 import { ToggleTeamMemberStatusUseCase } from '../../../application/company/use-cases/ToggleTeamMemberStatusUseCase.js';
@@ -31,7 +33,7 @@ export class CompanyTeamController {
         const { userId, companyId } = request.currentUser;
         const { search, status } = request.query;
         const result = await this.listTeamMembersUseCase.execute(userId, companyId, 'hr', search, status);
-        reply.send(result);
+        reply.send(success(result));
     };
 
     createHR = async (
@@ -46,7 +48,7 @@ export class CompanyTeamController {
             userId,
             companyIdFromToken: companyId,
         });
-        reply.code(201).send(result);
+        reply.code(HttpStatus.CREATED).send(success(result));
     };
 
     toggleHRStatus = async (
@@ -59,7 +61,7 @@ export class CompanyTeamController {
             userId,
             companyId
         );
-        reply.send(result);
+        reply.send(success(result));
     };
 
     listInterviewers = async (
@@ -69,7 +71,7 @@ export class CompanyTeamController {
         const { userId, companyId } = request.currentUser;
         const { search, status } = request.query;
         const result = await this.listTeamMembersUseCase.execute(userId, companyId, 'interviewer', search, status);
-        reply.send(result);
+        reply.send(success(result));
     };
 
     createInterviewer = async (
@@ -84,7 +86,7 @@ export class CompanyTeamController {
             userId,
             companyIdFromToken: companyId,
         });
-        reply.code(201).send(result);
+        reply.code(HttpStatus.CREATED).send(success(result));
     };
 
     toggleInterviewerStatus = async (
@@ -97,6 +99,6 @@ export class CompanyTeamController {
             userId,
             companyId
         );
-        reply.send(result);
+        reply.send(success(result));
     };
 }

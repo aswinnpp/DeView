@@ -1,3 +1,5 @@
+import { HttpStatus } from "../http/HttpStatus";
+
 export class AppError extends Error {
   constructor(
     public readonly message: string,
@@ -7,26 +9,26 @@ export class AppError extends Error {
   }
 
   static badRequest(message: string) {
-    return new AppError(message, 400);
+    return new AppError(message, HttpStatus.BAD_REQUEST);
   }
 
   static unauthorized(message = "Unauthorized") {
-    return new AppError(message, 401);
+    return new AppError(message, HttpStatus.UNAUTHORIZED);
   }
 
   static forbidden(message = "Forbidden") {
-    return new AppError(message, 403);
+    return new AppError(message, HttpStatus.FORBIDDEN);
   }
 
   static conflict(message: string) {
-    return new AppError(message, 409);
+    return new AppError(message, HttpStatus.CONFLICT);
   }
 
   static notFound(message: string) {
-    return new AppError(message, 404);
+    return new AppError(message, HttpStatus.NOT_FOUND);
   }
 
   static internal(message = "Internal server error") {
-    return new AppError(message, 500);
+    return new AppError(message, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

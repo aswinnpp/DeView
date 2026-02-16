@@ -1,4 +1,5 @@
 import { api } from '../api/axios';
+import { API_ROUTES } from '../constants/routes';
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -44,11 +45,11 @@ export type CompanyStatusResponse = {
 
 export const authService = {
     login(data: LoginPayload) {
-        return api.post<LoginResponse>('/auth/login', data);
+        return api.post<LoginResponse>(API_ROUTES.AUTH.LOGIN, data);
     },
 
     register(data: RegisterPayload) {
-        return api.post<RegisterResponse>('/auth/register', data);
+        return api.post<RegisterResponse>(API_ROUTES.AUTH.REGISTER, data);
     },
 
     verifyOtp(url: string, data: VerifyOtpPayload) {
@@ -60,24 +61,24 @@ export const authService = {
     },
 
     forgotPassword(data: ForgotPasswordPayload) {
-        return api.post<ForgotPasswordResponse>('/auth/forgot-password', data);
+        return api.post<ForgotPasswordResponse>(API_ROUTES.AUTH.FORGOT_PASSWORD, data);
     },
 
     resetPassword(data: ResetPasswordPayload) {
-        return api.post<ResetPasswordResponse>('/auth/reset-password', data);
+        return api.post<ResetPasswordResponse>(API_ROUTES.AUTH.RESET_PASSWORD, data);
     },
 
     googleExchange(sessionId: string) {
-        return api.get<GoogleExchangeResponse>('/auth/google/exchange', {
+        return api.get<GoogleExchangeResponse>(API_ROUTES.AUTH.GOOGLE_EXCHANGE, {
             params: { sessionId },
         });
     },
 
     checkCompanyStatus(data: CompanyStatusPayload) {
-        return api.post<CompanyStatusResponse>('/company/check-status', data);
+        return api.post<CompanyStatusResponse>(API_ROUTES.COMPANY.CHECK_STATUS, data);
     },
 
     logout() {
-        return api.post('/auth/logout');
+        return api.post(API_ROUTES.AUTH.LOGOUT);
     },
 };

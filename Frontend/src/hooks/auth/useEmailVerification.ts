@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { authService } from '../../services/auth.service';
 import { verifyOtpRequestSchema } from '@shared/contracts/auth/otp';
 import { extractApiError } from '../../api/axios';
+import { API_ROUTES } from '../../constants/routes';
 
 // UI schema — uses otpCode field name (maps to backend's otp)
 const otpSchema = z.object({
@@ -44,7 +45,10 @@ export function useEmailVerification() {
     setIsLoading(true);
 
     try {
-      const verifyUrl = mode === 'password-reset' ? '/auth/verify-password-reset-otp' : '/auth/verify-otp';
+      const verifyUrl =
+        mode === 'password-reset'
+          ? API_ROUTES.AUTH.VERIFY_PASSWORD_RESET_OTP
+          : API_ROUTES.AUTH.VERIFY_OTP;
       const { data: result } = await authService.verifyOtp(verifyUrl, { email: userEmail, otp: otpCode });
 
       if (mode === 'password-reset') {
@@ -73,7 +77,10 @@ export function useEmailVerification() {
     setIsLoading(true);
 
     try {
-      const resendUrl = mode === 'password-reset' ? '/auth/forgot-password' : '/auth/resend-otp';
+      const resendUrl =
+        mode === 'password-reset'
+          ? API_ROUTES.AUTH.FORGOT_PASSWORD
+          : API_ROUTES.AUTH.RESEND_OTP;
       await authService.resendOtp(resendUrl, { email: userEmail });
       return true;
     } catch (err) {

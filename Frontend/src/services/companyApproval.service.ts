@@ -1,4 +1,5 @@
 import { api } from '../api/axios';
+import { API_ROUTES } from '../constants/routes';
 import type { SubmitCompanyApprovalRequest } from '@shared/contracts/companyApproval/submit';
 
 // ─── Types ──────────────────────────────────────────────────────
@@ -31,11 +32,11 @@ export type CompanyApprovalStatus = {
 export const companyApprovalService = {
     /** Submit the company approval form */
     submit(data: SubmitCompanyApprovalRequest) {
-        return api.post<SubmitCompanyApprovalResponse>('/company/submit', data);
+        return api.post<SubmitCompanyApprovalResponse>(API_ROUTES.COMPANY.SUBMIT_APPROVAL, data);
     },
 
     /** Get the current company's approval status */
     getMyApproval() {
-        return api.get<CompanyApprovalStatus>('/company/my-approval');
+        return api.get<CompanyApprovalStatus>(API_ROUTES.COMPANY.MY_APPROVAL);
     },
 };

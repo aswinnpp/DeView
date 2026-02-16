@@ -1,4 +1,5 @@
 import { api } from '../api/axios';
+import { API_ROUTES } from '../constants/routes';
 import type { RejectCompanyRequestBody } from '@shared/contracts/companyApproval/admin';
 
 // ─── Types (mirror what the backend returns) ────────────────────
@@ -34,23 +35,23 @@ export type CompanyApproval = {
 export const adminApprovalService = {
     /** Fetch pending company-approval requests (with optional search) */
     getPending(search?: string) {
-        return api.get<CompanyApproval[]>('/admin/company-requests/pending', {
+        return api.get<CompanyApproval[]>(API_ROUTES.ADMIN.COMPANY_PENDING, {
             params: { search },
         });
     },
 
     /** Approve a company request */
     approve(id: string) {
-        return api.post(`/admin/company-requests/${id}/approve`);
+        return api.post(API_ROUTES.ADMIN.COMPANY_APPROVE(id));
     },
 
     /** Reject a company request */
     reject(id: string, data: RejectCompanyRequestBody) {
-        return api.post(`/admin/company-requests/${id}/reject`, data);
+        return api.post(API_ROUTES.ADMIN.COMPANY_REJECT(id), data);
     },
 
     /** Mark/unmark a specific document as verified */
     markDocument(companyId: string, documentKey: string, verified: boolean) {
-        return api.patch(`/admin/company-requests/${companyId}/documents/${documentKey}/mark`, { verified });
+        return api.patch(API_ROUTES.ADMIN.COMPANY_DOCUMENT_MARK(companyId, documentKey), { verified });
     },
 };
