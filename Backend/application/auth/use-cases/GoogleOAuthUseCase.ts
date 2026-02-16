@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import { UserRepository } from "../../../domain/user/repositories/UserRepository";
 import { TokenServicePort } from "../ports/TokenServicePort";
 import { OAuthSessionPort } from "../ports/OAuthSessionPort";
@@ -8,6 +7,7 @@ import { Role } from "../../../domain/user/value-objects/Role";
 import { User } from "../../../domain/user/entities/User";
 import { AppError } from "../../../shared/errors/AppError";
 import { GoogleUserDTO } from "../dtos/GoogleUserDTO";
+import { CryptoRandomPort } from "../../shared/ports/CryptoRandomPort";
 
 const ALLOWED_ROLES = ["candidate", "company", "hr", "interviewer", "admin"];
 
@@ -27,7 +27,8 @@ export class GoogleOAuthUseCase {
     private readonly userRepo: UserRepository,
     private readonly tokenService: TokenServicePort,
     private readonly sessionRepo: OAuthSessionPort,
-    private readonly googleAuth: GoogleAuthPort
+    private readonly googleAuth: GoogleAuthPort,
+    private readonly cryptoRandom: CryptoRandomPort
   ) {}
 
   /**
@@ -82,7 +83,7 @@ export class GoogleOAuthUseCase {
 
     const refreshToken = await this.tokenService.generateRefreshToken(user.id!);
 
-    const sessionId = crypto.randomUUID();
+    const sessionId = this.cryptoRandom.generateUUID();
 
     await this.sessionRepo.save(sessionId, {
       accessToken,

@@ -1,4 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import { success } from "../../../shared/http/apiResponse";
+import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { CheckCompanyStatusUseCase } from "../../../application/company/use-cases/CheckCompanyStatusUseCase";
 import { SubmitCompanyApprovalUseCase } from "../../../application/company/use-cases/SubmitCompanyApprovalUseCase";
 import { GetMyCompanyApprovalUseCase } from "../../../application/company/use-cases/GetMyCompanyApprovalUseCase";
@@ -35,7 +37,7 @@ export class CompanyApprovalController {
       userId: request.body.userId,
     });
 
-    reply.send(result);
+    reply.send(success(result));
   };
 
   getMyApproval = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -43,7 +45,7 @@ export class CompanyApprovalController {
 
     const approval = await this.getMyApprovalUseCase.execute(user.userId);
 
-    reply.send(approval);
+    reply.send(success(approval));
   };
 
   submit = async (
@@ -57,9 +59,9 @@ export class CompanyApprovalController {
       ...request.body,
     });
 
-    reply.code(201).send({
+    reply.code(HttpStatus.CREATED).send(success({
       message: "Approval submitted",
       approvalId: result.approvalId,
-    });
+    }));
   };
 }

@@ -1,4 +1,5 @@
 import { api } from '../api/axios';
+import { API_ROUTES } from '../constants/routes';
 
 // ─── Types (mirror what the backend returns) ────────────────────
 
@@ -37,13 +38,13 @@ type GetApprovedResponse = {
 export const adminCompanyManagementService = {
 
     getApproved(search?: string) {
-        return api.get<GetApprovedResponse>('/admin/company-requests/approved', {
+        return api.get<GetApprovedResponse>(`${API_ROUTES.ADMIN.COMPANY_PENDING.replace('pending', 'approved')}`, {
             params: { search },
         });
     },
 
     reject(id: string, reason: string) {
-        return api.post(`/admin/company-requests/${id}/reject`, { reason });
+        return api.post(API_ROUTES.ADMIN.COMPANY_REJECT(id), { reason });
     },
 
     toggleActive(id: string) {

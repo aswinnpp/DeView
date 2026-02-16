@@ -19,7 +19,6 @@ export class ApproveCompanyUseCase {
 
     await this.repo.save(approval);
 
-    // Set companyId on the user so their JWT will include it on next login
     const user = await this.userRepo.findById(approval.userId);
     if (user) {
       user.companyId = approvalId;

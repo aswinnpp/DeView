@@ -1,4 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import { success } from "../../../shared/http/apiResponse";
+import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { GetPendingCompaniesUseCase } from "../../../application/admin/use-cases/GetPendingCompaniesUseCase";
 import { ApproveCompanyUseCase } from "../../../application/admin/use-cases/ApproveCompanyUseCase";
 import { RejectCompanyUseCase } from "../../../application/admin/use-cases/RejectCompanyUseCase";
@@ -29,7 +31,7 @@ export class AdminCompanyApprovalController {
     reply: FastifyReply
   ) => {
     const result = await this.getPendingUseCase.execute(request.query.search);
-    reply.status(200).send(result);
+    reply.status(HttpStatus.OK).send(success(result));
   };
 
   getApproved = async (
@@ -37,7 +39,7 @@ export class AdminCompanyApprovalController {
     reply: FastifyReply
   ) => {
     const result = await this.getApprovedUseCase.execute(request.query.search);
-    reply.status(200).send(result);
+    reply.status(HttpStatus.OK).send(success(result));
   };
 
   // POST /admin/company-requests/:id/approve
@@ -47,9 +49,7 @@ export class AdminCompanyApprovalController {
   ) => {
     await this.approveUseCase.execute(request.params.id);
 
-    reply.status(200).send({
-      message: "Company approved successfully",
-    });
+    reply.status(HttpStatus.OK).send(success({ message: "Company approved successfully" }));
   };
 
   // POST /admin/company-requests/:id/reject
@@ -62,9 +62,7 @@ export class AdminCompanyApprovalController {
 
     await this.rejectUseCase.execute(id, reason);
 
-    reply.status(200).send({
-      message: "Company rejected successfully",
-    });
+    reply.status(HttpStatus.OK).send(success({ message: "Company rejected successfully" }));
   };
 
   // POST /admin/company-requests/:id/toggle-active
@@ -74,10 +72,10 @@ export class AdminCompanyApprovalController {
   ) => {
     const result = await this.toggleActiveUseCase.execute(request.params.id);
 
-    reply.status(200).send({
+    reply.status(HttpStatus.OK).send(success({
       message: "Company status toggled successfully",
       isActive: result.isActive,
-    });
+    }));
   };
 
   // PATCH /admin/company-requests/:id/documents/:key/mark
@@ -90,6 +88,6 @@ export class AdminCompanyApprovalController {
 
     const result = await this.markDocumentUseCase.execute(id, key, verified);
 
-    reply.status(200).send(result);
+    reply.status(HttpStatus.OK).send(success(result));
   };
 }

@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { success } from '../../../shared/http/apiResponse';
 import { GenerateUploadSignatureUseCase } from '../../../application/upload/use-cases/GenerateUploadSignatureUseCase.js';
 
 export class UploadController {
@@ -16,6 +17,6 @@ export class UploadController {
             userId: user.userId,
         });
 
-        reply.send(result);
+        reply.send(success(result));
     };
 }

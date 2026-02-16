@@ -8,6 +8,7 @@ import { loginRequestSchema, type LoginRequest } from '@shared/contracts/auth/lo
 import { setUser } from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
 import { extractApiError } from '../../api/axios';
+import { APP_ROUTES } from '../../constants/routes';
 
 export type { LoginRequest };
 
@@ -36,17 +37,17 @@ export function useLogin() {
 
       switch (result.status) {
         case 'approved':
-          navigate('/company/dashboard');
+          navigate(APP_ROUTES.COMPANY_DASHBOARD);
           break;
         case 'pending':
         case 'rejected':
-          navigate('/company/approval-pending');
+          navigate(APP_ROUTES.COMPANY_APPROVAL_PENDING);
           break;
         default:
-          navigate('/company/approval-form');
+          navigate(APP_ROUTES.COMPANY_APPROVAL_FORM);
       }
     } catch {
-      navigate('/');
+      navigate(APP_ROUTES.ROOT);
     }
   };
 
@@ -65,15 +66,15 @@ export function useLogin() {
       console.log("role", role);
 
       if (role === 'candidate') {
-        navigate('/candidate/profile');
+        navigate(APP_ROUTES.CANDIDATE_PROFILE);
       } else if (role === 'company') {
         await navigateCompanyUser(userId);
       } else if (role === 'hr') {
-        navigate('/hr/dashboard');
+        navigate(APP_ROUTES.HR_DASHBOARD);
       } else if (role === 'admin') {
-        navigate('/admin');
+        navigate(APP_ROUTES.ADMIN_DASHBOARD);
       } else {
-        navigate('/');
+        navigate(APP_ROUTES.ROOT);
       }
     } catch (err) {
       setError(extractApiError(err));

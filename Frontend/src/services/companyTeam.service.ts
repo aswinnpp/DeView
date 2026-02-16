@@ -1,4 +1,5 @@
 import { api } from '../api/axios';
+import { API_ROUTES } from '../constants/routes';
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -21,37 +22,37 @@ export const companyTeamService = {
 
     /** Fetch HR users for this company (with optional search/status) */
     listHRs(search?: string, status?: string) {
-        return api.get<ListResponse>('/company/hr/list', {
+        return api.get<ListResponse>(API_ROUTES.COMPANY.HR_LIST, {
             params: { search, status },
         });
     },
 
     /** Create a new HR account */
     createHR(data: { fullName: string; email: string }) {
-        return api.post('/company/hr/create', data);
+        return api.post(API_ROUTES.COMPANY.HR_CREATE, data);
     },
 
     /** Toggle HR active/inactive status */
     toggleHRStatus(id: string) {
-        return api.patch(`/company/hr/${id}/toggle-status`);
+        return api.patch(API_ROUTES.COMPANY.HR_TOGGLE_STATUS(id));
     },
 
     // ── Interviewer ──────────────────────────────────────────────
 
     /** Fetch Interviewer users for this company (with optional search/status) */
     listInterviewers(search?: string, status?: string) {
-        return api.get<ListResponse>('/company/interviewer/list', {
+        return api.get<ListResponse>(API_ROUTES.COMPANY.INTERVIEWER_LIST, {
             params: { search, status },
         });
     },
 
     /** Create a new Interviewer account */
     createInterviewer(data: { fullName: string; email: string }) {
-        return api.post('/company/interviewer/create', data);
+        return api.post(API_ROUTES.COMPANY.INTERVIEWER_CREATE, data);
     },
 
     /** Toggle Interviewer active/inactive status */
     toggleInterviewerStatus(id: string) {
-        return api.patch(`/company/interviewer/${id}/toggle-status`);
+        return api.patch(API_ROUTES.COMPANY.INTERVIEWER_TOGGLE_STATUS(id));
     },
 };

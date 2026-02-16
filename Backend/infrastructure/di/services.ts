@@ -1,14 +1,15 @@
-import { BcryptPasswordHasher } from '../security/BcryptPasswordHasher.js';
-import { SecureJwtTokenService } from '../security/SecureJwtTokenService.js';
-import { NodemailerEmailService } from '../email/NodemailerEmailService.js';
-import { GoogleAuthService } from '../auth/GoogleAuthService.js';
-import { CloudinaryFileStorageService } from '../storage/CloudinaryFileStorageService.js';
-import { FileStoragePort } from '../../application/upload/ports/FileStoragePort.js';
-import { env } from '../config/env.js';
-import { redisClient } from '../cache/RedisClient.js';
-import { RedisAccessTokenRepository } from '../persistence/redis/RedisAccessTokenRepository.js';
-import { RedisRefreshTokenRepository } from '../persistence/redis/RedisRefreshTokenRepository.js';
-import { Repositories } from './repositories.js';
+import { BcryptPasswordHasher } from "../security/BcryptPasswordHasher.js";
+import { SecureJwtTokenService } from "../security/SecureJwtTokenService.js";
+import { NodemailerEmailService } from "../email/NodemailerEmailService.js";
+import { GoogleAuthService } from "../auth/GoogleAuthService.js";
+import { CloudinaryFileStorageService } from "../storage/CloudinaryFileStorageService.js";
+import { FileStoragePort } from "../../application/upload/ports/FileStoragePort.js";
+import { env } from "../config/env.js";
+import { redisClient } from "../cache/RedisClient.js";
+import { RedisAccessTokenRepository } from "../persistence/redis/RedisAccessTokenRepository.js";
+import { RedisRefreshTokenRepository } from "../persistence/redis/RedisRefreshTokenRepository.js";
+import { Repositories } from "./repositories.js";
+import { NodeCryptoRandomService } from "../security/NodeCryptoRandomService.js";
 
 export interface Services {
   passwordHasher: BcryptPasswordHasher;
@@ -16,6 +17,7 @@ export interface Services {
   emailService: NodemailerEmailService;
   googleAuthService: GoogleAuthService;
   fileStorageService: FileStoragePort;
+  cryptoRandomService: NodeCryptoRandomService;
 }
 
 export function createServices(_: any, __: Repositories): Services {
@@ -29,7 +31,6 @@ export function createServices(_: any, __: Repositories): Services {
       refreshRepo,
       accessRepo,
       env.JWT_ACCESS_SECRET
-
     ),
 
     emailService: new NodemailerEmailService(),
@@ -41,5 +42,7 @@ export function createServices(_: any, __: Repositories): Services {
     ),
 
     fileStorageService: new CloudinaryFileStorageService(),
+
+    cryptoRandomService: new NodeCryptoRandomService(),
   };
 }

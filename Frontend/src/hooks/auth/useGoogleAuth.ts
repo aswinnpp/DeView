@@ -5,6 +5,7 @@ import { authService } from '../../services/auth.service';
 import { setUser } from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
 import { extractApiError } from '../../api/axios';
+import { API_ROUTES, APP_ROUTES } from '../../constants/routes';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -16,7 +17,7 @@ export function useGoogleAuth() {
   const [isLoading, setIsLoading] = useState(false);
 
   const initiateGoogleAuth = useCallback((role = 'candidate') => {
-    window.location.href = `${API_BASE_URL}/auth/google?role=${role}`;
+    window.location.href = `${API_BASE_URL}${API_ROUTES.AUTH.GOOGLE_BASE}?role=${role}`;
   }, []);
 
   const handleCallback = useCallback(async (): Promise<boolean> => {
@@ -37,23 +38,23 @@ export function useGoogleAuth() {
         try {
           const { data: statusResult } = await authService.checkCompanyStatus({ userId });
           if (!statusResult) {
-            navigate('/company/approval-form');
+            navigate(APP_ROUTES.COMPANY_APPROVAL_FORM);
             return;
           }
 
           switch (statusResult.status) {
             case 'approved':
-              navigate('/company/dashboard');
+              navigate(APP_ROUTES.COMPANY_DASHBOARD);
               break;
             case 'pending':
             case 'rejected':
-              navigate('/company/approval-pending');
+              navigate(APP_ROUTES.COMPANY_APPROVAL_PENDING);
               break;
             default:
-              navigate('/company/approval-form');
+              navigate(APP_ROUTES.COMPANY_APPROVAL_FORM);
           }
         } catch {
-          navigate('/company/approval-form');
+          navigate(APP_ROUTES.COMPANY_APPROVAL_FORM);
         }
       };
 
@@ -61,15 +62,15 @@ export function useGoogleAuth() {
       const { role, id: userId } = result.user;
 
       if (role === 'candidate') {
-        navigate('/candidate/profile');
+        navigate(APP_ROUTES.CANDIDATE_PROFILE);
       } else if (role === 'company') {
         await navigateCompanyUser(userId);
       } else if (role === 'hr') {
-        navigate('/hr/dashboard');
+        navigate(APP_ROUTES.HR_DASHBOARD);
       } else if (role === 'admin') {
-        navigate('/admin');
+        navigate(APP_ROUTES.ADMIN_DASHBOARD);
       } else {
-        navigate('/');
+        navigate(APP_ROUTES.ROOT);
       }
 
       return true;
