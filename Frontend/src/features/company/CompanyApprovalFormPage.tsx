@@ -1,5 +1,8 @@
 import { Input, Button } from '../../components/common';
 import { useCompanyApprovalForm } from '../../hooks/company';
+import { useFileUpload } from '../../hooks/useFileUpload';
+import type { UploadCategory } from '../../services/upload.service';
+import { useState, useEffect } from 'react';
 
 const formInputClass = "w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border focus:outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] placeholder:text-[#64748b]";
 const formLabelClass = "block mb-2 text-[13px] font-semibold text-[#cbd5e1]";
@@ -10,8 +13,11 @@ const CompanyApprovalFormPage = () => {
         loading,
         error,
         form,
-        docs,
+        documents,
+        remove,
         documentTypes,
+        getDocumentCount,
+        getRequiredDocCount,
         isResubmission,
         lockedDocKeys,
         rejectionReason,
@@ -19,7 +25,37 @@ const CompanyApprovalFormPage = () => {
     } = useCompanyApprovalForm();
 
     const { register, formState: { errors } } = form;
-    const { remove, getDocumentCount, getRequiredDocCount, getUploadedDoc, isDocUploading, handleFileUpload } = docs;
+
+    const { upload, isUploading, uploadedFile, reset } = useFileUpload();
+    const [uploadingKey, setUploadingKey] = useState<string | null>(null);
+
+    // Sync uploaded file into documents
+    useEffect(() => {
+        if (uploadedFile?.url && uploadingKey) {
+            form.setValue('documents', {
+                ...documents,
+                [uploadingKey]: {
+                    fileName: uploadingKey,
+                    fileUrl: uploadedFile.url,
+                    uploadedAt: new Date().toISOString(),
+                    marked: false,
+                },
+            }, { shouldValidate: true });
+            setUploadingKey(null);
+        }
+    }, [uploadedFile]);
+
+    const handleFileUpload = (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        e.target.value = '';
+        setUploadingKey(key);
+        reset();
+        upload(file, key as UploadCategory);
+    };
+
+    const getUploadedDoc = (key: string) => documents[key];
+    const isDocUploading = (key: string) => isUploading && uploadingKey === key;
 
     return (
         <div className="min-h-screen bg-linear-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-[#e2e8f0]">
@@ -217,16 +253,16 @@ const CompanyApprovalFormPage = () => {
                                         <div
                                             key={docType.key}
                                             className={`rounded-[14px] p-[18px] transition-all duration-200 border ${isLocked
-                                                    ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.08)]'
-                                                    : uploadedDoc
-                                                        ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.05)]'
-                                                        : 'border-[rgba(71,85,105,0.3)] bg-[rgba(30,41,59,0.5)]'
+                                                ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.08)]'
+                                                : uploadedDoc
+                                                    ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.05)]'
+                                                    : 'border-[rgba(71,85,105,0.3)] bg-[rgba(30,41,59,0.5)]'
                                                 } ${!isLocked ? 'hover:border-[rgba(99,102,241,0.4)] hover:-translate-y-0.5' : ''}`}
                                         >
                                             <div className="flex gap-3 mb-3.5">
                                                 <span className={`flex items-center justify-center w-8 h-8 rounded-[10px] text-sm font-bold shrink-0 ${isLocked
-                                                        ? 'bg-[rgba(16,185,129,0.2)] text-[#10b981]'
-                                                        : 'bg-linear-to-br from-[#334155] to-[#475569] text-[#e2e8f0]'
+                                                    ? 'bg-[rgba(16,185,129,0.2)] text-[#10b981]'
+                                                    : 'bg-linear-to-br from-[#334155] to-[#475569] text-[#e2e8f0]'
                                                     }`}>{index + 1}</span>
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="m-0 mb-1 text-sm font-semibold text-[#f1f5f9] flex items-center gap-1">
@@ -278,8 +314,8 @@ const CompanyApprovalFormPage = () => {
                                                             className="hidden"
                                                         />
                                                         <div className={`flex items-center justify-center gap-2 py-3.5 rounded-[10px] transition-all duration-200 ${isResubmission
-                                                                ? 'bg-[rgba(245,158,11,0.1)] border-2 border-dashed border-[rgba(245,158,11,0.4)] hover:bg-[rgba(245,158,11,0.15)] hover:border-[rgba(245,158,11,0.6)]'
-                                                                : 'bg-[rgba(99,102,241,0.1)] border-2 border-dashed border-[rgba(99,102,241,0.3)] hover:bg-[rgba(99,102,241,0.15)] hover:border-[rgba(99,102,241,0.5)]'
+                                                            ? 'bg-[rgba(245,158,11,0.1)] border-2 border-dashed border-[rgba(245,158,11,0.4)] hover:bg-[rgba(245,158,11,0.15)] hover:border-[rgba(245,158,11,0.6)]'
+                                                            : 'bg-[rgba(99,102,241,0.1)] border-2 border-dashed border-[rgba(99,102,241,0.3)] hover:bg-[rgba(99,102,241,0.15)] hover:border-[rgba(99,102,241,0.5)]'
                                                             }`}>
                                                             <span className={`text-lg font-bold ${isResubmission ? 'text-[#fbbf24]' : 'text-[#a5b4fc]'}`}>↑</span>
                                                             <span className={`text-[13px] font-semibold ${isResubmission ? 'text-[#fbbf24]' : 'text-[#a5b4fc]'}`}>

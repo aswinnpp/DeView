@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { companyApprovalService, type CompanyApprovalStatus } from "../../services/companyApproval.service";
-import { useDocumentsForForm } from "./useDocumentsForForm";
 import { DOCUMENT_TYPES } from "./constants";
 import { submitCompanyApprovalRequestSchema, type SubmitCompanyApprovalRequest } from "@shared/contracts/companyApproval/submit";
 import { extractApiError } from "../../api/axios";
@@ -22,11 +21,19 @@ type Options = {
   documentTypes?: readonly { key: string; label: string; description: string; required: boolean }[];
 };
 
+type DocumentUpload = {
+  fileName: string;
+  fileUrl: string;
+  uploadedAt: string;
+  marked: boolean;
+};
+
 export function useCompanyApprovalForm({ documentTypes = DOCUMENT_TYPES }: Options = {}) {
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   // Get previous approval data from router state (when resubmitting after rejection)
   const previousApproval = (location.state as { previousApproval?: CompanyApprovalStatus } | null)?.previousApproval;
@@ -58,7 +65,25 @@ export function useCompanyApprovalForm({ documentTypes = DOCUMENT_TYPES }: Optio
     mode: "onSubmit",
   });
 
-  const docs = useDocumentsForForm<SubmitCompanyApprovalRequest>(documentTypes, form.setValue, form.watch);
+  const documents = (form.watch("documents") ?? {}) as Record<string, DocumentUpload>;
+
+  const remove = useCallback(
+    (key: string) => {
+      const next = { ...documents };
+      delete next[key];
+      form.setValue("documents", next, { shouldValidate: true });
+    },
+    [documents, form]
+  );
+
+  const validateRequired = useCallback(() => {
+    return documentTypes
+      .filter((d) => d.required && !documents[d.key])
+      .map((d) => d.label);
+  }, [documentTypes, documents]);
+
+  const getDocumentCount = useCallback(() => Object.keys(documents).length, [documents]);
+  const getRequiredDocCount = useCallback(() => documentTypes.filter((d) => d.required).length, [documentTypes]);
 
   const onSubmit = async (values: SubmitCompanyApprovalRequest) => {
     setError("");
@@ -94,12 +119,16 @@ export function useCompanyApprovalForm({ documentTypes = DOCUMENT_TYPES }: Optio
     loading: isSubmitting || form.formState.isSubmitting,
     error: error || null,
     form,
-    docs,
+    documents,
+    remove,
     documentTypes,
+    validateRequired,
+    getDocumentCount,
+    getRequiredDocCount,
     isResubmission: !!previousApproval,
     lockedDocKeys: getLockedDocKeys(),
     rejectionReason: previousApproval?.rejectionReason,
-    onSubmit: form.handleSubmit(onSubmit, (validationErrors) => {
+    onSubmit: form.handleSubmit(onSubmit, (validationErrors: FieldErrors<SubmitCompanyApprovalRequest>) => {
       console.log('Form validation errors:', validationErrors);
       setError('Please fix the errors above before submitting.');
     }),
