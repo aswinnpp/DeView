@@ -12,11 +12,6 @@ import {
   type CandidateProfileData,
 } from '@shared/contracts/candidateProfile/profile';
 import { extractApiError } from '../../api/axios';
-import { useFileUpload } from '../useFileUpload';
-
-const MAX_RESUME_SIZE_BYTES = 100 * 1024 * 1024; // 100MB (matches backend)
-const ACCEPTED_RESUME_TYPES = ['application/pdf', 'application/x-pdf'];
-const ACCEPTED_RESUME_EXT = '.pdf';
 
 function getDefaultValues(email: string): CandidateProfileData {
   return {
@@ -58,7 +53,6 @@ export function useCandidateProfile() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
-  const resumeUploader = useFileUpload();
 
   const form = useForm<CandidateProfileData>({
     resolver: zodResolver(candidateProfileSchema),
@@ -194,37 +188,7 @@ export function useCandidateProfile() {
     [form]
   );
 
-  // ─── Resume: upload immediately to Cloudinary ──────────────────
-  const handleResumeUpload = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
 
-      const isPdf =
-        ACCEPTED_RESUME_TYPES.includes(file.type) ||
-        file.name.toLowerCase().endsWith(ACCEPTED_RESUME_EXT);
-      if (!isPdf) {
-        setLocalError('Please upload a PDF file');
-        return;
-      }
-      if (file.size > MAX_RESUME_SIZE_BYTES) {
-        setLocalError(`File size must be under ${MAX_RESUME_SIZE_BYTES / (1024 * 1024)}MB`);
-        return;
-      }
-      setLocalError(null);
-      resumeUploader.clearError();
-      event.target.value = '';
-      try {
-        const url = await resumeUploader.uploadFile('resume', file);
-        form.setValue('resumeUrl', url, { shouldDirty: true, shouldValidate: true });
-      } catch (err) {
-        const msg = extractApiError(err) || 'Resume upload failed. Please try again.';
-        setLocalError(msg);
-      }
-      event.target.value = '';
-    },
-    [form, resumeUploader]
-  );
 
   // ─── Logout ───────────────────────────────────────────────────
   const handleLogout = useCallback(async () => {
@@ -247,7 +211,6 @@ export function useCandidateProfile() {
     setIsEditing,
     isLoading,
     isSaving,
-    isUploading: resumeUploader.uploading,
     isLoggingOut,
     error: localError,
     clearError,
@@ -259,7 +222,6 @@ export function useCandidateProfile() {
     handleFormSubmit,
     handleCancel,
     validateStep,
-    handleResumeUpload,
     handleLogout,
   };
 }

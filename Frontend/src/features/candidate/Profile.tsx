@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Input, Button } from '../../components/common';
 import CandidateNavHeader from './CandidateNavHeader';
 import { useCandidateProfile } from '../../hooks/candidate/useCandidateProfile';
+import { useFileUpload } from '../../hooks/useFileUpload';
 
 interface LocationState {
     from?: string;
@@ -28,7 +29,6 @@ const Profile = () => {
         setIsEditing,
         isLoading,
         isSaving,
-        isUploading,
         isLoggingOut,
         validationErrors,
         profileExists,
@@ -37,10 +37,25 @@ const Profile = () => {
         removeArrayItem,
         handleFormSubmit,
         handleCancel,
-        handleResumeUpload,
         handleLogout,
         error: formError,
     } = useCandidateProfile();
+
+    const { upload, isUploading, uploadedFile } = useFileUpload();
+
+    // Sync uploaded URL into form
+    useEffect(() => {
+        if (uploadedFile?.url) {
+            form.setValue('resumeUrl', uploadedFile.url, { shouldDirty: true, shouldValidate: true });
+        }
+    }, [uploadedFile, form]);
+
+    const handleResumeSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        e.target.value = '';
+        upload(file, 'resume');
+    };
 
     const handleEditClick = () => setIsEditing(true);
     const handleCancelClick = () => handleCancel();
@@ -408,7 +423,7 @@ const Profile = () => {
                                                     <input
                                                         type="file"
                                                         accept=".pdf"
-                                                        onChange={handleResumeUpload}
+                                                        onChange={handleResumeSelect}
                                                         disabled={isUploading}
                                                         className="hidden"
                                                     />
@@ -424,7 +439,7 @@ const Profile = () => {
                                                         <input
                                                             type="file"
                                                             accept=".pdf"
-                                                            onChange={handleResumeUpload}
+                                                            onChange={handleResumeSelect}
                                                             className="hidden"
                                                             disabled={isUploading}
                                                         />
