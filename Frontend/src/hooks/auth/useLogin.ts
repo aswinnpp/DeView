@@ -56,13 +56,46 @@ export function useLogin() {
     setIsLoading(true);
 
     try {
-      const { data: result } = await authService.login({
+      const response = await authService.login({
         email: values.email,
         password: values.password,
       });
 
-      dispatch(setUser(result.user));
-      const { role, id: userId } = result.user;
+      
+      console.log('Raw axios response:', response);
+      console.log('Response data after interceptor:', response.data);
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      const result = response.data;
+      
+      if (!result || typeof result !== 'object') {
+        console.error('Invalid response format:', result);
+        setError('Invalid response from server. Please try again.');
+        return;
+      }
+
+      if (Object.keys(result).length === 0) {
+        console.error('Empty response object received. Full response:', response);
+        setError('Server returned empty response. This may indicate a backend issue. Please contact support.');
+        return;
+      }
+
+      const user = result.user;
+      if (!user || typeof user !== 'object') {
+        console.error('User data missing or invalid. Response structure:', result);
+        setError('User data missing in server response. Please try again or contact support.');
+        return;
+      }
+
+      if (typeof user.id !== 'string' || typeof user.role !== 'string') {
+        console.error('User data incomplete:', { id: user.id, role: user.role, fullUser: user });
+        setError('Invalid user data format received from server. Please try again.');
+        return;
+      }
+
+      dispatch(setUser(user));
+      const { role, id: userId } = user;
       console.log("role", role);
 
       if (role === 'candidate') {

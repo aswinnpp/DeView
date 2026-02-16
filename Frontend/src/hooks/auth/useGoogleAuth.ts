@@ -34,6 +34,24 @@ export function useGoogleAuth() {
     try {
       const { data: result } = await authService.googleExchange(sessionId);
 
+      if (!result) {
+        setError('Invalid response from server. Please try again.');
+        return false;
+      }
+
+      const user = result.user;
+      if (!user) {
+        console.error('Google auth response structure:', result);
+        setError('User data missing in server response. Please try again.');
+        return false;
+      }
+
+      if (typeof user.id !== 'string' || typeof user.role !== 'string') {
+        console.error('User data structure:', { id: user.id, role: user.role, fullUser: user });
+        setError('Invalid user data format received from server. Please try again.');
+        return false;
+      }
+
       const navigateCompanyUser = async (userId: string): Promise<void> => {
         try {
           const { data: statusResult } = await authService.checkCompanyStatus({ userId });
@@ -58,8 +76,8 @@ export function useGoogleAuth() {
         }
       };
 
-      dispatch(setUser(result.user));
-      const { role, id: userId } = result.user;
+      dispatch(setUser(user));
+      const { role, id: userId } = user;
 
       if (role === 'candidate') {
         navigate(APP_ROUTES.CANDIDATE_PROFILE);
