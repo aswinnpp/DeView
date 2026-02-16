@@ -37,9 +37,31 @@ type ApiEnvelope<T> = { success: boolean; data?: T };
 
 api.interceptors.response.use(
     (response) => {
+        const originalData = response.data;
         const body = response.data as ApiEnvelope<unknown> | undefined;
+        
+        if (response.config?.url?.includes('/auth/login')) {
+            console.log('LOGIN REQUEST - Original response.data:', JSON.stringify(originalData, null, 2));
+            console.log('LOGIN REQUEST - Parsed body:', body);
+        }
+        
         if (body && body.success === true && 'data' in body) {
-            response.data = body.data;
+            if (body.data !== undefined && body.data !== null) {
+                if (typeof body.data === 'object' && Object.keys(body.data).length === 0) {
+                    console.error('API returned empty data object. Original response:', {
+                        url: response.config?.url,
+                        originalData: JSON.stringify(originalData),
+                        body: JSON.stringify(body)
+                    });
+                }
+                response.data = body.data;
+            } else {
+                console.warn('API response has success=true but data is undefined/null:', {
+                    url: response.config?.url,
+                    originalData: JSON.stringify(originalData),
+                    body: JSON.stringify(body)
+                });
+            }
         }
         return response;
     },
