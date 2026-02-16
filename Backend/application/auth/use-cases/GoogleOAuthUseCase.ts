@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { UserRepository } from "../../../domain/user/repositories/UserRepository";
 import { TokenServicePort } from "../ports/TokenServicePort";
 import { OAuthSessionPort } from "../ports/OAuthSessionPort";
+import { GoogleAuthPort } from "../ports/GoogleAuthPort";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { Role } from "../../../domain/user/value-objects/Role";
 import { User } from "../../../domain/user/entities/User";
@@ -10,23 +11,69 @@ import { GoogleUserDTO } from "../dtos/GoogleUserDTO";
 
 const ALLOWED_ROLES = ["candidate", "company", "hr", "interviewer", "admin"];
 
+function parseRoleFromState(state: string | undefined): string {
+  if (!state) return "candidate";
+  try {
+    const parsed = JSON.parse(state);
+    const role = parsed?.role;
+    return typeof role === "string" && ALLOWED_ROLES.includes(role) ? role : "candidate";
+  } catch {
+    return "candidate";
+  }
+}
+
 export class GoogleOAuthUseCase {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly tokenService: TokenServicePort,
-    private readonly sessionRepo: OAuthSessionPort
+    private readonly sessionRepo: OAuthSessionPort,
+    private readonly googleAuth: GoogleAuthPort
   ) {}
 
+  /**
+   * Handles OAuth callback: validates code, verifies with Google, creates/gets user, returns sessionId.
+   * @throws AppError.badRequest("missing_code") when code is missing
+   * @throws AppError.unauthorized("code_expired" | "auth_failed") when token verification fails
+   */
+  async handleCallback(code: string | undefined, state?: string): Promise<string> {
+    if (!code || !String(code).trim()) {
+      throw AppError.badRequest("missing_code");
+    }
+
+    const role = parseRoleFromState(state);
+    let googleUser: GoogleUserDTO;
+
+    try {
+      const verified = await this.googleAuth.verifyToken(code);
+      googleUser = { email: verified.email, name: verified.name };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      const isExpired =
+        message.includes("invalid_grant") || (message.includes("code") && message.toLowerCase().includes("expired"));
+      throw AppError.unauthorized(isExpired ? "code_expired" : "auth_failed");
+    }
+
+    return this.execute(googleUser, role);
+  }
+
   async execute(googleUser: GoogleUserDTO, role?: string) {
-   
     const email = new Email(googleUser.email);
+    const roleValue = role && ALLOWED_ROLES.includes(role) ? role : "candidate";
+    const roleVO = new Role(roleValue);
 
     let user = await this.userRepo.findByEmail(email);
 
-
- 
-
-    if (!user) throw AppError.internal("User creation failed");
+    if (!user) {
+      user = User.create({
+        fullName: googleUser.name || googleUser.email.split("@")[0],
+        email,
+        role: roleVO,
+        authProvider: "google",
+      });
+      await this.userRepo.save(user);
+      user = await this.userRepo.findByEmail(email);
+      if (!user) throw AppError.internal("User creation failed");
+    }
 
     const accessToken = await this.tokenService.signAccessToken({
       userId: user.id!,

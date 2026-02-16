@@ -21,33 +21,14 @@ export class GoogleAuthController {
   };
 
   handleCallback = async (
-    request: FastifyRequest<{ Querystring: { code: string; state?: string } }>,
+    request: FastifyRequest<{ Querystring: { code?: string; state?: string } }>,
     reply: FastifyReply
   ) => {
+    const frontendUrl = process.env.FRONTEND_URL ?? "";
     const { code, state } = request.query;
 
-    let role = "candidate";
-
-    if (state) {
-      try {
-        const parsed = JSON.parse(state);
-        role = parsed.role;
-      } catch {}
-    }
-
-    const googleUser = await this.googleAuthService.verifyToken(code);
-
-    const sessionId = await this.googleOAuthUseCase.execute(
-      {
-        email: googleUser.email,
-        name: googleUser.name,
-      },
-      role
-    );
-
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-
-    reply.redirect(`${frontendUrl}/auth/callback?sessionId=${sessionId}`);
+    const sessionId = await this.googleOAuthUseCase.handleCallback(code, state);
+    return reply.redirect(`${frontendUrl}/auth/callback?sessionId=${sessionId}`);
   };
 
   exchangeToken = async (

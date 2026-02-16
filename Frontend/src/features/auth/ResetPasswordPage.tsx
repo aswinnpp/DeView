@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Background from "@components/Background/Background";
 import { useResetPassword } from "@/hooks/auth/useResetPassword";
 import { Input, Button } from "../../components/common";
+import { useState ,useCallback } from "react";
 
 const inputWrapperBase = "relative flex items-center bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]";
 const inputClass = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";
@@ -10,12 +11,17 @@ const toggleClass = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-poi
 const errorMsgClass = "text-brand-red text-sm mt-0.5 whitespace-nowrap block";
 
 const ResetPasswordPage = () => {
+   const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+     const toggleNewPasswordVisibility = useCallback(() => setShowNewPassword(prev => !prev), []);
+      const toggleConfirmPasswordVisibility = useCallback(() => setShowConfirmPassword(prev => !prev), []);
   const {
     isLoading,
     error,
     data,
   } = useResetPassword();
-  const { form, onSubmit, showNewPassword, showConfirmPassword, invalidSession, toggleNewPasswordVisibility, toggleConfirmPasswordVisibility } = data;
+  const { form, onSubmit,   } = data;
   const { register, handleSubmit, formState } = form;
 
   return (
@@ -33,7 +39,7 @@ const ResetPasswordPage = () => {
         <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
           {/* Form Section */}
           <div className="py-8 px-8 flex flex-col justify-center relative text-center max-sm:py-6 max-sm:px-5">
-            {invalidSession && (
+            {error && (
               <div>
                 <h1 className="text-white text-xl font-bold mb-2">Session Expired</h1>
                 <p className="text-brand-red text-sm mb-5">{error}</p>
@@ -42,7 +48,7 @@ const ResetPasswordPage = () => {
                 </Link>
               </div>
             )}
-            {!invalidSession ? (
+            {!error ? (
               <div>
                 <h1 className="text-white text-xl font-bold mb-2">Reset Password</h1>
                 <p className="text-[rgba(255,255,255,0.7)] text-sm leading-relaxed mb-5">

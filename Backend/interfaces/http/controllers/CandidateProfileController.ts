@@ -17,11 +17,11 @@ interface ProfileBody {
     bio: string;
     expectedSalary: string;
     noticePeriod: string;
-    preferredWorkMode?: string;
-    preferredJobType?: string;
-    willingToRelocate?: boolean;
-    skills?: string[];
-    languages?: string[];
+    preferredWorkMode: string;
+    preferredJobType: string;
+    willingToRelocate: boolean;
+    skills: string[];
+    languages: string[];
     education: string;
     university: string;
     graduationYear: string;
@@ -42,32 +42,28 @@ export class CandidateProfileController {
     getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
         const user = request.currentUser;
 
-        if (!user) {
-            reply.code(401).send({ error: "Unauthorized" });
-            return;
-        }
 
         const profile = await this.getProfileUseCase.execute(user.userId);
 
         reply.send({ profile });
     };
 
-    // POST /candidate/profile
     createProfile = async (
         request: FastifyRequest<{ Body: ProfileBody }>,
         reply: FastifyReply
     ) => {
         const user = request.currentUser;
-
-        if (!user) {
-            reply.code(401).send({ error: "Unauthorized" });
-            return;
+        const body = request.body;
+        if (!body || typeof body !== "object") {
+            return reply.code(400).send({
+                success: false,
+                message: "Request body is required",
+            });
         }
-
         const result = await this.createProfileUseCase.execute({
-            ...request.body,
+            ...body,
             userId: user.userId,
-            email: request.body.email ?? user.email,
+            email: body.email ?? user.email,
         });
 
         reply.code(201).send(result);
@@ -79,42 +75,52 @@ export class CandidateProfileController {
         reply: FastifyReply
     ) => {
         const user = request.currentUser;
-
-        if (!user) {
-            reply.code(401).send({ error: "Unauthorized" });
-            return;
-        }
-
+        const body = request.body;
+      
         const result = await this.updateProfileUseCase.execute({
             userId: user.userId,
-            ...request.body,
+            ...body,
         });
 
         reply.send(result);
     };
 
-    // POST /candidate/profile/resume
-    uploadResume = async (request: FastifyRequest, reply: FastifyReply) => {
+    // POST /candidate/profile/resume — JSON body with base64 file (no multipart)
+    uploadResume = async (
+        request: FastifyRequest<{
+            Body: { fileName: string; mimetype?: string; fileBase64: string };
+        }>,
+        reply: FastifyReply
+    ) => {
         const user = request.currentUser;
-
-        if (!user) {
-            reply.code(401).send({ error: "Unauthorized" });
-            return;
+        const body = request.body;
+        if (!body?.fileName || !body?.fileBase64 || typeof body.fileBase64 !== "string") {
+            return reply.code(400).send({
+                success: false,
+                message: "Request body must include fileName and fileBase64.",
+            });
         }
-
-        const data = await request.file();
-
-        if (!data) {
-            reply.code(400).send({ error: "No file uploaded" });
-            return;
+        let buffer: Buffer;
+        try {
+            buffer = Buffer.from(body.fileBase64, "base64");
+        } catch {
+            return reply.code(400).send({
+                success: false,
+                message: "Invalid base64 in fileBase64.",
+            });
         }
-
-        const buffer = await data.toBuffer();
+        if (buffer.length === 0) {
+            return reply.code(400).send({
+                success: false,
+                message: "File content is empty.",
+            });
+        }
 
         const result = await this.uploadResumeUseCase.execute({
             userId: user.userId,
-            fileName: data.filename,
+            fileName: body.fileName,
             fileBuffer: buffer,
+            mimetype: body.mimetype,
         });
 
         reply.send(result);

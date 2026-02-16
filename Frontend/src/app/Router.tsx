@@ -36,12 +36,12 @@ const AdminCompanyManagement = lazy(() => import("../features/admin/AdminCompany
 
 
 
-
 const LoadingFallback = () => (
-  <div style={{ padding: '20px', textAlign: 'center' }}>
+  <div className="p-5 text-center">
     Loading...
   </div>
 );
+
 
 
 
@@ -51,7 +51,7 @@ const AppRouter = () => {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/auth/sign-up" element={<RegisterPage />} />
+       
         <Route path="/company/approval" element={<Navigate to="/company/approval-form" replace />} />
         <Route path="/company/approval-form" element={<CompanyApprovalFormPage />} />
         <Route path="/company/approval-pending" element={<CompanyApprovalPendingPage />} />

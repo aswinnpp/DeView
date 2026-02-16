@@ -1,28 +1,34 @@
 import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
+import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
 
 export class ToggleTeamMemberStatusUseCase {
-    constructor(private readonly userRepository: UserRepository) { }
+    constructor(
+        private readonly userRepository: UserRepository,
+        private readonly resolveCompany: ResolveCompanyForUserUseCase
+    ) {}
 
-    async execute(memberId: string, companyId: string): Promise<{ isActive: boolean }> {
+    async execute(
+        memberId: string,
+        userId: string,
+        companyIdFromToken?: string
+    ): Promise<{ message: string; isActive: boolean }> {
+        const companyId = await this.resolveCompany.execute(userId, companyIdFromToken);
+
         const user = await this.userRepository.findById(memberId);
-
         if (!user) {
             throw AppError.notFound('Team member not found');
         }
 
-        // Ensure the member belongs to the requesting company
         if (user.companyId !== companyId) {
             throw AppError.forbidden('You do not have permission to modify this user');
         }
 
-        // Ensure we're only toggling HR or Interviewer accounts
         const role = user.role.getValue();
         if (role !== 'hr' && role !== 'interviewer') {
             throw AppError.badRequest('Can only toggle status of HR or Interviewer accounts');
         }
 
-        // Toggle the status
         if (user.isActive) {
             user.deactivate();
         } else {
@@ -31,6 +37,8 @@ export class ToggleTeamMemberStatusUseCase {
 
         await this.userRepository.save(user);
 
-        return { isActive: user.isActive };
+        const roleLabel = role === 'hr' ? 'HR' : 'Interviewer';
+        const message = user.isActive ? `${roleLabel} activated` : `${roleLabel} deactivated`;
+        return { message, isActive: user.isActive };
     }
 }

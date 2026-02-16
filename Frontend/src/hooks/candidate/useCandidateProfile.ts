@@ -13,8 +13,9 @@ import {
 } from '@shared/contracts/candidateProfile/profile';
 import { extractApiError } from '../../api/axios';
 
-const MAX_RESUME_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_RESUME_TYPE = 'application/pdf';
+const MAX_RESUME_SIZE_BYTES = 100 * 1024 * 1024; // 100MB (matches backend)
+const ACCEPTED_RESUME_TYPES = ['application/pdf', 'application/x-pdf'];
+const ACCEPTED_RESUME_EXT = '.pdf';
 
 function getDefaultValues(email: string): CandidateProfileData {
   return {
@@ -57,6 +58,8 @@ export function useCandidateProfile() {
   const [isUploading, setIsUploading] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  /** File selected but not uploaded until user clicks Save (last step). */
+  const [pendingResumeFile, setPendingResumeFile] = useState<File | null>(null);
 
   const form = useForm<CandidateProfileData>({
     resolver: zodResolver(candidateProfileSchema),
@@ -82,7 +85,9 @@ export function useCandidateProfile() {
         setIsEditing(true);
       }
     } catch (err) {
-      setLocalError(extractApiError(err));
+      const msg = extractApiError(err) || 'Failed to load profile.';
+      console.error('Fetch profile failed:', err);
+      setLocalError(msg);
       form.reset(getDefaultValues(userEmail));
       setProfileExists(false);
       setIsEditing(true);
@@ -134,7 +139,6 @@ export function useCandidateProfile() {
     setLocalError(null);
     setIsSaving(true);
     try {
-    
       if (profileExists) {
         await candidateService.updateProfile(values);
         await fetchProfile();
@@ -143,30 +147,54 @@ export function useCandidateProfile() {
         await fetchProfile();
       }
       setProfileExists(true);
+
+      // Upload resume only after profile exists (when user clicked Save / last Next).
+      if (pendingResumeFile) {
+        setIsUploading(true);
+        try {
+          const { data } = await candidateService.uploadResume(pendingResumeFile);
+          if (data?.resumeUrl) form.setValue('resumeUrl', data.resumeUrl, { shouldDirty: false });
+          setPendingResumeFile(null);
+          await fetchProfile();
+        } catch (err) {
+          const msg = extractApiError(err) || 'Resume upload failed. Please try again.';
+          setLocalError(msg);
+          console.error('Resume upload failed:', err);
+        } finally {
+          setIsUploading(false);
+        }
+      }
+
       setIsEditing(false);
     } catch (err) {
-      setLocalError(extractApiError(err));
+      const msg = extractApiError(err) || 'Request failed. Please try again.';
+      console.error('Profile save failed:', err);
+      setLocalError(msg);
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleFormSubmit = (e?: React.BaseSyntheticEvent) => {
-    if (!form.formState.isDirty) {
-      e?.preventDefault();
-      setLocalError(null);
-      setIsEditing(false);
-      return;
-    }
-    form.handleSubmit(onSubmit, (validationErrors) => {
-      const firstError = Object.values(validationErrors)[0];
-      setLocalError(firstError?.message ?? 'Please fix the errors above.');
-    })(e);
+    form.handleSubmit(
+      (values) => {
+        if (!form.formState.isDirty) {
+          setIsEditing(false);
+          return;
+        }
+        onSubmit(values);
+      },
+      (validationErrors) => {
+        const firstError = Object.values(validationErrors)[0];
+        setLocalError(firstError?.message ?? 'Please fix the errors above.');
+      }
+    )(e);
   };
 
   const handleCancel = useCallback(() => {
     form.reset();
     setLocalError(null);
+    setPendingResumeFile(null);
     setIsEditing(false);
   }, [form]);
 
@@ -185,36 +213,28 @@ export function useCandidateProfile() {
     [form]
   );
 
-  // ─── Resume upload ────────────────────────────────────────────
+  // ─── Resume: store file; upload runs only on Save (last step) ───
   const handleResumeUpload = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      if (file.type !== ACCEPTED_RESUME_TYPE) {
+      const isPdf =
+        ACCEPTED_RESUME_TYPES.includes(file.type) ||
+        file.name.toLowerCase().endsWith(ACCEPTED_RESUME_EXT);
+      if (!isPdf) {
         setLocalError('Please upload a PDF file');
         return;
       }
       if (file.size > MAX_RESUME_SIZE_BYTES) {
-        setLocalError('File size must be less than 5MB');
+        setLocalError(`File size must be under ${MAX_RESUME_SIZE_BYTES / (1024 * 1024)}MB`);
         return;
       }
-
-      setIsUploading(true);
       setLocalError(null);
-      try {
-        const { data } = await candidateService.uploadResume(file);
-        const resumeUrl = data?.resumeUrl;
-        if (resumeUrl) {
-          form.setValue('resumeUrl', resumeUrl, { shouldDirty: true });
-        }
-      } catch (err) {
-        setLocalError(extractApiError(err));
-      } finally {
-        setIsUploading(false);
-      }
+      setPendingResumeFile(file);
+      event.target.value = '';
     },
-    [form]
+    []
   );
 
   // ─── Logout ───────────────────────────────────────────────────
@@ -244,6 +264,7 @@ export function useCandidateProfile() {
     clearError,
     validationErrors: form.formState.errors,
     profileExists,
+    pendingResumeFile,
     handleArrayChange,
     addArrayItem,
     removeArrayItem,

@@ -32,10 +32,10 @@ export function createControllers(
       useCases.loginUseCase,
       useCases.resendOTPUseCase,
       useCases.refreshTokenUseCase,
+      useCases.logoutUseCase,
       useCases.forgotPasswordUseCase,
       useCases.verifyPasswordResetOTPUseCase,
-      useCases.resetPasswordUseCase,
-      services.tokenService
+      useCases.resetPasswordUseCase
     ),
 
     googleAuthController: new GoogleAuthController(
@@ -66,9 +66,7 @@ export function createControllers(
     companyTeamController: new CompanyTeamController(
       useCases.createTeamMemberUseCase,
       useCases.listTeamMembersUseCase,
-      useCases.toggleTeamMemberStatusUseCase,
-      repositories.companyApprovalRepository,
-      repositories.userRepository
+      useCases.toggleTeamMemberStatusUseCase
     ),
 
     candidateProfileController: new CandidateProfileController(

@@ -8,7 +8,7 @@ import { RefreshTokenUseCase } from "../../../application/auth/use-cases/Refresh
 import { ForgotPasswordUseCase } from "../../../application/auth/use-cases/ForgotPasswordUseCase";
 import { VerifyPasswordResetOTPUseCase } from "../../../application/auth/use-cases/VerifyPasswordResetOTPUseCase";
 import { ResetPasswordUseCase } from "../../../application/auth/use-cases/ResetPasswordUseCase";
-import { SecureJwtTokenService } from "../../../infrastructure/security/SecureJwtTokenService";
+import { LogoutUseCase } from "../../../application/auth/use-cases/LogoutUseCase";
 
 import {
   getCookie,
@@ -37,11 +37,11 @@ export class AuthController {
     private readonly loginUseCase: LoginUseCase,
     private readonly resendOTPUseCase: ResendOTPUseCase,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
+    private readonly logoutUseCase: LogoutUseCase,
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCase,
-    private readonly resetPasswordUseCase: ResetPasswordUseCase,
-    private readonly tokenService: SecureJwtTokenService
-  ) { }
+    private readonly resetPasswordUseCase: ResetPasswordUseCase
+  ) {}
 
   // ---------------- REGISTER ----------------
 
@@ -96,10 +96,6 @@ export class AuthController {
   refresh = async (request: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = getCookie(request, "refreshToken");
 
-    if (!refreshToken) {
-      reply.code(401).send({ error: "No refresh token" });
-      return;
-    }
 
     const result = await this.refreshTokenUseCase.execute(refreshToken);
 
@@ -109,19 +105,16 @@ export class AuthController {
     reply.send({ success: true });
   };
 
-  // ---------------- LOGOUT ----------------
-
   logout = async (request: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = getCookie(request, "refreshToken");
     const accessToken = getCookie(request, "accessToken");
 
-    if (refreshToken) await this.tokenService.revokeRefreshToken(refreshToken);
-    if (accessToken) await this.tokenService.revokeAccessToken(accessToken);
+    const result = await this.logoutUseCase.execute(refreshToken, accessToken);
 
     clearCookie(reply, "accessToken");
     clearCookie(reply, "refreshToken");
 
-    reply.send({ success: true });
+    reply.send(result);
   };
 
   // ---------------- PASSWORD RESET ----------------

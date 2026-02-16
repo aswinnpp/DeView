@@ -13,7 +13,7 @@ export class UpdateCandidateProfileUseCase {
         const profile = await this.repo.findByUserId(dto.userId);
 
         if (!profile) {
-            throw AppError.notFound("Candidate profile not found");
+            throw AppError.notFound("Complete your profile to continue");
         }
 
         // Extract userId from the dto, pass the rest to updateFields

@@ -55,5 +55,5 @@ export async function authRoutes(
         handler: controller.resetPassword,
     });
 
-    console.log('✅ Auth routes registered');
+    console.log(' Auth routes registered');
 }

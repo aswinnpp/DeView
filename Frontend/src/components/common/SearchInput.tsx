@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 interface SearchInputProps {
     placeholder?: string;
@@ -12,18 +12,11 @@ const SearchInput = ({
     delay = 400,
 }: SearchInputProps) => {
     const [value, setValue] = useState("");
-    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // debounce: wait `delay` ms after user stops typing, then call onSearch
     useEffect(() => {
-        timerRef.current = setTimeout(() => {
-            onSearch(value);
-        }, delay);
-
-        return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
-        };
-    }, [value, delay]);
+        const timer = setTimeout(() => onSearch(value), delay);
+        return () => clearTimeout(timer);
+    }, [value, delay, onSearch]);
 
     return (
         <input

@@ -1,8 +1,28 @@
 import { z } from 'zod';
 
 
-/** Optional fields: URL (linkedin, github, resume) and Professional (title, company, salary, experience) */
+/** Optional string (empty allowed). */
 const optionalString = z.string().catch('');
+
+/** Optional URL: empty allowed; if provided must be valid. */
+const optionalLinkedInUrl = z.string().catch('').refine(
+    (val) => {
+        const v = (val ?? '').trim();
+        if (!v) return true;
+        if (!v.includes('linkedin.com')) return false;
+        try { new URL(v); return true; } catch { return false; }
+    },
+    { message: 'Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/yourprofile)' }
+);
+const optionalGithubUrl = z.string().catch('').refine(
+    (val) => {
+        const v = (val ?? '').trim();
+        if (!v) return true;
+        if (!v.includes('github.com')) return false;
+        try { new URL(v); return true; } catch { return false; }
+    },
+    { message: 'Please enter a valid GitHub URL (e.g. https://github.com/yourusername)' }
+);
 
 const NOTICE_PERIOD_OPTIONS = [
     'Immediate',
@@ -49,7 +69,7 @@ export const candidateProfileSchema = z.object({
             },
             { message: 'You must be at least 16 years old' }
         ),
-    // Optional: Professional information
+    // Optional: Professional & Links
     title: optionalString,
     currentCompany: optionalString,
     currentSalary: optionalString,
@@ -81,38 +101,8 @@ export const candidateProfileSchema = z.object({
     education: z.string().min(1, { message: 'Education is required' }),
     university: z.string().min(1, { message: 'University/School is required' }),
     graduationYear: z.string().min(1, { message: 'Graduation year is required' }),
-    linkedinUrl: z
-        .string()
-        .catch('')
-        .refine(
-            (val) => {
-                if (!val || val.trim() === '') return true;
-                if (!val.includes('linkedin.com')) return false;
-                try {
-                    new URL(val);
-                    return true;
-                } catch {
-                    return false;
-                }
-            },
-            { message: 'Please enter a valid LinkedIn URL' }
-        ),
-    githubUrl: z
-        .string()
-        .catch('')
-        .refine(
-            (val) => {
-                if (!val || val.trim() === '') return true;
-                if (!val.includes('github.com')) return false;
-                try {
-                    new URL(val);
-                    return true;
-                } catch {
-                    return false;
-                }
-            },
-            { message: 'Please enter a valid GitHub URL' }
-        ),
+    linkedinUrl: optionalLinkedInUrl,
+    githubUrl: optionalGithubUrl,
     resumeUrl: optionalString,
 });
 

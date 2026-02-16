@@ -13,7 +13,7 @@ const EmailVerificationPage = () => {
     error,
     data,
   } = useEmailVerification();
-  const { form, mode, userEmail, handleResendOtp, onSubmit } = data;
+  const { form, userEmail, handleResendOtp, onSubmit } = data;
   const { register, handleSubmit, formState, watch } = form;
 
   const [countdown, setCountdown] = useState(60);
@@ -35,7 +35,7 @@ const EmailVerificationPage = () => {
     }
   };
 
-  const isPasswordReset = mode === "password-reset";
+ 
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">
@@ -50,18 +50,17 @@ const EmailVerificationPage = () => {
         </div>
         {/* Content */}
         <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
-          {/* Form Section */}
+      
           <div className="py-8 px-8 flex flex-col justify-center relative text-center max-sm:py-6 max-sm:px-5">
             <div>
               <h1 className="text-white text-xl font-bold mb-2">
-                {isPasswordReset ? "Verify Your Email" : "Check Your Email"}
+                Check Your Email
               </h1>
               <p className="text-[rgba(255,255,255,0.7)] text-sm leading-relaxed mb-5">
-                {isPasswordReset
-                  ? `We've sent a 4-digit OTP to ${userEmail || "your email"}. Enter it below to reset your password.`
-                  : `We've sent a verification code to ${userEmail || "your email"}. Please enter the 4-digit OTP below to verify your account.`}
-              </p>
-
+               
+                We've sent a 4-digit OTP to ${userEmail || "your email"}. Enter it below to reset your password
+                 
+               </p>
               <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
                 <Input
                   type="text"
@@ -111,12 +110,11 @@ const EmailVerificationPage = () => {
           {/* Welcome Section */}
           <div className="hidden min-[680px]:flex bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] py-8 px-8 flex-col justify-center relative overflow-hidden text-center">
             <h1 className="text-white text-4xl font-bold mb-3 relative z-[1]">
-              {isPasswordReset ? "Reset Password." : "Almost There!"}
+               Almost There!
             </h1>
             <p className="text-[rgba(255,255,255,0.8)] text-sm leading-relaxed mb-6 relative z-[1]">
-              {isPasswordReset
-                ? "Enter the OTP sent to your email to proceed with resetting your password."
-                : "Your account is almost ready. Just one more step to complete your registration and start exploring our platform."}
+            
+                Enter the OTP sent to your email to proceed with next step.
             </p>
             <div className="flex flex-col gap-3.5 relative z-[1]">
               {[

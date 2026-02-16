@@ -10,7 +10,6 @@ const AuthCallbackPage = () => {
 
     const [isProcessing, setIsProcessing] = useState(true);
 
-    // ✅ Prevent double execution (React 18 StrictMode)
     const hasRun = useRef(false);
 
     useEffect(() => {

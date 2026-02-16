@@ -9,7 +9,7 @@ export class User {
     public id: string | null,
     public fullName: string,
     public email: Email,
-    public passwordHash: string,
+    public passwordHash: string | undefined,
     public role: Role,
     public companyId?: string,
     public isActive: boolean = true,
@@ -21,7 +21,7 @@ export class User {
   static create(params: {
     fullName: string;
     email: Email;
-    passwordHash: string;
+    passwordHash?: string;
     role: Role;
     authProvider?: AuthProvider;
     companyId?: string;

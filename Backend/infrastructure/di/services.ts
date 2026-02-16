@@ -2,7 +2,7 @@ import { BcryptPasswordHasher } from '../security/BcryptPasswordHasher.js';
 import { SecureJwtTokenService } from '../security/SecureJwtTokenService.js';
 import { NodemailerEmailService } from '../email/NodemailerEmailService.js';
 import { GoogleAuthService } from '../auth/GoogleAuthService.js';
-import { LocalFileStorageService } from '../storage/LocalFileStorageService.js';
+import { CloudinaryFileStorageService } from '../storage/CloudinaryFileStorageService.js';
 import { FileStoragePort } from '../../application/upload/ports/FileStoragePort.js';
 import { env } from '../config/env.js';
 import { redisClient } from '../cache/RedisClient.js';
@@ -40,6 +40,6 @@ export function createServices(_: any, __: Repositories): Services {
       env.GOOGLE_CALLBACK_URL || ""
     ),
 
-    fileStorageService: new LocalFileStorageService(),
+    fileStorageService: new CloudinaryFileStorageService(),
   };
 }

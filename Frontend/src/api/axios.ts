@@ -82,12 +82,14 @@ api.interceptors.response.use(
 
 export const extractApiError = (err: unknown): string => {
     if (axios.isAxiosError(err)) {
-        return (
-            err.response?.data?.message ??
-            err.response?.data?.error ??
-            err.message ??
-            'Something went wrong.'
-        );
+        const data = err.response?.data as Record<string, unknown> | undefined;
+        const message =
+            (typeof data?.message === 'string' && data.message) ||
+            (typeof data?.error === 'string' && data.error) ||
+            (Array.isArray(data?.errors) && data.errors[0] && typeof (data.errors[0] as { message?: string }).message === 'string' && (data.errors[0] as { message: string }).message) ||
+            err.message ||
+            'Something went wrong.';
+        return message;
     }
     return err instanceof Error ? err.message : 'Something went wrong.';
 };

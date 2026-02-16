@@ -13,3 +13,16 @@ export const createCandidateProfileSchema = {
 export const updateCandidateProfileSchema = {
     body: zodToFastifyBody(candidateProfileUpdateSchema),
 };
+
+/** POST /candidate/profile/resume — JSON body: base64 file (no multipart). */
+export const uploadResumeSchema = {
+    body: {
+        type: 'object',
+        required: ['fileName', 'fileBase64'],
+        properties: {
+            fileName: { type: 'string' },
+            mimetype: { type: 'string' },
+            fileBase64: { type: 'string' },
+        },
+    },
+};

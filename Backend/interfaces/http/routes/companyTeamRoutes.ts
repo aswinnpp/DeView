@@ -6,38 +6,33 @@ export async function companyTeamRoutes(
     fastify: FastifyInstance,
     controller: CompanyTeamController
 ): Promise<void> {
+    fastify.addHook("preHandler", requireRoles('company'));
 
     // ── HR routes ───────────────────────────────────────────────
 
     fastify.get('/hr/list', {
-        preHandler: [requireRoles('company')],
         handler: controller.listHRs,
     });
 
     fastify.post('/hr/create', {
-        preHandler: [requireRoles('company')],
         handler: controller.createHR,
     });
 
     fastify.patch('/hr/:id/toggle-status', {
-        preHandler: [requireRoles('company')],
         handler: controller.toggleHRStatus,
     });
 
     // ── Interviewer routes ──────────────────────────────────────
 
     fastify.get('/interviewer/list', {
-        preHandler: [requireRoles('company')],
         handler: controller.listInterviewers,
     });
 
     fastify.post('/interviewer/create', {
-        preHandler: [requireRoles('company')],
         handler: controller.createInterviewer,
     });
 
     fastify.patch('/interviewer/:id/toggle-status', {
-        preHandler: [requireRoles('company')],
         handler: controller.toggleInterviewerStatus,
     });
 

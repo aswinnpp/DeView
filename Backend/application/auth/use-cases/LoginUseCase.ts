@@ -14,12 +14,13 @@ export class LoginUseCase {
     const email = new Email(emailStr);
     const user = await this.userRepo.findByEmail(email);
 
- if (!user) {
+ if (!user || !user.passwordHash) {
       throw AppError.unauthorized("Invalid email or password");
     }    
   if (!user.isEmailVerified) {
       throw AppError.forbidden("Email not verified");
     }
+    
     const ok = await this.hasher.compare(password, user.passwordHash);
     if (!ok) {
       throw AppError.unauthorized("Invalid email or password");

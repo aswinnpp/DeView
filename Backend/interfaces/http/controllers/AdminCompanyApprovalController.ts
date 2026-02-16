@@ -24,60 +24,20 @@ export class AdminCompanyApprovalController {
     private readonly toggleActiveUseCase: ToggleCompanyActiveUseCase
   ) { }
 
-  // GET /admin/company-requests/pending?search=...
   getPending = async (
     request: FastifyRequest<{ Querystring: SearchQuery }>,
     reply: FastifyReply
   ) => {
-    const { search } = request.query;
-    const companies = await this.getPendingUseCase.execute(search);
-
-    reply.status(200).send(
-      companies.map(c => ({
-        id: c.id,
-        userId: c.userId,
-        companyName: c.companyName,
-        address: c.address,
-        contactPerson: c.contactPerson,
-        contactEmail: c.contactEmail,
-        contactPhone: c.contactPhone,
-        taxId: c.taxId,
-        website: c.website,
-        numberOfEmployees: c.numberOfEmployees,
-        documents: c.documents,
-        status: c.status,
-        isActive: c.isActive,
-      }))
-    );
+    const result = await this.getPendingUseCase.execute(request.query.search);
+    reply.status(200).send(result);
   };
 
-  // GET /admin/company-requests/approved?search=...
   getApproved = async (
     request: FastifyRequest<{ Querystring: SearchQuery }>,
     reply: FastifyReply
   ) => {
-    const { search } = request.query;
-    const companies = await this.getApprovedUseCase.execute(search);
-
-    reply.status(200).send({
-      approvals: companies.map(c => ({
-        id: c.id,
-        userId: c.userId,
-        companyName: c.companyName,
-        address: c.address,
-        contactPerson: c.contactPerson,
-        contactEmail: c.contactEmail,
-        contactPhone: c.contactPhone,
-        taxId: c.taxId,
-        website: c.website,
-        numberOfEmployees: c.numberOfEmployees,
-        documents: c.documents,
-        status: c.status,
-        isActive: c.isActive,
-        createdAt: c.createdAt,
-        updatedAt: c.updatedAt,
-      }))
-    });
+    const result = await this.getApprovedUseCase.execute(request.query.search);
+    reply.status(200).send(result);
   };
 
   // POST /admin/company-requests/:id/approve

@@ -6,11 +6,12 @@ export async function uploadRoutes(
     fastify: FastifyInstance,
     controller: UploadController
 ): Promise<void> {
+    fastify.addHook("preHandler", requireAuth);
+
     // POST /upload — upload a single file, returns the public URL
     fastify.post('/upload', {
-        preHandler: [requireAuth],
         handler: controller.upload,
     });
 
-    console.log('✅ Upload route registered');
+    console.log('Upload route registered');
 }

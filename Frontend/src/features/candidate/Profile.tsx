@@ -1,19 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Input, Button } from '../../components/common';
 import CandidateNavHeader from './CandidateNavHeader';
 import { useCandidateProfile } from '../../hooks/candidate/useCandidateProfile';
-import type { CandidateProfileData } from '@shared/contracts/candidateProfile/profile';
-
-const TOTAL_STEPS = 4;
-const STEP_FIELDS: (keyof CandidateProfileData)[][] = [
-    ['fullName', 'email', 'phone', 'location', 'dateOfBirth'],
-    ['bio', 'expectedSalary', 'noticePeriod', 'preferredWorkMode', 'preferredJobType', 'willingToRelocate'],
-    ['skills', 'languages', 'education', 'university', 'graduationYear'],
-    [], // Step 4: Professional + Links (optional, skip allowed)
-];
-
-
 
 interface LocationState {
     from?: string;
@@ -30,7 +19,7 @@ const Profile = () => {
     const [showProfileWarning, setShowProfileWarning] = useState(
         locationState?.profileIncomplete || locationState?.showProfileWarning || false
     );
-    const [currentStep, setCurrentStep] = useState(1);
+    const errorBannerRef = useRef<HTMLDivElement>(null);
 
     const {
         form,
@@ -48,28 +37,20 @@ const Profile = () => {
         removeArrayItem,
         handleFormSubmit,
         handleCancel,
-        validateStep,
         handleResumeUpload,
         handleLogout,
         error: formError,
+        pendingResumeFile,
     } = useCandidateProfile();
 
-    const goToNextStep = async () => {
-        const fields = STEP_FIELDS[currentStep - 1];
-        if (fields.length === 0 || (await validateStep(fields))) setCurrentStep((s) => Math.min(s + 1, TOTAL_STEPS));
-    };
-    const goToPrevStep = () => setCurrentStep((s) => Math.max(s - 1, 1));
-    const handleEditClick = () => {
-        setCurrentStep(1);
-        setIsEditing(true);
-    };
-    const handleCancelClick = () => {
-        handleCancel();
-        setCurrentStep(1);
-    };
+    const handleEditClick = () => setIsEditing(true);
+    const handleCancelClick = () => handleCancel();
+
     useEffect(() => {
-        if (!isEditing) setCurrentStep(1);
-    }, [isEditing]);
+        if (formError && errorBannerRef.current) {
+            errorBannerRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, [formError]);
 
     const { register } = form;
 
@@ -184,39 +165,23 @@ const Profile = () => {
                                 ) : (
                                     <div className="flex gap-3 items-center">
                                         <Button type="button" variant="secondary" className="py-2.5 px-4 rounded-[10px] font-bold" onClick={handleCancelClick}>Cancel</Button>
-                                        {currentStep === TOTAL_STEPS && (
-                                            <Button type="submit" variant="primary" className="py-2.5 px-4 rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSaving}>
-                                                {isSaving ? 'Saving...' : 'Save'}
-                                            </Button>
-                                        )}
+                                        <Button type="submit" variant="primary" className="py-2.5 px-4 rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSaving}>
+                                            {isSaving ? 'Saving...' : 'Save'}
+                                        </Button>
                                     </div>
                                 )}
                             </div>
                         </div>
 
                         {formError && (
-                            <div className="mb-4 p-3 rounded-lg bg-[rgba(239,68,68,0.15)] border border-[rgba(239,68,68,0.3)] text-[#ef4444] text-sm">
+                            <div ref={errorBannerRef} className="mb-4 p-3 rounded-lg bg-[rgba(239,68,68,0.15)] border border-[rgba(239,68,68,0.3)] text-[#ef4444] text-sm" role="alert">
                                 {formError}
                             </div>
                         )}
-                        {/* Step progress (when editing) */}
-                        {isEditing && (
-                            <div className="mb-6 mt-2">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-[rgba(255,255,255,0.7)] text-sm font-medium">Step {currentStep} of {TOTAL_STEPS}</span>
-                                    <span className="text-[rgba(255,255,255,0.5)] text-xs">{Math.round((currentStep / TOTAL_STEPS) * 100)}%</span>
-                                </div>
-                                <div className="w-full h-2 bg-[rgba(255,255,255,0.08)] rounded-full overflow-hidden">
-                                    <div className="h-full bg-linear-to-r from-brand-primary to-brand-secondary rounded-full transition-[width] duration-300" style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }} />
-                                </div>
-                            </div>
-                        )}
 
-                        {/* Profile Sections */}
+                        {/* Profile Sections - full form */}
                         <div className="flex flex-col gap-6 mt-1.5">
 
-                            {/* Step 1: Personal Information */}
-                            {(!isEditing || currentStep === 1) && (
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 text-base font-bold text-white">Personal Information</h3>
                                 <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
@@ -227,11 +192,7 @@ const Profile = () => {
                                     <Input label="Date of Birth *" {...register('dateOfBirth')} type="date" disabled={!isEditing} className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.dateOfBirth?.message} style={errorBorderStyle(validationErrors.dateOfBirth?.message)} />
                                 </div>
                             </section>
-                            )}
 
-                            {/* Step 2: About & Availability + Job Preferences */}
-                            {(!isEditing || currentStep === 2) && (
-                            <>
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 text-base font-bold text-white">About & Availability</h3>
                                 <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
@@ -328,12 +289,7 @@ const Profile = () => {
                                     </div>
                                 </div>
                             </section>
-                            </>
-                            )}
 
-                            {/* Step 3: Skills, Languages, Education, Resume */}
-                            {(!isEditing || currentStep === 3) && (
-                            <>
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 text-base font-bold text-white">Skills *</h3>
                                 <div className="flex flex-wrap gap-2.5 items-center">
@@ -429,20 +385,27 @@ const Profile = () => {
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 text-base font-bold text-white">Resume</h3>
                                 <div className="py-4">
-                                    {profileData.resumeUrl ? (
-                                        <div className="flex items-center gap-3 p-4 bg-[rgba(102,126,234,0.1)] border border-[rgba(102,126,234,0.2)] rounded-[10px]">
+                                    {profileData.resumeUrl || pendingResumeFile ? (
+                                        <div className="flex flex-wrap items-center gap-3 p-4 bg-[rgba(102,126,234,0.1)] border border-[rgba(102,126,234,0.2)] rounded-[10px]">
                                             <span className="text-2xl">📄</span>
-                                            <a
-                                                href={profileData.resumeUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-brand-primary no-underline font-medium transition-colors duration-200 hover:text-brand-secondary hover:underline"
-                                            >
-                                                View Resume
-                                            </a>
+                                            {profileData.resumeUrl && !pendingResumeFile && (
+                                                <a
+                                                    href={profileData.resumeUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-brand-primary no-underline font-medium transition-colors duration-200 hover:text-brand-secondary hover:underline"
+                                                >
+                                                    View Resume
+                                                </a>
+                                            )}
+                                            {pendingResumeFile && (
+                                                <span className="text-[rgba(255,255,255,0.9)] text-sm">
+                                                    {profileData.resumeUrl ? 'New file: ' : ''}<strong>{pendingResumeFile.name}</strong> — uploads when you click Save
+                                                </span>
+                                            )}
                                             {isEditing && (
                                                 <label className="ml-auto py-2 px-4 bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.2)] rounded-md text-white text-[13px] cursor-pointer transition-all duration-200 hover:bg-[rgba(255,255,255,0.15)]">
-                                                    {isUploading ? 'Uploading...' : 'Replace'}
+                                                    {pendingResumeFile ? 'Change file' : 'Replace'}
                                                     <input
                                                         type="file"
                                                         accept=".pdf"
@@ -456,16 +419,35 @@ const Profile = () => {
                                     ) : (
                                         <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[rgba(255,255,255,0.2)] rounded-[10px] bg-[rgba(255,255,255,0.02)] transition-all duration-200 hover:border-[rgba(102,126,234,0.4)] hover:bg-[rgba(102,126,234,0.05)]">
                                             {isEditing ? (
-                                                <label className="inline-flex items-center gap-2 py-3 px-6 bg-linear-to-br from-brand-primary to-brand-secondary rounded-lg text-white text-sm font-medium cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(102,126,234,0.3)]">
-                                                    {isUploading ? 'Uploading...' : '📤 Upload Resume (PDF)'}
-                                                    <input
-                                                        type="file"
-                                                        accept=".pdf"
-                                                        onChange={handleResumeUpload}
-                                                        disabled={isUploading}
-                                                        className="hidden"
-                                                    />
-                                                </label>
+                                                <div className="flex flex-col items-center">
+                                                    {pendingResumeFile ? (
+                                                        <>
+                                                            <p className="text-[rgba(255,255,255,0.9)] text-sm m-0 mb-2">
+                                                                Selected: <strong>{typeof pendingResumeFile !== 'undefined' && pendingResumeFile !== null ? (pendingResumeFile as File).name : 'file'}</strong>
+                                                            </p>
+                                                            <p className="text-[rgba(255,255,255,0.5)] text-xs m-0">Will upload when you click Save</p>
+                                                            <label className="mt-2 text-brand-primary text-sm cursor-pointer hover:underline">
+                                                                Choose different file
+                                                                <input
+                                                                    type="file"
+                                                                    accept=".pdf"
+                                                                    onChange={handleResumeUpload}
+                                                                    className="hidden"
+                                                                />
+                                                            </label>
+                                                        </>
+                                                    ) : (
+                                                        <label className="inline-flex items-center gap-2 py-3 px-6 bg-linear-to-br from-brand-primary to-brand-secondary rounded-lg text-white text-sm font-medium cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(102,126,234,0.3)]">
+                                                            📤 Upload Resume (PDF)
+                                                            <input
+                                                                type="file"
+                                                                accept=".pdf"
+                                                                onChange={handleResumeUpload}
+                                                                className="hidden"
+                                                            />
+                                                        </label>
+                                                    )}
+                                                </div>
                                             ) : (
                                                 <p className="text-[rgba(255,255,255,0.5)] italic text-sm m-0">No resume uploaded yet</p>
                                             )}
@@ -473,51 +455,26 @@ const Profile = () => {
                                     )}
                                 </div>
                             </section>
-                            </>
-                            )}
 
-                            {/* Step 4: Professional Information + Links (optional, skip allowed) */}
-                            {(!isEditing || currentStep === 4) && (
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Professional & Links</h3>
+                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Professional & Links (optional)</h3>
                                 <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
-                                    <Input label="Job Title" {...register('title')} disabled={!isEditing} placeholder="e.g., Frontend Developer" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
-                                    <Input label="Current Company" {...register('currentCompany')} disabled={!isEditing} placeholder="e.g., Google" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
-                                    <Input label="Current Salary" {...register('currentSalary')} disabled={!isEditing} placeholder="e.g., $80,000/year" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
-                                    <Input label="Years of Experience" {...register('experience')} disabled={!isEditing} placeholder="e.g., 3 years" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
+                                    <Input label="Job Title" {...register('title')} disabled={!isEditing} placeholder="e.g., Frontend Developer" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.title?.message} style={errorBorderStyle(validationErrors.title?.message)} />
+                                    <Input label="Current Company" {...register('currentCompany')} disabled={!isEditing} placeholder="e.g., Google" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.currentCompany?.message} style={errorBorderStyle(validationErrors.currentCompany?.message)} />
+                                    <Input label="Current Salary" {...register('currentSalary')} disabled={!isEditing} placeholder="e.g., $80,000/year" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.currentSalary?.message} style={errorBorderStyle(validationErrors.currentSalary?.message)} />
+                                    <Input label="Years of Experience" {...register('experience')} disabled={!isEditing} placeholder="e.g., 3 years" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.experience?.message} style={errorBorderStyle(validationErrors.experience?.message)} />
                                     <Input label="LinkedIn URL" {...register('linkedinUrl')} disabled={!isEditing} placeholder="https://linkedin.com/in/yourprofile" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.linkedinUrl?.message} style={errorBorderStyle(validationErrors.linkedinUrl?.message)} />
                                     <Input label="GitHub URL" {...register('githubUrl')} disabled={!isEditing} placeholder="https://github.com/yourusername" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.githubUrl?.message} style={errorBorderStyle(validationErrors.githubUrl?.message)} />
                                 </div>
                             </section>
-                            )}
                         </div>
 
-                        {/* Step navigation (when editing) */}
+                        {/* Save button at bottom when editing */}
                         {isEditing && (
-                            <div className="flex flex-wrap items-center justify-between gap-4 mt-8 pt-6 border-t border-[rgba(255,255,255,0.06)]">
-                                <div className="flex gap-3">
-                                    {currentStep > 1 && (
-                                        <Button type="button" variant="secondary" className="py-2.5 px-4 rounded-[10px] font-bold" onClick={goToPrevStep}>
-                                            Back
-                                        </Button>
-                                    )}
-                                </div>
-                                <div className="flex gap-3">
-                                    {currentStep < TOTAL_STEPS ? (
-                                        <Button type="button" variant="primary" className="py-2.5 px-4 rounded-[10px] font-bold" onClick={goToNextStep}>
-                                            Next
-                                        </Button>
-                                    ) : (
-                                        <>
-                                            <Button type="submit" variant="secondary" className="py-2.5 px-4 rounded-[10px] font-bold">
-                                                Skip
-                                            </Button>
-                                            <Button type="submit" variant="primary" className="py-2.5 px-4 rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSaving}>
-                                                {isSaving ? 'Saving...' : 'Save'}
-                                            </Button>
-                                        </>
-                                    )}
-                                </div>
+                            <div className="flex justify-end mt-8 pt-6 border-t border-[rgba(255,255,255,0.06)]">
+                                <Button type="submit" variant="primary" className="py-2.5 px-6 rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSaving}>
+                                    {isSaving ? 'Saving...' : 'Save'}
+                                </Button>
                             </div>
                         )}
                     </form>

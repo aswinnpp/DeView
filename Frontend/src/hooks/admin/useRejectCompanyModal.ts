@@ -14,22 +14,29 @@ export function useRejectCompanyModal(
 ) {
     const rejectForm = useForm<RejectCompanyRequestBody>({
         resolver: zodResolver(rejectCompanyRequestBodySchema),
-        defaultValues: { reason: "" },
+        defaultValues: {
+            reason: "",
+        },
     });
 
     const onSubmit: SubmitHandler<RejectCompanyRequestBody> = useCallback(
         async (values) => {
             try {
                 await adminApprovalService.reject(companyId, values);
+
                 rejectForm.reset({ reason: "" });
+
+                // Notify parent only after API success
                 onSuccess();
             } catch (err) {
-                // Optionally surface the error — for now, log it
-                console.error('Reject failed:', extractApiError(err));
+                console.error("Reject failed:", extractApiError(err));
             }
         },
         [companyId, onSuccess, rejectForm]
     );
 
-    return { rejectForm, onSubmit };
+    return {
+        rejectForm,
+        onSubmit,
+    };
 }

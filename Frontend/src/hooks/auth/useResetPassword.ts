@@ -7,7 +7,6 @@ import { authService } from '../../services/auth.service';
 import { resetPasswordRequestSchema } from '@shared/contracts/auth/resetPassword';
 import { extractApiError } from '../../api/axios';
 
-// UI schema — extends shared contract with confirmPassword
 const resetPasswordSchema = z
   .object({
     newPassword: resetPasswordRequestSchema.shape.newPassword,
@@ -21,23 +20,22 @@ const resetPasswordSchema = z
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
 const STORAGE_KEY_PENDING_RESET = 'pendingResetEmail';
-const SESSION_EXPIRED_MESSAGE = 'Reset session expired. Please request a new password reset.';
+
 
 export function useResetPassword() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+ 
   const [isLoading, setIsLoading] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
+  
 
   const passedEmail = location.state?.email || '';
   const storedEmail = localStorage.getItem(STORAGE_KEY_PENDING_RESET);
   const email = passedEmail || storedEmail || '';
   const otp = location.state?.otp || '';
-  const invalidSession = !email || !otp;
 
-  const error = invalidSession ? SESSION_EXPIRED_MESSAGE : serverError;
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -45,12 +43,10 @@ export function useResetPassword() {
     mode: 'onSubmit',
   });
 
-  const toggleNewPasswordVisibility = useCallback(() => setShowNewPassword(prev => !prev), []);
-  const toggleConfirmPasswordVisibility = useCallback(() => setShowConfirmPassword(prev => !prev), []);
+ 
 
   const onSubmit: SubmitHandler<ResetPasswordFormValues> = async ({ newPassword }) => {
-    if (invalidSession) return;
-    setServerError(null);
+  
     setIsLoading(true);
 
     try {
@@ -59,7 +55,7 @@ export function useResetPassword() {
       localStorage.removeItem(STORAGE_KEY_PENDING_RESET);
       navigate('/login', { replace: true });
     } catch (err) {
-      setServerError(extractApiError(err));
+      setError(extractApiError(err));
     } finally {
       setIsLoading(false);
     }
@@ -68,14 +64,10 @@ export function useResetPassword() {
   return {
     isLoading,
     error,
-    data: {
-      showNewPassword,
-      showConfirmPassword,
-      invalidSession,
+    data: { 
       form,
       onSubmit,
-      toggleNewPasswordVisibility,
-      toggleConfirmPasswordVisibility,
+     
     },
   };
 }

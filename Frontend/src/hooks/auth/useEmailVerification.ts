@@ -87,6 +87,6 @@ export function useEmailVerification() {
   return {
     isLoading,
     error: error || invalidOtpMessage,
-    data: { form, mode, userEmail, handleResendOtp, onSubmit },
+    data: { form,userEmail, handleResendOtp, onSubmit },
   };
 }

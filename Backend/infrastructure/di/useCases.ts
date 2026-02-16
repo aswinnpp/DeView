@@ -6,6 +6,7 @@ import { VerifyOTPUseCase } from '../../application/auth/use-cases/VerifyOTPUseC
 import { LoginUseCase } from '../../application/auth/use-cases/LoginUseCase';
 import { ResendOTPUseCase } from '../../application/auth/use-cases/ResendOTPUseCase';
 import { RefreshTokenUseCase } from '../../application/auth/use-cases/RefreshTokenUseCase';
+import { LogoutUseCase } from '../../application/auth/use-cases/LogoutUseCase';
 import { ForgotPasswordUseCase } from '../../application/auth/use-cases/ForgotPasswordUseCase';
 import { VerifyPasswordResetOTPUseCase } from '../../application/auth/use-cases/VerifyPasswordResetOTPUseCase';
 import { ResetPasswordUseCase } from '../../application/auth/use-cases/ResetPasswordUseCase';
@@ -23,6 +24,7 @@ import { MarkDocumentUseCase } from '../../application/admin/use-cases/MarkDocum
 import { GetApprovedCompaniesUseCase } from '../../application/admin/use-cases/GetApprovedCompaniesUseCase';
 import { ToggleCompanyActiveUseCase } from '../../application/admin/use-cases/ToggleCompanyActiveUseCase';
 import { UploadFileUseCase } from '../../application/upload/use-cases/UploadFileUseCase';
+import { ResolveCompanyForUserUseCase } from '../../application/company/use-cases/ResolveCompanyForUserUseCase';
 import { CreateTeamMemberUseCase } from '../../application/company/use-cases/CreateTeamMemberUseCase';
 import { ListTeamMembersUseCase } from '../../application/company/use-cases/ListTeamMembersUseCase';
 import { CreateCandidateProfileUseCase } from '../../application/candidate/use-cases/CreateCandidateProfileUseCase';
@@ -37,6 +39,7 @@ export interface UseCases {
   loginUseCase: LoginUseCase;
   resendOTPUseCase: ResendOTPUseCase;
   refreshTokenUseCase: RefreshTokenUseCase;
+  logoutUseCase: LogoutUseCase;
   forgotPasswordUseCase: ForgotPasswordUseCase;
   verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCase;
   resetPasswordUseCase: ResetPasswordUseCase;
@@ -52,6 +55,7 @@ export interface UseCases {
   getApprovedCompaniesUseCase: GetApprovedCompaniesUseCase;
   toggleCompanyActiveUseCase: ToggleCompanyActiveUseCase;
   uploadFileUseCase: UploadFileUseCase;
+  resolveCompanyForUserUseCase: ResolveCompanyForUserUseCase;
   createTeamMemberUseCase: CreateTeamMemberUseCase;
   listTeamMembersUseCase: ListTeamMembersUseCase;
   toggleTeamMemberStatusUseCase: ToggleTeamMemberStatusUseCase;
@@ -65,6 +69,7 @@ export interface UseCases {
 export function createUseCases(repositories: Repositories, services: Services): UseCases {
   const { userRepository, otpRepository, companyApprovalRepository, candidateProfileRepository, oauthSessionRepository } = repositories;
   const { passwordHasher, tokenService, emailService } = services;
+  const resolveCompanyForUserUseCase = new ResolveCompanyForUserUseCase(companyApprovalRepository, userRepository);
 
   return {
     registerUserUseCase: new RegisterUserUseCase(userRepository, otpRepository, passwordHasher, emailService),
@@ -72,10 +77,11 @@ export function createUseCases(repositories: Repositories, services: Services): 
     loginUseCase: new LoginUseCase(userRepository, passwordHasher, tokenService),
     resendOTPUseCase: new ResendOTPUseCase(userRepository, otpRepository, emailService),
     refreshTokenUseCase: new RefreshTokenUseCase(tokenService, userRepository),
+    logoutUseCase: new LogoutUseCase(tokenService),
     forgotPasswordUseCase: new ForgotPasswordUseCase(userRepository, otpRepository, emailService),
     verifyPasswordResetOTPUseCase: new VerifyPasswordResetOTPUseCase(otpRepository),
     resetPasswordUseCase: new ResetPasswordUseCase(userRepository, otpRepository, passwordHasher, tokenService),
-    googleOAuthUseCase: new GoogleOAuthUseCase(userRepository, tokenService, oauthSessionRepository),
+    googleOAuthUseCase: new GoogleOAuthUseCase(userRepository, tokenService, oauthSessionRepository, services.googleAuthService),
 
     checkCompanyStatusUseCase: new CheckCompanyStatusUseCase(companyApprovalRepository),
     submitCompanyApprovalUseCase: new SubmitCompanyApprovalUseCase(companyApprovalRepository, userRepository),
@@ -90,9 +96,10 @@ export function createUseCases(repositories: Repositories, services: Services): 
 
     uploadFileUseCase: new UploadFileUseCase(services.fileStorageService),
 
-    createTeamMemberUseCase: new CreateTeamMemberUseCase(userRepository, passwordHasher, emailService),
-    listTeamMembersUseCase: new ListTeamMembersUseCase(userRepository),
-    toggleTeamMemberStatusUseCase: new ToggleTeamMemberStatusUseCase(userRepository),
+    resolveCompanyForUserUseCase,
+    createTeamMemberUseCase: new CreateTeamMemberUseCase(userRepository, passwordHasher, emailService, resolveCompanyForUserUseCase),
+    listTeamMembersUseCase: new ListTeamMembersUseCase(userRepository, resolveCompanyForUserUseCase),
+    toggleTeamMemberStatusUseCase: new ToggleTeamMemberStatusUseCase(userRepository, resolveCompanyForUserUseCase),
 
     createCandidateProfileUseCase: new CreateCandidateProfileUseCase(candidateProfileRepository),
     getCandidateProfileUseCase: new GetCandidateProfileUseCase(candidateProfileRepository),

@@ -6,51 +6,49 @@ import { User } from '../../../domain/user/entities/User.js';
 import { Email } from '../../../domain/user/value-objects/Email.js';
 import { Role, RoleType } from '../../../domain/user/value-objects/Role.js';
 import { AppError } from '../../../shared/errors/AppError.js';
+import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
 
-interface CreateTeamMemberDTO {
+export interface CreateTeamMemberDTO {
     fullName: string;
     email: string;
     role: 'hr' | 'interviewer';
-    companyId: string;
+    userId: string;
+    companyIdFromToken?: string;
 }
 
 export class CreateTeamMemberUseCase {
     constructor(
         private readonly userRepository: UserRepository,
         private readonly passwordHasher: PasswordHasherPort,
-        private readonly emailService: EmailServicePort
-    ) { }
+        private readonly emailService: EmailServicePort,
+        private readonly resolveCompany: ResolveCompanyForUserUseCase
+    ) {}
 
-    async execute(dto: CreateTeamMemberDTO): Promise<{ userId: string }> {
+    async execute(dto: CreateTeamMemberDTO): Promise<{ message: string; userId: string }> {
+        const companyId = await this.resolveCompany.execute(dto.userId, dto.companyIdFromToken);
+
         const email = new Email(dto.email);
         const role = new Role(dto.role as RoleType);
 
-        // Check if email is already registered
         const existing = await this.userRepository.findByEmail(email);
         if (existing) {
             throw AppError.conflict('A user with this email already exists');
         }
 
-        // Generate a random temporary password (12 chars, alphanumeric + symbols)
         const temporaryPassword = this.generatePassword();
         const passwordHash = await this.passwordHasher.hash(temporaryPassword);
 
-        // Create the user entity
         const user = User.create({
             fullName: dto.fullName,
             email,
             passwordHash,
             role,
-            companyId: dto.companyId,
+            companyId,
         });
 
-        // Mark email as verified since the company is creating the account
         user.markEmailAsVerified();
-
-        // Save to database
         await this.userRepository.save(user);
 
-        // Send welcome email with temporary password
         await this.emailService.sendWelcomeEmail(
             dto.email,
             dto.fullName,
@@ -58,7 +56,11 @@ export class CreateTeamMemberUseCase {
             temporaryPassword
         );
 
-        return { userId: user.id || '' };
+        const roleLabel = dto.role === 'hr' ? 'HR' : 'Interviewer';
+        return {
+            message: `${roleLabel} account created successfully`,
+            userId: user.id || '',
+        };
     }
 
     private generatePassword(): string {

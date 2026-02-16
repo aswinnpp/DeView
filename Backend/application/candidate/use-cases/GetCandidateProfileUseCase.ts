@@ -13,7 +13,7 @@ export class GetCandidateProfileUseCase {
         const profile = await this.repo.findByUserId(userId);
 
         if (!profile) {
-            throw AppError.notFound("Candidate profile not found");
+            throw AppError.notFound("Complete your profile to continue");
         }
 
         return profile;

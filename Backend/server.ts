@@ -2,8 +2,6 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
 import multipart from '@fastify/multipart';
-import fastifyStatic from '@fastify/static';
-import path from 'path';
 
 import { env } from './infrastructure/config/env.js';
 import { initializeDatabase } from './infrastructure/database/index.js';
@@ -46,13 +44,7 @@ async function bootstrap() {
   // ✅ JWT AFTER cookie
   await fastify.register(jwtPlugin);
 
-  // File upload support (must be registered before routes that use multipart)
-  await fastify.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB max
-  await fastify.register(fastifyStatic, {
-    root: path.join(process.cwd(), 'uploads'),
-    prefix: '/uploads/',
-    decorateReply: false,
-  });
+  await fastify.register(multipart, { limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB max for resume uploads
 
   const container = createContainer(fastify, db);
   await registerRoutes(fastify, container.controllers);

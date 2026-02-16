@@ -9,7 +9,6 @@ import { extractApiError } from '../../api/axios';
 
 const STORAGE_KEY_PENDING_EMAIL = 'pendingVerificationEmail';
 
-// UI schema extends shared contract with confirmPassword
 const registerSchema = z
   .object({
     ...registerRequestSchema.shape,

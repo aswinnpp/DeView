@@ -15,7 +15,7 @@ export function useLogin() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const [showPassword, setShowPassword] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,17 +25,14 @@ export function useLogin() {
     mode: 'onSubmit',
   });
 
-  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
+
 
   const navigateCompanyUser = async (userId: string): Promise<void> => {
     try {
       const { data: result } = await authService.checkCompanyStatus({ userId });
-      console.log("resul", result.status);
+     
 
-      if (!result) {
-        navigate('/company/approval-form');
-        return;
-      }
+        
 
       switch (result.status) {
         case 'approved':
@@ -49,7 +46,7 @@ export function useLogin() {
           navigate('/company/approval-form');
       }
     } catch {
-      navigate('/company/approval-form');
+      navigate('/');
     }
   };
 
@@ -88,6 +85,6 @@ export function useLogin() {
   return {
     isLoading,
     error,
-    data: { form, showPassword, togglePasswordVisibility, onSubmit },
+    data: { form,onSubmit },
   };
 }

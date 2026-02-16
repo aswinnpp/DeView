@@ -1,12 +1,7 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useTransition } from "react";
 import { adminApprovalService } from "../../services/adminApproval.service";
 import { extractApiError } from "../../api/axios";
 import type { CompanyApproval, DocumentUpload } from "../../services/adminApproval.service";
-
-// Re-export types so pages/components can import from this hook
-export type { CompanyApproval, DocumentUpload };
-
-// ─── Constants ──────────────────────────────────────────────────
 
 export const DOCUMENT_CONFIG = [
   { key: "certificateOfIncorporation", label: "Certificate of Incorporation", shortLabel: "Incorporation", description: "Legal document proving business registration", required: true },
@@ -17,28 +12,28 @@ export const DOCUMENT_CONFIG = [
   { key: "bankDocument", label: "Bank Document", shortLabel: "Bank", description: "Cancelled cheque or bank statement", required: false },
 ] as const;
 
-// ─── Hook ───────────────────────────────────────────────────────
-
 export function useAdminCompanyRequests() {
   const [pendingCompanies, setPendingCompanies] = useState<CompanyApproval[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompany, setSelectedCompany] = useState<CompanyApproval | null>(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
 
-  // ── Fetch (with optional search) ────────────────────────────────
-
   const fetchPendingCompanies = useCallback(async (search?: string) => {
-    setIsLoading(true);
+    setIsFetching(true);
     setError(null);
+
     try {
       const { data } = await adminApprovalService.getPending(search);
       setPendingCompanies(data ?? []);
     } catch (err) {
       setError(extractApiError(err));
     } finally {
-      setIsLoading(false);
+      setIsFetching(false);
+      setInitialLoading(false);
     }
   }, []);
 
@@ -46,35 +41,27 @@ export function useAdminCompanyRequests() {
     fetchPendingCompanies();
   }, [fetchPendingCompanies]);
 
-  // ── Search handler (called by SearchInput debounce) ─────────────
+  const handleSearch = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
 
-  const handleSearch = useCallback(async (query: string) => {
-    setSearchQuery(query);
-    await fetchPendingCompanies(query || undefined);
-  }, [fetchPendingCompanies]);
+      startTransition(() => {
+        fetchPendingCompanies(query || undefined);
+      });
+    },
+    [fetchPendingCompanies]
+  );
 
-  // ── Select / deselect ─────────────────────────────────────────
-
-  const selectCompany = useCallback((company: CompanyApproval) => {
-    setSelectedCompany(company);
-  }, []);
-
-  const clearSelectedCompany = useCallback(() => {
-    setSelectedCompany(null);
-    setShowRejectModal(false);
-  }, []);
+  const selectCompany = useCallback((c: CompanyApproval) => setSelectedCompany(c), []);
+  const clearSelectedCompany = useCallback(() => setSelectedCompany(null), []);
 
   const openRejectModal = useCallback(() => setShowRejectModal(true), []);
   const closeRejectModal = useCallback(() => setShowRejectModal(false), []);
 
   const handleApprove = useCallback(async (id: string) => {
-    try {
-      await adminApprovalService.approve(id);
-      fetchPendingCompanies();
-      setSelectedCompany(null);
-    } catch (err) {
-      setError(extractApiError(err));
-    }
+    await adminApprovalService.approve(id);
+    fetchPendingCompanies();
+    setSelectedCompany(null);
   }, [fetchPendingCompanies]);
 
   const handleRejectSuccess = useCallback(() => {
@@ -83,18 +70,25 @@ export function useAdminCompanyRequests() {
     setSelectedCompany(null);
   }, [fetchPendingCompanies]);
 
-  const getDocumentCount = useCallback((docs?: Record<string, DocumentUpload>) => ({
-    uploaded: DOCUMENT_CONFIG.filter((d) => !!docs?.[d.key]).length,
-    total: DOCUMENT_CONFIG.length,
-  }), []);
+  const getDocumentCount = useCallback(
+    (docs?: Record<string, DocumentUpload>) => ({
+      uploaded: DOCUMENT_CONFIG.filter((d) => !!docs?.[d.key]).length,
+      total: DOCUMENT_CONFIG.length,
+    }),
+    []
+  );
 
-  const getRequiredDocsUploaded = useCallback((docs?: Record<string, DocumentUpload>) =>
-    DOCUMENT_CONFIG.filter((d) => d.required).every((d) => !!docs?.[d.key]),
-    []);
+  const getRequiredDocsUploaded = useCallback(
+    (docs?: Record<string, DocumentUpload>) =>
+      DOCUMENT_CONFIG.filter((d) => d.required).every((d) => !!docs?.[d.key]),
+    []
+  );
 
   return {
     pendingCompanies,
-    isLoading,
+    initialLoading,
+    isFetching,
+    isPending,
     error,
     fetchPendingCompanies,
     searchQuery,

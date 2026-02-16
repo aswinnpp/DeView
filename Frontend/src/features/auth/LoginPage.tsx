@@ -1,9 +1,15 @@
-
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Background from "@components/Background/Background";
 import { useLogin } from "@/hooks/auth/useLogin";
 import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 import { Input, Button } from "../../components/common";
+import { useState } from "react";
+
+const URL_ERROR_MESSAGES: Record<string, string> = {
+  code_expired: "This sign-in link was already used or expired. Please try signing in with Google again.",
+  auth_failed: "Google sign-in failed. Please try again.",
+  missing_code: "Missing authorization. Please try signing in with Google again.",
+};
 
 const inputWrapperClass = "relative flex items-center bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]";
 const inputClass = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";
@@ -12,20 +18,19 @@ const passwordIconClass = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base 
 const toggleClass = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-1 rounded transition-colors duration-300 hover:text-white text-xs min-w-10";
 
 const LoginPage = () => {
-  const {
-    isLoading,
-    error,
-    data,
-  } = useLogin();
-  const { form, onSubmit, showPassword, togglePasswordVisibility } = data;
-  const { register, handleSubmit, formState } = form;
+  const [showPassword, setShowPassword] = useState(false);
+ const togglePasswordVisibility = () => setShowPassword(prev => !prev);
+  
+ 
 
+  const { isLoading, error, data } = useLogin();
+  const { form, onSubmit } = data;
+  const { register, handleSubmit, formState } = form;
   const google = useGoogleAuth();
   const { initiateGoogleAuth } = google.data;
   const googleLoading = google.isLoading;
   const googleError = google.error;
 
- 
   const errorToShow =
     error ||
     googleError ||

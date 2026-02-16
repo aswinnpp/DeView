@@ -32,9 +32,7 @@ export class CompanyApproval {
   }
 
   reject(reason: string) {
-    if (this.status !== "pending") {
-      throw new DomainError("Only pending companies can be rejected");
-    }
+   
 
     if (!reason.trim()) {
       throw new DomainError("Rejection reason required");

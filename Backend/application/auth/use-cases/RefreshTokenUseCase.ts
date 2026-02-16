@@ -8,7 +8,7 @@ export class RefreshTokenUseCase {
     private userRepo: UserRepository
   ) {}
 
-  async execute(refreshToken: string) {
+  async execute(refreshToken: string | undefined) {
     if (!refreshToken) {
       throw AppError.unauthorized("Refresh token missing");
     }

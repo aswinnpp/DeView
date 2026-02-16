@@ -5,30 +5,40 @@ import type { CandidateProfileData as ProfileData } from '@shared/contracts/cand
 
 export type ProfileResponse = { profile: ProfileData };
 
+function fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result as string;
+            const base64 = result.includes(',') ? result.split(',')[1]! : result;
+            resolve(base64);
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+    });
+}
+
 // ─── Service functions ──────────────────────────────────────────
 
 export const candidateService = {
-    /** Fetch the current candidate's profile */
     getProfile() {
         return api.get<ProfileResponse>('/candidate/profile');
     },
 
-    /** Create a new profile */
     createProfile(data: Partial<ProfileData>) {
         return api.post('/candidate/profile', data);
     },
 
-    /** Update an existing profile */
     updateProfile(data: Partial<ProfileData>) {
         return api.patch('/candidate/profile', data);
     },
 
-    /** Upload a resume (FormData) */
-    uploadResume(file: File) {
-        const formData = new FormData();
-        formData.append('resume', file);
-        return api.post<{ resumeUrl?: string }>('/candidate/profile/resume', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
+    async uploadResume(file: File) {
+        const fileBase64 = await fileToBase64(file);
+        return api.post<{ resumeUrl?: string }>('/candidate/profile/resume', {
+            fileName: file.name,
+            mimetype: file.type || 'application/pdf',
+            fileBase64,
         });
     },
 };
