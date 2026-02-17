@@ -9,7 +9,6 @@ import { companyTeamRoutes } from '../../interfaces/http/routes/companyTeamRoute
 import { candidateProfileRoutes } from '../../interfaces/http/routes/candidateProfileRoutes.js';
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
-    // Auth routes
     await fastify.register(
         async (instance) => {
             await authRoutes(instance, controllers.authController);
@@ -18,7 +17,6 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
         { prefix: '/auth' }
     );
 
-    // Company routes (approval + team management)
     await fastify.register(
         async (instance) => {
             await companyApprovalRoutes(instance, controllers.companyApprovalController);
@@ -27,7 +25,6 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
         { prefix: '/company' }
     );
 
-    // Admin company approval routes
     await fastify.register(
         async (instance) => {
             await adminCompanyApprovalRoutes(instance, controllers.adminCompanyApprovalController);

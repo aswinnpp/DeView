@@ -435,7 +435,7 @@ const Profile = () => {
                                             {isEditing ? (
                                                 <div className="flex flex-col items-center">
                                                     <label className="inline-flex items-center gap-2 py-3 px-6 bg-linear-to-br from-brand-primary to-brand-secondary rounded-lg text-white text-sm font-medium cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(102,126,234,0.3)]">
-                                                        {isUploading ? 'Uploading…' : '📤 Upload Resume (PDF)'}
+                                                        {isUploading ? 'Uploading…' : '↑ Upload Resume '}
                                                         <input
                                                             type="file"
                                                             accept=".pdf"

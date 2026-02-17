@@ -31,18 +31,18 @@ async function bootstrap() {
     exposedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
   });
 
-  // ✅ MUST come before JWT
+  
   await fastify.register(cookie);
 
   if (!redisClient.isOpen) {
     await redisClient.connect();
-    console.log("✅ Redis connected");
+    console.log(" Redis connected");
   }
 
   const db = await initializeDatabase();
   fastify.decorate('db', db);
 
-  // ✅ JWT AFTER cookie
+  
   await fastify.register(jwtPlugin);
 
   await fastify.register(multipart, { limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB max for resume uploads
@@ -52,7 +52,6 @@ async function bootstrap() {
   await registerRoutes(fastify, controllers);
 
   const gracefulShutdown = async () => {
-    console.log('🛑 Shutting down gracefully...');
     await redisClient.disconnect();
     await fastify.close();
     process.exit(0);
@@ -63,7 +62,7 @@ async function bootstrap() {
 
   await fastify.listen({ port: env.PORT, host: '0.0.0.0' });
 
-  console.log(`🚀 Server running on port ${env.PORT}`);
+  console.log(` Server running on port ${env.PORT}`);
 }
 
 bootstrap();

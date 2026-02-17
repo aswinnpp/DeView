@@ -220,7 +220,6 @@ const LandingPage = () => {
                     <p className="text-lg text-[rgba(255,255,255,0.7)] mb-8">Join hundreds of companies already using DEVIEW to hire the best developers.</p>
                     <div className="flex flex-col items-center gap-3">
                         <Link to="/register" className="bg-linear-to-br from-brand-pink to-brand-pink-dark text-white py-[18px] px-10 rounded-[10px] no-underline font-semibold text-base inline-block">Get Started Free</Link>
-                        <span className="text-sm text-[rgba(255,255,255,0.5)]">No credit card required</span>
                     </div>
                 </div>
             </section>
@@ -232,10 +231,7 @@ const LandingPage = () => {
                         <div className="w-8 h-8 text-base font-bold bg-linear-to-br from-brand-primary to-brand-secondary rounded-lg flex items-center justify-center">D</div>
                         <span>DEVIEW</span>
                     </div>
-                    <div className="flex gap-6 max-md:order-2">
-                        <Link to="/login" className="text-[rgba(255,255,255,0.6)] no-underline text-sm">Login</Link>
-                        <Link to="/register" className="text-[rgba(255,255,255,0.6)] no-underline text-sm">Register</Link>
-                    </div>
+                    
                     <p className="text-[rgba(255,255,255,0.4)] text-sm max-md:order-3">
                         © 2024 DEVIEW - Developer Interview Platform. All rights reserved.
                     </p>
