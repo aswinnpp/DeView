@@ -8,17 +8,12 @@ import { AppError } from "../../../shared/errors/AppError";
 export class GetCandidateProfileUseCase {
     constructor(@inject(TYPES.CandidateProfileRepository) private repo: CandidateProfileRepository) { }
 
-    async execute(userId: string): Promise<CandidateProfile> {
+    async execute(userId: string): Promise<CandidateProfile | null> {
         if (!userId) {
             throw AppError.badRequest("UserId is required");
         }
 
         const profile = await this.repo.findByUserId(userId);
-
-        if (!profile) {
-            throw AppError.notFound("Complete your profile to continue");
-        }
-
-        return profile;
+        return profile ?? null;
     }
 }
