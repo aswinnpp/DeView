@@ -7,16 +7,25 @@ export const loginSchema = {
         200: {
             type: 'object',
             properties: {
-                user: {
+                success: { type: 'boolean' },
+                data: {
                     type: 'object',
                     properties: {
-                        id: { type: 'string' },
-                        fullName: { type: 'string' },
-                        email: { type: 'string' },
-                        role: { type: 'string' },
+                        user: {
+                            type: 'object',
+                            properties: {
+                                id: { type: 'string' },
+                                fullName: { type: 'string' },
+                                email: { type: 'string' },
+                                role: { type: 'string' },
+                            },
+                            required: ['id', 'fullName', 'email', 'role'],
+                        },
                     },
+                    required: ['user'],
                 },
             },
+            required: ['success', 'data'],
         },
     },
 };

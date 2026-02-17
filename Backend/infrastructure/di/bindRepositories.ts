@@ -31,10 +31,8 @@ const createOAuthSessionRepository = (redis: RedisClientType) =>
   new RedisOAuthSessionRepository(redis);
 
 /**
- * Binds all repository dependencies to the container
  */
 export function bindRepositories(container: Container): void {
-  // MongoDB repositories
   container.bind(TYPES.UserRepository).toDynamicValue(() => 
     createUserRepository(container.get<Db>(TYPES.Db))
   );
@@ -47,7 +45,6 @@ export function bindRepositories(container: Container): void {
     createCandidateProfileRepository(container.get<Db>(TYPES.Db))
   );
 
-  // Redis repositories
   container.bind(TYPES.OTPRepository).toDynamicValue(() => 
     createOTPRepository(container.get<RedisClientType>(TYPES.Redis))
   );

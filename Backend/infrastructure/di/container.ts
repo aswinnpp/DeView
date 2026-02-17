@@ -19,18 +19,13 @@ import { UploadController } from '../../interfaces/http/controllers/UploadContro
 import { CompanyTeamController } from '../../interfaces/http/controllers/CompanyTeamController.js';
 import { CandidateProfileController } from '../../interfaces/http/controllers/CandidateProfileController.js';
 
-/**
- * Creates and configures the Inversify container with all dependencies.
- * Delegates binding logic to separate modules for better organization.
- */
+
 export function createContainer(db: Db) {
   const container = new Container();
 
-  // Infrastructure dependencies
   container.bind<Db>(TYPES.Db).toConstantValue(db);
   container.bind<RedisClientType>(TYPES.Redis).toConstantValue(redisClient);
 
-  // Bind all dependencies
   bindRepositories(container);
   bindServices(container);
   bindUseCases(container);

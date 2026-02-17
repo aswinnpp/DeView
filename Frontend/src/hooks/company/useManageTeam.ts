@@ -29,7 +29,9 @@ export function useManageTeam() {
     const fetchHRs = useCallback(async (search?: string, status?: string) => {
         try {
             const { data } = await companyTeamService.listHRs(search, status);
-            setHrs(data?.data ?? []);
+            // API returns { data: TeamMember[] } (after interceptor strips success envelope)
+            const list = Array.isArray(data) ? data : (data?.data ?? []);
+            setHrs(list);
         } catch (err) {
             setError(extractApiError(err));
         }
@@ -38,7 +40,8 @@ export function useManageTeam() {
     const fetchInterviewers = useCallback(async (search?: string, status?: string) => {
         try {
             const { data } = await companyTeamService.listInterviewers(search, status);
-            setInterviewers(data?.data ?? []);
+            const list = Array.isArray(data) ? data : (data?.data ?? []);
+            setInterviewers(list);
         } catch (err) {
             setError(extractApiError(err));
         }

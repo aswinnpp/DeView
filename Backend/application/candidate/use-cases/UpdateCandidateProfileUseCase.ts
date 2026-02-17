@@ -19,7 +19,6 @@ export class UpdateCandidateProfileUseCase {
             throw AppError.notFound("Complete your profile to continue");
         }
 
-        // Extract userId from the dto, pass the rest to updateFields
         const { userId, ...fields } = dto;
         profile.updateFields(fields);
 

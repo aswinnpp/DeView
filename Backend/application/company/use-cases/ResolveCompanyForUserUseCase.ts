@@ -4,11 +4,7 @@ import { CompanyApprovalRepository } from '../../../domain/company/repositories/
 import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
-/**
- * Resolves the company ID for the current user.
- * Uses companyId from token if present; otherwise loads approved company approval and backfills user.companyId.
- * @throws AppError.forbidden when user has no associated company
- */
+
 @injectable()
 export class ResolveCompanyForUserUseCase {
     constructor(

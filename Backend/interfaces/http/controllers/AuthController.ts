@@ -89,10 +89,24 @@ export class AuthController {
 
     const result = await this.loginUseCase.execute(email, password);
 
+    console.log('Login result:', JSON.stringify(result, null, 2));
+    console.log('Result user:', result.user);
+    console.log('User id:', result.user?.id);
+
+    if (!result.user || !result.user.id) {
+      console.error('ERROR: result.user is missing or invalid:', result);
+      throw new Error('Failed to retrieve user data after login');
+    }
+
     setAccessTokenCookie(reply, result.accessToken);
     setRefreshTokenCookie(reply, result.refreshToken);
 
-    reply.send(success({ user: result.user }));
+    const responseData = success({ user: result.user });
+    console.log('Response data being sent:', JSON.stringify(responseData, null, 2));
+    console.log('Response data type:', typeof responseData);
+    console.log('Response data keys:', Object.keys(responseData));
+
+    reply.send(responseData);
   };
 
   // ---------------- REFRESH ----------------
