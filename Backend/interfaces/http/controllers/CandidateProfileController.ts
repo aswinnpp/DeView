@@ -40,14 +40,11 @@ export class CandidateProfileController {
         @inject(UpdateCandidateProfileUseCase) private readonly updateProfileUseCase: UpdateCandidateProfileUseCase
     ) { }
 
-    // GET /candidate/profile
+    // GET /candidate/profile — returns 200 with { profile } or { profile: null } when none
     getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
         const user = request.currentUser;
-
-
         const profile = await this.getProfileUseCase.execute(user.userId);
-
-        reply.send(success({ profile }));
+        reply.send(success({ profile: profile ?? null }));
     };
 
     createProfile = async (

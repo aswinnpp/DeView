@@ -64,22 +64,29 @@ export function useCandidateProfile() {
 
   // ─── Load profile on mount ────────────────────────────────────
   const fetchProfile = useCallback(async () => {
+    console.log('[useCandidateProfile] fetchProfile called, userEmail:', userEmail);
     setIsLoading(true);
     setLocalError(null);
     try {
-      const { data: result } = await candidateService.getProfile();
+      const response = await candidateService.getProfile();
+      const result = response?.data;
+      console.log('[useCandidateProfile] getProfile response:', response);
+      console.log('[useCandidateProfile] getProfile result:', result);
+      console.log('[useCandidateProfile] result?.profile:', result?.profile);
       if (result?.profile) {
         const loaded = { ...getDefaultValues(userEmail), ...result.profile, email: userEmail };
         form.reset(loaded);
         setProfileExists(true);
+        console.log('[useCandidateProfile] profile loaded, reset form');
       } else {
         form.reset(getDefaultValues(userEmail));
         setProfileExists(false);
         setIsEditing(true);
+        console.log('[useCandidateProfile] no profile yet, set editing true');
       }
     } catch (err) {
       const msg = extractApiError(err) || 'Failed to load profile.';
-      console.error('Fetch profile failed:', err);
+      console.error('[useCandidateProfile] Fetch profile failed:', err);
       setLocalError(msg);
       form.reset(getDefaultValues(userEmail));
       setProfileExists(false);
@@ -129,22 +136,28 @@ export function useCandidateProfile() {
 
   // ─── Submit (save) ────────────────────────────────────────────
   const onSubmit = async (values: CandidateProfileData) => {
+    console.log('[useCandidateProfile] onSubmit called', { profileExists, valuesKeys: Object.keys(values) });
     setLocalError(null);
     setIsSaving(true);
     try {
       if (profileExists) {
-        await candidateService.updateProfile(values);
+        console.log('[useCandidateProfile] calling updateProfile...');
+        const updateRes = await candidateService.updateProfile(values);
+        console.log('[useCandidateProfile] updateProfile response:', updateRes);
         await fetchProfile();
       } else {
-        await candidateService.createProfile(values);
+        console.log('[useCandidateProfile] calling createProfile...');
+        const createRes = await candidateService.createProfile(values);
+        console.log('[useCandidateProfile] createProfile response:', createRes);
         await fetchProfile();
       }
       setProfileExists(true);
-
       setIsEditing(false);
+      console.log('[useCandidateProfile] save success');
     } catch (err) {
       const msg = extractApiError(err) || 'Request failed. Please try again.';
-      console.error('Profile save failed:', err);
+      console.error('[useCandidateProfile] Profile save failed:', err);
+      console.error('[useCandidateProfile] save error response:', (err as any)?.response);
       setLocalError(msg);
     } finally {
       setIsSaving(false);
@@ -152,15 +165,20 @@ export function useCandidateProfile() {
   };
 
   const handleFormSubmit = (e?: React.BaseSyntheticEvent) => {
+    console.log('[useCandidateProfile] handleFormSubmit called', { profileExists, isDirty: form.formState.isDirty, errors: form.formState.errors });
     form.handleSubmit(
       (values) => {
-        if (!form.formState.isDirty) {
+        const isDirty = form.formState.isDirty;
+        if (profileExists && !isDirty) {
+          console.log('[useCandidateProfile] profile exists and form not dirty, skipping save');
           setIsEditing(false);
           return;
         }
+        console.log('[useCandidateProfile] form valid, calling onSubmit');
         onSubmit(values);
       },
       (validationErrors) => {
+        console.error('[useCandidateProfile] validation failed:', validationErrors);
         const firstError = Object.values(validationErrors)[0];
         setLocalError(firstError?.message ?? 'Please fix the errors above.');
       }

@@ -23,8 +23,13 @@ async function bootstrap() {
   await registerHelmet(fastify);
   registerErrorHandler(fastify);
 
+  const corsOrigin =
+    env.NODE_ENV === 'production'
+      ? env.FRONTEND_URL
+      : [env.FRONTEND_URL, 'http://localhost:5174'];
+
   await fastify.register(cors, {
-    origin: env.FRONTEND_URL,
+    origin: corsOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

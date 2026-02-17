@@ -39,6 +39,8 @@ export class CreateTeamMemberUseCase {
             throw AppError.conflict('A user with this email already exists');
         }
 
+          0
+
         const temporaryPassword = this.generatePassword();
         const passwordHash = await this.passwordHasher.hash(temporaryPassword);
 
