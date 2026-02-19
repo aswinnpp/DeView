@@ -33,7 +33,6 @@ export function useManageTeam() {
   const allMembers = activeTab === "hr" ? hrs : interviewers;
   const tabLabel = activeTab === "hr" ? "HR" : "Interviewer";
 
-  // ---- Fetch HR list (optional search and status filter) ----
   const fetchHRs = useCallback(async (search?: string, status?: string) => {
     try {
       const { data } = await companyTeamService.listHRs(search, status);
@@ -43,7 +42,6 @@ export function useManageTeam() {
     }
   }, []);
 
-  // ---- Fetch Interviewer list ----
   const fetchInterviewers = useCallback(async (search?: string, status?: string) => {
     try {
       const { data } = await companyTeamService.listInterviewers(search, status);

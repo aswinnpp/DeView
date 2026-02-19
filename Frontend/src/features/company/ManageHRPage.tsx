@@ -3,6 +3,12 @@ import { useManageTeam } from "../../hooks/company/useManageTeam";
 import { Table, SearchInput } from "../../components/common";
 import type { TeamMember } from "../../services/companyTeam.service";
 
+
+type memberToggle = {
+    id: string;
+    name: string;
+    action: string;
+}
 const ManageHRPage = () => {
     const {
         activeTab,
@@ -21,11 +27,7 @@ const ManageHRPage = () => {
 
     const [newMember, setNewMember] = useState({ name: "", email: "" });
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [memberToToggle, setMemberToToggle] = useState<{
-        id: string;
-        name: string;
-        action: string;
-    } | null>(null);
+    const [memberToToggle, setMemberToToggle] = useState<memberToggle | null>(null);
 
 
     const openCreateModal = useCallback(() => setShowCreateModal(true), []);
@@ -216,7 +218,7 @@ const ManageHRPage = () => {
                                     ? "bg-indigo-500/15 text-indigo-400"
                                     : "bg-cyan-500/15 text-cyan-400"
                                     }`}>
-                                  
+
                                 </div>
                                 <h3 className="m-0 text-2xl text-slate-50 font-bold">
                                     Create {tabLabel} Account
@@ -312,7 +314,7 @@ const ManageHRPage = () => {
                             </button>
                             <button
                                 type="button"
-                                onClick={()=>confirmToggle(memberToToggle,setMemberToToggle)}
+                                onClick={() => confirmToggle(memberToToggle, setMemberToToggle)}
                                 className={`text-white border-none py-2.5 px-6 rounded-lg text-sm font-semibold cursor-pointer hover:opacity-90 transition-all duration-200 ${memberToToggle.action === 'deactivate'
                                     ? 'bg-linear-to-br from-red-500 to-red-600'
                                     : 'bg-linear-to-br from-emerald-500 to-emerald-600'
