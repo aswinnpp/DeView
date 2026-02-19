@@ -93,10 +93,6 @@ export function useCompanyApprovalForm({
     [documents, form]
   );
 
-
- 
-
-
  const getLockedDocKeys = useCallback((): Set<string> => {
   const documents = previousApproval?.documents;
 
@@ -118,9 +114,8 @@ export function useCompanyApprovalForm({
 
   const lockedDocKeys = getLockedDocKeys();
 
-  // Prevent duplicate submission: if user already has pending approval, redirect
   useEffect(() => {
-    if (previousApproval) return; // Resubmission flow - no check needed
+    if (previousApproval) return;
     let cancelled = false;
 
     (async () => {

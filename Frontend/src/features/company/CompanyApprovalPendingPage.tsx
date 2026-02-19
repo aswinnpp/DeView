@@ -57,7 +57,6 @@ const CompanyApprovalPendingPage = () => {
         <div className="min-h-screen bg-[#0f172a] text-[#e2e8f0] p-10">
             <header style={{ marginBottom: 40, borderBottom: '1px solid #334155', paddingBottom: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div className="w-11 h-11 rounded-[10px] bg-linear-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-2xl">🏢</div>
                     <h1 style={{ margin: 0, fontSize: 24, color: '#f8fafc' }}>Company Onboarding</h1>
                 </div>
             </header>

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const documentUploadSchema = z.object({
   fileName: z.string().min(1),
-  fileUrl: z.string().url(),
+  fileUrl: z.string().min(1),
   uploadedAt: z.string(),
   marked: z.boolean(),
 });

@@ -1,34 +1,44 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useManageTeam } from "../../hooks/company/useManageTeam";
 import { Table, SearchInput } from "../../components/common";
+import type { TeamMember } from "../../services/companyTeam.service";
 
 const ManageHRPage = () => {
     const {
         activeTab,
-        hrs,
-        interviewers,
         allMembers,
         isLoading,
         error,
-        successMessage,
         searchQuery,
         statusFilter,
         tabLabel,
-        showCreateModal,
-        isCreating,
-        memberToToggle,
         switchTab,
         handleSearch,
         handleStatusFilter,
-        openCreateModal,
-        closeCreateModal,
         createMember,
-        requestToggle,
-        cancelToggle,
         confirmToggle,
     } = useManageTeam();
 
     const [newMember, setNewMember] = useState({ name: "", email: "" });
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [memberToToggle, setMemberToToggle] = useState<{
+        id: string;
+        name: string;
+        action: string;
+    } | null>(null);
+
+
+    const openCreateModal = useCallback(() => setShowCreateModal(true), []);
+    const closeCreateModal = useCallback(() => setShowCreateModal(false), []);
+
+
+    const requestToggle = useCallback((member: TeamMember) => {
+        const action = member.isActive ? "deactivate" : "activate";
+        setMemberToToggle({ id: member.id, name: member.fullName, action });
+    }, []);
+
+    const cancelToggle = useCallback(() => setMemberToToggle(null), []);
+
 
     const hasAccess = true;
 
@@ -36,6 +46,7 @@ const ManageHRPage = () => {
         e.preventDefault();
         await createMember({ fullName: newMember.name, email: newMember.email });
         setNewMember({ name: "", email: "" });
+        closeCreateModal()
     };
 
     return (
@@ -80,13 +91,6 @@ const ManageHRPage = () => {
 
                 </button>
             </div>
-
-            {/* Messages */}
-            {successMessage && (
-                <div className="py-3 px-4 bg-emerald-500/10 border border-emerald-500 rounded-lg mb-4">
-                    <p className="text-emerald-400 m-0 text-sm"> {successMessage}</p>
-                </div>
-            )}
 
             {error && (
                 <div className="py-3 px-4 bg-red-500/10 border border-red-500 rounded-lg mb-4">
@@ -212,7 +216,7 @@ const ManageHRPage = () => {
                                     ? "bg-indigo-500/15 text-indigo-400"
                                     : "bg-cyan-500/15 text-cyan-400"
                                     }`}>
-                                    {activeTab === "hr" ? "👔" : "🎤"}
+                                  
                                 </div>
                                 <h3 className="m-0 text-2xl text-slate-50 font-bold">
                                     Create {tabLabel} Account
@@ -268,10 +272,10 @@ const ManageHRPage = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={isCreating}
+                                    disabled={isLoading}
                                     className="bg-linear-to-br from-emerald-500 to-emerald-600 text-white border-none py-2.5 px-6 rounded-lg text-sm font-semibold cursor-pointer hover:opacity-90 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
-                                    {isCreating ? "Creating..." : `Create ${tabLabel} Account`}
+                                    {isLoading ? "Creating..." : `Create ${tabLabel} Account`}
                                 </button>
                             </div>
                         </form>
@@ -308,7 +312,7 @@ const ManageHRPage = () => {
                             </button>
                             <button
                                 type="button"
-                                onClick={confirmToggle}
+                                onClick={()=>confirmToggle(memberToToggle,setMemberToToggle)}
                                 className={`text-white border-none py-2.5 px-6 rounded-lg text-sm font-semibold cursor-pointer hover:opacity-90 transition-all duration-200 ${memberToToggle.action === 'deactivate'
                                     ? 'bg-linear-to-br from-red-500 to-red-600'
                                     : 'bg-linear-to-br from-emerald-500 to-emerald-600'
