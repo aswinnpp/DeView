@@ -58,6 +58,8 @@ export class CompanyTeamController {
         reply: FastifyReply
     ) => {
         const { userId, companyId } = request.currentUser;
+        
+
         const result = await this.toggleTeamMemberStatusUseCase.execute(
             request.params.id,
             userId,
