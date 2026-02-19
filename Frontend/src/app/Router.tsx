@@ -1,5 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { PrivateRoute, PublicRoute } from "../components/common/routeGuards"
 
 
 
@@ -22,7 +23,7 @@ const ManageHRPage = lazy(() => import("../features/company/ManageHRPage"));
 
 
 const Profile = lazy(() => import("../features/candidate/Profile"));
-
+const CandidateInterviews = lazy(() => import("../features/candidate/CandidateInterviews"));
 
 
 const AdminDashboard = lazy(() => import("../features/admin/AdminDashboard"));
@@ -49,44 +50,58 @@ const AppRouter = () => {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+
+        {/* ─── Public Routes ───────────────────────── */}
+
+        <Route element={<PublicRoute />}>
+        </Route>
+
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/" element={<LandingPage />} />
        
-        <Route path="/company/approval" element={<Navigate to="/company/approval-form" replace />} />
-        <Route path="/company/approval-form" element={<CompanyApprovalFormPage />} />
-        <Route path="/company/approval-pending" element={<CompanyApprovalPendingPage />} />
+
+
         <Route path="/verify-email" element={<EmailVerificationPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
 
-        <Route path="/candidate" element={<Navigate to="/candidate/profile" replace />} />
-        <Route path="/candidate/profile" element={<Profile />} />
 
+        {/* ─── Protected Routes ───────────────────── */}
 
-
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="company-requests" element={<AdminCompanyRequestsPage />} />
-          <Route path="companies" element={<AdminCompanyManagement />} />
-
+        <Route element={<PrivateRoute />}>
         </Route>
 
-
-        <Route path="/company" element={<CompanyLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<CompanyDashboardPage />} />
-          <Route path="team" element={<ManageHRPage />} />
-
-        </Route>
+          <Route path="/company/approval" element={<Navigate to="/company/approval-form" replace />} />
+          <Route path="/company/approval-form" element={<CompanyApprovalFormPage />} />
+          <Route path="/company/approval-pending" element={<CompanyApprovalPendingPage />} />
 
 
+          <Route path="/candidate" element={<Navigate to="/candidate/profile" replace />} />
+          <Route path="/candidate/profile" element={<Profile />} />
+          <Route path="/candidate/interviews" element={<CandidateInterviews />} />
 
-        <Route path="/" element={<LandingPage />} />
+
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="company-requests" element={<AdminCompanyRequestsPage />} />
+            <Route path="companies" element={<AdminCompanyManagement />} />
+          </Route>
+
+
+          <Route path="/company" element={<CompanyLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<CompanyDashboardPage />} />
+            <Route path="team" element={<ManageHRPage />} />
+          </Route>
+
+        
 
 
         <Route path="*" element={<NotFoundPage />} />
+
       </Routes>
     </Suspense>
   );

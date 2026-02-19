@@ -1,3 +1,5 @@
+import AdminDashboard from "@/features/admin/AdminDashboard";
+
 export const API_ROUTES = {
     AUTH: {
         LOGIN: '/auth/login',
@@ -32,6 +34,7 @@ export const API_ROUTES = {
     },
     CANDIDATE: {
         PROFILE: '/candidate/profile',
+        
     },
 } as const;
 
@@ -42,6 +45,7 @@ export const APP_ROUTES = {
     COMPANY_DASHBOARD: '/company/dashboard',
     COMPANY_APPROVAL_PENDING: '/company/approval-pending',
     COMPANY_APPROVAL_FORM: '/company/approval-form',
+    CANDIDATE_INTERVIEWS:"/candidate/interviews",
     CANDIDATE_PROFILE: '/candidate/profile',
     HR_DASHBOARD: '/hr/dashboard',
     ADMIN_DASHBOARD: '/admin',

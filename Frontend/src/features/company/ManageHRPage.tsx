@@ -39,7 +39,7 @@ const ManageHRPage = () => {
     };
 
     return (
-        <div className="max-w-[1200px] mx-auto px-4">
+        <div className=" mx-auto ">
             {/* Header */}
             <header className="flex justify-between items-start mb-6">
                 <div>

@@ -2,8 +2,7 @@ export { useAdminDashboard } from './useAdminDashboard';
 export type { TimePeriod } from './useAdminDashboard';
 
 export { useAdminCompanyRequests } from './useAdminCompanyRequests';
-export type { CompanyApproval, DocumentUpload } from './useAdminCompanyRequests';
-export { DOCUMENT_CONFIG } from './useAdminCompanyRequests';
+export type { CompanyApproval } from '../../services/adminApproval.service';
 
 export { useCompanyReviewModal } from './useCompanyReviewModal';
 export { useRejectCompanyModal } from './useRejectCompanyModal';

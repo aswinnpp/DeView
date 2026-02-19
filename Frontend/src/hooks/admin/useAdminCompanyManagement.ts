@@ -6,14 +6,12 @@ import type { CompanyApproval } from "../../services/adminCompanyManagement.serv
 export function useAdminCompanyManagement() {
   const [companies, setCompanies] = useState<CompanyApproval[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [isFetching, setIsFetching] = useState(false);
-  
   const [error, setError] = useState<string | null>(null);
 
   // ───────── Fetch ─────────
 
   const fetchCompanies = useCallback(async (search?: string) => {
-    setIsFetching(true);
+    setInitialLoading(true);
     setError(null);
   
     try {
@@ -22,21 +20,21 @@ export function useAdminCompanyManagement() {
     } catch (err) {
       setError(extractApiError(err));
     } finally {
-      setIsFetching(false);
       setInitialLoading(false);
+     
     }
   }, []);
   
 
   // ───────── Toggle ─────────
   const toggleCompany = useCallback(async (companyId: string) => {
-    setIsFetching(true);
+    setInitialLoading(true);
   
     try {
       await adminCompanyManagementService.toggleActive(companyId);
       await fetchCompanies();
     } finally {
-      setIsFetching(false);
+      setInitialLoading(false);
     }
   }, [fetchCompanies]);
   
@@ -44,7 +42,7 @@ export function useAdminCompanyManagement() {
   useEffect(() => {
     fetchCompanies();
   }, [fetchCompanies]);
-  const loading = initialLoading || isFetching;
+  const loading = initialLoading
 
   return { loading, error,data: { companies, fetchCompanies, toggleCompany } };
 }

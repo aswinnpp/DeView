@@ -17,9 +17,6 @@ interface LocationState {
 const Profile = () => {
     const location = useLocation();
     const locationState = location.state as LocationState | null;
-    const [showProfileWarning, setShowProfileWarning] = useState(
-        locationState?.profileIncomplete || locationState?.showProfileWarning || false
-    );
     const errorBannerRef = useRef<HTMLDivElement>(null);
 
     const {
@@ -103,42 +100,7 @@ const Profile = () => {
                         </div>
                     )}
 
-                    {/* Profile Warning */}
-                    {showProfileWarning && (
-                        <div className="bg-[rgba(251,191,36,0.15)] border border-[rgba(251,191,36,0.4)] rounded-xl py-5 px-6 mb-5">
-                            <h3 className="text-[#fbbf24] m-0 mb-4 text-lg text-center">
-                                ⚠️ Complete Your Profile to Continue
-                            </h3>
-
-                            {locationState?.completionPercentage !== undefined && (
-                                <div className="max-w-[400px] mx-auto">
-                                    <div className="flex justify-between mb-2">
-                                        <span className="text-[#94a3b8] text-sm">Profile Completion</span>
-                                        <span className={`font-bold text-sm ${progressComplete ? 'text-brand-green' : 'text-[#fbbf24]'}`}>
-                                            {locationState.completionPercentage}% / 80%
-                                        </span>
-                                    </div>
-                                    <div className="w-full h-2.5 bg-[rgba(255,255,255,0.1)] rounded-[5px] overflow-hidden">
-                                        <div
-                                            className={`h-full rounded-[5px] transition-[width] duration-300 ${progressComplete ? 'bg-linear-to-r from-brand-green to-[#34d399]' : 'bg-linear-to-r from-brand-amber to-[#fbbf24]'}`}
-                                            style={{ width: `${locationState.completionPercentage}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="text-center mt-4">
-                                <Button
-                                    type="button"
-                                    variant="primary"
-                                    className="py-2.5 px-6 rounded-lg text-sm font-semibold"
-                                    onClick={() => setShowProfileWarning(false)}
-                                >
-                                    Got it
-                                </Button>
-                            </div>
-                        </div>
-                    )}
+                  
 
                     <form
                         id="candidate-profile-form"
@@ -401,7 +363,7 @@ const Profile = () => {
                                 <div className="py-4">
                                     {profileData.resumeUrl || isUploading ? (
                                         <div className="flex flex-wrap items-center gap-3 p-4 bg-[rgba(102,126,234,0.1)] border border-[rgba(102,126,234,0.2)] rounded-[10px]">
-                                            <span className="text-2xl">📄</span>
+                                           
                                             {profileData.resumeUrl && (
                                                 <a
                                                     href={profileData.resumeUrl}

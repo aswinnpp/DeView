@@ -22,8 +22,8 @@ export class CompanyApproval {
   ) { }
 
   approve() {
-    if (this.status !== "pending") {
-      throw new DomainError("Only pending companies can be approved");
+    if (this.status == "approved" ) {
+      throw new DomainError("already approved");
     }
 
     this.status = "approved";
@@ -40,7 +40,6 @@ export class CompanyApproval {
 
     this.status = "rejected";
     this.rejectionReason = reason;
-    this.isActive = false;
     this.updatedAt = new Date();
   }
 

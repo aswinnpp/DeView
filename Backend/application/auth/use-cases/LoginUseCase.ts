@@ -21,6 +21,8 @@ export class LoginUseCase {
     const user = await this.userRepo.findByEmail(email);
     let userId = user?.id
     const company = await this.companyRepo.findByUserId(`${userId}`)
+    console.log(company);
+    
 
     if(company && !company.isActive){
       throw AppError.unauthorized("Account is deactivated");
