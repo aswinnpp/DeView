@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { candidateService } from '../../services/candidate.service';
 import { authService } from '../../services/auth.service';
 import type { RootState, AppDispatch } from '../../context/store';
+import {APP_ROUTES}from "../../constants/routes"
 import { logout } from '../../context/authSlice';
 import {
   candidateProfileSchema,
@@ -64,29 +65,26 @@ export function useCandidateProfile() {
 
   // ─── Load profile on mount ────────────────────────────────────
   const fetchProfile = useCallback(async () => {
-    console.log('[useCandidateProfile] fetchProfile called, userEmail:', userEmail);
     setIsLoading(true);
     setLocalError(null);
     try {
       const response = await candidateService.getProfile();
       const result = response?.data;
-      console.log('[useCandidateProfile] getProfile response:', response);
-      console.log('[useCandidateProfile] getProfile result:', result);
-      console.log('[useCandidateProfile] result?.profile:', result?.profile);
       if (result?.profile) {
         const loaded = { ...getDefaultValues(userEmail), ...result.profile, email: userEmail };
         form.reset(loaded);
         setProfileExists(true);
-        console.log('[useCandidateProfile] profile loaded, reset form');
+         
+
       } else {
         form.reset(getDefaultValues(userEmail));
         setProfileExists(false);
         setIsEditing(true);
-        console.log('[useCandidateProfile] no profile yet, set editing true');
+
       }
     } catch (err) {
-      const msg = extractApiError(err) || 'Failed to load profile.';
-      console.error('[useCandidateProfile] Fetch profile failed:', err);
+      const msg = extractApiError(err)
+
       setLocalError(msg);
       form.reset(getDefaultValues(userEmail));
       setProfileExists(false);
@@ -135,55 +133,56 @@ export function useCandidateProfile() {
 
 
   // ─── Submit (save) ────────────────────────────────────────────
-  const onSubmit = async (values: CandidateProfileData) => {
-    console.log('[useCandidateProfile] onSubmit called', { profileExists, valuesKeys: Object.keys(values) });
-    setLocalError(null);
-    setIsSaving(true);
-    try {
-      if (profileExists) {
-        console.log('[useCandidateProfile] calling updateProfile...');
-        const updateRes = await candidateService.updateProfile(values);
-        console.log('[useCandidateProfile] updateProfile response:', updateRes);
-        await fetchProfile();
-      } else {
-        console.log('[useCandidateProfile] calling createProfile...');
-        const createRes = await candidateService.createProfile(values);
-        console.log('[useCandidateProfile] createProfile response:', createRes);
-        await fetchProfile();
-      }
-      setProfileExists(true);
-      setIsEditing(false);
-      console.log('[useCandidateProfile] save success');
-    } catch (err) {
-      const msg = extractApiError(err) || 'Request failed. Please try again.';
-      console.error('[useCandidateProfile] Profile save failed:', err);
-      console.error('[useCandidateProfile] save error response:', (err as any)?.response);
-      setLocalError(msg);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+const onSubmit = async (values: CandidateProfileData) => {
+  setLocalError(null);
+  setIsSaving(true);
 
-  const handleFormSubmit = (e?: React.BaseSyntheticEvent) => {
-    console.log('[useCandidateProfile] handleFormSubmit called', { profileExists, isDirty: form.formState.isDirty, errors: form.formState.errors });
-    form.handleSubmit(
-      (values) => {
-        const isDirty = form.formState.isDirty;
-        if (profileExists && !isDirty) {
-          console.log('[useCandidateProfile] profile exists and form not dirty, skipping save');
-          setIsEditing(false);
-          return;
-        }
-        console.log('[useCandidateProfile] form valid, calling onSubmit');
-        onSubmit(values);
-      },
-      (validationErrors) => {
-        console.error('[useCandidateProfile] validation failed:', validationErrors);
-        const firstError = Object.values(validationErrors)[0];
-        setLocalError(firstError?.message ?? 'Please fix the errors above.');
+  try {
+    const saveProfile = profileExists
+      ? candidateService.updateProfile
+      : candidateService.createProfile;
+
+    await saveProfile(values);
+
+    await fetchProfile();
+
+    setProfileExists(true);
+    setIsEditing(false);
+  } catch (err) {
+    setLocalError(extractApiError(err));
+  } finally {
+    setIsSaving(false);
+  }
+};
+
+
+ const handleFormSubmit = (e?: React.BaseSyntheticEvent) => {
+  form.handleSubmit(
+    (values) => {
+      const hasChanges = form.formState.isDirty;
+
+      if (profileExists && !hasChanges) {
+        setIsEditing(false);
+        return;
       }
-    )(e);
-  };
+
+      console.log("eee",values);
+      
+
+      onSubmit(values);
+       navigate(APP_ROUTES.CANDIDATE_INTERVIEWS)
+      
+    },
+    (errors) => {
+      const firstError = Object.values(errors)[0];
+      const message =
+        firstError?.message ?? 'Please fix the highlighted errors.';
+
+      setLocalError(message);
+    }
+  )(e);
+};
+
 
   const handleCancel = useCallback(() => {
     form.reset();
@@ -191,21 +190,27 @@ export function useCandidateProfile() {
     setIsEditing(false);
   }, [form]);
 
-  /** Validate specific fields (for step-by-step). Returns true if valid. */
-  const validateStep = useCallback(
-    async (fields: (keyof CandidateProfileData)[]) => {
-      const valid = await form.trigger(fields);
-      if (!valid) {
-        const firstError = Object.values(form.formState.errors)[0];
-        setLocalError(firstError?.message ?? 'Please fix the errors above.');
-      } else {
-        setLocalError(null);
-      }
-      return valid;
-    },
-    [form]
-  );
+  
+ const validateStep = useCallback(
+  async (fields: (keyof CandidateProfileData)[]) => {
+    const isValid = await form.trigger(fields);
 
+    if (isValid) {
+      setLocalError(null);
+      return true;
+    }
+
+    const errors = form.formState.errors;
+    const firstError = Object.values(errors)[0];
+    const message =
+      firstError?.message ?? 'Please fix the highlighted errors.';
+
+    setLocalError(message);
+
+    return false;
+  },
+  [form]
+);
 
 
   // ─── Logout ───────────────────────────────────────────────────
@@ -213,8 +218,8 @@ export function useCandidateProfile() {
     setIsLoggingOut(true);
     try {
       await authService.logout();
-    } catch {
-      // Still logout locally even if API fails
+    } catch (err) {
+      extractApiError(err)
     } finally {
       dispatch(logout());
       setIsLoggingOut(false);

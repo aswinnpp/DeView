@@ -26,7 +26,6 @@ export function useRejectCompanyModal(
 
                 rejectForm.reset({ reason: "" });
 
-                // Notify parent only after API success
                 onSuccess();
             } catch (err) {
                 console.error("Reject failed:", extractApiError(err));

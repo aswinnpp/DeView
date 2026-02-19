@@ -15,12 +15,10 @@ const CompanyApprovalPendingPage = () => {
             if (response) {
                 setApproval(response);
 
-                // If approved, redirect to company dashboard
                 if (response.status === 'approved') {
                     navigate('/company/dashboard');
                 }
             } else {
-                // No approval found, redirect to form
                 navigate('/company/approval-form');
             }
         } catch (err) {
@@ -45,7 +43,6 @@ const CompanyApprovalPendingPage = () => {
         return (
             <div className="min-h-screen bg-[#0f172a] text-[#e2e8f0] p-10">
                 <main style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center', paddingTop: 100 }}>
-                    <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
                     <h2 style={{ color: '#f1f5f9' }}>Loading...</h2>
                 </main>
             </div>
@@ -70,7 +67,7 @@ const CompanyApprovalPendingPage = () => {
                 {/* Rejection Mode */}
                 {approval.status === 'rejected' ? (
                     <div style={{ background: '#1e293b', border: '1px solid #ef4444', borderRadius: 12, padding: 32 }}>
-                        <div style={{ fontSize: 48, marginBottom: 16 }}>❌</div>
+                        
                         <h2 style={{ color: '#ef4444', marginBottom: 12 }}>Application Rejected</h2>
                         <p style={{ color: '#cbd5e1', marginBottom: 24 }}>
                             <strong>Reason:</strong> {approval.rejectionReason || 'No reason provided'}
@@ -120,7 +117,7 @@ const CompanyApprovalPendingPage = () => {
                             onClick={loadApproval}
                             className="mt-5 py-2 px-5 rounded-md text-[13px]"
                         >
-                            🔄 Refresh Status
+                             Refresh Status
                         </Button>
                     </div>
                 )}

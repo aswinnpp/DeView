@@ -18,6 +18,9 @@ export class ApproveCompanyUseCase {
       throw AppError.notFound("Company approval not found");
     }
 
+    console.log("aa",approval);
+    
+
     approval.approve();
 
     await this.repo.save(approval);

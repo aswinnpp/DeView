@@ -20,6 +20,9 @@ export class SubmitCompanyApprovalUseCase {
 
     const existing = await this.repo.findByUserId(dto.userId);
 
+    console.log("ex",existing);
+    
+
     if (existing?.status === "pending") {
       throw AppError.badRequest("You already have a pending approval request");
     }

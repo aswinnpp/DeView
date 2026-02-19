@@ -1,11 +1,6 @@
-/**
- * Hook for the company approval / onboarding form.
- * Handles form state, document uploads, validation, and submit.
- * Supports resubmission: if user was rejected, previous data can be pre-filled from router state.
- */
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useForm, type FieldErrors } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   companyApprovalService,
@@ -17,6 +12,7 @@ import {
   type SubmitCompanyApprovalRequest,
 } from "@shared/contracts/companyApproval/submit";
 import { extractApiError } from "../../api/axios";
+import { APP_ROUTES } from "../../constants/routes";
 
 // Default form values when not resubmitting
 const INITIAL: Omit<SubmitCompanyApprovalRequest, "documents"> = {
@@ -53,12 +49,10 @@ export function useCompanyApprovalForm({
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // When user resubmits after rejection, we get previous data from router state
   const previousApproval = (location.state as
     | { previousApproval?: CompanyApprovalStatus }
     | null)?.previousApproval;
 
-  // Start with previous data if resubmitting, otherwise empty form
   const defaultValues: SubmitCompanyApprovalRequest = previousApproval
     ? {
         companyName: previousApproval.companyName ?? "",
@@ -90,7 +84,6 @@ export function useCompanyApprovalForm({
     DocumentUpload
   >;
 
-  // Remove an uploaded document by key
   const remove = useCallback(
     (key: string) => {
       const next = { ...documents };
@@ -100,40 +93,60 @@ export function useCompanyApprovalForm({
     [documents, form]
   );
 
-  // Returns labels of required document types that are still missing
-  const validateRequired = useCallback(() => {
-    return documentTypes
-      .filter((d) => d.required && !documents[d.key])
-      .map((d) => d.label);
-  }, [documentTypes, documents]);
 
-  const getDocumentCount = useCallback(
-    () => Object.keys(documents).length,
-    [documents]
-  );
-  const getRequiredDocCount = useCallback(
-    () => documentTypes.filter((d) => d.required).length,
-    [documentTypes]
-  );
+ 
 
-  // Document keys that were verified by admin (user cannot remove them on resubmit)
-  const getLockedDocKeys = useCallback((): Set<string> => {
-    if (!previousApproval?.documents) return new Set();
-    return new Set(
-      Object.entries(previousApproval.documents)
-        .filter(([, doc]) => doc.marked)
-        .map(([key]) => key)
-    );
-  }, [previousApproval?.documents]);
+
+ const getLockedDocKeys = useCallback((): Set<string> => {
+  const documents = previousApproval?.documents;
+
+  if (!documents) return new Set();
+
+  const keys = Object.keys(documents);
+  const lockedKeys: string[] = [];
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+
+    if (documents[key].marked) {
+      lockedKeys.push(key);
+    }
+  }
+
+  return new Set(lockedKeys);
+}, [previousApproval?.documents]);
 
   const lockedDocKeys = getLockedDocKeys();
+
+  // Prevent duplicate submission: if user already has pending approval, redirect
+  useEffect(() => {
+    if (previousApproval) return; // Resubmission flow - no check needed
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await companyApprovalService.getMyApproval();
+        const approval = res.data;
+        if (cancelled || !approval) return;
+        if (approval.status === "pending") {
+          navigate(APP_ROUTES.COMPANY_APPROVAL_PENDING, { replace: true });
+        } else if (approval.status === "approved") {
+          navigate(APP_ROUTES.COMPANY_DASHBOARD, { replace: true });
+        }
+      } catch (err){
+         setError(extractApiError(err));
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [previousApproval, navigate]);
 
   const onSubmit = async (values: SubmitCompanyApprovalRequest) => {
     setError("");
     setIsSubmitting(true);
     try {
       await companyApprovalService.submit(values);
-      navigate("/company/approval-pending");
+      navigate(APP_ROUTES.COMPANY_APPROVAL_PENDING);
     } catch (err: unknown) {
       setError(extractApiError(err));
     } finally {
@@ -141,12 +154,6 @@ export function useCompanyApprovalForm({
     }
   };
 
-  const handleSubmit = form.handleSubmit(
-    onSubmit,
-    (validationErrors: FieldErrors<SubmitCompanyApprovalRequest>) => {
-      setError("Please fix the errors above before submitting.");
-    }
-  );
 
   return {
     loading: isSubmitting || form.formState.isSubmitting,
@@ -155,13 +162,10 @@ export function useCompanyApprovalForm({
     documents,
     remove,
     documentTypes,
-    validateRequired,
-    getDocumentCount,
-    getRequiredDocCount,
     isResubmission: Boolean(previousApproval),
     lockedDocKeys,
     rejectionReason: previousApproval?.rejectionReason,
-    onSubmit: handleSubmit,
+    onSubmit
   };
 }
 

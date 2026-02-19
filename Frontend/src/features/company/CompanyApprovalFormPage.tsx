@@ -16,40 +16,47 @@ const CompanyApprovalFormPage = () => {
         documents,
         remove,
         documentTypes,
-        getDocumentCount,
-        getRequiredDocCount,
         isResubmission,
         lockedDocKeys,
         rejectionReason,
         onSubmit,
     } = useCompanyApprovalForm();
 
-    const { register, formState: { errors } } = form;
+    const { register, formState: { errors },handleSubmit } = form;
 
     const { upload, isUploading, uploadedFile, reset } = useFileUpload();
     const [uploadingKey, setUploadingKey] = useState<string | null>(null);
+    const [uploadingFileName, setUploadingFileName] = useState<string>('');
 
-    // Sync uploaded file into documents
-    useEffect(() => {
-        if (uploadedFile?.url && uploadingKey) {
-            form.setValue('documents', {
-                ...documents,
-                [uploadingKey]: {
-                    fileName: uploadingKey,
-                    fileUrl: uploadedFile.url,
-                    uploadedAt: new Date().toISOString(),
-                    marked: false,
-                },
-            }, { shouldValidate: true });
-            setUploadingKey(null);
-        }
-    }, [uploadedFile]);
+  useEffect(() => {
+  if (!uploadedFile?.url || !uploadingKey) return;
+
+  const newDocument = {
+    fileName: uploadingFileName || uploadingKey,
+    fileUrl: uploadedFile.url,
+    uploadedAt: new Date().toISOString(),
+    marked: false,
+  };
+
+  form.setValue(
+    'documents',
+    {
+      ...documents,
+      [uploadingKey]: newDocument,
+    },
+    { shouldValidate: true }
+  );
+
+  setUploadingKey(null);
+  setUploadingFileName('');
+}, [uploadedFile?.url, uploadingKey, uploadingFileName]);
 
     const handleFileUpload = (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         e.target.value = '';
         setUploadingKey(key);
+        setUploadingFileName(file.name);
         reset();
         upload(file, key as UploadCategory);
     };
@@ -65,15 +72,7 @@ const CompanyApprovalFormPage = () => {
                         <div className="text-base font-extrabold text-white bg-linear-to-br from-[#6366f1] to-[#8b5cf6] py-3 px-3.5 rounded-xl tracking-wider">CO</div>
                         <h1 className="m-0 text-2xl font-bold bg-linear-to-br from-[#f8fafc] to-[#cbd5e1] bg-clip-text text-transparent">Company Onboarding</h1>
                     </div>
-                    <div className="flex flex-col items-end gap-1.5 max-md:w-full max-md:items-stretch">
-                        <span className="text-xs text-[#94a3b8] font-semibold">Documents: {getDocumentCount()}/{documentTypes.length}</span>
-                        <div className="w-[120px] h-1.5 bg-[rgba(100,116,139,0.3)] rounded-sm overflow-hidden max-md:w-full">
-                            <div
-                                className="h-full bg-linear-to-r from-[#6366f1] to-[#10b981] rounded-sm transition-all duration-300"
-                                style={{ width: `${(getDocumentCount() / documentTypes.length) * 100}%` }}
-                            />
-                        </div>
-                    </div>
+                    
                 </div>
             </header>
 
@@ -84,7 +83,6 @@ const CompanyApprovalFormPage = () => {
                     {isResubmission && (
                         <div className="mb-8 bg-[rgba(245,158,11,0.1)] border border-[rgba(245,158,11,0.3)] rounded-2xl p-6">
                             <div className="flex items-center gap-3 mb-3">
-                                <div className="w-10 h-10 rounded-xl bg-[rgba(245,158,11,0.2)] flex items-center justify-center text-xl">🔄</div>
                                 <div>
                                     <h3 className="m-0 text-lg font-bold text-[#fbbf24]">Resubmitting Application</h3>
                                     <p className="m-0 text-[13px] text-[#94a3b8]">Your previous application was rejected. Please correct the issues below.</p>
@@ -98,7 +96,7 @@ const CompanyApprovalFormPage = () => {
                                 </div>
                             )}
                             <p className="m-0 mt-3 text-xs text-[#64748b]">
-                                ✅ Verified documents are locked. Only unmarked documents need to be re-uploaded.
+                                 Verified documents are locked. Only unmarked documents need to be re-uploaded.
                                 All other fields are pre-filled but editable.
                             </p>
                         </div>
@@ -108,8 +106,7 @@ const CompanyApprovalFormPage = () => {
                         <h2 className="m-0 mb-3 text-[28px] font-bold text-white">
                             {isResubmission ? 'Resubmit Verification' : 'Company Verification'}
                         </h2>
-                        <p className="m-0 text-[#94a3b8] text-[15px] leading-relaxed">Please provide your company details and upload required documents for verification.
-                            Our team will review your application within 2-3 business days.</p>
+                      
                     </div>
 
                     {error && (
@@ -119,8 +116,7 @@ const CompanyApprovalFormPage = () => {
                         </div>
                     )}
 
-                    <form onSubmit={onSubmit} className="flex flex-col gap-8">
-                        {/* Company Information Section */}
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
                         <section className="bg-[rgba(15,23,42,0.5)] border border-[rgba(71,85,105,0.3)] rounded-2xl p-6">
                             <h3 className="flex items-center gap-2.5 m-0 mb-5 text-lg font-bold text-[#f1f5f9]">
                                 <span className="flex items-center justify-center w-7 h-7 bg-linear-to-br from-[#6366f1] to-[#8b5cf6] rounded-lg text-sm font-bold text-white">1</span>
@@ -232,7 +228,6 @@ const CompanyApprovalFormPage = () => {
                             <h3 className="flex items-center gap-2.5 m-0 mb-5 text-lg font-bold text-[#f1f5f9]">
                                 <span className="flex items-center justify-center w-7 h-7 bg-linear-to-br from-[#6366f1] to-[#8b5cf6] rounded-lg text-sm font-bold text-white">3</span>
                                 Verification Documents
-                                <span className="ml-auto bg-[rgba(99,102,241,0.2)] text-[#a5b4fc] py-1 px-2.5 rounded-xl text-[11px] font-semibold">{getRequiredDocCount()} Required</span>
                             </h3>
                             <p className="-mt-3 mb-5 text-[#64748b] text-[13px]">
                                 Upload clear, legible copies of the following documents. Accepted formats: PDF, JPG, PNG (Max 5MB each)

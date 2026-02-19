@@ -4,6 +4,8 @@ import { useDispatch } from 'react-redux';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { authService } from '../../services/auth.service';
+import { candidateService } from '../../services/candidate.service';
+
 import { loginRequestSchema, type LoginRequest } from '@shared/contracts/auth/login';
 import { setUser } from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
@@ -31,9 +33,9 @@ export function useLogin() {
   const navigateCompanyUser = async (userId: string): Promise<void> => {
     try {
       const { data: result } = await authService.checkCompanyStatus({ userId });
-     
 
-        
+
+
 
       switch (result.status) {
         case 'approved':
@@ -61,45 +63,24 @@ export function useLogin() {
         password: values.password,
       });
 
-      
-      console.log('Raw axios response:', response);
-      console.log('Response data after interceptor:', response.data);
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
+
 
       const result = response.data;
-      
-      if (!result || typeof result !== 'object') {
-        console.error('Invalid response format:', result);
-        setError('Invalid response from server. Please try again.');
-        return;
-      }
 
-      if (Object.keys(result).length === 0) {
-        console.error('Empty response object received. Full response:', response);
-        setError('Server returned empty response. This may indicate a backend issue. Please contact support.');
-        return;
-      }
+
 
       const user = result.user;
-      if (!user || typeof user !== 'object') {
-        console.error('User data missing or invalid. Response structure:', result);
-        setError('User data missing in server response. Please try again or contact support.');
-        return;
-      }
-
-      if (typeof user.id !== 'string' || typeof user.role !== 'string') {
-        console.error('User data incomplete:', { id: user.id, role: user.role, fullUser: user });
-        setError('Invalid user data format received from server. Please try again.');
-        return;
-      }
-
       dispatch(setUser(user));
       const { role, id: userId } = user;
-      console.log("role", role);
+
 
       if (role === 'candidate') {
-        navigate(APP_ROUTES.CANDIDATE_PROFILE);
+        const profile = await candidateService.getProfile()
+        if (profile) {
+          navigate(APP_ROUTES.CANDIDATE_INTERVIEWS)
+        } else {
+          navigate(APP_ROUTES.CANDIDATE_PROFILE);
+        }     
       } else if (role === 'company') {
         await navigateCompanyUser(userId);
       } else if (role === 'hr') {
@@ -119,6 +100,6 @@ export function useLogin() {
   return {
     isLoading,
     error,
-    data: { form,onSubmit },
+    data: { form, onSubmit },
   };
 }
