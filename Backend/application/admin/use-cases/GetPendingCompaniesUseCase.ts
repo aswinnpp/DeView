@@ -8,6 +8,6 @@ export class GetPendingCompaniesUseCase implements GetPendingCompaniesUseCasePor
   constructor(@inject(TYPES.CompanyApprovalRepositoryPort) private repo: CompanyApprovalRepositoryPort) { }
 
   async execute(search?: string) {
-    return await this.repo.searchPending(search);
+    return await this.repo.findPending(search);
   }
 }

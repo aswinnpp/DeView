@@ -16,34 +16,32 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
     return doc ? this.toDomain(doc) : null;
   }
 
-  async findPending(): Promise<CompanyApproval[]> {
-    const docs = await this.collection.find({ status: "pending" }).toArray();
-    return docs.map(d => this.toDomain(d));
-  }
-
-  async findApproved(): Promise<CompanyApproval[]> {
-    const docs = await this.collection.find({ status: "approved" }).toArray();
-    return docs.map(d => this.toDomain(d));
-  }
-
-  async searchPending(search?: string): Promise<CompanyApproval[]> {
+  async findPending(search?: string): Promise<CompanyApproval[]> {
     const filter: Record<string, any> = { status: "pending" };
 
     if (search && search.trim()) {
-      const regex = { $regex: search.trim(), $options: 'i' };
-      filter.$or = [{ companyName: regex }, { contactEmail: regex }, { contactPerson: regex }];
+      const regex = { $regex: search.trim(), $options: "i" };
+      filter.$or = [
+        { companyName: regex },
+        { contactEmail: regex },
+        { contactPerson: regex },
+      ];
     }
 
     const docs = await this.collection.find(filter).toArray();
     return docs.map(d => this.toDomain(d));
   }
 
-  async searchApproved(search?: string): Promise<CompanyApproval[]> {
+  async findApproved(search?: string): Promise<CompanyApproval[]> {
     const filter: Record<string, any> = { status: "approved" };
 
     if (search && search.trim()) {
-      const regex = { $regex: search.trim(), $options: 'i' };
-      filter.$or = [{ companyName: regex }, { contactEmail: regex }, { contactPerson: regex }];
+      const regex = { $regex: search.trim(), $options: "i" };
+      filter.$or = [
+        { companyName: regex },
+        { contactEmail: regex },
+        { contactPerson: regex },
+      ];
     }
 
     const docs = await this.collection.find(filter).toArray();
