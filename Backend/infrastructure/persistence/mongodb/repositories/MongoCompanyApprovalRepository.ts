@@ -1,9 +1,9 @@
 import { Collection, ObjectId } from "mongodb";
-import { CompanyApprovalRepository } from "../../../../domain/company/repositories/CompanyApprovalRepository";
+import { CompanyApprovalRepositoryPort } from "../../../../application/company/ports/CompanyApprovalRepositoryPort";
 import { CompanyApproval } from "../../../../domain/company/entities/CompanyApprovalEntitie";
 import { CompanyApprovalDocument } from "../schemas/CompanyApprovalDocument";
 
-export class MongoCompanyApprovalRepository implements CompanyApprovalRepository {
+export class MongoCompanyApprovalRepository implements CompanyApprovalRepositoryPort {
   constructor(private collection: Collection<CompanyApprovalDocument>) { }
 
   async findById(id: string): Promise<CompanyApproval | null> {

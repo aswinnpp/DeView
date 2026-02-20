@@ -7,7 +7,7 @@ export async function adminCompanyApprovalRoutes(
     fastify: FastifyInstance,
     controller: AdminCompanyApprovalController
 ): Promise<void> {
-    // All admin routes require admin role
+
     fastify.addHook("preHandler", requireRoles('admin'));
 
     fastify.get('/pending', {

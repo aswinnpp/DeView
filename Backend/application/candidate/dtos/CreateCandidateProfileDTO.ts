@@ -1,4 +1,3 @@
-/** Create profile: all fields required except URL (linkedin, github, resume) and professional (title, company, salary, experience). */
 export interface CreateCandidateProfileDTO {
     userId: string;
     fullName: string;

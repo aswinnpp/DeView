@@ -1,18 +1,19 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../infrastructure/di/types";
-import { UserRepository } from "../../../domain/user/repositories/UserRepository";
-import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
+import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
+import { OTPRepositoryPort } from "../ports/OTPRepositoryPort";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 import { PasswordHasherPort } from "../ports/PasswordHasherPort";
 import { TokenServicePort } from "../ports/TokenServicePort";
 import { AppError } from "../../../shared/errors/AppError";
+import type { ResetPasswordUseCasePort } from "../ports/ResetPasswordUseCasePort";
 
 @injectable()
-export class ResetPasswordUseCase {
+export class ResetPasswordUseCase implements ResetPasswordUseCasePort {
   constructor(
-    @inject(TYPES.UserRepository) private userRepo: UserRepository,
-    @inject(TYPES.OTPRepository) private otpRepo: OTPRepository,
+    @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort,
+    @inject(TYPES.OTPRepositoryPort) private otpRepo: OTPRepositoryPort,
     @inject(TYPES.PasswordHasherPort) private hasher: PasswordHasherPort,
     @inject(TYPES.TokenServicePort) private tokenService: TokenServicePort
   ) {}

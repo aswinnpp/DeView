@@ -2,14 +2,11 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
-import { CheckCompanyStatusUseCase } from "../../../application/company/use-cases/CheckCompanyStatusUseCase";
-import { SubmitCompanyApprovalUseCase } from "../../../application/company/use-cases/SubmitCompanyApprovalUseCase";
-import { GetMyCompanyApprovalUseCase } from "../../../application/company/use-cases/GetMyCompanyApprovalUseCase";
+import { TYPES } from "../../../infrastructure/di/types";
+import type { CheckCompanyStatusUseCasePort } from "../../../application/company/ports/CheckCompanyStatusUseCasePort";
+import type { SubmitCompanyApprovalUseCasePort } from "../../../application/company/ports/SubmitCompanyApprovalUseCasePort";
+import type { GetMyCompanyApprovalUseCasePort } from "../../../application/company/ports/GetMyCompanyApprovalUseCasePort";
 import { CompanyDocuments } from "../../../infrastructure/persistence/mongodb/schemas/CompanyApprovalDocument";
-
-interface CheckStatusBody {
-  userId: string;
-}
 
 interface SubmitApprovalBody {
   companyName: string;
@@ -25,20 +22,15 @@ interface SubmitApprovalBody {
 @injectable()
 export class CompanyApprovalController {
   constructor(
-    @inject(CheckCompanyStatusUseCase) private readonly checkStatusUseCase: CheckCompanyStatusUseCase,
-    @inject(SubmitCompanyApprovalUseCase) private readonly submitApprovalUseCase: SubmitCompanyApprovalUseCase,
-    @inject(GetMyCompanyApprovalUseCase) private readonly getMyApprovalUseCase: GetMyCompanyApprovalUseCase,
+    @inject(TYPES.CheckCompanyStatusUseCasePort) private readonly checkStatusUseCase: CheckCompanyStatusUseCasePort,
+    @inject(TYPES.SubmitCompanyApprovalUseCasePort) private readonly submitApprovalUseCase: SubmitCompanyApprovalUseCasePort,
+    @inject(TYPES.GetMyCompanyApprovalUseCasePort) private readonly getMyApprovalUseCase: GetMyCompanyApprovalUseCasePort,
   ) {}
 
-  // POST /company/check-status
-  checkStatus = async (
-    request: FastifyRequest<{ Body: CheckStatusBody }>,
-    reply: FastifyReply,
-  ) => {
-    const result = await this.checkStatusUseCase.execute({
-      userId: request.body.userId,
-    });
-
+  // POST /company/check-status — uses authenticated user
+  checkStatus = async (request: FastifyRequest, reply: FastifyReply) => {
+    const userId = request.currentUser.userId;
+    const result = await this.checkStatusUseCase.execute({ userId });
     reply.send(success(result));
   };
 

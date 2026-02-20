@@ -15,7 +15,7 @@ export async function registerRateLimit(fastify: FastifyInstance): Promise<void>
             };
         },
     });
-    console.log('✅ Rate limiting registered (100 requests per 15 minutes)');
+    console.log(' Rate limiting registered (100 requests per 15 minutes)');
 }
 export async function registerAuthRateLimit(fastify: FastifyInstance): Promise<void> {
     await fastify.register(rateLimit, {
@@ -33,5 +33,5 @@ export async function registerAuthRateLimit(fastify: FastifyInstance): Promise<v
             };
         },
     });
-    console.log('✅ Auth rate limiting registered (5 attempts per minute per email/IP)');
+    console.log(' Auth rate limiting registered (5 attempts per minute per email/IP)');
 }

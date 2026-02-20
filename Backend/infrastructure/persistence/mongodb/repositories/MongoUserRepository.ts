@@ -1,11 +1,11 @@
 import { Collection, ObjectId } from 'mongodb';
-import { UserRepository } from '../../../../domain/user/repositories/UserRepository';
+import { UserRepositoryPort } from '../../../../application/shared/ports/UserRepositoryPort';
 import { User } from '../../../../domain/user/entities/User';
 import { Email } from '../../../../domain/user/value-objects/Email';
 import { Role } from '../../../../domain/user/value-objects/Role';
 import { UserDocument } from '../schemas/UserDocument';
 
-export class MongoUserRepository implements UserRepository {
+export class MongoUserRepository implements UserRepositoryPort {
   constructor(private collection: Collection<UserDocument>) { }
 
   async findByEmail(email: Email): Promise<User | null> {

@@ -1,12 +1,11 @@
-// application/admin/usecases/GetPendingCompaniesUseCase.ts
-
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../infrastructure/di/types";
-import { CompanyApprovalRepository } from "../../../domain/company/repositories/CompanyApprovalRepository";
+import { CompanyApprovalRepositoryPort } from "../../company/ports/CompanyApprovalRepositoryPort";
+import type { GetPendingCompaniesUseCasePort } from "../ports/GetPendingCompaniesUseCasePort";
 
 @injectable()
-export class GetPendingCompaniesUseCase {
-  constructor(@inject(TYPES.CompanyApprovalRepository) private repo: CompanyApprovalRepository) { }
+export class GetPendingCompaniesUseCase implements GetPendingCompaniesUseCasePort {
+  constructor(@inject(TYPES.CompanyApprovalRepositoryPort) private repo: CompanyApprovalRepositoryPort) { }
 
   async execute(search?: string) {
     return await this.repo.searchPending(search);

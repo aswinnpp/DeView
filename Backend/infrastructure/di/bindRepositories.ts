@@ -3,6 +3,10 @@ import type { Db } from 'mongodb';
 import type { RedisClientType } from 'redis';
 
 import { TYPES } from './types.js';
+import type { UserRepositoryPort } from '../../application/shared/ports/UserRepositoryPort.js';
+import type { CompanyApprovalRepositoryPort } from '../../application/company/ports/CompanyApprovalRepositoryPort.js';
+import type { OTPRepositoryPort } from '../../application/auth/ports/OTPRepositoryPort.js';
+import type { CandidateProfileRepositoryPort } from '../../application/candidate/ports/CandidateProfileRepositoryPort.js';
 import { MongoUserRepository } from '../persistence/mongodb/repositories/MongoUserRepository.js';
 import { MongoCompanyApprovalRepository } from '../persistence/mongodb/repositories/MongoCompanyApprovalRepository.js';
 import { MongoCandidateProfileRepository } from '../persistence/mongodb/repositories/MongoCandidateProfileRepository.js';
@@ -33,19 +37,19 @@ const createOAuthSessionRepository = (redis: RedisClientType) =>
 /**
  */
 export function bindRepositories(container: Container): void {
-  container.bind(TYPES.UserRepository).toDynamicValue(() => 
+  container.bind<UserRepositoryPort>(TYPES.UserRepositoryPort).toDynamicValue(() =>
     createUserRepository(container.get<Db>(TYPES.Db))
   );
 
-  container.bind(TYPES.CompanyApprovalRepository).toDynamicValue(() => 
+  container.bind<CompanyApprovalRepositoryPort>(TYPES.CompanyApprovalRepositoryPort).toDynamicValue(() =>
     createCompanyApprovalRepository(container.get<Db>(TYPES.Db))
   );
 
-  container.bind(TYPES.CandidateProfileRepository).toDynamicValue(() => 
+  container.bind<CandidateProfileRepositoryPort>(TYPES.CandidateProfileRepositoryPort).toDynamicValue(() =>
     createCandidateProfileRepository(container.get<Db>(TYPES.Db))
   );
 
-  container.bind(TYPES.OTPRepository).toDynamicValue(() => 
+  container.bind<OTPRepositoryPort>(TYPES.OTPRepositoryPort).toDynamicValue(() =>
     createOTPRepository(container.get<RedisClientType>(TYPES.Redis))
   );
 

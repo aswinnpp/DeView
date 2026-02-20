@@ -1,12 +1,13 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../infrastructure/di/types";
-import { CandidateProfileRepository } from "../../../domain/candidate/repositories/CandidateProfileRepository";
+import { CandidateProfileRepositoryPort } from "../ports/CandidateProfileRepositoryPort";
 import { CandidateProfile } from "../../../domain/candidate/entities/CandidateProfile";
 import { AppError } from "../../../shared/errors/AppError";
+import type { GetCandidateProfileUseCasePort } from "../ports/GetCandidateProfileUseCasePort";
 
 @injectable()
-export class GetCandidateProfileUseCase {
-    constructor(@inject(TYPES.CandidateProfileRepository) private repo: CandidateProfileRepository) { }
+export class GetCandidateProfileUseCase implements GetCandidateProfileUseCasePort {
+    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private repo: CandidateProfileRepositoryPort) { }
 
     async execute(userId: string): Promise<CandidateProfile | null> {
         if (!userId) {

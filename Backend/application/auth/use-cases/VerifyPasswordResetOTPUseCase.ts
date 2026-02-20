@@ -1,13 +1,14 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../infrastructure/di/types";
-import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
+import { OTPRepositoryPort } from "../ports/OTPRepositoryPort";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 import { AppError } from "../../../shared/errors/AppError";
+import type { VerifyPasswordResetOTPUseCasePort } from "../ports/VerifyPasswordResetOTPUseCasePort";
 
 @injectable()
-export class VerifyPasswordResetOTPUseCase {
-  constructor(@inject(TYPES.OTPRepository) private otpRepository: OTPRepository) {}
+export class VerifyPasswordResetOTPUseCase implements VerifyPasswordResetOTPUseCasePort {
+  constructor(@inject(TYPES.OTPRepositoryPort) private otpRepository: OTPRepositoryPort) {}
 
   async execute(emailStr: string, otpStr: string) {
     const email = new Email(emailStr);

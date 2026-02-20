@@ -2,9 +2,10 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { success } from '../../../shared/http/apiResponse';
 import { HttpStatus } from '../../../shared/http/HttpStatus';
-import { CreateTeamMemberUseCase } from '../../../application/company/use-cases/CreateTeamMemberUseCase.js';
-import { ListTeamMembersUseCase } from '../../../application/company/use-cases/ListTeamMembersUseCase.js';
-import { ToggleTeamMemberStatusUseCase } from '../../../application/company/use-cases/ToggleTeamMemberStatusUseCase.js';
+import { TYPES } from '../../../infrastructure/di/types.js';
+import type { CreateTeamMemberUseCasePort } from '../../../application/company/ports/CreateTeamMemberUseCasePort.js';
+import type { ListTeamMembersUseCasePort } from '../../../application/company/ports/ListTeamMembersUseCasePort.js';
+import type { ToggleTeamMemberStatusUseCasePort } from '../../../application/company/ports/ToggleTeamMemberStatusUseCasePort.js';
 
 interface CreateBody {
     fullName: string;
@@ -23,9 +24,9 @@ interface SearchQuery {
 @injectable()
 export class CompanyTeamController {
     constructor(
-        @inject(CreateTeamMemberUseCase) private readonly createTeamMemberUseCase: CreateTeamMemberUseCase,
-        @inject(ListTeamMembersUseCase) private readonly listTeamMembersUseCase: ListTeamMembersUseCase,
-        @inject(ToggleTeamMemberStatusUseCase) private readonly toggleTeamMemberStatusUseCase: ToggleTeamMemberStatusUseCase
+        @inject(TYPES.CreateTeamMemberUseCasePort) private readonly createTeamMemberUseCase: CreateTeamMemberUseCasePort,
+        @inject(TYPES.ListTeamMembersUseCasePort) private readonly listTeamMembersUseCase: ListTeamMembersUseCasePort,
+        @inject(TYPES.ToggleTeamMemberStatusUseCasePort) private readonly toggleTeamMemberStatusUseCase: ToggleTeamMemberStatusUseCasePort
     ) {}
 
     listHRs = async (

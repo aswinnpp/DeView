@@ -15,7 +15,6 @@ export async function registerHelmet(fastify: FastifyInstance): Promise<void> {
             },
         },
         crossOriginEmbedderPolicy: false,
-        // Let CSP frame-ancestors handle framing instead of the blanket X-Frame-Options
         frameguard: false,
     });
     console.log('✅ Security headers (Helmet) registered');

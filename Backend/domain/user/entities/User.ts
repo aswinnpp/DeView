@@ -39,9 +39,6 @@ export class User {
     );
   }
 
-  verifyEmail() {
-    this.isEmailVerified = true;
-  }
 
   deactivate() {
     this.isActive = false;
@@ -51,13 +48,6 @@ export class User {
     this.isActive = true;
   }
 
-  updateName(name: string) {
-    if (!name.trim()) {
-      throw new DomainError("Name required");
-    }
-
-    this.fullName = name;
-  }
 
   markEmailAsVerified() {
     this.isEmailVerified = true;

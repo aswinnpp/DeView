@@ -1,12 +1,13 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../infrastructure/di/types";
-import { CompanyApprovalRepository } from "../../../domain/company/repositories/CompanyApprovalRepository";
+import { CompanyApprovalRepositoryPort } from "../ports/CompanyApprovalRepositoryPort";
 import { CheckCompanyStatusDTO } from "../dtos/CheckCompanyStatusDTO";
 import { AppError } from "../../../shared/errors/AppError";
+import type { CheckCompanyStatusUseCasePort } from "../ports/CheckCompanyStatusUseCasePort";
 
 @injectable()
-export class CheckCompanyStatusUseCase {
-  constructor(@inject(TYPES.CompanyApprovalRepository) private repo: CompanyApprovalRepository) { }
+export class CheckCompanyStatusUseCase implements CheckCompanyStatusUseCasePort {
+  constructor(@inject(TYPES.CompanyApprovalRepositoryPort) private repo: CompanyApprovalRepositoryPort) { }
 
   async execute(dto: CheckCompanyStatusDTO) {
     if (!dto.userId) {

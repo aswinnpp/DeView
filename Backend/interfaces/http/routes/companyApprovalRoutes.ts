@@ -8,7 +8,8 @@ export async function companyApprovalRoutes(
     controller: CompanyApprovalController
 ): Promise<void> {
 
-    // Check approval status (called during login)
+    fastify.addHook("preHandler", requireAuth);
+
     fastify.post('/check-status', {
         schema: checkStatusSchema,
         handler: controller.checkStatus,

@@ -33,7 +33,6 @@ export type GoogleExchangeResponse = {
     role: string;
 };
 
-export type CompanyStatusPayload = { userId: string };
 export type CompanyStatusResponse = {
     exists: boolean;
     status: 'not_found' | 'pending' | 'approved' | 'rejected';
@@ -74,8 +73,8 @@ export const authService = {
         });
     },
 
-    checkCompanyStatus(data: CompanyStatusPayload) {
-        return api.post<CompanyStatusResponse>(API_ROUTES.COMPANY.CHECK_STATUS, data);
+    checkCompanyStatus() {
+        return api.post<CompanyStatusResponse>(API_ROUTES.COMPANY.CHECK_STATUS, {});
     },
 
     logout() {

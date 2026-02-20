@@ -1,16 +1,17 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../infrastructure/di/types";
-import { CompanyApprovalRepository } from "../../../domain/company/repositories/CompanyApprovalRepository";
-import { UserRepository } from "../../../domain/user/repositories/UserRepository";
+import { CompanyApprovalRepositoryPort } from "../ports/CompanyApprovalRepositoryPort";
+import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
 import { CompanyApproval } from "../../../domain/company/entities/CompanyApprovalEntitie";
 import { SubmitCompanyApprovalDTO } from "../dtos/SubmitCompanyApprovalDTO";
 import { AppError } from "../../../shared/errors/AppError";
+import type { SubmitCompanyApprovalUseCasePort } from "../ports/SubmitCompanyApprovalUseCasePort";
 
 @injectable()
-export class SubmitCompanyApprovalUseCase {
+export class SubmitCompanyApprovalUseCase implements SubmitCompanyApprovalUseCasePort {
   constructor(
-    @inject(TYPES.CompanyApprovalRepository) private repo: CompanyApprovalRepository,
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
+    @inject(TYPES.CompanyApprovalRepositoryPort) private repo: CompanyApprovalRepositoryPort,
+    @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort
   ) { }
 
   async execute(dto: SubmitCompanyApprovalDTO) {
@@ -72,11 +73,8 @@ export class SubmitCompanyApprovalUseCase {
       dto.website
     );
 
-    const approvalId = await this.repo.save(approval);
-
-    return {
-      approvalId,
-    };
+    await this.repo.save(approval);
+    return { approvalId: approval.id ?? null };
   }
 }
 

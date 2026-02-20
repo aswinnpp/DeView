@@ -12,17 +12,14 @@ import { RedisAccessTokenRepository } from '../persistence/redis/RedisAccessToke
 import { RedisRefreshTokenRepository } from '../persistence/redis/RedisRefreshTokenRepository.js';
 import { env } from '../config/env.js';
 
-/**
- * Binds all service dependencies to the container
- */
+
 export function bindServices(container: Container): void {
-  // Simple services - direct class bindings
+
   container.bind(TYPES.PasswordHasherPort).to(BcryptPasswordHasher);
   container.bind(TYPES.EmailServicePort).to(NodemailerEmailService);
   container.bind(TYPES.FileStoragePort).to(CloudinaryFileStorageService);
   container.bind(TYPES.CryptoRandomPort).to(NodeCryptoRandomService);
 
-  // GoogleAuthService - direct instantiation (no runtime dependencies)
   container.bind(TYPES.GoogleAuthPort).toConstantValue(
     new GoogleAuthService(
       env.GOOGLE_CLIENT_ID || '',
@@ -31,7 +28,6 @@ export function bindServices(container: Container): void {
     )
   );
 
-  // TokenService - only dynamic binding (complex setup)
   container.bind(TYPES.TokenServicePort).toDynamicValue(() => {
     const redis = container.get<RedisClientType>(TYPES.Redis);
     return new SecureJwtTokenService(

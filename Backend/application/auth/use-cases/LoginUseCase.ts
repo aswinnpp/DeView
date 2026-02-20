@@ -1,41 +1,41 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../infrastructure/di/types";
-import { UserRepository } from "../../../domain/user/repositories/UserRepository";
+import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { PasswordHasherPort } from "../ports/PasswordHasherPort";
 import { TokenServicePort } from "../ports/TokenServicePort";
 import { AppError } from "../../../shared/errors/AppError";
-import {CompanyApprovalRepository}from "../../../domain/company/repositories/CompanyApprovalRepository"
+import { CompanyApprovalRepositoryPort } from "../../company/ports/CompanyApprovalRepositoryPort";
+import type { LoginUseCasePort } from "../ports/LoginUseCasePort";
 
 @injectable()
-export class LoginUseCase {
+export class LoginUseCase implements LoginUseCasePort {
   constructor(
-    @inject(TYPES.UserRepository) private userRepo: UserRepository,
-    @inject(TYPES.CompanyApprovalRepository) private companyRepo : CompanyApprovalRepository,
+    @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort,
+    @inject(TYPES.CompanyApprovalRepositoryPort) private companyRepo: CompanyApprovalRepositoryPort,
     @inject(TYPES.PasswordHasherPort) private hasher: PasswordHasherPort,
     @inject(TYPES.TokenServicePort) private tokenService: TokenServicePort
-  ) {}
+  ) { }
 
   async execute(emailStr: string, password: string) {
     const email = new Email(emailStr);
     const user = await this.userRepo.findByEmail(email);
     let userId = user?.id
     const company = await this.companyRepo.findByUserId(`${userId}`)
-    console.log(company);
-    
 
-    if(company && !company.isActive){
+
+    if (company && !company.isActive) {
       throw AppError.unauthorized("Account is deactivated");
     }
 
 
- if (!user || !user.passwordHash) {
+    if (!user || !user.passwordHash) {
       throw AppError.unauthorized("Invalid email or password");
-    }    
-  if (!user.isEmailVerified) {
+    }
+    if (!user.isEmailVerified) {
       throw AppError.forbidden("Email not verified");
     }
-    
+
     const ok = await this.hasher.compare(password, user.passwordHash);
     if (!ok) {
       throw AppError.unauthorized("Invalid email or password");
@@ -65,7 +65,6 @@ export class LoginUseCase {
       role: user.role.getValue(),
     };
 
-    console.log('LoginUseCase returning user data:', JSON.stringify(userData, null, 2));
 
     return {
       user: userData,
