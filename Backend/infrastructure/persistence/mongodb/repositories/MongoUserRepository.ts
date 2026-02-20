@@ -1,5 +1,5 @@
 import { Collection, ObjectId } from 'mongodb';
-import { UserRepositoryPort } from '../../../../application/shared/ports/repository/UserRepositoryPort';
+import type { UserRepositoryPort, UserSearchOptions } from '../../../../application/shared/ports/repository/UserRepositoryPort';
 import { User } from '../../../../domain/user/entities/User';
 import { Email } from '../../../../domain/user/value-objects/Email';
 import { Role } from '../../../../domain/user/value-objects/Role';
@@ -18,59 +18,48 @@ export class MongoUserRepository implements UserRepositoryPort {
     return doc ? this.toDomain(doc) : null;
   }
 
-  async findByCompanyIdAndRole(companyId: string, role: string): Promise<User[]> {
-    const docs = await this.collection.find({ companyId, role }).toArray();
-    return docs.map((doc) => this.toDomain(doc));
-  }
-
-  async searchByCompanyIdAndRole(
+  async findByCompanyIdAndRole(
     companyId: string,
     role: string,
-    search?: string,
-    status?: string
+    options?: Pick<UserSearchOptions, 'search' | 'status'>
   ): Promise<User[]> {
+    const { search, status } = options ?? {};
     const filter: Record<string, any> = { companyId, role };
 
     if (search && search.trim()) {
-      const regex = { $regex: search.trim(), $options: 'i' };
+      const regex = { $regex: search.trim(), $options: "i" };
       filter.$or = [{ fullName: regex }, { email: regex }];
     }
 
-    if (status === 'active') filter.isActive = true;
-    if (status === 'inactive') filter.isActive = false;
+    if (status === "active") filter.isActive = true;
+    if (status === "inactive") filter.isActive = false;
 
     const docs = await this.collection.find(filter).toArray();
-    return docs.map((doc) => this.toDomain(doc));
+    return docs.map(doc => this.toDomain(doc));
   }
 
-  async findByRole(role: string): Promise<User[]> {
-    const docs = await this.collection.find({ role }).toArray();
-    return docs.map((doc) => this.toDomain(doc));
-  }
-
-  async searchByRole(
+  async findByRole(
     role: string,
-    search?: string,
-    status?: string,
-    sortOrder: 'asc' | 'desc' = 'desc'
+    options?: UserSearchOptions
   ): Promise<User[]> {
+    const { search, status, sortOrder = "desc" } = options ?? {};
     const filter: Record<string, any> = { role };
 
     if (search && search.trim()) {
-      const regex = { $regex: search.trim(), $options: 'i' };
+      const regex = { $regex: search.trim(), $options: "i" };
       filter.$or = [{ fullName: regex }, { email: regex }];
     }
 
-    if (status === 'active') filter.isActive = true;
-    if (status === 'inactive') filter.isActive = false;
+    if (status === "active") filter.isActive = true;
+    if (status === "inactive") filter.isActive = false;
 
-    const sortDirection = sortOrder === 'asc' ? 1 : -1;
+    const sortDirection = sortOrder === "asc" ? 1 : -1;
     const docs = await this.collection
       .find(filter)
       .sort({ createdAt: sortDirection, _id: sortDirection })
       .toArray();
-    
-    return docs.map((doc) => this.toDomain(doc));
+
+    return docs.map(doc => this.toDomain(doc));
   }
 
   async save(user: User): Promise<void> {

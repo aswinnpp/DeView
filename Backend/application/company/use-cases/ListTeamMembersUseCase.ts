@@ -19,8 +19,8 @@ export class ListTeamMembersUseCase implements ListTeamMembersUseCasePort {
         status?: string
     ): Promise<{ data: TeamMemberResponse[] }> {
         const companyId = await this.resolveCompany.execute(userId, companyIdFromToken);
-        const users = await this.userRepository.searchByCompanyIdAndRole(companyId, role, search, status);
-        const data: TeamMemberResponse[] = users.map(user => ({
+        const users = await this.userRepository.findByCompanyIdAndRole(companyId, role, { search, status });
+        const data: TeamMemberResponse[] = users.map((user) => ({
             id: user.id || '',
             fullName: user.fullName,
             email: user.email.getValue(),

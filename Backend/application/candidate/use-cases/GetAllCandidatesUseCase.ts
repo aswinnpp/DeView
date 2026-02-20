@@ -11,9 +11,9 @@ export class GetAllCandidatesUseCase implements GetAllCandidatesUseCasePort {
 
     async execute(search?: string, status?: string, sortOrder: 'asc' | 'desc' = 'desc'): Promise<{ data: CandidateListItem[] }> {
         // Query users with role 'candidate' from user collection
-        const users = await this.userRepository.searchByRole('candidate', search, status, sortOrder);
-        
-        const data: CandidateListItem[] = users.map(user => ({
+        const users = await this.userRepository.findByRole('candidate', { search, status, sortOrder });
+
+        const data: CandidateListItem[] = users.map((user) => ({
             id: user.id || '',
             fullName: user.fullName,
             email: user.email.getValue(),
