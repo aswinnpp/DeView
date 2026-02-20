@@ -18,6 +18,8 @@ import { ResolveCompanyForUserUseCase } from '../../application/company/use-case
 import { CheckCompanyStatusUseCase } from '../../application/company/use-cases/CheckCompanyStatusUseCase.js';
 import { SubmitCompanyApprovalUseCase } from '../../application/company/use-cases/SubmitCompanyApprovalUseCase.js';
 import { GetMyCompanyApprovalUseCase } from '../../application/company/use-cases/GetMyCompanyApprovalUseCase.js';
+import { GetCompanyProfileUseCase } from '../../application/company/use-cases/GetCompanyProfileUseCase.js';
+import { UpdateCompanyProfileUseCase } from '../../application/company/use-cases/UpdateCompanyProfileUseCase.js';
 import { CreateTeamMemberUseCase } from '../../application/company/use-cases/CreateTeamMemberUseCase.js';
 import { ListTeamMembersUseCase } from '../../application/company/use-cases/ListTeamMembersUseCase.js';
 import { ToggleTeamMemberStatusUseCase } from '../../application/company/use-cases/ToggleTeamMemberStatusUseCase.js';
@@ -34,6 +36,8 @@ import { ToggleCompanyActiveUseCase } from '../../application/admin/use-cases/To
 import { CreateCandidateProfileUseCase } from '../../application/candidate/use-cases/CreateCandidateProfileUseCase.js';
 import { GetCandidateProfileUseCase } from '../../application/candidate/use-cases/GetCandidateProfileUseCase.js';
 import { UpdateCandidateProfileUseCase } from '../../application/candidate/use-cases/UpdateCandidateProfileUseCase.js';
+import { GetAllCandidatesUseCase } from '../../application/candidate/use-cases/GetAllCandidatesUseCase.js';
+import { ToggleCandidateStatusUseCase } from '../../application/candidate/use-cases/ToggleCandidateStatusUseCase.js';
 
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/GenerateUploadSignatureUseCase.js';
@@ -62,6 +66,8 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.CheckCompanyStatusUseCasePort).to(CheckCompanyStatusUseCase);
   container.bind(TYPES.SubmitCompanyApprovalUseCasePort).to(SubmitCompanyApprovalUseCase);
   container.bind(TYPES.GetMyCompanyApprovalUseCasePort).to(GetMyCompanyApprovalUseCase);
+  container.bind(TYPES.GetCompanyProfileUseCasePort).to(GetCompanyProfileUseCase);
+  container.bind(TYPES.UpdateCompanyProfileUseCasePort).to(UpdateCompanyProfileUseCase);
   container.bind(TYPES.CreateTeamMemberUseCasePort).to(CreateTeamMemberUseCase);
   container.bind(TYPES.ListTeamMembersUseCasePort).to(ListTeamMembersUseCase);
   container.bind(TYPES.ToggleTeamMemberStatusUseCasePort).to(ToggleTeamMemberStatusUseCase);
@@ -78,6 +84,8 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.CreateCandidateProfileUseCasePort).to(CreateCandidateProfileUseCase);
   container.bind(TYPES.GetCandidateProfileUseCasePort).to(GetCandidateProfileUseCase);
   container.bind(TYPES.UpdateCandidateProfileUseCasePort).to(UpdateCandidateProfileUseCase);
+  container.bind(TYPES.GetAllCandidatesUseCasePort).to(GetAllCandidatesUseCase);
+  container.bind(TYPES.ToggleCandidateStatusUseCasePort).to(ToggleCandidateStatusUseCase);
 
   // Upload use cases
   container.bind(TYPES.GenerateUploadSignatureUseCasePort).to(GenerateUploadSignatureUseCase);

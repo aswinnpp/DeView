@@ -20,6 +20,7 @@ const CompanyApprovalPendingPage = lazy(() => import("../features/company/Compan
 const CompanyDashboardPage = lazy(() => import("../features/company/CompanyDashboardPage"));
 const CompanyLayout = lazy(() => import("../features/company/CompanyLayout"));
 const ManageHRPage = lazy(() => import("../features/company/ManageHRPage"));
+const CompanyProfilePage = lazy(() => import("../features/company/CompanyProfilePage"));
 
 
 const Profile = lazy(() => import("../features/candidate/Profile"));
@@ -30,6 +31,7 @@ const AdminDashboard = lazy(() => import("../features/admin/AdminDashboard"));
 const AdminLayout = lazy(() => import("../features/admin/AdminLayout"));
 const AdminCompanyRequestsPage = lazy(() => import("../features/admin/AdminCompanyRequestsPage"));
 const AdminCompanyManagement = lazy(() => import("../features/admin/AdminCompanyManagement"));
+const AdminCandidatesPage = lazy(() => import("../features/admin/AdminCandidatesPage"));
 
 
 
@@ -88,6 +90,7 @@ const AppRouter = () => {
             <Route index element={<AdminDashboard />} />
             <Route path="company-requests" element={<AdminCompanyRequestsPage />} />
             <Route path="companies" element={<AdminCompanyManagement />} />
+            <Route path="candidates" element={<AdminCandidatesPage />} />
           </Route>
 
 
@@ -95,6 +98,7 @@ const AppRouter = () => {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<CompanyDashboardPage />} />
             <Route path="team" element={<ManageHRPage />} />
+            <Route path="profile" element={<CompanyProfilePage />} />
           </Route>
 
         

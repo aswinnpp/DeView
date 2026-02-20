@@ -8,7 +8,7 @@ import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 import { PasswordHasherPort } from "../ports/PasswordHasherPort";
 import { EmailServicePort } from "../ports/EmailServicePort";
 import { AppError } from "../../../shared/errors/AppError";
-import { TYPES } from "../../../infrastructure/di/types";
+import { TYPES } from "../../../shared/di/types";
 import type { RegisterUserUseCasePort, RegisterUserDTO } from "../ports/RegisterUserUseCasePort";
 
 @injectable()

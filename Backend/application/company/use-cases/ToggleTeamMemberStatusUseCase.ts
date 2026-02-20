@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '../../../infrastructure/di/types';
+import { TYPES } from '../../../shared/di/types';
 import { UserRepositoryPort } from '../../shared/ports/UserRepositoryPort.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';

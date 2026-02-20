@@ -45,6 +45,39 @@ export class MongoUserRepository implements UserRepositoryPort {
     return docs.map((doc) => this.toDomain(doc));
   }
 
+  async findByRole(role: string): Promise<User[]> {
+    const docs = await this.collection.find({ role }).toArray();
+    return docs.map((doc) => this.toDomain(doc));
+  }
+
+  async searchByRole(
+    role: string,
+    search?: string,
+    status?: string,
+    sortOrder: 'asc' | 'desc' = 'desc'
+  ): Promise<User[]> {
+    const filter: Record<string, any> = { role };
+
+    // search filter — matches fullName or email
+    if (search && search.trim()) {
+      const regex = { $regex: search.trim(), $options: 'i' };
+      filter.$or = [{ fullName: regex }, { email: regex }];
+    }
+
+    // status filter — active / inactive
+    if (status === 'active') filter.isActive = true;
+    if (status === 'inactive') filter.isActive = false;
+
+    // Sort by createdAt (or _id if createdAt not available) - newest first by default
+    const sortDirection = sortOrder === 'asc' ? 1 : -1;
+    const docs = await this.collection
+      .find(filter)
+      .sort({ createdAt: sortDirection, _id: sortDirection })
+      .toArray();
+    
+    return docs.map((doc) => this.toDomain(doc));
+  }
+
   async save(user: User): Promise<void> {
     const doc = this.toDocument(user);
 

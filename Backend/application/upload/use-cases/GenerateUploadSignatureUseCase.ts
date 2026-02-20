@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '../../../infrastructure/di/types';
+import { TYPES } from '../../../shared/di/types';
 import { FileStoragePort } from '../ports/FileStoragePort.js';
 import { GenerateUploadSignatureInputDTO, GenerateUploadSignatureOutputDTO } from '../dtos/GenerateUploadSignatureDTO.js';
 import type { GenerateUploadSignatureUseCasePort } from '../ports/GenerateUploadSignatureUseCasePort.js';

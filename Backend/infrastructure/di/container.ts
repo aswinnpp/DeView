@@ -18,6 +18,7 @@ import { AdminCompanyApprovalController } from '../../interfaces/http/controller
 import { UploadController } from '../../interfaces/http/controllers/UploadController.js';
 import { CompanyTeamController } from '../../interfaces/http/controllers/CompanyTeamController.js';
 import { CandidateProfileController } from '../../interfaces/http/controllers/CandidateProfileController.js';
+import { CompanyProfileController } from '../../interfaces/http/controllers/CompanyProfileController.js';
 
 
 export function createContainer(db: Db) {
@@ -43,6 +44,7 @@ export function getControllers(container: ContainerType) {
     uploadController: container.get(UploadController),
     companyTeamController: container.get(CompanyTeamController),
     candidateProfileController: container.get(CandidateProfileController),
+    companyProfileController: container.get(CompanyProfileController),
   };
 }
 

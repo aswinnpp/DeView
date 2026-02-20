@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from "../../../infrastructure/di/types";
+import { TYPES } from "../../../shared/di/types";
 import { CompanyApprovalRepositoryPort } from "../../company/ports/CompanyApprovalRepositoryPort";
 import type { GetPendingCompaniesUseCasePort } from "../ports/GetPendingCompaniesUseCasePort";
 
