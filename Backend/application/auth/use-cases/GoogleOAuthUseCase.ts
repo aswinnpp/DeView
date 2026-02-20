@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from "../../../infrastructure/di/types";
+import { TYPES } from "../../../shared/di/types";
 import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
 import { TokenServicePort } from "../ports/TokenServicePort";
 import { OAuthSessionPort } from "../ports/OAuthSessionPort";

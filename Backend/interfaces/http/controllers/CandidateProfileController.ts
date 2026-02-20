@@ -6,6 +6,8 @@ import { TYPES } from "../../../infrastructure/di/types";
 import type { CreateCandidateProfileUseCasePort } from "../../../application/candidate/ports/CreateCandidateProfileUseCasePort";
 import type { GetCandidateProfileUseCasePort } from "../../../application/candidate/ports/GetCandidateProfileUseCasePort";
 import type { UpdateCandidateProfileUseCasePort } from "../../../application/candidate/ports/UpdateCandidateProfileUseCasePort";
+import type { GetAllCandidatesUseCasePort } from "../../../application/candidate/ports/GetAllCandidateUsecasePort";
+import type { ToggleCandidateStatusUseCasePort } from "../../../application/candidate/ports/ToggleCandidateStatusUseCasePort";
 
 interface ProfileBody {
     fullName: string;
@@ -38,7 +40,9 @@ export class CandidateProfileController {
     constructor(
         @inject(TYPES.CreateCandidateProfileUseCasePort) private readonly createProfileUseCase: CreateCandidateProfileUseCasePort,
         @inject(TYPES.GetCandidateProfileUseCasePort) private readonly getProfileUseCase: GetCandidateProfileUseCasePort,
-        @inject(TYPES.UpdateCandidateProfileUseCasePort) private readonly updateProfileUseCase: UpdateCandidateProfileUseCasePort
+        @inject(TYPES.UpdateCandidateProfileUseCasePort) private readonly updateProfileUseCase: UpdateCandidateProfileUseCasePort,
+        @inject(TYPES.GetAllCandidatesUseCasePort) private readonly getAllCandidatesUseCase: GetAllCandidatesUseCasePort,
+        @inject(TYPES.ToggleCandidateStatusUseCasePort) private readonly toggleStatusUseCase: ToggleCandidateStatusUseCasePort
     ) { }
 
     // GET /candidate/profile — returns 200 with { profile } or { profile: null } when none
@@ -79,4 +83,22 @@ export class CandidateProfileController {
 
         reply.send(success(result));
     };
+
+    getAll = async (
+        request: FastifyRequest<{ Querystring: { search?: string; status?: string; sortOrder?: 'asc' | 'desc' } }>,
+        reply: FastifyReply
+    ) => {
+        const { search, status, sortOrder } = request.query;
+        const result = await this.getAllCandidatesUseCase.execute(search, status, sortOrder);
+        reply.send(success(result));
+    }
+
+    toggleStatus = async (
+        request: FastifyRequest<{ Params: { id: string } }>,
+        reply: FastifyReply
+    ) => {
+        const { id } = request.params;
+        const result = await this.toggleStatusUseCase.execute(id);
+        reply.send(success(result));
+    }
 }

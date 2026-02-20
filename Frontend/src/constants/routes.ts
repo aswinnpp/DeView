@@ -18,6 +18,7 @@ export const API_ROUTES = {
         CHECK_STATUS: '/company/check-status',
         SUBMIT_APPROVAL: '/company/submit',
         MY_APPROVAL: '/company/my-approval',
+        PROFILE: '/company/profile',
         HR_LIST: '/company/hr/list',
         HR_CREATE: '/company/hr/create',
         HR_TOGGLE_STATUS: (id: string) => `/company/hr/${id}/toggle-status`,
@@ -34,7 +35,7 @@ export const API_ROUTES = {
     },
     CANDIDATE: {
         PROFILE: '/candidate/profile',
-        
+        GETALL: '/candidate/list'
     },
 } as const;
 

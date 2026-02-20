@@ -1,4 +1,4 @@
-import { useState ,useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useAdminCompanyManagement } from "@/hooks/admin/useAdminCompanyManagement";
 import { CompanyReviewModal, RejectCompanyModal } from "@/components/admin";
 import { Table, SearchInput, Button } from "@/components/common";
@@ -18,6 +18,10 @@ const AdminCompanyManagement = () => {
     useState<CompanyApproval | null>(null);
 
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">(
+    "all"
+  );
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
   // ───────── Search ─────────
 
@@ -57,8 +61,72 @@ const AdminCompanyManagement = () => {
   return (
     <div className="max-w-[1400px] mx-auto">
 
-      <div className="flex justify-end mb-4">
-        <SearchInput onSearch={handleSearch} />
+      <div className="mb-6">
+        <div className="mb-4">
+          <h1 className="m-0 text-[24px] font-semibold text-slate-50">
+            Company Directory
+          </h1>
+          <p className="mt-1.5 mb-0 text-sm text-slate-400">
+            Browse and manage all approved companies on the platform.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-4 justify-between">
+          <div className="flex-1 min-w-[260px]">
+            <SearchInput
+              onSearch={handleSearch}
+              placeholder="Search by company name or email..."
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <div className="min-w-[200px]">
+              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+                Status
+              </label>
+              <div className="flex bg-slate-900/70 border border-slate-700 rounded-lg p-1 gap-1">
+                {[
+                  { value: "all", label: "All" },
+                  { value: "active", label: "Active" },
+                  { value: "inactive", label: "Inactive" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() =>
+                      setStatusFilter(
+                        option.value as "all" | "active" | "inactive"
+                      )
+                    }
+                    className={`flex-1 text-[12px] font-medium py-1.5 px-2 rounded-md transition-colors ${
+                      statusFilter === option.value
+                        ? "bg-emerald-500 text-white shadow-[0_4px_12px_rgba(16,185,129,0.45)]"
+                        : "bg-transparent text-slate-300 hover:bg-slate-800/80"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="min-w-[150px]">
+              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+                Sort by
+              </label>
+              <select
+                value={sortOrder}
+                onChange={(e) =>
+                  setSortOrder(e.target.value as "newest" | "oldest")
+                }
+                className="w-full py-2.5 px-3.5 bg-slate-900/80 border border-slate-700 rounded-lg text-[13px] text-slate-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
+              >
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
       <Table

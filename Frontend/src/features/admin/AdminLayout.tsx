@@ -1,14 +1,27 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, Outlet ,useNavigate } from "react-router-dom";
+import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { logout } from "../../context/authSlice";
 import type { AppDispatch } from "../../context/store";
 import { SystemDataProvider } from "../../context/SystemDataContext";
+import { logout } from "../../context/authSlice";
+import { authService } from "../../services/auth.service";
+import { APP_ROUTES } from "../../constants/routes";
 import { Button } from "../../components/common";
 
+
 const AdminLayout = () => {
-    const dispatch = useDispatch<AppDispatch>();
     const [showNotifications, setShowNotifications] = useState(false);
+    const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
+
+    const handleLogout = useCallback(async () => {
+        
+            await authService.logout();
+            dispatch(logout());
+            navigate(APP_ROUTES.LOGIN, { replace: true });
+        
+    }, [dispatch, navigate]);
+
     const notifications = [
         { id: 1, text: "New company registration request", time: "5m ago" },
         { id: 2, text: "Subscription payment received", time: "1h ago" },
@@ -124,7 +137,7 @@ const AdminLayout = () => {
                         {/* Logout Button */}
                         <Button
                             variant="danger"
-                            onClick={() => dispatch(logout())}
+                            onClick={() => handleLogout()}
                             className="mt-auto rounded-[10px] py-3 px-3.5 font-semibold text-sm flex items-center justify-center gap-2"
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

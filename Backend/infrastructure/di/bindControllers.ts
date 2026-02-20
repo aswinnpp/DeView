@@ -7,6 +7,7 @@ import { AdminCompanyApprovalController } from '../../interfaces/http/controller
 import { UploadController } from '../../interfaces/http/controllers/UploadController.js';
 import { CompanyTeamController } from '../../interfaces/http/controllers/CompanyTeamController.js';
 import { CandidateProfileController } from '../../interfaces/http/controllers/CandidateProfileController.js';
+import { CompanyProfileController } from '../../interfaces/http/controllers/CompanyProfileController.js';
 
 /**
  * Binds all controller dependencies to the container
@@ -19,4 +20,5 @@ export function bindControllers(container: Container): void {
   container.bind(UploadController).toSelf();
   container.bind(CompanyTeamController).toSelf();
   container.bind(CandidateProfileController).toSelf();
+  container.bind(CompanyProfileController).toSelf();
 }

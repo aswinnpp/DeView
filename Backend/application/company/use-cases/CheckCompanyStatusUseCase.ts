@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from "../../../infrastructure/di/types";
+import { TYPES } from "../../../shared/di/types";
 import { CompanyApprovalRepositoryPort } from "../ports/CompanyApprovalRepositoryPort";
 import { CheckCompanyStatusDTO } from "../dtos/CheckCompanyStatusDTO";
 import { AppError } from "../../../shared/errors/AppError";

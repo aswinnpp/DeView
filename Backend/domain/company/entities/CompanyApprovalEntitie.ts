@@ -77,4 +77,19 @@ export class CompanyApproval {
     this.documents[documentKey].marked = verified;
     this.updatedAt = new Date();
   }
+
+  updateFields(fields: Partial<Omit<CompanyApproval, "id" | "userId" | "documents" | "status" | "rejectionReason" | "isActive" | "createdAt" | "updatedAt">>) {
+    const allowedKeys: (keyof typeof fields)[] = [
+      "companyName", "address", "contactPerson", "contactEmail",
+      "contactPhone", "taxId", "website", "numberOfEmployees"
+    ];
+
+    for (const key of allowedKeys) {
+      if (key in fields) {
+        (this as any)[key] = fields[key];
+      }
+    }
+
+    this.updatedAt = new Date();
+  }
 }

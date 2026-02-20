@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from "../../../infrastructure/di/types";
+import { TYPES } from "../../../shared/di/types";
 import { CandidateProfileRepositoryPort } from "../ports/CandidateProfileRepositoryPort";
 import { CandidateProfile } from "../../../domain/candidate/entities/CandidateProfile";
 import { CreateCandidateProfileDTO } from "../dtos/CreateCandidateProfileDTO";

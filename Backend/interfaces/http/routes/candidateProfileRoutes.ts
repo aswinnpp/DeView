@@ -5,6 +5,7 @@ import {
     createCandidateProfileSchema,
     updateCandidateProfileSchema,
 } from "../schemas/candidateProfileSchema.js";
+import { fa } from "zod/v4/locales";
 
 export async function candidateProfileRoutes(
     fastify: FastifyInstance,
@@ -24,6 +25,14 @@ export async function candidateProfileRoutes(
     fastify.patch("/profile", {
         schema: updateCandidateProfileSchema,
         handler: controller.updateProfile,
+    });
+
+    fastify.get("/list", {
+        handler: controller.getAll
+    });
+
+    fastify.post("/:id/toggle-status", {
+        handler: controller.toggleStatus
     });
 
     console.log(" Candidate profile routes registered");

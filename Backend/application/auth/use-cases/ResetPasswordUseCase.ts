@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from "../../../infrastructure/di/types";
+import { TYPES } from "../../../shared/di/types";
 import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
 import { OTPRepositoryPort } from "../ports/OTPRepositoryPort";
 import { Email } from "../../../domain/user/value-objects/Email";

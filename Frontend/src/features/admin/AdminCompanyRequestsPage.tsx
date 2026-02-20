@@ -17,6 +17,7 @@ const AdminCompanyRequestsPage = () => {
   } = useAdminCompanyRequests();
 
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
   const onRejectSuccess = useCallback(() => {
     handleRejectSuccess();
@@ -33,8 +34,40 @@ const AdminCompanyRequestsPage = () => {
 
   return (
     <div className="max-w-[1400px] mx-auto">
-      <div className="flex justify-end mb-4">
-        <SearchInput onSearch={handleSearch} />
+      <div className="mb-6">
+        <div className="mb-4">
+          <h1 className="m-0 text-[24px] font-semibold text-slate-50">
+            Company Approval Requests
+          </h1>
+          <p className="mt-1.5 mb-0 text-sm text-slate-400">
+            Review and process new company registrations waiting for approval.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-4 justify-between">
+          <div className="flex-1 min-w-[260px]">
+            <SearchInput
+              onSearch={handleSearch}
+              placeholder="Search by company name or email..."
+            />
+          </div>
+
+          <div className="min-w-[150px]">
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+              Sort by
+            </label>
+            <select
+              value={sortOrder}
+              onChange={(e) =>
+                setSortOrder(e.target.value as "newest" | "oldest")
+              }
+              className="w-full py-2.5 px-3.5 bg-slate-900/80 border border-slate-700 rounded-lg text-[13px] text-slate-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
+            >
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {initialLoading ? (

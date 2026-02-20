@@ -6,5 +6,7 @@ export interface UserRepositoryPort {
   findByEmail(email: Email): Promise<User | null>;
   findByCompanyIdAndRole(companyId: string, role: string): Promise<User[]>;
   searchByCompanyIdAndRole(companyId: string, role: string, search?: string, status?: string): Promise<User[]>;
+  findByRole(role: string): Promise<User[]>;
+  searchByRole(role: string, search?: string, status?: string, sortOrder?: 'asc' | 'desc'): Promise<User[]>;
   save(user: User): Promise<void>;
 }

@@ -23,7 +23,7 @@ const createUserRepository = (db: Db) =>
   new MongoUserRepository(db.collection<UserDocument>('users'));
 
 const createCompanyApprovalRepository = (db: Db) => 
-  new MongoCompanyApprovalRepository(db.collection<CompanyApprovalDocument>('companyApprovals'));
+  new MongoCompanyApprovalRepository(db.collection<CompanyApprovalDocument>('companyProfiles'));
 
 const createCandidateProfileRepository = (db: Db) => 
   new MongoCandidateProfileRepository(db.collection<CandidateProfileDocument>('candidateProfiles'));
