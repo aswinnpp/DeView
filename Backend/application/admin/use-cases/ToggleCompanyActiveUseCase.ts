@@ -1,9 +1,9 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CompanyApprovalRepositoryPort } from "../../company/ports/CompanyApprovalRepositoryPort";
-import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
+import { CompanyApprovalRepositoryPort } from "../../company/ports/repository/CompanyApprovalRepositoryPort";
+import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
 import { DomainError } from "../../../shared/errors/DomainError";
-import type { ToggleCompanyActiveUseCasePort } from "../ports/ToggleCompanyActiveUseCasePort";
+import type { ToggleCompanyActiveUseCasePort } from "../ports/usecase/ToggleCompanyActiveUseCasePort";
 
 @injectable()
 export class ToggleCompanyActiveUseCase implements ToggleCompanyActiveUseCasePort {

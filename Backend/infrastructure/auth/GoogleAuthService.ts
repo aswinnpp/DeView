@@ -1,5 +1,5 @@
 import { OAuth2Client } from 'google-auth-library';
-import { GoogleAuthPort } from '../../application/auth/ports/GoogleAuthPort.js';
+import { GoogleAuthPort } from '../../application/auth/ports/services/GoogleAuthPort.js';
 import { GoogleUserDTO } from '../../application/auth/dtos/GoogleUserDTO.js';
 
 interface GoogleUser {

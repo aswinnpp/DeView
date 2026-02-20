@@ -1,15 +1,15 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
-import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort.js";
-import { PasswordHasherPort } from "../../auth/ports/PasswordHasherPort.js";
-import { EmailServicePort } from "../../auth/ports/EmailServicePort.js";
+import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort.js";
+import { PasswordHasherPort } from "../../auth/ports/services/PasswordHasherPort.js";
+import { EmailServicePort } from "../../auth/ports/services/EmailServicePort.js";
 import { User } from "../../../domain/user/entities/User.js";
 import { Email } from "../../../domain/user/value-objects/Email.js";
 import { Role, RoleType } from "../../../domain/user/value-objects/Role.js";
 import { AppError } from "../../../shared/errors/AppError.js";
 import { ResolveCompanyForUserUseCase } from "./ResolveCompanyForUserUseCase.js";
-import { CryptoRandomPort } from "../../shared/ports/CryptoRandomPort";
-import type { CreateTeamMemberUseCasePort, CreateTeamMemberDTO } from "../ports/CreateTeamMemberUseCasePort";
+import { CryptoRandomPort } from "../../shared/ports/services/CryptoRandomPort";
+import type { CreateTeamMemberUseCasePort, CreateTeamMemberDTO } from "../ports/usecase/CreateTeamMemberUseCasePort";
 
 @injectable()
 export class CreateTeamMemberUseCase implements CreateTeamMemberUseCasePort {

@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { TokenServicePort } from "../ports/TokenServicePort";
-import type { LogoutUseCasePort } from "../ports/LogoutUseCasePort";
+import { TokenServicePort } from "../ports/services/TokenServicePort";
+import type { LogoutUseCasePort } from "../ports/usecase/LogoutUseCasePort";
 
 @injectable()
 export class LogoutUseCase implements LogoutUseCasePort {

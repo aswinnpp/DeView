@@ -3,9 +3,9 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { CheckCompanyStatusUseCasePort } from "../../../application/company/ports/CheckCompanyStatusUseCasePort";
-import type { SubmitCompanyApprovalUseCasePort } from "../../../application/company/ports/SubmitCompanyApprovalUseCasePort";
-import type { GetMyCompanyApprovalUseCasePort } from "../../../application/company/ports/GetMyCompanyApprovalUseCasePort";
+import type { CheckCompanyStatusUseCasePort } from "../../../application/company/ports/usecase/CheckCompanyStatusUseCasePort";
+import type { SubmitCompanyApprovalUseCasePort } from "../../../application/company/ports/usecase/SubmitCompanyApprovalUseCasePort";
+import type { GetMyCompanyApprovalUseCasePort } from "../../../application/company/ports/usecase/GetMyCompanyApprovalUseCasePort";
 import { CompanyDocuments } from "../../../infrastructure/persistence/mongodb/schemas/CompanyApprovalDocument";
 
 interface SubmitApprovalBody {

@@ -1,10 +1,10 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { OTPRepositoryPort } from "../ports/OTPRepositoryPort";
+import { OTPRepositoryPort } from "../ports/repository/OTPRepositoryPort";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 import { AppError } from "../../../shared/errors/AppError";
-import type { VerifyPasswordResetOTPUseCasePort } from "../ports/VerifyPasswordResetOTPUseCasePort";
+import type { VerifyPasswordResetOTPUseCasePort } from "../ports/usecase/VerifyPasswordResetOTPUseCasePort";
 
 @injectable()
 export class VerifyPasswordResetOTPUseCase implements VerifyPasswordResetOTPUseCasePort {

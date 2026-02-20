@@ -1,4 +1,4 @@
-import { OAuthSessionPort } from "../../../application/auth/ports/OAuthSessionPort";
+import { OAuthSessionPort } from "../../../application/auth/ports/services/OAuthSessionPort";
 import { RedisClientType } from "redis";
 
 export class RedisOAuthSessionRepository implements OAuthSessionPort {

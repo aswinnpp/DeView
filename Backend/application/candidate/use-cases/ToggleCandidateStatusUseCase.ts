@@ -1,8 +1,8 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
+import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
 import { AppError } from "../../../shared/errors/AppError";
-import type { ToggleCandidateStatusUseCasePort } from "../ports/ToggleCandidateStatusUseCasePort";
+import type { ToggleCandidateStatusUseCasePort } from "../ports/usecase/ToggleCandidateStatusUseCasePort";
 
 @injectable()
 export class ToggleCandidateStatusUseCase implements ToggleCandidateStatusUseCasePort {

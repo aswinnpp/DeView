@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CompanyApprovalRepositoryPort } from "../../company/ports/CompanyApprovalRepositoryPort";
-import type { GetPendingCompaniesUseCasePort } from "../ports/GetPendingCompaniesUseCasePort";
+import { CompanyApprovalRepositoryPort } from "../../company/ports/repository/CompanyApprovalRepositoryPort";
+import type { GetPendingCompaniesUseCasePort } from "../ports/usecase/GetPendingCompaniesUseCasePort";
 
 @injectable()
 export class GetPendingCompaniesUseCase implements GetPendingCompaniesUseCasePort {

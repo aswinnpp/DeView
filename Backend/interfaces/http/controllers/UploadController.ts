@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { success } from '../../../shared/http/apiResponse';
 import { TYPES } from '../../../infrastructure/di/types.js';
-import type { GenerateUploadSignatureUseCasePort } from '../../../application/upload/ports/GenerateUploadSignatureUseCasePort.js';
+import type { GenerateUploadSignatureUseCasePort } from '../../../application/upload/ports/usecase/GenerateUploadSignatureUseCasePort.js';
 
 @injectable()
 export class UploadController {

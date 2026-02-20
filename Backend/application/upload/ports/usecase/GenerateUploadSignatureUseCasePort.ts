@@ -1,7 +1,7 @@
 import type {
   GenerateUploadSignatureInputDTO,
   GenerateUploadSignatureOutputDTO,
-} from "../dtos/GenerateUploadSignatureDTO";
+} from "../../dtos/GenerateUploadSignatureDTO";
 
 export interface GenerateUploadSignatureUseCasePort {
   execute(

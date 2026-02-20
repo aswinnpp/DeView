@@ -2,8 +2,8 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { GoogleOAuthUseCasePort } from "../../../application/auth/ports/GoogleOAuthUseCasePort";
-import type { GoogleAuthPort } from "../../../application/auth/ports/GoogleAuthPort";
+import type { GoogleOAuthUseCasePort } from "../../../application/auth/ports/usecase/GoogleOAuthUseCasePort";
+import type { GoogleAuthPort } from "../../../application/auth/ports/services/GoogleAuthPort";
 import {
   setAccessTokenCookie,
   setRefreshTokenCookie,

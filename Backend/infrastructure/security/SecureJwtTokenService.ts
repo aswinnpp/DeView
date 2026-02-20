@@ -6,7 +6,7 @@ import {
   TokenPayload,
   RefreshTokenData,
   RefreshTokenPayload,
-} from "../../application/auth/ports/TokenServicePort";
+} from "../../application/auth/ports/services/TokenServicePort";
 
 import { RedisRefreshTokenRepository } from "../persistence/redis/RedisRefreshTokenRepository";
 import { RedisAccessTokenRepository } from "../persistence/redis/RedisAccessTokenRepository";

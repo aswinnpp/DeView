@@ -1,10 +1,10 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CandidateProfileRepositoryPort } from "../ports/CandidateProfileRepositoryPort";
+import { CandidateProfileRepositoryPort } from "../ports/repository/CandidateProfileRepositoryPort";
 import { CandidateProfile } from "../../../domain/candidate/entities/CandidateProfile";
 import { CreateCandidateProfileDTO } from "../dtos/CreateCandidateProfileDTO";
 import { AppError } from "../../../shared/errors/AppError";
-import type { CreateCandidateProfileUseCasePort } from "../ports/CreateCandidateProfileUseCasePort";
+import type { CreateCandidateProfileUseCasePort } from "../ports/usecase/CreateCandidateProfileUseCasePort";
 
 @injectable()
 export class CreateCandidateProfileUseCase implements CreateCandidateProfileUseCasePort {

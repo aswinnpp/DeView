@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { v2 as cloudinary } from "cloudinary";
-import { FileStoragePort } from "../../application/upload/ports/FileStoragePort.js";
+import { FileStoragePort } from "../../application/upload/ports/services/FileStoragePort.js";
 
 import { GenerateUploadSignatureOutputDTO } from "../../application/upload/dtos/GenerateUploadSignatureDTO.js";
 import { env } from "../config/env.js";

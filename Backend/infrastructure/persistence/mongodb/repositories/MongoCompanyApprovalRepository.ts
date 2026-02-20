@@ -1,5 +1,5 @@
 import { Collection, ObjectId } from "mongodb";
-import { CompanyApprovalRepositoryPort } from "../../../../application/company/ports/CompanyApprovalRepositoryPort";
+import { CompanyApprovalRepositoryPort } from "../../../../application/company/ports/repository/CompanyApprovalRepositoryPort";
 import { CompanyApproval } from "../../../../domain/company/entities/CompanyApprovalEntitie";
 import { CompanyApprovalDocument } from "../schemas/CompanyApprovalDocument";
 

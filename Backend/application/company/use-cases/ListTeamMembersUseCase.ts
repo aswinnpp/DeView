@@ -1,8 +1,8 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
-import { UserRepositoryPort } from '../../shared/ports/UserRepositoryPort.js';
+import { UserRepositoryPort } from '../../shared/ports/repository/UserRepositoryPort.js';
 import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
-import type { ListTeamMembersUseCasePort, TeamMemberResponse } from '../ports/ListTeamMembersUseCasePort';
+import type { ListTeamMembersUseCasePort, TeamMemberResponse } from '../ports/usecase/ListTeamMembersUseCasePort';
 
 @injectable()
 export class ListTeamMembersUseCase implements ListTeamMembersUseCasePort {

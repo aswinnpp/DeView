@@ -1,5 +1,5 @@
-import { User } from "../../../domain/user/entities/User";
-import { Email } from "../../../domain/user/value-objects/Email";
+import { User } from "../../../../domain/user/entities/User";
+import { Email } from "../../../../domain/user/value-objects/Email";
 
 export interface UserRepositoryPort {
   findById(id: string): Promise<User | null>;

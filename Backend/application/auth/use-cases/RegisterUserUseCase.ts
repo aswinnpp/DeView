@@ -1,15 +1,15 @@
 import { injectable, inject } from 'inversify';
-import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
-import { OTPRepositoryPort } from "../ports/OTPRepositoryPort";
+import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
+import { OTPRepositoryPort } from "../ports/repository/OTPRepositoryPort";
 import { User } from "../../../domain/user/entities/User";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { Role } from "../../../domain/user/value-objects/Role";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
-import { PasswordHasherPort } from "../ports/PasswordHasherPort";
-import { EmailServicePort } from "../ports/EmailServicePort";
+import { PasswordHasherPort } from "../ports/services/PasswordHasherPort";
+import { EmailServicePort } from "../ports/services/EmailServicePort";
 import { AppError } from "../../../shared/errors/AppError";
 import { TYPES } from "../../../shared/di/types";
-import type { RegisterUserUseCasePort, RegisterUserDTO } from "../ports/RegisterUserUseCasePort";
+import type { RegisterUserUseCasePort, RegisterUserDTO } from "../ports/usecase/RegisterUserUseCasePort";
 
 @injectable()
 export class RegisterUserUseCase implements RegisterUserUseCasePort {

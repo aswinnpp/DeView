@@ -4,15 +4,15 @@ import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 
 import { TYPES } from "../../../infrastructure/di/types";
-import type { RegisterUserUseCasePort } from "../../../application/auth/ports/RegisterUserUseCasePort";
-import type { VerifyOTPUseCasePort } from "../../../application/auth/ports/VerifyOTPUseCasePort";
-import type { LoginUseCasePort } from "../../../application/auth/ports/LoginUseCasePort";
-import type { ResendOTPUseCasePort } from "../../../application/auth/ports/ResendOTPUseCasePort";
-import type { RefreshTokenUseCasePort } from "../../../application/auth/ports/RefreshTokenUseCasePort";
-import type { LogoutUseCasePort } from "../../../application/auth/ports/LogoutUseCasePort";
-import type { ForgotPasswordUseCasePort } from "../../../application/auth/ports/ForgotPasswordUseCasePort";
-import type { VerifyPasswordResetOTPUseCasePort } from "../../../application/auth/ports/VerifyPasswordResetOTPUseCasePort";
-import type { ResetPasswordUseCasePort } from "../../../application/auth/ports/ResetPasswordUseCasePort";
+import type { RegisterUserUseCasePort } from "../../../application/auth/ports/usecase/RegisterUserUseCasePort";
+import type { VerifyOTPUseCasePort } from "../../../application/auth/ports/usecase/VerifyOTPUseCasePort";
+import type { LoginUseCasePort } from "../../../application/auth/ports/usecase/LoginUseCasePort";
+import type { ResendOTPUseCasePort } from "../../../application/auth/ports/usecase/ResendOTPUseCasePort";
+import type { RefreshTokenUseCasePort } from "../../../application/auth/ports/usecase/RefreshTokenUseCasePort";
+import type { LogoutUseCasePort } from "../../../application/auth/ports/usecase/LogoutUseCasePort";
+import type { ForgotPasswordUseCasePort } from "../../../application/auth/ports/usecase/ForgotPasswordUseCasePort";
+import type { VerifyPasswordResetOTPUseCasePort } from "../../../application/auth/ports/usecase/VerifyPasswordResetOTPUseCasePort";
+import type { ResetPasswordUseCasePort } from "../../../application/auth/ports/usecase/ResetPasswordUseCasePort";
 
 import {
   getCookie,

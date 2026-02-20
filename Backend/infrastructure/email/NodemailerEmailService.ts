@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import nodemailer from 'nodemailer';
-import { EmailServicePort } from '../../application/auth/ports/EmailServicePort.js';
+import { EmailServicePort } from '../../application/auth/ports/services/EmailServicePort.js';
 
 @injectable()
 export class NodemailerEmailService implements EmailServicePort {

@@ -1,9 +1,9 @@
 import { AppError } from "../../../shared/errors/AppError";
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CompanyApprovalRepositoryPort } from "../../company/ports/CompanyApprovalRepositoryPort";
-import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
-import type { ApproveCompanyUseCasePort } from "../ports/ApproveCompanyUseCasePort";
+import { CompanyApprovalRepositoryPort } from "../../company/ports/repository/CompanyApprovalRepositoryPort";
+import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
+import type { ApproveCompanyUseCasePort } from "../ports/usecase/ApproveCompanyUseCasePort";
 
 @injectable()
 export class ApproveCompanyUseCase implements ApproveCompanyUseCasePort {

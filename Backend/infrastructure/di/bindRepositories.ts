@@ -3,10 +3,10 @@ import type { Db } from 'mongodb';
 import type { RedisClientType } from 'redis';
 
 import { TYPES } from './types.js';
-import type { UserRepositoryPort } from '../../application/shared/ports/UserRepositoryPort.js';
-import type { CompanyApprovalRepositoryPort } from '../../application/company/ports/CompanyApprovalRepositoryPort.js';
-import type { OTPRepositoryPort } from '../../application/auth/ports/OTPRepositoryPort.js';
-import type { CandidateProfileRepositoryPort } from '../../application/candidate/ports/CandidateProfileRepositoryPort.js';
+import type { UserRepositoryPort } from '../../application/shared/ports/repository/UserRepositoryPort.js';
+import type { CompanyApprovalRepositoryPort } from '../../application/company/ports/repository/CompanyApprovalRepositoryPort.js';
+import type { OTPRepositoryPort } from '../../application/auth/ports/repository/OTPRepositoryPort.js';
+import type { CandidateProfileRepositoryPort } from '../../application/candidate/ports/repository/CandidateProfileRepositoryPort.js';
 import { MongoUserRepository } from '../persistence/mongodb/repositories/MongoUserRepository.js';
 import { MongoCompanyApprovalRepository } from '../persistence/mongodb/repositories/MongoCompanyApprovalRepository.js';
 import { MongoCandidateProfileRepository } from '../persistence/mongodb/repositories/MongoCandidateProfileRepository.js';
@@ -34,8 +34,7 @@ const createOTPRepository = (redis: RedisClientType) =>
 const createOAuthSessionRepository = (redis: RedisClientType) => 
   new RedisOAuthSessionRepository(redis);
 
-/**
- */
+
 export function bindRepositories(container: Container): void {
   container.bind<UserRepositoryPort>(TYPES.UserRepositoryPort).toDynamicValue(() =>
     createUserRepository(container.get<Db>(TYPES.Db))

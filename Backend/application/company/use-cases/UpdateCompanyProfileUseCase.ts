@@ -1,9 +1,9 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CompanyApprovalRepositoryPort } from "../ports/CompanyApprovalRepositoryPort";
+import { CompanyApprovalRepositoryPort } from "../ports/repository/CompanyApprovalRepositoryPort";
 import { UpdateCompanyProfileDTO } from "../dtos/UpdateCompanyProfileDTO";
 import { AppError } from "../../../shared/errors/AppError";
-import type { UpdateCompanyProfileUseCasePort } from "../ports/UpdateCompanyProfileUseCasePort";
+import type { UpdateCompanyProfileUseCasePort } from "../ports/usecase/UpdateCompanyProfileUseCasePort";
 
 @injectable()
 export class UpdateCompanyProfileUseCase implements UpdateCompanyProfileUseCasePort {

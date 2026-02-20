@@ -1,5 +1,5 @@
 import { RedisClientType } from "redis";
-import { OTPRepositoryPort } from "../../../application/auth/ports/OTPRepositoryPort";
+import { OTPRepositoryPort } from "../../../application/auth/ports/repository/OTPRepositoryPort";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 
 export class RedisOTPRepository implements OTPRepositoryPort {
