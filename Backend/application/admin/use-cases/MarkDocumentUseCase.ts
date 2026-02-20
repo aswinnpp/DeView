@@ -1,11 +1,12 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../infrastructure/di/types";
-import { CompanyApprovalRepository } from "../../../domain/company/repositories/CompanyApprovalRepository";
+import { CompanyApprovalRepositoryPort } from "../../company/ports/CompanyApprovalRepositoryPort";
 import { AppError } from "../../../shared/errors/AppError";
+import type { MarkDocumentUseCasePort } from "../ports/MarkDocumentUseCasePort";
 
 @injectable()
-export class MarkDocumentUseCase {
-  constructor(@inject(TYPES.CompanyApprovalRepository) private repo: CompanyApprovalRepository) { }
+export class MarkDocumentUseCase implements MarkDocumentUseCasePort {
+  constructor(@inject(TYPES.CompanyApprovalRepositoryPort) private repo: CompanyApprovalRepositoryPort) { }
 
     async execute(companyId: string, documentKey: string, verified: boolean) {
         const company = await this.repo.findById(companyId);

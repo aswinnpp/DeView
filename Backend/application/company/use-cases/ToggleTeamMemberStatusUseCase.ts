@@ -1,13 +1,14 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../infrastructure/di/types';
-import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
+import { UserRepositoryPort } from '../../shared/ports/UserRepositoryPort.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
+import type { ToggleTeamMemberStatusUseCasePort } from '../ports/ToggleTeamMemberStatusUseCasePort';
 
 @injectable()
-export class ToggleTeamMemberStatusUseCase {
+export class ToggleTeamMemberStatusUseCase implements ToggleTeamMemberStatusUseCasePort {
     constructor(
-        @inject(TYPES.UserRepository) private readonly userRepository: UserRepository,
+        @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
         @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase
     ) {}
 

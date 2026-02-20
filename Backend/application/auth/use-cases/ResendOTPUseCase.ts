@@ -1,19 +1,20 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../infrastructure/di/types";
-import { UserRepository } from "../../../domain/user/repositories/UserRepository";
-import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
+import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
+import { OTPRepositoryPort } from "../ports/OTPRepositoryPort";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 import { EmailServicePort } from "../ports/EmailServicePort";
 import { AppError } from "../../../shared/errors/AppError";
 import { ResendOTPRequestDTO } from "../dtos/ResendOTPRequestDTO";
 import { ResendOTPResponseDTO } from "../dtos/ResendOTPResponseDTO";
+import type { ResendOTPUseCasePort } from "../ports/ResendOTPUseCasePort";
 
 @injectable()
-export class ResendOTPUseCase {
+export class ResendOTPUseCase implements ResendOTPUseCasePort {
   constructor(
-    @inject(TYPES.UserRepository) private readonly userRepository: UserRepository,
-    @inject(TYPES.OTPRepository) private readonly otpRepository: OTPRepository,
+    @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
+    @inject(TYPES.OTPRepositoryPort) private readonly otpRepository: OTPRepositoryPort,
     @inject(TYPES.EmailServicePort) private readonly emailService: EmailServicePort
   ) {}
 

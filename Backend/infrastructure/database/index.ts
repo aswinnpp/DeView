@@ -9,7 +9,6 @@ export async function initializeDatabase(): Promise<Db> {
 
     db = await connectMongoDB();
 
-    // Create all indexes in parallel for faster startup
     await Promise.all([
         createUserIndexes(db),
     ]);

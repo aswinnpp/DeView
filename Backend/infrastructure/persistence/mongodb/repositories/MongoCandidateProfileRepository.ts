@@ -1,9 +1,9 @@
 import { Collection, ObjectId } from "mongodb";
-import { CandidateProfileRepository } from "../../../../domain/candidate/repositories/CandidateProfileRepository";
+import { CandidateProfileRepositoryPort } from "../../../../application/candidate/ports/CandidateProfileRepositoryPort";
 import { CandidateProfile } from "../../../../domain/candidate/entities/CandidateProfile";
 import { CandidateProfileDocument } from "../schemas/CandidateProfileDocument";
 
-export class MongoCandidateProfileRepository implements CandidateProfileRepository {
+export class MongoCandidateProfileRepository implements CandidateProfileRepositoryPort {
     constructor(private collection: Collection<CandidateProfileDocument>) { }
 
     async findByUserId(userId: string): Promise<CandidateProfile | null> {

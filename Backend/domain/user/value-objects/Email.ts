@@ -10,7 +10,6 @@ export class Email {
 
     const normalized = email.toLowerCase().trim();
 
-    // simple but correct basic validation
     const emailRegex =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

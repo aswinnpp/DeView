@@ -1,20 +1,13 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../infrastructure/di/types';
-import { UserRepository } from '../../../domain/user/repositories/UserRepository.js';
+import { UserRepositoryPort } from '../../shared/ports/UserRepositoryPort.js';
 import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
-
-export interface TeamMemberResponse {
-    id: string;
-    fullName: string;
-    email: string;
-    isActive: boolean;
-    createdAt?: string;
-}
+import type { ListTeamMembersUseCasePort, TeamMemberResponse } from '../ports/ListTeamMembersUseCasePort';
 
 @injectable()
-export class ListTeamMembersUseCase {
+export class ListTeamMembersUseCase implements ListTeamMembersUseCasePort {
     constructor(
-        @inject(TYPES.UserRepository) private readonly userRepository: UserRepository,
+        @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
         @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase
     ) {}
 
@@ -27,7 +20,7 @@ export class ListTeamMembersUseCase {
     ): Promise<{ data: TeamMemberResponse[] }> {
         const companyId = await this.resolveCompany.execute(userId, companyIdFromToken);
         const users = await this.userRepository.searchByCompanyIdAndRole(companyId, role, search, status);
-        const data = users.map(user => ({
+        const data: TeamMemberResponse[] = users.map(user => ({
             id: user.id || '',
             fullName: user.fullName,
             email: user.email.getValue(),

@@ -2,12 +2,13 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
-import { GetPendingCompaniesUseCase } from "../../../application/admin/use-cases/GetPendingCompaniesUseCase";
-import { ApproveCompanyUseCase } from "../../../application/admin/use-cases/ApproveCompanyUseCase";
-import { RejectCompanyUseCase } from "../../../application/admin/use-cases/RejectCompanyUseCase";
-import { MarkDocumentUseCase } from "../../../application/admin/use-cases/MarkDocumentUseCase";
-import { GetApprovedCompaniesUseCase } from "../../../application/admin/use-cases/GetApprovedCompaniesUseCase";
-import { ToggleCompanyActiveUseCase } from "../../../application/admin/use-cases/ToggleCompanyActiveUseCase";
+import { TYPES } from "../../../infrastructure/di/types";
+import type { GetPendingCompaniesUseCasePort } from "../../../application/admin/ports/GetPendingCompaniesUseCasePort";
+import type { ApproveCompanyUseCasePort } from "../../../application/admin/ports/ApproveCompanyUseCasePort";
+import type { RejectCompanyUseCasePort } from "../../../application/admin/ports/RejectCompanyUseCasePort";
+import type { MarkDocumentUseCasePort } from "../../../application/admin/ports/MarkDocumentUseCasePort";
+import type { GetApprovedCompaniesUseCasePort } from "../../../application/admin/ports/GetApprovedCompaniesUseCasePort";
+import type { ToggleCompanyActiveUseCasePort } from "../../../application/admin/ports/ToggleCompanyActiveUseCasePort";
 
 interface RejectBody {
   reason: string;
@@ -20,12 +21,12 @@ interface SearchQuery {
 @injectable()
 export class AdminCompanyApprovalController {
   constructor(
-    @inject(GetPendingCompaniesUseCase) private readonly getPendingUseCase: GetPendingCompaniesUseCase,
-    @inject(ApproveCompanyUseCase) private readonly approveUseCase: ApproveCompanyUseCase,
-    @inject(RejectCompanyUseCase) private readonly rejectUseCase: RejectCompanyUseCase,
-    @inject(MarkDocumentUseCase) private readonly markDocumentUseCase: MarkDocumentUseCase,
-    @inject(GetApprovedCompaniesUseCase) private readonly getApprovedUseCase: GetApprovedCompaniesUseCase,
-    @inject(ToggleCompanyActiveUseCase) private readonly toggleActiveUseCase: ToggleCompanyActiveUseCase
+    @inject(TYPES.GetPendingCompaniesUseCasePort) private readonly getPendingUseCase: GetPendingCompaniesUseCasePort,
+    @inject(TYPES.ApproveCompanyUseCasePort) private readonly approveUseCase: ApproveCompanyUseCasePort,
+    @inject(TYPES.RejectCompanyUseCasePort) private readonly rejectUseCase: RejectCompanyUseCasePort,
+    @inject(TYPES.MarkDocumentUseCasePort) private readonly markDocumentUseCase: MarkDocumentUseCasePort,
+    @inject(TYPES.GetApprovedCompaniesUseCasePort) private readonly getApprovedUseCase: GetApprovedCompaniesUseCasePort,
+    @inject(TYPES.ToggleCompanyActiveUseCasePort) private readonly toggleActiveUseCase: ToggleCompanyActiveUseCasePort
   ) { }
 
   getPending = async (
@@ -44,7 +45,6 @@ export class AdminCompanyApprovalController {
     reply.status(HttpStatus.OK).send(success(result));
   };
 
-  // POST /admin/company-requests/:id/approve
   approve = async (
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
@@ -54,7 +54,6 @@ export class AdminCompanyApprovalController {
     reply.status(HttpStatus.OK).send(success({ message: "Company approved successfully" }));
   };
 
-  // POST /admin/company-requests/:id/reject
   reject = async (
     request: FastifyRequest<{ Params: { id: string }; Body: RejectBody }>,
     reply: FastifyReply
@@ -67,7 +66,6 @@ export class AdminCompanyApprovalController {
     reply.status(HttpStatus.OK).send(success({ message: "Company rejected successfully" }));
   };
 
-  // POST /admin/company-requests/:id/toggle-active
   toggleActive = async (
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
@@ -80,7 +78,6 @@ export class AdminCompanyApprovalController {
     }));
   };
 
-  // PATCH /admin/company-requests/:id/documents/:key/mark
   markDocument = async (
     request: FastifyRequest<{ Params: { id: string; key: string }; Body: { verified: boolean } }>,
     reply: FastifyReply

@@ -11,7 +11,6 @@ export interface AuthenticatedUser {
   companyId?: string;
 }
 
-// Extend Fastify's request type so we can use `request.currentUser`
 declare module "fastify" {
   interface FastifyRequest {
     currentUser: AuthenticatedUser;
@@ -49,7 +48,6 @@ async function attachUser(request: FastifyRequest) {
     }
   }
 
-  // Step 5: Attach user data to the request for controllers to use
   request.currentUser = {
     userId: user.userId,
     email: user.email,

@@ -30,9 +30,9 @@ export function useLogin() {
 
 
 
-  const navigateCompanyUser = async (userId: string): Promise<void> => {
+  const navigateCompanyUser = async (): Promise<void> => {
     try {
-      const { data: result } = await authService.checkCompanyStatus({ userId });
+      const { data: result } = await authService.checkCompanyStatus();
 
 
 
@@ -82,7 +82,7 @@ export function useLogin() {
           navigate(APP_ROUTES.CANDIDATE_PROFILE);
         }     
       } else if (role === 'company') {
-        await navigateCompanyUser(userId);
+        await navigateCompanyUser();
       } else if (role === 'hr') {
         navigate(APP_ROUTES.HR_DASHBOARD);
       } else if (role === 'admin') {

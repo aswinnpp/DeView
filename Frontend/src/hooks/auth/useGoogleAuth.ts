@@ -52,9 +52,9 @@ export function useGoogleAuth() {
         return false;
       }
 
-      const navigateCompanyUser = async (userId: string): Promise<void> => {
+      const navigateCompanyUser = async (): Promise<void> => {
         try {
-          const { data: statusResult } = await authService.checkCompanyStatus({ userId });
+          const { data: statusResult } = await authService.checkCompanyStatus();
           if (!statusResult) {
             navigate(APP_ROUTES.COMPANY_APPROVAL_FORM);
             return;
@@ -77,12 +77,12 @@ export function useGoogleAuth() {
       };
 
       dispatch(setUser(user));
-      const { role, id: userId } = user;
+      const { role } = user;
 
       if (role === 'candidate') {
         navigate(APP_ROUTES.CANDIDATE_PROFILE);
       } else if (role === 'company') {
-        await navigateCompanyUser(userId);
+        await navigateCompanyUser();
       } else if (role === 'hr') {
         navigate(APP_ROUTES.HR_DASHBOARD);
       } else if (role === 'admin') {

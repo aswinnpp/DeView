@@ -18,10 +18,10 @@ export class NodemailerEmailService implements EmailServicePort {
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
-            subject: 'Verify Your Email - DeViewS App',
+            subject: 'Verify Your Email - DeView App',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #333;">Welcome to Intervu, ${userName}!</h2>
+                    <h2 style="color: #333;">Welcome to DeView, ${userName}!</h2>
                     <p style="color: #666; font-size: 16px;">
                         Thank you for signing up. Please verify your email address to complete your registration.
                     </p>

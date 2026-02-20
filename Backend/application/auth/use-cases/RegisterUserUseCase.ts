@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
-import { UserRepository } from "../../../domain/user/repositories/UserRepository";
-import { OTPRepository } from "../../../domain/otp/repositories/OTPRepository";
+import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
+import { OTPRepositoryPort } from "../ports/OTPRepositoryPort";
 import { User } from "../../../domain/user/entities/User";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { Role } from "../../../domain/user/value-objects/Role";
@@ -9,19 +9,13 @@ import { PasswordHasherPort } from "../ports/PasswordHasherPort";
 import { EmailServicePort } from "../ports/EmailServicePort";
 import { AppError } from "../../../shared/errors/AppError";
 import { TYPES } from "../../../infrastructure/di/types";
-
-export interface RegisterUserDTO {
-  fullName: string;
-  email: string;
-  password: string;
-  role: string;
-}
+import type { RegisterUserUseCasePort, RegisterUserDTO } from "../ports/RegisterUserUseCasePort";
 
 @injectable()
-export class RegisterUserUseCase {
+export class RegisterUserUseCase implements RegisterUserUseCasePort {
   constructor(
-    @inject(TYPES.UserRepository) private readonly userRepo: UserRepository,
-    @inject(TYPES.OTPRepository) private readonly otpRepo: OTPRepository,
+    @inject(TYPES.UserRepositoryPort) private readonly userRepo: UserRepositoryPort,
+    @inject(TYPES.OTPRepositoryPort) private readonly otpRepo: OTPRepositoryPort,
     @inject(TYPES.PasswordHasherPort) private readonly passwordHasher: PasswordHasherPort,
     @inject(TYPES.EmailServicePort) private readonly emailService: EmailServicePort
   ) {}

@@ -1,7 +1,6 @@
+import { CompanyApproval } from "../../../domain/company/entities/CompanyApprovalEntitie";
 
-import { CompanyApproval } from "../entities/CompanyApprovalEntitie";
-
-export interface CompanyApprovalRepository {
+export interface CompanyApprovalRepositoryPort {
   findByUserId(userId: string): Promise<CompanyApproval | null>;
   findById(id: string): Promise<CompanyApproval | null>;
   findPending(): Promise<CompanyApproval[]>;

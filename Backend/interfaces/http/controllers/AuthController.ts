@@ -3,15 +3,16 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 
-import { RegisterUserUseCase } from "../../../application/auth/use-cases/RegisterUserUseCase";
-import { VerifyOTPUseCase } from "../../../application/auth/use-cases/VerifyOTPUseCase";
-import { LoginUseCase } from "../../../application/auth/use-cases/LoginUseCase";
-import { ResendOTPUseCase } from "../../../application/auth/use-cases/ResendOTPUseCase";
-import { RefreshTokenUseCase } from "../../../application/auth/use-cases/RefreshTokenUseCase";
-import { ForgotPasswordUseCase } from "../../../application/auth/use-cases/ForgotPasswordUseCase";
-import { VerifyPasswordResetOTPUseCase } from "../../../application/auth/use-cases/VerifyPasswordResetOTPUseCase";
-import { ResetPasswordUseCase } from "../../../application/auth/use-cases/ResetPasswordUseCase";
-import { LogoutUseCase } from "../../../application/auth/use-cases/LogoutUseCase";
+import { TYPES } from "../../../infrastructure/di/types";
+import type { RegisterUserUseCasePort } from "../../../application/auth/ports/RegisterUserUseCasePort";
+import type { VerifyOTPUseCasePort } from "../../../application/auth/ports/VerifyOTPUseCasePort";
+import type { LoginUseCasePort } from "../../../application/auth/ports/LoginUseCasePort";
+import type { ResendOTPUseCasePort } from "../../../application/auth/ports/ResendOTPUseCasePort";
+import type { RefreshTokenUseCasePort } from "../../../application/auth/ports/RefreshTokenUseCasePort";
+import type { LogoutUseCasePort } from "../../../application/auth/ports/LogoutUseCasePort";
+import type { ForgotPasswordUseCasePort } from "../../../application/auth/ports/ForgotPasswordUseCasePort";
+import type { VerifyPasswordResetOTPUseCasePort } from "../../../application/auth/ports/VerifyPasswordResetOTPUseCasePort";
+import type { ResetPasswordUseCasePort } from "../../../application/auth/ports/ResetPasswordUseCasePort";
 
 import {
   getCookie,
@@ -36,15 +37,15 @@ interface EmailBody {
 @injectable()
 export class AuthController {
   constructor(
-    @inject(RegisterUserUseCase) private readonly registerUserUseCase: RegisterUserUseCase,
-    @inject(VerifyOTPUseCase) private readonly verifyOTPUseCase: VerifyOTPUseCase,
-    @inject(LoginUseCase) private readonly loginUseCase: LoginUseCase,
-    @inject(ResendOTPUseCase) private readonly resendOTPUseCase: ResendOTPUseCase,
-    @inject(RefreshTokenUseCase) private readonly refreshTokenUseCase: RefreshTokenUseCase,
-    @inject(LogoutUseCase) private readonly logoutUseCase: LogoutUseCase,
-    @inject(ForgotPasswordUseCase) private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
-    @inject(VerifyPasswordResetOTPUseCase) private readonly verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCase,
-    @inject(ResetPasswordUseCase) private readonly resetPasswordUseCase: ResetPasswordUseCase
+    @inject(TYPES.RegisterUserUseCasePort) private readonly registerUserUseCase: RegisterUserUseCasePort,
+    @inject(TYPES.VerifyOTPUseCasePort) private readonly verifyOTPUseCase: VerifyOTPUseCasePort,
+    @inject(TYPES.LoginUseCasePort) private readonly loginUseCase: LoginUseCasePort,
+    @inject(TYPES.ResendOTPUseCasePort) private readonly resendOTPUseCase: ResendOTPUseCasePort,
+    @inject(TYPES.RefreshTokenUseCasePort) private readonly refreshTokenUseCase: RefreshTokenUseCasePort,
+    @inject(TYPES.LogoutUseCasePort) private readonly logoutUseCase: LogoutUseCasePort,
+    @inject(TYPES.ForgotPasswordUseCasePort) private readonly forgotPasswordUseCase: ForgotPasswordUseCasePort,
+    @inject(TYPES.VerifyPasswordResetOTPUseCasePort) private readonly verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCasePort,
+    @inject(TYPES.ResetPasswordUseCasePort) private readonly resetPasswordUseCase: ResetPasswordUseCasePort
   ) {}
 
   // ---------------- REGISTER ----------------
@@ -86,35 +87,18 @@ export class AuthController {
     reply: FastifyReply
   ) => {
     const { email, password } = request.body;
-
     const result = await this.loginUseCase.execute(email, password);
-
-    console.log('Login result:', JSON.stringify(result, null, 2));
-    console.log('Result user:', result.user);
-    console.log('User id:', result.user?.id);
-
-    if (!result.user || !result.user.id) {
-      console.error('ERROR: result.user is missing or invalid:', result);
-      throw new Error('Failed to retrieve user data after login');
-    }
 
     setAccessTokenCookie(reply, result.accessToken);
     setRefreshTokenCookie(reply, result.refreshToken);
 
-    const responseData = success({ user: result.user });
-    console.log('Response data being sent:', JSON.stringify(responseData, null, 2));
-    console.log('Response data type:', typeof responseData);
-    console.log('Response data keys:', Object.keys(responseData));
-
-    reply.send(responseData);
+    reply.send(success({ user: result.user }));
   };
 
   // ---------------- REFRESH ----------------
 
   refresh = async (request: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = getCookie(request, "refreshToken");
-
-
     const result = await this.refreshTokenUseCase.execute(refreshToken);
 
     setAccessTokenCookie(reply, result.accessToken);

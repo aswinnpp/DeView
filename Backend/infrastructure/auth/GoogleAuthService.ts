@@ -59,19 +59,15 @@ export class GoogleAuthService implements GoogleAuthPort {
                 throw new Error('No ID token received from Google');
             }
 
-            // Decode the token payload without strict time validation
-            // This is a workaround for clock skew issues
+            
             const base64Payload = tokens.id_token.split('.')[1];
             const payload = JSON.parse(Buffer.from(base64Payload, 'base64').toString());
 
-            console.log(' Decoded Google token payload:', payload);
 
-            // Basic validation
             if (!payload.email || !payload.sub) {
                 throw new Error('Invalid token payload from Google');
             }
 
-            // Verify audience matches our client ID
             if (payload.aud !== this.clientId) {
                 throw new Error('Token audience mismatch');
             }
@@ -81,7 +77,6 @@ export class GoogleAuthService implements GoogleAuthPort {
                 name: payload.name || payload.email,
             };
         } catch (error) {
-            console.error('Google token verification failed:', error);
             throw new Error(`Failed to verify Google token: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }

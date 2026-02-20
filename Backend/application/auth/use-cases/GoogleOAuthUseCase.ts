@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../infrastructure/di/types";
-import { UserRepository } from "../../../domain/user/repositories/UserRepository";
+import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
 import { TokenServicePort } from "../ports/TokenServicePort";
 import { OAuthSessionPort } from "../ports/OAuthSessionPort";
 import { GoogleAuthPort } from "../ports/GoogleAuthPort";
@@ -10,6 +10,7 @@ import { User } from "../../../domain/user/entities/User";
 import { AppError } from "../../../shared/errors/AppError";
 import { GoogleUserDTO } from "../dtos/GoogleUserDTO";
 import { CryptoRandomPort } from "../../shared/ports/CryptoRandomPort";
+import type { GoogleOAuthUseCasePort } from "../ports/GoogleOAuthUseCasePort";
 
 const ALLOWED_ROLES = ["candidate", "company", "hr", "interviewer", "admin"];
 
@@ -25,9 +26,9 @@ function parseRoleFromState(state: string | undefined): string {
 }
 
 @injectable()
-export class GoogleOAuthUseCase {
+export class GoogleOAuthUseCase implements GoogleOAuthUseCasePort {
   constructor(
-    @inject(TYPES.UserRepository) private readonly userRepo: UserRepository,
+    @inject(TYPES.UserRepositoryPort) private readonly userRepo: UserRepositoryPort,
     @inject(TYPES.TokenServicePort) private readonly tokenService: TokenServicePort,
     @inject(TYPES.OAuthSessionPort) private readonly sessionRepo: OAuthSessionPort,
     @inject(TYPES.GoogleAuthPort) private readonly googleAuth: GoogleAuthPort,

@@ -2,9 +2,10 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
-import { CreateCandidateProfileUseCase } from "../../../application/candidate/use-cases/CreateCandidateProfileUseCase";
-import { GetCandidateProfileUseCase } from "../../../application/candidate/use-cases/GetCandidateProfileUseCase";
-import { UpdateCandidateProfileUseCase } from "../../../application/candidate/use-cases/UpdateCandidateProfileUseCase";
+import { TYPES } from "../../../infrastructure/di/types";
+import type { CreateCandidateProfileUseCasePort } from "../../../application/candidate/ports/CreateCandidateProfileUseCasePort";
+import type { GetCandidateProfileUseCasePort } from "../../../application/candidate/ports/GetCandidateProfileUseCasePort";
+import type { UpdateCandidateProfileUseCasePort } from "../../../application/candidate/ports/UpdateCandidateProfileUseCasePort";
 
 interface ProfileBody {
     fullName: string;
@@ -35,9 +36,9 @@ interface ProfileBody {
 @injectable()
 export class CandidateProfileController {
     constructor(
-        @inject(CreateCandidateProfileUseCase) private readonly createProfileUseCase: CreateCandidateProfileUseCase,
-        @inject(GetCandidateProfileUseCase) private readonly getProfileUseCase: GetCandidateProfileUseCase,
-        @inject(UpdateCandidateProfileUseCase) private readonly updateProfileUseCase: UpdateCandidateProfileUseCase
+        @inject(TYPES.CreateCandidateProfileUseCasePort) private readonly createProfileUseCase: CreateCandidateProfileUseCasePort,
+        @inject(TYPES.GetCandidateProfileUseCasePort) private readonly getProfileUseCase: GetCandidateProfileUseCasePort,
+        @inject(TYPES.UpdateCandidateProfileUseCasePort) private readonly updateProfileUseCase: UpdateCandidateProfileUseCasePort
     ) { }
 
     // GET /candidate/profile — returns 200 with { profile } or { profile: null } when none

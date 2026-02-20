@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../infrastructure/di/types';
-import { UserRepository } from "../../../domain/user/repositories/UserRepository.js";
+import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort.js";
 import { PasswordHasherPort } from "../../auth/ports/PasswordHasherPort.js";
 import { EmailServicePort } from "../../auth/ports/EmailServicePort.js";
 import { User } from "../../../domain/user/entities/User.js";
@@ -9,19 +9,12 @@ import { Role, RoleType } from "../../../domain/user/value-objects/Role.js";
 import { AppError } from "../../../shared/errors/AppError.js";
 import { ResolveCompanyForUserUseCase } from "./ResolveCompanyForUserUseCase.js";
 import { CryptoRandomPort } from "../../shared/ports/CryptoRandomPort";
-
-export interface CreateTeamMemberDTO {
-    fullName: string;
-    email: string;
-    role: 'hr' | 'interviewer';
-    userId: string;
-    companyIdFromToken?: string;
-}
+import type { CreateTeamMemberUseCasePort, CreateTeamMemberDTO } from "../ports/CreateTeamMemberUseCasePort";
 
 @injectable()
-export class CreateTeamMemberUseCase {
+export class CreateTeamMemberUseCase implements CreateTeamMemberUseCasePort {
     constructor(
-        @inject(TYPES.UserRepository) private readonly userRepository: UserRepository,
+        @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
         @inject(TYPES.PasswordHasherPort) private readonly passwordHasher: PasswordHasherPort,
         @inject(TYPES.EmailServicePort) private readonly emailService: EmailServicePort,
         @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase,
