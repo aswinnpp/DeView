@@ -1,4 +1,4 @@
-import { CompanyApproval } from "../../../domain/company/entities/CompanyApprovalEntitie";
+import { CompanyApproval } from "../../../../domain/company/entities/CompanyApprovalEntitie";
 
 export interface CompanyApprovalRepositoryPort {
   findByUserId(userId: string): Promise<CompanyApproval | null>;

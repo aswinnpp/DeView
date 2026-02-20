@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import bcrypt from 'bcrypt';
-import { PasswordHasherPort } from '../../application/auth/ports/PasswordHasherPort';
+import { PasswordHasherPort } from '../../application/auth/ports/services/PasswordHasherPort';
 
 @injectable()
 export class BcryptPasswordHasher implements PasswordHasherPort {

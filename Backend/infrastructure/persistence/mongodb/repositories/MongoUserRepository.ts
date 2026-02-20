@@ -1,5 +1,5 @@
 import { Collection, ObjectId } from 'mongodb';
-import { UserRepositoryPort } from '../../../../application/shared/ports/UserRepositoryPort';
+import { UserRepositoryPort } from '../../../../application/shared/ports/repository/UserRepositoryPort';
 import { User } from '../../../../domain/user/entities/User';
 import { Email } from '../../../../domain/user/value-objects/Email';
 import { Role } from '../../../../domain/user/value-objects/Role';
@@ -31,13 +31,11 @@ export class MongoUserRepository implements UserRepositoryPort {
   ): Promise<User[]> {
     const filter: Record<string, any> = { companyId, role };
 
-    // search filter — matches fullName or email
     if (search && search.trim()) {
       const regex = { $regex: search.trim(), $options: 'i' };
       filter.$or = [{ fullName: regex }, { email: regex }];
     }
 
-    // status filter — active / inactive
     if (status === 'active') filter.isActive = true;
     if (status === 'inactive') filter.isActive = false;
 
@@ -58,17 +56,14 @@ export class MongoUserRepository implements UserRepositoryPort {
   ): Promise<User[]> {
     const filter: Record<string, any> = { role };
 
-    // search filter — matches fullName or email
     if (search && search.trim()) {
       const regex = { $regex: search.trim(), $options: 'i' };
       filter.$or = [{ fullName: regex }, { email: regex }];
     }
 
-    // status filter — active / inactive
     if (status === 'active') filter.isActive = true;
     if (status === 'inactive') filter.isActive = false;
 
-    // Sort by createdAt (or _id if createdAt not available) - newest first by default
     const sortDirection = sortOrder === 'asc' ? 1 : -1;
     const docs = await this.collection
       .find(filter)

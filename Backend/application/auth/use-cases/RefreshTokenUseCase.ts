@@ -1,9 +1,9 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { TokenServicePort } from "../ports/TokenServicePort";
-import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
+import { TokenServicePort } from "../ports/services/TokenServicePort";
+import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
 import { AppError } from "../../../shared/errors/AppError";
-import type { RefreshTokenUseCasePort } from "../ports/RefreshTokenUseCasePort";
+import type { RefreshTokenUseCasePort } from "../ports/usecase/RefreshTokenUseCasePort";
 
 @injectable()
 export class RefreshTokenUseCase implements RefreshTokenUseCasePort {

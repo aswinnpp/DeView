@@ -1,8 +1,8 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CompanyApprovalRepositoryPort } from "../../company/ports/CompanyApprovalRepositoryPort";
+import { CompanyApprovalRepositoryPort } from "../../company/ports/repository/CompanyApprovalRepositoryPort";
 import { AppError } from "../../../shared/errors/AppError";
-import type { MarkDocumentUseCasePort } from "../ports/MarkDocumentUseCasePort";
+import type { MarkDocumentUseCasePort } from "../ports/usecase/MarkDocumentUseCasePort";
 
 @injectable()
 export class MarkDocumentUseCase implements MarkDocumentUseCasePort {

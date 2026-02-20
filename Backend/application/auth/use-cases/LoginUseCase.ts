@@ -1,12 +1,12 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
+import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
 import { Email } from "../../../domain/user/value-objects/Email";
-import { PasswordHasherPort } from "../ports/PasswordHasherPort";
-import { TokenServicePort } from "../ports/TokenServicePort";
+import { PasswordHasherPort } from "../ports/services/PasswordHasherPort";
+import { TokenServicePort } from "../ports/services/TokenServicePort";
 import { AppError } from "../../../shared/errors/AppError";
-import { CompanyApprovalRepositoryPort } from "../../company/ports/CompanyApprovalRepositoryPort";
-import type { LoginUseCasePort } from "../ports/LoginUseCasePort";
+import { CompanyApprovalRepositoryPort } from "../../company/ports/repository/CompanyApprovalRepositoryPort";
+import type { LoginUseCasePort } from "../ports/usecase/LoginUseCasePort";
 
 @injectable()
 export class LoginUseCase implements LoginUseCasePort {

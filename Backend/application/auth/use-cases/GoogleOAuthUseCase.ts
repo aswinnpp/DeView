@@ -1,16 +1,16 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
-import { TokenServicePort } from "../ports/TokenServicePort";
-import { OAuthSessionPort } from "../ports/OAuthSessionPort";
-import { GoogleAuthPort } from "../ports/GoogleAuthPort";
+import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
+import { TokenServicePort } from "../ports/services/TokenServicePort";
+import { OAuthSessionPort } from "../ports/services/OAuthSessionPort";
+import { GoogleAuthPort } from "../ports/services/GoogleAuthPort";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { Role } from "../../../domain/user/value-objects/Role";
 import { User } from "../../../domain/user/entities/User";
 import { AppError } from "../../../shared/errors/AppError";
 import { GoogleUserDTO } from "../dtos/GoogleUserDTO";
-import { CryptoRandomPort } from "../../shared/ports/CryptoRandomPort";
-import type { GoogleOAuthUseCasePort } from "../ports/GoogleOAuthUseCasePort";
+import { CryptoRandomPort } from "../../shared/ports/services/CryptoRandomPort";
+import type { GoogleOAuthUseCasePort } from "../ports/usecase/GoogleOAuthUseCasePort";
 
 const ALLOWED_ROLES = ["candidate", "company", "hr", "interviewer", "admin"];
 

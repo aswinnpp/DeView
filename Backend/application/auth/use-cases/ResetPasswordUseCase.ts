@@ -1,13 +1,13 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
-import { OTPRepositoryPort } from "../ports/OTPRepositoryPort";
+import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
+import { OTPRepositoryPort } from "../ports/repository/OTPRepositoryPort";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
-import { PasswordHasherPort } from "../ports/PasswordHasherPort";
-import { TokenServicePort } from "../ports/TokenServicePort";
+import { PasswordHasherPort } from "../ports/services/PasswordHasherPort";
+import { TokenServicePort } from "../ports/services/TokenServicePort";
 import { AppError } from "../../../shared/errors/AppError";
-import type { ResetPasswordUseCasePort } from "../ports/ResetPasswordUseCasePort";
+import type { ResetPasswordUseCasePort } from "../ports/usecase/ResetPasswordUseCasePort";
 
 @injectable()
 export class ResetPasswordUseCase implements ResetPasswordUseCasePort {

@@ -1,5 +1,5 @@
 import { Collection, ObjectId } from "mongodb";
-import { CandidateProfileRepositoryPort } from "../../../../application/candidate/ports/CandidateProfileRepositoryPort";
+import { CandidateProfileRepositoryPort } from "../../../../application/candidate/ports/repository/CandidateProfileRepositoryPort";
 import { CandidateProfile } from "../../../../domain/candidate/entities/CandidateProfile";
 import { CandidateProfileDocument } from "../schemas/CandidateProfileDocument";
 

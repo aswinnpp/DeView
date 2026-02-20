@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import crypto from "crypto";
-import { CryptoRandomPort } from "../../application/shared/ports/CryptoRandomPort";
+import { CryptoRandomPort } from "../../application/shared/ports/services/CryptoRandomPort";
 
 @injectable()
 export class NodeCryptoRandomService implements CryptoRandomPort {

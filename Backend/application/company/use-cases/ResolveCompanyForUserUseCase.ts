@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
-import { CompanyApprovalRepositoryPort } from '../ports/CompanyApprovalRepositoryPort.js';
-import { UserRepositoryPort } from '../../shared/ports/UserRepositoryPort.js';
+import { CompanyApprovalRepositoryPort } from '../ports/repository/CompanyApprovalRepositoryPort.js';
+import { UserRepositoryPort } from '../../shared/ports/repository/UserRepositoryPort.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 

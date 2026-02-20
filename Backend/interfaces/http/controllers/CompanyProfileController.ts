@@ -2,8 +2,8 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { GetCompanyProfileUseCasePort } from "../../../application/company/ports/GetCompanyProfileUseCasePort";
-import type { UpdateCompanyProfileUseCasePort } from "../../../application/company/ports/UpdateCompanyProfileUseCasePort";
+import type { GetCompanyProfileUseCasePort } from "../../../application/company/ports/usecase/GetCompanyProfileUseCasePort";
+import type { UpdateCompanyProfileUseCasePort } from "../../../application/company/ports/usecase/UpdateCompanyProfileUseCasePort";
 import type { UpdateCompanyProfileDTO } from "../../../application/company/dtos/UpdateCompanyProfileDTO";
 
 interface UpdateProfileBody {

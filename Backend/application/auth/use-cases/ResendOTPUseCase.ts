@@ -1,14 +1,14 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { UserRepositoryPort } from "../../shared/ports/UserRepositoryPort";
-import { OTPRepositoryPort } from "../ports/OTPRepositoryPort";
+import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
+import { OTPRepositoryPort } from "../ports/repository/OTPRepositoryPort";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
-import { EmailServicePort } from "../ports/EmailServicePort";
+import { EmailServicePort } from "../ports/services/EmailServicePort";
 import { AppError } from "../../../shared/errors/AppError";
 import { ResendOTPRequestDTO } from "../dtos/ResendOTPRequestDTO";
 import { ResendOTPResponseDTO } from "../dtos/ResendOTPResponseDTO";
-import type { ResendOTPUseCasePort } from "../ports/ResendOTPUseCasePort";
+import type { ResendOTPUseCasePort } from "../ports/usecase/ResendOTPUseCasePort";
 
 @injectable()
 export class ResendOTPUseCase implements ResendOTPUseCasePort {

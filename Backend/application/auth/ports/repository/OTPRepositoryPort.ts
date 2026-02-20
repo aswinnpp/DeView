@@ -1,4 +1,4 @@
-import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
+import { OTPCode } from "../../../../domain/otp/value-objects/OTPCode";
 
 export interface OTPRepositoryPort {
   save(email: string, otp: OTPCode): Promise<void>;

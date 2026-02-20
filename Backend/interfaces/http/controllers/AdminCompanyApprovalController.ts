@@ -3,12 +3,12 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { GetPendingCompaniesUseCasePort } from "../../../application/admin/ports/GetPendingCompaniesUseCasePort";
-import type { ApproveCompanyUseCasePort } from "../../../application/admin/ports/ApproveCompanyUseCasePort";
-import type { RejectCompanyUseCasePort } from "../../../application/admin/ports/RejectCompanyUseCasePort";
-import type { MarkDocumentUseCasePort } from "../../../application/admin/ports/MarkDocumentUseCasePort";
-import type { GetApprovedCompaniesUseCasePort } from "../../../application/admin/ports/GetApprovedCompaniesUseCasePort";
-import type { ToggleCompanyActiveUseCasePort } from "../../../application/admin/ports/ToggleCompanyActiveUseCasePort";
+import type { GetPendingCompaniesUseCasePort } from "../../../application/admin/ports/usecase/GetPendingCompaniesUseCasePort";
+import type { ApproveCompanyUseCasePort } from "../../../application/admin/ports/usecase/ApproveCompanyUseCasePort";
+import type { RejectCompanyUseCasePort } from "../../../application/admin/ports/usecase/RejectCompanyUseCasePort";
+import type { MarkDocumentUseCasePort } from "../../../application/admin/ports/usecase/MarkDocumentUseCasePort";
+import type { GetApprovedCompaniesUseCasePort } from "../../../application/admin/ports/usecase/GetApprovedCompaniesUseCasePort";
+import type { ToggleCompanyActiveUseCasePort } from "../../../application/admin/ports/usecase/ToggleCompanyActiveUseCasePort";
 
 interface RejectBody {
   reason: string;

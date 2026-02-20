@@ -1,4 +1,4 @@
-import { GoogleUserDTO } from "../dtos/GoogleUserDTO";
+import { GoogleUserDTO } from "../../dtos/GoogleUserDTO";
 
 export interface GoogleAuthPort {
   getAuthUrl(role?: string, mode?: string): string;

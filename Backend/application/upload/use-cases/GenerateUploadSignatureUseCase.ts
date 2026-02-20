@@ -1,8 +1,8 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
-import { FileStoragePort } from '../ports/FileStoragePort.js';
+import { FileStoragePort } from '../ports/services/FileStoragePort.js';
 import { GenerateUploadSignatureInputDTO, GenerateUploadSignatureOutputDTO } from '../dtos/GenerateUploadSignatureDTO.js';
-import type { GenerateUploadSignatureUseCasePort } from '../ports/GenerateUploadSignatureUseCasePort.js';
+import type { GenerateUploadSignatureUseCasePort } from '../ports/usecase/GenerateUploadSignatureUseCasePort.js';
 
 @injectable()
 export class GenerateUploadSignatureUseCase implements GenerateUploadSignatureUseCasePort {

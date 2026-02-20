@@ -3,11 +3,11 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { CreateCandidateProfileUseCasePort } from "../../../application/candidate/ports/CreateCandidateProfileUseCasePort";
-import type { GetCandidateProfileUseCasePort } from "../../../application/candidate/ports/GetCandidateProfileUseCasePort";
-import type { UpdateCandidateProfileUseCasePort } from "../../../application/candidate/ports/UpdateCandidateProfileUseCasePort";
-import type { GetAllCandidatesUseCasePort } from "../../../application/candidate/ports/GetAllCandidateUsecasePort";
-import type { ToggleCandidateStatusUseCasePort } from "../../../application/candidate/ports/ToggleCandidateStatusUseCasePort";
+import type { CreateCandidateProfileUseCasePort } from "../../../application/candidate/ports/usecase/CreateCandidateProfileUseCasePort";
+import type { GetCandidateProfileUseCasePort } from "../../../application/candidate/ports/usecase/GetCandidateProfileUseCasePort";
+import type { UpdateCandidateProfileUseCasePort } from "../../../application/candidate/ports/usecase/UpdateCandidateProfileUseCasePort";
+import type { GetAllCandidatesUseCasePort } from "../../../application/candidate/ports/usecase/GetAllCandidateUsecasePort";
+import type { ToggleCandidateStatusUseCasePort } from "../../../application/candidate/ports/usecase/ToggleCandidateStatusUseCasePort";
 
 interface ProfileBody {
     fullName: string;

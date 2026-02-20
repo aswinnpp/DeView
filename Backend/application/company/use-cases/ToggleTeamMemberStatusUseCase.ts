@@ -1,9 +1,9 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
-import { UserRepositoryPort } from '../../shared/ports/UserRepositoryPort.js';
+import { UserRepositoryPort } from '../../shared/ports/repository/UserRepositoryPort.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
-import type { ToggleTeamMemberStatusUseCasePort } from '../ports/ToggleTeamMemberStatusUseCasePort';
+import type { ToggleTeamMemberStatusUseCasePort } from '../ports/usecase/ToggleTeamMemberStatusUseCasePort';
 
 @injectable()
 export class ToggleTeamMemberStatusUseCase implements ToggleTeamMemberStatusUseCasePort {

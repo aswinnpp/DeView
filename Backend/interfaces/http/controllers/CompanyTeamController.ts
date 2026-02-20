@@ -3,9 +3,9 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { success } from '../../../shared/http/apiResponse';
 import { HttpStatus } from '../../../shared/http/HttpStatus';
 import { TYPES } from '../../../infrastructure/di/types.js';
-import type { CreateTeamMemberUseCasePort } from '../../../application/company/ports/CreateTeamMemberUseCasePort.js';
-import type { ListTeamMembersUseCasePort } from '../../../application/company/ports/ListTeamMembersUseCasePort.js';
-import type { ToggleTeamMemberStatusUseCasePort } from '../../../application/company/ports/ToggleTeamMemberStatusUseCasePort.js';
+import type { CreateTeamMemberUseCasePort } from '../../../application/company/ports/usecase/CreateTeamMemberUseCasePort.js';
+import type { ListTeamMembersUseCasePort } from '../../../application/company/ports/usecase/ListTeamMembersUseCasePort.js';
+import type { ToggleTeamMemberStatusUseCasePort } from '../../../application/company/ports/usecase/ToggleTeamMemberStatusUseCasePort.js';
 
 interface CreateBody {
     fullName: string;

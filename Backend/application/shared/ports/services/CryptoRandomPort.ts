@@ -5,4 +5,3 @@ export interface CryptoRandomPort {
 
   generateUUID(): string;
 }
-

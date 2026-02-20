@@ -1,6 +1,5 @@
 import { Email } from "../value-objects/Email";
 import { Role } from "../value-objects/Role";
-import { DomainError } from "../../../shared/errors/DomainError";
 
 export type AuthProvider = "email" | "google";
 
