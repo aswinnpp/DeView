@@ -8,7 +8,7 @@ export class GetApprovedCompaniesUseCase implements GetApprovedCompaniesUseCaseP
   constructor(@inject(TYPES.CompanyApprovalRepositoryPort) private repo: CompanyApprovalRepositoryPort) {}
 
   async execute(search?: string) {
-    const approvals = await this.repo.findApproved(search);
+    const approvals = await this.repo.findApproved({ search });
     return { approvals };
   }
 }

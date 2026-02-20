@@ -1,5 +1,5 @@
 import { Collection, ObjectId } from "mongodb";
-import { CompanyApprovalRepositoryPort } from "../../../../application/company/ports/repository/CompanyApprovalRepositoryPort";
+import type { CompanyApprovalRepositoryPort, CompanyApprovalSearchOptions } from "../../../../application/company/ports/repository/CompanyApprovalRepositoryPort";
 import { CompanyApproval } from "../../../../domain/company/entities/CompanyApprovalEntitie";
 import { CompanyApprovalDocument } from "../schemas/CompanyApprovalDocument";
 
@@ -16,8 +16,9 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
     return doc ? this.toDomain(doc) : null;
   }
 
-  async findPending(search?: string): Promise<CompanyApproval[]> {
+  async findPending(options?: CompanyApprovalSearchOptions): Promise<CompanyApproval[]> {
     const filter: Record<string, any> = { status: "pending" };
+    const search = options?.search;
 
     if (search && search.trim()) {
       const regex = { $regex: search.trim(), $options: "i" };
@@ -32,8 +33,9 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
     return docs.map(d => this.toDomain(d));
   }
 
-  async findApproved(search?: string): Promise<CompanyApproval[]> {
+  async findApproved(options?: CompanyApprovalSearchOptions): Promise<CompanyApproval[]> {
     const filter: Record<string, any> = { status: "approved" };
+    const search = options?.search;
 
     if (search && search.trim()) {
       const regex = { $regex: search.trim(), $options: "i" };
