@@ -15,8 +15,8 @@ export interface UserRepositoryPort {
   findByCompanyIdAndRole(
     companyId: string,
     role: string,
-    options?: Pick<UserSearchOptions, 'search' | 'status'>
-  ): Promise<User[]>;
+    options?: UserSearchOptions
+  ): Promise<{ data: User[]; total: number }>;
   findByRole(
     role: string,
     options?: UserSearchOptions

@@ -13,6 +13,8 @@ export type { TeamMember };
 // ---------------------------------------------------------------------------
 // Helpers: normalize API response to always get an array
 // ---------------------------------------------------------------------------
+const DEFAULT_LIMIT = 2;
+
 function toList(data: unknown): TeamMember[] {
   if (Array.isArray(data)) return data;
   const wrapped = (data as { data?: TeamMember[] })?.data;
@@ -25,70 +27,71 @@ export function useManageTeam() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(DEFAULT_LIMIT);
+  const [total, setTotal] = useState(0);
 
   const [hrs, setHrs] = useState<TeamMember[]>([]);
   const [interviewers, setInterviewers] = useState<TeamMember[]>([]);
 
-
   const allMembers = activeTab === "hr" ? hrs : interviewers;
   const tabLabel = activeTab === "hr" ? "HR" : "Interviewer";
+  const totalPages = Math.ceil(total / limit) || 1;
 
-  const fetchHRs = useCallback(async (search?: string, status?: string) => {
+  const fetchHRs = useCallback(async (search?: string, status?: string, p?: number, l?: number) => {
     try {
-      const { data } = await companyTeamService.listHRs(search, status);
-      setHrs(toList(data));
+      const { data } = await companyTeamService.listHRs(search, status, p ?? page, l ?? limit);
+      setHrs(toList(data?.data));
+      setTotal(data?.total ?? 0);
     } catch (err) {
       setError(extractApiError(err));
     }
-  }, []);
+  }, [limit, page]);
 
-  const fetchInterviewers = useCallback(async (search?: string, status?: string) => {
+  const fetchInterviewers = useCallback(async (search?: string, status?: string, p?: number, l?: number) => {
     try {
-      const { data } = await companyTeamService.listInterviewers(search, status);
-      setInterviewers(toList(data));
+      const { data } = await companyTeamService.listInterviewers(search, status, p ?? page, l ?? limit);
+      setInterviewers(toList(data?.data));
+      setTotal(data?.total ?? 0);
     } catch (err) {
       setError(extractApiError(err));
     }
-  }, []);
+  }, [limit, page]);
+
+  const loadPage = useCallback((p: number, search?: string, status?: string) => {
+    const s = search ?? searchQuery;
+    const st = status ?? (statusFilter === "all" ? undefined : statusFilter);
+    setPage(p);
+    setIsLoading(true);
+    setError(null);
+    if (activeTab === "hr") {
+      fetchHRs(s || undefined, st, p, limit).finally(() => setIsLoading(false));
+    } else {
+      fetchInterviewers(s || undefined, st, p, limit).finally(() => setIsLoading(false));
+    }
+  }, [activeTab, searchQuery, statusFilter, limit, fetchHRs, fetchInterviewers]);
+
+  const goToPage = useCallback((p: number) => {
+    if (p < 1 || p > totalPages) return;
+    loadPage(p);
+  }, [loadPage, totalPages]);
 
 
 
   const handleSearch = useCallback(
-    async (query: string) => {
+    (query: string) => {
       setSearchQuery(query);
-      setIsLoading(true);
-      setError(null);
-      const status = statusFilter === "all" ? undefined : statusFilter;
-      try {
-        if (activeTab === "hr") {
-          await fetchHRs(query || undefined, status);
-        } else {
-          await fetchInterviewers(query || undefined, status);
-        }
-      } finally {
-        setIsLoading(false);
-      }
+      loadPage(1, query || undefined, statusFilter === "all" ? undefined : statusFilter);
     },
-    [activeTab, statusFilter, fetchHRs, fetchInterviewers]
+    [loadPage, statusFilter]
   );
 
   const handleStatusFilter = useCallback(
-    async (newStatus: string) => {
+    (newStatus: string) => {
       setStatusFilter(newStatus);
-      setIsLoading(true);
-      setError(null);
-      const status = newStatus === "all" ? undefined : newStatus;
-      try {
-        if (activeTab === "hr") {
-          await fetchHRs(searchQuery || undefined, status);
-        } else {
-          await fetchInterviewers(searchQuery || undefined, status);
-        }
-      } finally {
-        setIsLoading(false);
-      }
+      loadPage(1, searchQuery || undefined, newStatus === "all" ? undefined : newStatus);
     },
-    [activeTab, searchQuery, fetchHRs, fetchInterviewers]
+    [loadPage, searchQuery]
   );
 
   const switchTab = useCallback((tab: ActiveTab) => {
@@ -96,7 +99,13 @@ export function useManageTeam() {
     setSearchQuery("");
     setStatusFilter("all");
     setError(null);
+    setPage(1);
   }, []);
+
+  useEffect(() => {
+    loadPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- initial load and tab switch only
+  }, [activeTab]);
 
 
 
@@ -107,49 +116,37 @@ export function useManageTeam() {
       try {
         if (activeTab === "hr") {
           await companyTeamService.createHR(data);
-          await fetchHRs();
+          loadPage(page);
         } else {
           await companyTeamService.createInterviewer(data);
-          await fetchInterviewers();
+          loadPage(page);
         }
-
       } catch (err) {
         setError(extractApiError(err));
       } finally {
         setIsLoading(false);
       }
     },
-    [activeTab, tabLabel, fetchHRs, fetchInterviewers]
+    [activeTab, loadPage, page]
   );
-
 
   const confirmToggle = useCallback(async (memberToToggle: any, setMemberToToggle: any) => {
     if (!memberToToggle) return;
     setError(null);
     try {
       if (activeTab === "hr") {
-        console.log("ss", memberToToggle);
-
         await companyTeamService.toggleHRStatus(memberToToggle.id);
-
-        setMemberToToggle(null)
-        await fetchHRs();
-
+        setMemberToToggle(null);
+        loadPage(page);
       } else {
         await companyTeamService.toggleInterviewerStatus(memberToToggle.id);
-
-        setMemberToToggle(null)
-
-
-        await fetchInterviewers();
-
+        setMemberToToggle(null);
+        loadPage(page);
       }
-
     } catch (err) {
       setError(extractApiError(err));
-
     }
-  }, [, activeTab, fetchHRs, fetchInterviewers]);
+  }, [activeTab, loadPage, page]);
 
   return {
     activeTab,
@@ -164,5 +161,10 @@ export function useManageTeam() {
     handleStatusFilter,
     createMember,
     confirmToggle,
+    page,
+    limit,
+    total,
+    totalPages,
+    goToPage,
   };
 }

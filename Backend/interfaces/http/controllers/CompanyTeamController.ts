@@ -20,6 +20,8 @@ interface ToggleParams {
 interface SearchQuery {
     search?: string;
     status?: string;
+    page?: string;
+    limit?: string;
 }
 
 @injectable()
@@ -35,8 +37,10 @@ export class CompanyTeamController {
         reply: FastifyReply
     ) => {
         const { userId, companyId } = request.currentUser;
-        const { search, status } = request.query;
-        const result = await this.listTeamMembersUseCase.execute(userId, companyId, 'hr', search, status);
+        const { search, status, page: pageStr, limit: limitStr } = request.query;
+        const page = pageStr != null ? parseInt(pageStr, 10) : undefined;
+        const limit = limitStr != null ? parseInt(limitStr, 10) : undefined;
+        const result = await this.listTeamMembersUseCase.execute(userId, companyId, 'hr', search, status, page, limit);
         reply.send(success(result));
     };
 
@@ -69,8 +73,10 @@ export class CompanyTeamController {
         reply: FastifyReply
     ) => {
         const { userId, companyId } = request.currentUser;
-        const { search, status } = request.query;
-        const result = await this.listTeamMembersUseCase.execute(userId, companyId, 'interviewer', search, status);
+        const { search, status, page: pageStr, limit: limitStr } = request.query;
+        const page = pageStr != null ? parseInt(pageStr, 10) : undefined;
+        const limit = limitStr != null ? parseInt(limitStr, 10) : undefined;
+        const result = await this.listTeamMembersUseCase.execute(userId, companyId, 'interviewer', search, status, page, limit);
         reply.send(success(result));
     };
 
