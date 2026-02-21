@@ -7,7 +7,7 @@ import type { GetPendingCompaniesUseCasePort } from "../ports/usecase/GetPending
 export class GetPendingCompaniesUseCase implements GetPendingCompaniesUseCasePort {
   constructor(@inject(TYPES.CompanyApprovalRepositoryPort) private repo: CompanyApprovalRepositoryPort) { }
 
-  async execute(search?: string) {
-    return await this.repo.findPending({ search });
+  async execute(search?: string, sortOrder?: 'asc' | 'desc', page?: number, limit?: number) {
+    return await this.repo.findPending({ search, sortOrder, page, limit });
   }
 }

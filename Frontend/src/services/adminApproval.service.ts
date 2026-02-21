@@ -30,13 +30,20 @@ export type CompanyApproval = {
     updatedAt: string;
 };
 
+export type GetPendingParams = {
+    search?: string;
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+};
+
 // ─── Service functions ──────────────────────────────────────────
 
 export const adminApprovalService = {
-    /** Fetch pending company-approval requests (with optional search) */
-    getPending(search?: string) {
-        return api.get<CompanyApproval[]>(API_ROUTES.ADMIN.COMPANY_PENDING, {
-            params: { search },
+    /** Fetch pending company-approval requests with pagination and sort */
+    getPending(params?: GetPendingParams) {
+        return api.get<{ data: CompanyApproval[]; total: number }>(API_ROUTES.ADMIN.COMPANY_PENDING, {
+            params: params as Record<string, string | number | undefined>,
         });
     },
 

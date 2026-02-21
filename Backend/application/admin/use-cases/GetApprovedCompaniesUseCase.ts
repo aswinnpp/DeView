@@ -7,8 +7,8 @@ import type { GetApprovedCompaniesUseCasePort } from "../ports/usecase/GetApprov
 export class GetApprovedCompaniesUseCase implements GetApprovedCompaniesUseCasePort {
   constructor(@inject(TYPES.CompanyApprovalRepositoryPort) private repo: CompanyApprovalRepositoryPort) {}
 
-  async execute(search?: string) {
-    const approvals = await this.repo.findApproved({ search });
-    return { approvals };
+  async execute(search?: string, status?: string, sortOrder?: 'asc' | 'desc', page?: number, limit?: number) {
+    const { data, total } = await this.repo.findApproved({ search, status: status as 'active' | 'inactive' | undefined, sortOrder, page, limit });
+    return { approvals: data, total };
   }
 }

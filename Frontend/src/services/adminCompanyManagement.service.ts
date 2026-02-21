@@ -31,16 +31,30 @@ export type CompanyApproval = {
 
 type GetApprovedResponse = {
     approvals: CompanyApproval[];
+    total: number;
+};
+
+export type GetApprovedParams = {
+    search?: string;
+    status?: 'all' | 'active' | 'inactive';
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
 };
 
 // ─── Service functions ──────────────────────────────────────────
 
 export const adminCompanyManagementService = {
 
-    getApproved(search?: string) {
-        return api.get<GetApprovedResponse>(`${API_ROUTES.ADMIN.COMPANY_PENDING.replace('pending', 'approved')}`, {
-            params: { search },
-        });
+    getApproved(params?: GetApprovedParams) {
+        const url = API_ROUTES.ADMIN.COMPANY_PENDING.replace('pending', 'approved');
+        const query: Record<string, string | number | undefined> = {};
+        if (params?.search) query.search = params.search;
+        if (params?.status && params.status !== 'all') query.status = params.status;
+        if (params?.sortOrder) query.sortOrder = params.sortOrder;
+        if (params?.page != null) query.page = params.page;
+        if (params?.limit != null) query.limit = params.limit;
+        return api.get<GetApprovedResponse>(url, { params: query });
     },
 
     reject(id: string, reason: string) {

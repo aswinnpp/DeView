@@ -8,7 +8,19 @@ const AdminCompanyManagement = () => {
   const {
     loading,
     error,
-    data: { companies, fetchCompanies, toggleCompany },
+    companies,
+    total,
+    page,
+    limit,
+    totalPages,
+    statusFilter,
+    sortOrder,
+    handleSearch,
+    handleStatusFilter,
+    handleSortOrder,
+    goToPage,
+    toggleCompany,
+    refetch,
   } = useAdminCompanyManagement();
 
   const [selectedCompany, setSelectedCompany] =
@@ -18,21 +30,6 @@ const AdminCompanyManagement = () => {
     useState<CompanyApproval | null>(null);
 
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">(
-    "all"
-  );
-  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
-
-  // ───────── Search ─────────
-
-  const handleSearch = useCallback(
-    (q: string) => {
-      fetchCompanies(q);
-    },
-    [fetchCompanies]
-  );
-
-  // ───────── Toggle ─────────
 
   const confirmToggle = async () => {
     if (!toggleTarget) return;
@@ -41,11 +38,11 @@ const AdminCompanyManagement = () => {
     setToggleTarget(null);
   };
 
-  const handleRejectSuccess = () => {
+  const handleRejectSuccess = useCallback(() => {
     setSelectedCompany(null);
     setShowRejectModal(false);
-    fetchCompanies();
-  };
+    refetch();
+  }, [refetch]);
 
   // ─────────────────────────
 
@@ -94,7 +91,7 @@ const AdminCompanyManagement = () => {
                     key={option.value}
                     type="button"
                     onClick={() =>
-                      setStatusFilter(
+                      handleStatusFilter(
                         option.value as "all" | "active" | "inactive"
                       )
                     }
@@ -117,12 +114,12 @@ const AdminCompanyManagement = () => {
               <select
                 value={sortOrder}
                 onChange={(e) =>
-                  setSortOrder(e.target.value as "newest" | "oldest")
+                  handleSortOrder(e.target.value as "asc" | "desc")
                 }
                 className="w-full py-2.5 px-3.5 bg-slate-900/80 border border-slate-700 rounded-lg text-[13px] text-slate-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
               >
-                <option value="newest">Newest first</option>
-                <option value="oldest">Oldest first</option>
+                <option value="desc">Newest first</option>
+                <option value="asc">Oldest first</option>
               </select>
             </div>
           </div>
@@ -168,6 +165,35 @@ const AdminCompanyManagement = () => {
           },
         ]}
       />
+
+      {!loading && total > 0 && (
+        <div className="mt-4 flex items-center justify-between border-t border-slate-700 pt-4">
+          <p className="text-sm text-slate-400">
+            Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => goToPage(page - 1)}
+              disabled={page <= 1}
+              className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-slate-400">
+              Page {page} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => goToPage(page + 1)}
+              disabled={page >= totalPages}
+              className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {selectedCompany && (
         <CompanyReviewModal
