@@ -23,6 +23,11 @@ const ManageHRPage = () => {
         handleStatusFilter,
         createMember,
         confirmToggle,
+        page,
+        limit,
+        total,
+        totalPages,
+        goToPage,
     } = useManageTeam();
 
     const [newMember, setNewMember] = useState({ name: "", email: "" });
@@ -200,6 +205,36 @@ const ManageHRPage = () => {
                             : `Click "Create ${tabLabel}" to add your first ${tabLabel.toLowerCase()} member.`
                     }
                 />
+            )}
+
+            {/* Pagination */}
+            {!isLoading && total > 0 && (
+                <div className="mt-4 flex items-center justify-between border-t border-slate-700 pt-4">
+                    <p className="text-sm text-slate-400">
+                        Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => goToPage(page - 1)}
+                            disabled={page <= 1}
+                            className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
+                        >
+                            Previous
+                        </button>
+                        <span className="text-sm text-slate-400">
+                            Page {page} of {totalPages}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => goToPage(page + 1)}
+                            disabled={page >= totalPages}
+                            className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
             )}
 
             {/* Create Member Modal */}

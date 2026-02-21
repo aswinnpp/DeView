@@ -13,6 +13,7 @@ export type TeamMember = {
 
 type ListResponse = {
     data: TeamMember[];
+    total: number;
 };
 
 // ─── Service functions ──────────────────────────────────────────
@@ -20,10 +21,10 @@ type ListResponse = {
 export const companyTeamService = {
     // ── HR ────────────────────────────────────────────────────────
 
-    /** Fetch HR users for this company (with optional search/status) */
-    listHRs(search?: string, status?: string) {
+    /** Fetch HR users for this company (with optional search/status/page/limit) */
+    listHRs(search?: string, status?: string, page?: number, limit?: number) {
         return api.get<ListResponse>(API_ROUTES.COMPANY.HR_LIST, {
-            params: { search, status },
+            params: { search, status, page, limit },
         });
     },
 
@@ -39,10 +40,10 @@ export const companyTeamService = {
 
     // ── Interviewer ──────────────────────────────────────────────
 
-    /** Fetch Interviewer users for this company (with optional search/status) */
-    listInterviewers(search?: string, status?: string) {
+    /** Fetch Interviewer users for this company (with optional search/status/page/limit) */
+    listInterviewers(search?: string, status?: string, page?: number, limit?: number) {
         return api.get<ListResponse>(API_ROUTES.COMPANY.INTERVIEWER_LIST, {
-            params: { search, status },
+            params: { search, status, page, limit },
         });
     },
 

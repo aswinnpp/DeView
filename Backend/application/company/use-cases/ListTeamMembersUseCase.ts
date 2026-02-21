@@ -16,16 +16,18 @@ export class ListTeamMembersUseCase implements ListTeamMembersUseCasePort {
         companyIdFromToken: string | undefined,
         role: 'hr' | 'interviewer',
         search?: string,
-        status?: string
-    ): Promise<{ data: TeamMemberResponse[] }> {
+        status?: string,
+        page?: number,
+        limit?: number
+    ): Promise<{ data: TeamMemberResponse[]; total: number }> {
         const companyId = await this.resolveCompany.execute(userId, companyIdFromToken);
-        const users = await this.userRepository.findByCompanyIdAndRole(companyId, role, { search, status });
+        const { data: users, total } = await this.userRepository.findByCompanyIdAndRole(companyId, role, { search, status, page, limit });
         const data: TeamMemberResponse[] = users.map((user) => ({
             id: user.id || '',
             fullName: user.fullName,
             email: user.email.getValue(),
             isActive: user.isActive,
         }));
-        return { data };
+        return { data, total };
     }
 }
