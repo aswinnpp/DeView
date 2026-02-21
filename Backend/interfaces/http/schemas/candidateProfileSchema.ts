@@ -1,14 +1,15 @@
 import {
-    candidateProfileSchema,
-    candidateProfileUpdateSchema,
+  candidateProfileSchema,
+  candidateProfileUpdateSchema,
 } from '../../../../Shared/contracts/candidateProfile/profile.js';
-import { zodBodyParser } from './zodParser.js';
+import { zodToFastifyBody } from './schemaToFastify.js';
 
-export const createCandidateProfileBodyParser = zodBodyParser(candidateProfileSchema);
-export const updateCandidateProfileBodyParser = zodBodyParser(candidateProfileUpdateSchema);
+/** POST /candidate/profile — body validated by Fastify from Shared contract */
+export const createCandidateProfileSchema = {
+  body: zodToFastifyBody(candidateProfileSchema),
+};
 
-/** POST /candidate/profile — create: all fields required except URL and professional. */
-export const createCandidateProfileSchema = {};
-
-/** PATCH /candidate/profile — update: all fields optional; when present, validated. */
-export const updateCandidateProfileSchema = {};
+/** PATCH /candidate/profile — body validated by Fastify from Shared contract */
+export const updateCandidateProfileSchema = {
+  body: zodToFastifyBody(candidateProfileUpdateSchema),
+};

@@ -2,10 +2,8 @@ import { FastifyInstance } from "fastify";
 import { CandidateProfileController } from "../controllers/CandidateProfileController.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 import {
-    createCandidateProfileSchema,
-    updateCandidateProfileSchema,
-    createCandidateProfileBodyParser,
-    updateCandidateProfileBodyParser,
+  createCandidateProfileSchema,
+  updateCandidateProfileSchema,
 } from "../schemas/candidateProfileSchema.js";
 
 export async function candidateProfileRoutes(
@@ -20,13 +18,11 @@ export async function candidateProfileRoutes(
 
     fastify.post("/profile", {
         schema: createCandidateProfileSchema,
-        preHandler: [createCandidateProfileBodyParser],
         handler: controller.createProfile,
     });
 
     fastify.patch("/profile", {
         schema: updateCandidateProfileSchema,
-        preHandler: [updateCandidateProfileBodyParser],
         handler: controller.updateProfile,
     });
 

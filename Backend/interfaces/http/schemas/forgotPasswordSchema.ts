@@ -1,9 +1,8 @@
 import { forgotPasswordRequestSchema } from '../../../../Shared/contracts/auth/forgotPassword.js';
-import { zodBodyParser } from './zodParser.js';
-
-export const forgotPasswordBodyParser = zodBodyParser(forgotPasswordRequestSchema);
+import { zodToFastifyBody } from './schemaToFastify.js';
 
 export const forgotPasswordSchema = {
+    body: zodToFastifyBody(forgotPasswordRequestSchema),
     response: {
         200: {
             type: 'object',

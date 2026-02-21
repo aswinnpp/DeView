@@ -47,7 +47,6 @@ export class CandidateProfileController {
         @inject(TYPES.ToggleCandidateStatusUseCasePort) private readonly toggleStatusUseCase: ToggleCandidateStatusUseCasePort
     ) { }
 
-    // GET /candidate/profile — returns 200 with { profile } or { profile: null } when none
     getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
         const user = request.currentUser;
         const profile = await this.getProfileUseCase.execute(user.userId);
@@ -63,7 +62,6 @@ export class CandidateProfileController {
         reply.code(HttpStatus.CREATED).send(success(result));
     };
 
-    // PATCH /candidate/profile
     updateProfile = async (
         request: FastifyRequest<{ Body: Partial<ProfileBody> }>,
         reply: FastifyReply

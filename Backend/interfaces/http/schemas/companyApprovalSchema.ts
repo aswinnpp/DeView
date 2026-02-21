@@ -1,9 +1,13 @@
 import { checkStatusRequestSchema } from '../../../../Shared/contracts/companyApproval/checkStatus.js';
 import { submitCompanyApprovalRequestSchema } from '../../../../Shared/contracts/companyApproval/submit.js';
-import { zodBodyParser } from './zodParser.js';
+import { zodToFastifyBody } from './schemaToFastify.js';
 
-export const checkStatusBodyParser = zodBodyParser(checkStatusRequestSchema);
-export const submitCompanyApprovalBodyParser = zodBodyParser(submitCompanyApprovalRequestSchema);
+/** POST /check-status — body validated by Fastify from Shared contract */
+export const checkStatusSchema = {
+  body: zodToFastifyBody(checkStatusRequestSchema),
+};
 
-export const checkStatusSchema = {};
-export const submitCompanyApprovalSchema = {};
+/** POST /submit — body validated by Fastify from Shared contract */
+export const submitCompanyApprovalSchema = {
+  body: zodToFastifyBody(submitCompanyApprovalRequestSchema),
+};

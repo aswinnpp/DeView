@@ -28,7 +28,6 @@ export class CompanyApprovalController {
     @inject(TYPES.GetMyCompanyApprovalUseCasePort) private readonly getMyApprovalUseCase: GetMyCompanyApprovalUseCasePort,
   ) {}
 
-  // POST /company/check-status — uses authenticated user
   checkStatus = async (request: FastifyRequest, reply: FastifyReply) => {
     const dto = CompanyApprovalMapper.toCheckStatusDTO(request.currentUser);
     const result = await this.checkStatusUseCase.execute(dto);

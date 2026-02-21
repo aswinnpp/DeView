@@ -1,12 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { AdminCompanyApprovalController } from '../controllers/AdminCompanyApprovalController.js';
 import { requireRoles } from '../middleware/authMiddleware.js';
-import {
-    approveCompanySchema,
-    rejectCompanySchema,
-    approvalIdParamsParser,
-    rejectCompanyBodyParser,
-} from '../schemas/adminCompanyApprovalSchema.js';
+import { approveCompanySchema, rejectCompanySchema } from '../schemas/adminCompanyApprovalSchema.js';
 
 export async function adminCompanyApprovalRoutes(
     fastify: FastifyInstance,
@@ -25,13 +20,11 @@ export async function adminCompanyApprovalRoutes(
 
     fastify.post('/:id/approve', {
         schema: approveCompanySchema,
-        preHandler: [approvalIdParamsParser],
         handler: controller.approve,
     });
 
     fastify.post('/:id/reject', {
         schema: rejectCompanySchema,
-        preHandler: [approvalIdParamsParser, rejectCompanyBodyParser],
         handler: controller.reject,
     });
 

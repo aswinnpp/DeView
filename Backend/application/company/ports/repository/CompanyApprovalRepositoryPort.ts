@@ -5,7 +5,6 @@ export interface CompanyApprovalSearchOptions {
   sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;
-  /** For findApproved: filter by isActive */
   status?: 'active' | 'inactive';
 }
 

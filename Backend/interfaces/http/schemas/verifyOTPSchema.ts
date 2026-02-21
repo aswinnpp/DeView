@@ -1,9 +1,8 @@
 import { verifyOtpRequestSchema } from '../../../../Shared/contracts/auth/otp.js';
-import { zodBodyParser } from './zodParser.js';
-
-export const verifyOTPBodyParser = zodBodyParser(verifyOtpRequestSchema);
+import { zodToFastifyBody } from './schemaToFastify.js';
 
 export const verifyOTPSchema = {
+    body: zodToFastifyBody(verifyOtpRequestSchema),
     response: {
         200: {
             type: 'object',

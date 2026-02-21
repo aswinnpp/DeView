@@ -6,7 +6,6 @@ import type { GetCompanyProfileUseCasePort } from "../../../application/company/
 import type { UpdateCompanyProfileUseCasePort } from "../../../application/company/ports/usecase/UpdateCompanyProfileUseCasePort";
 import { CompanyProfileMapper } from "../mappers/CompanyProfileMapper.js";
 
-/** Body shape from Zod-validated request (flat, normalized) */
 interface UpdateProfileBody {
   companyName?: string;
   address?: string;

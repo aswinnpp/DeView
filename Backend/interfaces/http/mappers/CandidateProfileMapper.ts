@@ -29,15 +29,9 @@ interface CreateProfileBody {
   resumeUrl?: string;
 }
 
-/** Body shape from Zod-validated request (update - all optional) */
 type UpdateProfileBody = Partial<CreateProfileBody>;
 
-/**
- * Maps HTTP request data to Candidate Profile UseCase DTOs.
- * Combines validated body + authenticated user (userId, email).
- */
 export const CandidateProfileMapper = {
-  /** POST /candidate/profile — create profile */
   toCreateDTO(body: CreateProfileBody, user: AuthenticatedUser): CreateCandidateProfileDTO {
     return {
       ...body,
@@ -46,7 +40,6 @@ export const CandidateProfileMapper = {
     };
   },
 
-  /** PATCH /candidate/profile — update profile */
   toUpdateDTO(body: UpdateProfileBody, user: AuthenticatedUser): UpdateCandidateProfileDTO {
     return {
       userId: user.userId,

@@ -91,7 +91,7 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
     );
   }
 
- 
+
 
 
   private toDomain(doc: CompanyApprovalDocument): CompanyApproval {

@@ -10,12 +10,10 @@ export async function companyProfileRoutes(
 
     fastify.addHook("preHandler", requireAuth);
 
-    // Get company profile (requires auth)
     fastify.get('/profile', {
         handler: controller.getProfile,
     });
 
-    // Update company profile (requires auth)
     fastify.put('/profile', {
         schema: updateCompanyProfileSchema,
         preHandler: [updateCompanyProfileBodyParser],
