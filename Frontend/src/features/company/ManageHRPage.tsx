@@ -131,15 +131,15 @@ const ManageHRPage = () => {
                 </div>
             </div>
 
-            {/* Loading State */}
-            {isLoading && (
+            {/* Loading State - only when no data yet (initial load / tab switch) */}
+            {isLoading && allMembers.length === 0 && (
                 <div className="text-center py-10">
                     <p className="text-slate-400 text-base">Loading {tabLabel} members...</p>
                 </div>
             )}
 
-            {/* Table */}
-            {!isLoading && (
+            {/* Table - always show when we have data, or when not loading (so header stays; only body data changes on pagination) */}
+            {(!isLoading || allMembers.length > 0) && (
                 <Table
                     columns={[
                         {
@@ -207,8 +207,8 @@ const ManageHRPage = () => {
                 />
             )}
 
-            {/* Pagination */}
-            {!isLoading && total > 0 && (
+            {/* Pagination - keep visible when total > 0 so header/layout don't jump */}
+            {total > 0 && (
                 <div className="mt-4 flex items-center justify-between border-t border-slate-700 pt-4">
                     <p className="text-sm text-slate-400">
                         Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
