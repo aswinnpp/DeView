@@ -71,7 +71,7 @@ export function useLogin() {
 
       const user = result.user;
       dispatch(setUser(user));
-      const { role, id: userId } = user;
+      const { role } = user;
 
 
       if (role === 'candidate') {

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback } from "react";
 import { candidateService } from "../../services/candidate.service";
 import { extractApiError } from "../../api/axios";
 
@@ -19,7 +19,6 @@ export function useAdminCandidates() {
    
 
     const fetchCandidates = useCallback(async (search?: string,  sortOrder?: 'asc' | 'desc') => {
-        // Prevent multiple simultaneous fetches
        
 
         try {
@@ -62,13 +61,11 @@ export function useAdminCandidates() {
         setError(null);
         try {
             await candidateService.toggleCandidateStatus(candidateId);
-            // Update local state optimistically - no need to refetch
             setCandidates(prev => prev.map(c => 
                 c.id === candidateId ? { ...c, isActive: !c.isActive } : c
             ));
         } catch (err) {
             setError(extractApiError(err));
-            // On error, refresh to get correct state
             await fetchCandidates(searchQuery  || undefined);
         } finally {
             setActionLoading(null);
@@ -83,7 +80,6 @@ export function useAdminCandidates() {
         actionLoading,
         handleSearch,
         handleSortOrder,
-        
         toggleCandidateStatus,
     };
 }

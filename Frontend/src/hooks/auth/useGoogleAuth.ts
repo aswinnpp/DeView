@@ -41,13 +41,11 @@ export function useGoogleAuth() {
 
       const user = result.user;
       if (!user) {
-        console.error('Google auth response structure:', result);
         setError('User data missing in server response. Please try again.');
         return false;
       }
 
       if (typeof user.id !== 'string' || typeof user.role !== 'string') {
-        console.error('User data structure:', { id: user.id, role: user.role, fullUser: user });
         setError('Invalid user data format received from server. Please try again.');
         return false;
       }
