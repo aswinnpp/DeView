@@ -5,6 +5,8 @@ export interface UserSearchOptions {
   search?: string;
   status?: string;
   sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
 }
 
 export interface UserRepositoryPort {
@@ -18,7 +20,6 @@ export interface UserRepositoryPort {
   findByRole(
     role: string,
     options?: UserSearchOptions
-  ): Promise<User[]>;
+  ): Promise<{ data: User[]; total: number }>;
   save(user: User): Promise<void>;
-  
 }

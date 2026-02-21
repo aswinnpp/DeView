@@ -74,11 +74,13 @@ export class CandidateProfileController {
     };
 
     getAll = async (
-        request: FastifyRequest<{ Querystring: { search?: string; status?: string; sortOrder?: 'asc' | 'desc' } }>,
+        request: FastifyRequest<{ Querystring: { search?: string; status?: string; sortOrder?: 'asc' | 'desc'; page?: string; limit?: string } }>,
         reply: FastifyReply
     ) => {
-        const { search, status, sortOrder } = request.query;
-        const result = await this.getAllCandidatesUseCase.execute(search, status, sortOrder);
+        const { search, status, sortOrder, page: pageStr, limit: limitStr } = request.query;
+        const page = pageStr != null ? parseInt(pageStr, 10) : undefined;
+        const limit = limitStr != null ? parseInt(limitStr, 10) : undefined;
+        const result = await this.getAllCandidatesUseCase.execute(search, status, sortOrder, page, limit);
         reply.send(success(result));
     }
 

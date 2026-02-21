@@ -41,8 +41,8 @@ export class MongoUserRepository implements UserRepositoryPort {
   async findByRole(
     role: string,
     options?: UserSearchOptions
-  ): Promise<User[]> {
-    const { search, status, sortOrder = "desc" } = options ?? {};
+  ): Promise<{ data: User[]; total: number }> {
+    const { search, status, sortOrder = "desc", page = 1, limit } = options ?? {};
     const filter: Record<string, any> = { role };
 
     if (search && search.trim()) {
@@ -53,13 +53,19 @@ export class MongoUserRepository implements UserRepositoryPort {
     if (status === "active") filter.isActive = true;
     if (status === "inactive") filter.isActive = false;
 
+    const total = await this.collection.countDocuments(filter);
     const sortDirection = sortOrder === "asc" ? 1 : -1;
-    const docs = await this.collection
+    const cursor = this.collection
       .find(filter)
-      .sort({ createdAt: sortDirection, _id: sortDirection })
-      .toArray();
+      .sort({ createdAt: sortDirection, _id: sortDirection });
 
-    return docs.map(doc => this.toDomain(doc));
+    if (limit != null && limit > 0) {
+      const skip = (Math.max(1, page) - 1) * limit;
+      cursor.skip(skip).limit(limit);
+    }
+
+    const docs = await cursor.toArray();
+    return { data: docs.map(doc => this.toDomain(doc)), total };
   }
 
   

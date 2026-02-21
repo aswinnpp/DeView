@@ -9,9 +9,8 @@ export class GetAllCandidatesUseCase implements GetAllCandidatesUseCasePort {
         @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort
     ) {}
 
-    async execute(search?: string, status?: string, sortOrder: 'asc' | 'desc' = 'desc'): Promise<{ data: CandidateListItem[] }> {
-        // Query users with role 'candidate' from user collection
-        const users = await this.userRepository.findByRole('candidate', { search, status, sortOrder });
+    async execute(search?: string, status?: string, sortOrder: 'asc' | 'desc' = 'desc', page?: number, limit?: number): Promise<{ data: CandidateListItem[]; total: number }> {
+        const { data: users, total } = await this.userRepository.findByRole('candidate', { search, status, sortOrder, page, limit });
 
         const data: CandidateListItem[] = users.map((user) => ({
             id: user.id || '',
@@ -20,6 +19,6 @@ export class GetAllCandidatesUseCase implements GetAllCandidatesUseCasePort {
             isActive: user.isActive,
         }));
 
-        return { data };
+        return { data, total };
     }
 }

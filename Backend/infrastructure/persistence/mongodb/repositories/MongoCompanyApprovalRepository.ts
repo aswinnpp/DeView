@@ -16,9 +16,9 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
     return doc ? this.toDomain(doc) : null;
   }
 
-  async findPending(options?: CompanyApprovalSearchOptions): Promise<CompanyApproval[]> {
+  async findPending(options?: CompanyApprovalSearchOptions): Promise<{ data: CompanyApproval[]; total: number }> {
     const filter: Record<string, any> = { status: "pending" };
-    const search = options?.search;
+    const { search, sortOrder = "desc", page = 1, limit } = options ?? {};
 
     if (search && search.trim()) {
       const regex = { $regex: search.trim(), $options: "i" };
@@ -29,13 +29,24 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
       ];
     }
 
-    const docs = await this.collection.find(filter).toArray();
-    return docs.map(d => this.toDomain(d));
+    const total = await this.collection.countDocuments(filter);
+    const sortDirection = sortOrder === "asc" ? 1 : -1;
+    const cursor = this.collection
+      .find(filter)
+      .sort({ createdAt: sortDirection, _id: sortDirection });
+
+    if (limit != null && limit > 0) {
+      const skip = (Math.max(1, page) - 1) * limit;
+      cursor.skip(skip).limit(limit);
+    }
+
+    const docs = await cursor.toArray();
+    return { data: docs.map(d => this.toDomain(d)), total };
   }
 
-  async findApproved(options?: CompanyApprovalSearchOptions): Promise<CompanyApproval[]> {
+  async findApproved(options?: CompanyApprovalSearchOptions): Promise<{ data: CompanyApproval[]; total: number }> {
     const filter: Record<string, any> = { status: "approved" };
-    const search = options?.search;
+    const { search, sortOrder = "desc", page = 1, limit, status } = options ?? {};
 
     if (search && search.trim()) {
       const regex = { $regex: search.trim(), $options: "i" };
@@ -46,8 +57,22 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
       ];
     }
 
-    const docs = await this.collection.find(filter).toArray();
-    return docs.map(d => this.toDomain(d));
+    if (status === "active") filter.isActive = true;
+    if (status === "inactive") filter.isActive = false;
+
+    const total = await this.collection.countDocuments(filter);
+    const sortDirection = sortOrder === "asc" ? 1 : -1;
+    const cursor = this.collection
+      .find(filter)
+      .sort({ createdAt: sortDirection, _id: sortDirection });
+
+    if (limit != null && limit > 0) {
+      const skip = (Math.max(1, page) - 1) * limit;
+      cursor.skip(skip).limit(limit);
+    }
+
+    const docs = await cursor.toArray();
+    return { data: docs.map(d => this.toDomain(d)), total };
   }
 
   async save(approval: CompanyApproval): Promise<void> {

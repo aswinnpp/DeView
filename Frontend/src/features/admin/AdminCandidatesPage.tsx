@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button, SearchInput, Table } from "../../components/common";
 import { useAdminCandidates } from "../../hooks/admin/useAdminCandidates";
 
@@ -10,9 +10,20 @@ interface Candidate {
 }
 
 const AdminCandidatesPage = () => {
-    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-    const { candidates, loading, error, handleSearch, handleSortOrder, toggleCandidateStatus, actionLoading } =
-        useAdminCandidates();
+    const {
+        candidates,
+        total,
+        page,
+        limit,
+        totalPages,
+        sortOrder,
+        error,
+        handleSearch,
+        handleSortOrder,
+        goToPage,
+        toggleCandidateStatus,
+        actionLoading,
+    } = useAdminCandidates();
     const [confirmModal, setConfirmModal] = useState<{ 
         open: boolean; 
         candidate: Candidate | null; 
@@ -49,6 +60,11 @@ const AdminCandidatesPage = () => {
         closeConfirmModal();
     };
 
+    const searchCallback = useCallback(
+        (query: string) => handleSearch(query, sortOrder),
+        [handleSearch, sortOrder]
+    );
+
     return (
         <div className="max-w-[1400px] mx-auto text-slate-200 font-['Inter',sans-serif] pb-10">
             {/* Header */}
@@ -66,7 +82,7 @@ const AdminCandidatesPage = () => {
                 <div className="flex-1 min-w-[280px]">
                     <SearchInput
                         placeholder="Search by name or email..."
-                        onSearch={(query) => handleSearch(query, sortOrder)}
+                        onSearch={searchCallback}
                     />
                 </div>
                 <div className="min-w-[130px]">
@@ -76,9 +92,7 @@ const AdminCandidatesPage = () => {
                     <select
                         value={sortOrder}
                         onChange={(e) => {
-                            const newSortOrder = e.target.value as "asc" | "desc";
-                            setSortOrder(newSortOrder);
-                            handleSortOrder(newSortOrder);
+                            handleSortOrder(e.target.value as "asc" | "desc");
                         }}
                         className="w-full py-2.5 px-3.5 bg-slate-900 border border-slate-700 rounded-lg text-[14px] text-slate-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
                     >
@@ -95,12 +109,7 @@ const AdminCandidatesPage = () => {
                         {error}
                     </div>
                 )}
-                {loading ? (
-                    <div className="bg-gradient-to-br from-slate-800 to-slate-950 border border-slate-700 rounded-xl overflow-hidden text-center py-14 text-slate-400">
-                        <div className="text-2xl mb-4">⏳</div>
-                        <p className="m-0 text-sm">Loading candidates...</p>
-                    </div>
-                ) : (
+                { (
                     <Table
                         columns={[
                             {
@@ -181,6 +190,36 @@ const AdminCandidatesPage = () => {
                         rowKey={(candidate) => candidate.id}
                         emptyMessage="No candidates found matching your criteria."
                     />
+                )}
+
+                {/* Pagination (limit 2 for testing) */}
+                { total > 0 && (
+                    <div className="mt-4 flex items-center justify-between border-t border-slate-700 pt-4">
+                        <p className="text-sm text-slate-400">
+                            Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => goToPage(page - 1)}
+                                disabled={page <= 1}
+                                className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
+                            >
+                                Previous
+                            </button>
+                            <span className="text-sm text-slate-400">
+                                Page {page} of {totalPages}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => goToPage(page + 1)}
+                                disabled={page >= totalPages}
+                                className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
                 )}
             </div>
 

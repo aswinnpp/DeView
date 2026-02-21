@@ -6,9 +6,16 @@ import { Table, SearchInput, Button } from "@/components/common";
 const AdminCompanyRequestsPage = () => {
   const {
     pendingCompanies,
+    total,
+    page,
+    limit,
+    totalPages,
+    sortOrder,
     initialLoading,
     error,
     handleSearch,
+    handleSortOrder,
+    goToPage,
     selectedCompany,
     selectCompany,
     clearSelectedCompany,
@@ -17,7 +24,6 @@ const AdminCompanyRequestsPage = () => {
   } = useAdminCompanyRequests();
 
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
   const onRejectSuccess = useCallback(() => {
     handleRejectSuccess();
@@ -59,12 +65,12 @@ const AdminCompanyRequestsPage = () => {
             <select
               value={sortOrder}
               onChange={(e) =>
-                setSortOrder(e.target.value as "newest" | "oldest")
+                handleSortOrder(e.target.value as "asc" | "desc")
               }
               className="w-full py-2.5 px-3.5 bg-slate-900/80 border border-slate-700 rounded-lg text-[13px] text-slate-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
             >
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
+              <option value="desc">Newest first</option>
+              <option value="asc">Oldest first</option>
             </select>
           </div>
         </div>
@@ -75,41 +81,72 @@ const AdminCompanyRequestsPage = () => {
           Loading pending requests...
         </div>
       ) : (
-        <Table
-          data={pendingCompanies}
-          rowKey={(c) => c.id}
-          columns={[
-            {
-              header: "Company",
-              render: (c) => c.companyName,
-            },
-            {
-              header: "Email",
-              render: (c) => c.contactEmail,
-            },
-            {
-              header: "Submitted",
-              render: (c) =>
-                new Date(c.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                }),
-            },
-            {
-              header: "Actions",
-              render: (c) => (
-                <Button
-                  variant="secondary"
-                  onClick={() => selectCompany(c)}
-                  className="py-1.5 px-3 text-xs font-semibold bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.1)] text-[#e2e8f0] transition-colors"
+        <>
+          <Table
+            data={pendingCompanies}
+            rowKey={(c) => c.id}
+            columns={[
+              {
+                header: "Company",
+                render: (c) => c.companyName,
+              },
+              {
+                header: "Email",
+                render: (c) => c.contactEmail,
+              },
+              {
+                header: "Submitted",
+                render: (c) =>
+                  new Date(c.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  }),
+              },
+              {
+                header: "Actions",
+                render: (c) => (
+                  <Button
+                    variant="secondary"
+                    onClick={() => selectCompany(c)}
+                    className="py-1.5 px-3 text-xs font-semibold bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.1)] text-[#e2e8f0] transition-colors"
+                  >
+                    Review
+                  </Button>
+                ),
+              },
+            ]}
+          />
+
+          {total > 0 && (
+            <div className="mt-4 flex items-center justify-between border-t border-slate-700 pt-4">
+              <p className="text-sm text-slate-400">
+                Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => goToPage(page - 1)}
+                  disabled={page <= 1}
+                  className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
                 >
-                  Review
-                </Button>
-              ),
-            },
-          ]}
-        />
+                  Previous
+                </button>
+                <span className="text-sm text-slate-400">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => goToPage(page + 1)}
+                  disabled={page >= totalPages}
+                  className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {selectedCompany && (
