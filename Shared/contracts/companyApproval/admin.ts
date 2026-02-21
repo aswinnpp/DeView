@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 // Path param: approval ID
 export const approvalIdParamsSchema = z.object({
-  id: z.string().min(1, { message: 'Approval ID is required' }),
+  id: z.string().trim().min(1, { message: 'Approval ID is required' }),
 });
 
 export type ApprovalIdParams = z.infer<typeof approvalIdParamsSchema>;

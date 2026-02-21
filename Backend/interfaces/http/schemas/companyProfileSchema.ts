@@ -1,7 +1,7 @@
 import { updateCompanyProfileRequestSchema } from '../../../../Shared/contracts/companyProfile/update.js';
-import { zodToFastifyBody } from './schemaToFastify.js';
+import { zodBodyParser } from './zodParser.js';
+
+export const updateCompanyProfileBodyParser = zodBodyParser(updateCompanyProfileRequestSchema);
 
 /** PUT /company/profile — update: all fields optional; when present, validated. */
-export const updateCompanyProfileSchema = {
-    body: zodToFastifyBody(updateCompanyProfileRequestSchema),
-};
+export const updateCompanyProfileSchema = {};

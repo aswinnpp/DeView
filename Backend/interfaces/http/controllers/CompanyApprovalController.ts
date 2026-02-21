@@ -6,8 +6,9 @@ import { TYPES } from "../../../infrastructure/di/types";
 import type { CheckCompanyStatusUseCasePort } from "../../../application/company/ports/usecase/CheckCompanyStatusUseCasePort";
 import type { SubmitCompanyApprovalUseCasePort } from "../../../application/company/ports/usecase/SubmitCompanyApprovalUseCasePort";
 import type { GetMyCompanyApprovalUseCasePort } from "../../../application/company/ports/usecase/GetMyCompanyApprovalUseCasePort";
-import { CompanyDocuments } from "../../../infrastructure/persistence/mongodb/schemas/CompanyApprovalDocument";
+import { CompanyApprovalMapper } from "../mappers/CompanyApprovalMapper.js";
 
+/** Body shape from Zod-validated request */
 interface SubmitApprovalBody {
   companyName: string;
   address: string;
@@ -16,7 +17,7 @@ interface SubmitApprovalBody {
   taxId: string;
   website?: string;
   numberOfEmployees: string;
-  documents: CompanyDocuments;
+  documents: Record<string, unknown>;
 }
 
 @injectable()
@@ -29,8 +30,8 @@ export class CompanyApprovalController {
 
   // POST /company/check-status — uses authenticated user
   checkStatus = async (request: FastifyRequest, reply: FastifyReply) => {
-    const userId = request.currentUser.userId;
-    const result = await this.checkStatusUseCase.execute({ userId });
+    const dto = CompanyApprovalMapper.toCheckStatusDTO(request.currentUser);
+    const result = await this.checkStatusUseCase.execute(dto);
     reply.send(success(result));
   };
 
@@ -46,13 +47,8 @@ export class CompanyApprovalController {
     request: FastifyRequest<{ Body: SubmitApprovalBody }>,
     reply: FastifyReply,
   ) => {
-    const user = request.currentUser;
-
-    const result = await this.submitApprovalUseCase.execute({
-      userId: user.userId,
-      ...request.body,
-    });
-
+    const dto = CompanyApprovalMapper.toSubmitDTO(request.body, request.currentUser);
+    const result = await this.submitApprovalUseCase.execute(dto);
     reply.code(HttpStatus.CREATED).send(success({
       message: "Approval submitted",
       approvalId: result.approvalId,

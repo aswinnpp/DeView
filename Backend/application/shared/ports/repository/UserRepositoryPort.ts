@@ -20,4 +20,5 @@ export interface UserRepositoryPort {
     options?: UserSearchOptions
   ): Promise<User[]>;
   save(user: User): Promise<void>;
+  
 }

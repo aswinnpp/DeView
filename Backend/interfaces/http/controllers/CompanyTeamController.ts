@@ -6,6 +6,7 @@ import { TYPES } from '../../../infrastructure/di/types.js';
 import type { CreateTeamMemberUseCasePort } from '../../../application/company/ports/usecase/CreateTeamMemberUseCasePort.js';
 import type { ListTeamMembersUseCasePort } from '../../../application/company/ports/usecase/ListTeamMembersUseCasePort.js';
 import type { ToggleTeamMemberStatusUseCasePort } from '../../../application/company/ports/usecase/ToggleTeamMemberStatusUseCasePort.js';
+import { CompanyTeamMapper } from '../mappers/CompanyTeamMapper.js';
 
 interface CreateBody {
     fullName: string;
@@ -43,14 +44,8 @@ export class CompanyTeamController {
         request: FastifyRequest<{ Body: CreateBody }>,
         reply: FastifyReply
     ) => {
-        const { userId, companyId } = request.currentUser;
-        const result = await this.createTeamMemberUseCase.execute({
-            fullName: request.body.fullName,
-            email: request.body.email,
-            role: 'hr',
-            userId,
-            companyIdFromToken: companyId,
-        });
+        const dto = CompanyTeamMapper.toCreateHRDTO(request.body, request.currentUser);
+        const result = await this.createTeamMemberUseCase.execute(dto);
         reply.code(HttpStatus.CREATED).send(success(result));
     };
 
@@ -83,14 +78,8 @@ export class CompanyTeamController {
         request: FastifyRequest<{ Body: CreateBody }>,
         reply: FastifyReply
     ) => {
-        const { userId, companyId } = request.currentUser;
-        const result = await this.createTeamMemberUseCase.execute({
-            fullName: request.body.fullName,
-            email: request.body.email,
-            role: 'interviewer',
-            userId,
-            companyIdFromToken: companyId,
-        });
+        const dto = CompanyTeamMapper.toCreateInterviewerDTO(request.body, request.currentUser);
+        const result = await this.createTeamMemberUseCase.execute(dto);
         reply.code(HttpStatus.CREATED).send(success(result));
     };
 

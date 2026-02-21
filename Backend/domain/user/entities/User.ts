@@ -13,7 +13,9 @@ export class User {
     public companyId?: string,
     public isActive: boolean = true,
     public isEmailVerified: boolean = false,
+     public creatAt?:any,
     public authProvider: AuthProvider = "email"
+   
   ) {}
 
   // ✅ Factory (good)

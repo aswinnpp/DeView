@@ -66,6 +66,9 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
     );
   }
 
+ 
+
+
   private toDomain(doc: CompanyApprovalDocument): CompanyApproval {
     return new CompanyApproval(
       doc._id?.toString() || null,

@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 const documentUploadSchema = z.object({
-  fileName: z.string().min(1),
-  fileUrl: z.string().min(1),
-  uploadedAt: z.string(),
+  fileName: z.string().trim().min(1),
+  fileUrl: z.string().trim().min(1),
+  uploadedAt: z.string().trim(),
   marked: z.boolean(),
 });
 
@@ -25,13 +25,13 @@ const documentsSchema = z.object({
 );
 
 export const submitCompanyApprovalRequestSchema = z.object({
-  companyName: z.string().min(1, { message: 'Company name is required' }).max(200),
-  address: z.string().min(1, { message: 'Address is required' }).max(500),
-  contactPerson: z.string().min(1, { message: 'Contact person is required' }).max(100),
-  contactPhone: z.string().min(10, { message: 'Phone must be at least 10 digits' }).max(20),
-  taxId: z.string().min(1, { message: 'Tax ID is required' }).max(50),
-  website: z.string().optional(),
-  numberOfEmployees: z.string().min(1, { message: 'Number of employees is required' }),
+  companyName: z.string().trim().min(1, { message: 'Company name is required' }).max(200),
+  address: z.string().trim().min(1, { message: 'Address is required' }).max(500),
+  contactPerson: z.string().trim().min(1, { message: 'Contact person is required' }).max(100),
+  contactPhone: z.string().trim().min(10, { message: 'Phone must be at least 10 digits' }).max(20),
+  taxId: z.string().trim().min(1, { message: 'Tax ID is required' }).max(50),
+  website: z.string().trim().optional(),
+  numberOfEmployees: z.string().trim().min(1, { message: 'Number of employees is required' }),
   documents: documentsSchema,
 });
 

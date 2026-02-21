@@ -1,12 +1,12 @@
 import { FastifyInstance } from 'fastify';
 import { AuthController } from '../controllers/AuthController.js';
-import { registerSchema } from '../schemas/registerSchema.js';
-import { verifyOTPSchema } from '../schemas/verifyOTPSchema.js';
-import { resendOTPSchema } from '../schemas/resendOTPSchema.js';
-import { loginSchema } from '../schemas/loginSchema.js';
-import { forgotPasswordSchema } from '../schemas/forgotPasswordSchema.js';
-import { resetPasswordSchema } from '../schemas/resetPasswordSchema.js';
-import { verifyPasswordResetOTPSchema } from '../schemas/verifyPasswordResetOTPSchema.js';
+import { registerSchema, registerBodyParser } from '../schemas/registerSchema.js';
+import { verifyOTPSchema, verifyOTPBodyParser } from '../schemas/verifyOTPSchema.js';
+import { resendOTPSchema, resendOTPBodyParser } from '../schemas/resendOTPSchema.js';
+import { loginSchema, loginBodyParser } from '../schemas/loginSchema.js';
+import { forgotPasswordSchema, forgotPasswordBodyParser } from '../schemas/forgotPasswordSchema.js';
+import { resetPasswordSchema, resetPasswordBodyParser } from '../schemas/resetPasswordSchema.js';
+import { verifyPasswordResetOTPSchema, verifyPasswordResetOTPBodyParser } from '../schemas/verifyPasswordResetOTPSchema.js';
 
 export async function authRoutes(
     fastify: FastifyInstance,
@@ -14,21 +14,25 @@ export async function authRoutes(
 ): Promise<void> {
     fastify.post('/register', {
         schema: registerSchema,
+        preHandler: [registerBodyParser],
         handler: controller.register,
     });
 
     fastify.post('/verify-otp', {
         schema: verifyOTPSchema,
+        preHandler: [verifyOTPBodyParser],
         handler: controller.verifyOTP,
     });
 
     fastify.post('/resend-otp', {
         schema: resendOTPSchema,
+        preHandler: [resendOTPBodyParser],
         handler: controller.resendOTP,
     });
 
     fastify.post('/login', {
         schema: loginSchema,
+        preHandler: [loginBodyParser],
         handler: controller.login,
     });
 
@@ -42,16 +46,19 @@ export async function authRoutes(
 
     fastify.post('/forgot-password', {
         schema: forgotPasswordSchema,
+        preHandler: [forgotPasswordBodyParser],
         handler: controller.forgotPassword,
     });
 
     fastify.post('/verify-password-reset-otp', {
         schema: verifyPasswordResetOTPSchema,
+        preHandler: [verifyPasswordResetOTPBodyParser],
         handler: controller.verifyPasswordResetOTP,
     });
 
     fastify.post('/reset-password', {
         schema: resetPasswordSchema,
+        preHandler: [resetPasswordBodyParser],
         handler: controller.resetPassword,
     });
 

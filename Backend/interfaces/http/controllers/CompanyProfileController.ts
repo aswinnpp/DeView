@@ -4,20 +4,10 @@ import { success } from "../../../shared/http/apiResponse";
 import { TYPES } from "../../../infrastructure/di/types";
 import type { GetCompanyProfileUseCasePort } from "../../../application/company/ports/usecase/GetCompanyProfileUseCasePort";
 import type { UpdateCompanyProfileUseCasePort } from "../../../application/company/ports/usecase/UpdateCompanyProfileUseCasePort";
-import type { UpdateCompanyProfileDTO } from "../../../application/company/dtos/UpdateCompanyProfileDTO";
+import { CompanyProfileMapper } from "../mappers/CompanyProfileMapper.js";
 
+/** Body shape from Zod-validated request (flat, normalized) */
 interface UpdateProfileBody {
-  data?: {
-    companyName?: string;
-    address?: string;
-    contactPerson?: string;
-    contactEmail?: string;
-    contactPhone?: string;
-    taxId?: string;
-    website?: string;
-    numberOfEmployees?: string;
-  };
-  // Also support direct fields for backward compatibility
   companyName?: string;
   address?: string;
   contactPerson?: string;
@@ -47,18 +37,8 @@ export class CompanyProfileController {
     request: FastifyRequest<{ Body: UpdateProfileBody }>,
     reply: FastifyReply,
   ) => {
-    const user = request.currentUser;
-
-    // Handle both { data: {...} } and direct fields format
-    const fields = request.body.data || request.body;
-
-    const dto: UpdateCompanyProfileDTO = {
-      userId: user.userId,
-      ...fields,
-    };
-
+    const dto = CompanyProfileMapper.toUpdateDTO(request.body, request.currentUser);
     const result = await this.updateProfileUseCase.execute(dto);
-
     reply.send(success(result));
   };
 }

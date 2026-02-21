@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 
 /** Optional string (empty allowed). */
-const optionalString = z.string().catch('');
+const optionalString = z.string().trim().catch('');
 
 /** Optional URL: empty allowed; if provided must be valid. */
-const optionalLinkedInUrl = z.string().catch('').refine(
+const optionalLinkedInUrl = z.string().trim().catch('').refine(
     (val) => {
         const v = (val ?? '').trim();
         if (!v) return true;
@@ -14,7 +14,7 @@ const optionalLinkedInUrl = z.string().catch('').refine(
     },
     { message: 'Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/yourprofile)' }
 );
-const optionalGithubUrl = z.string().catch('').refine(
+const optionalGithubUrl = z.string().trim().catch('').refine(
     (val) => {
         const v = (val ?? '').trim();
         if (!v) return true;
@@ -37,15 +37,19 @@ const NOTICE_PERIOD_OPTIONS = [
 export const candidateProfileSchema = z.object({
     fullName: z
         .string()
+        .trim()
         .min(1, { message: 'Full name is required' })
         .min(2, { message: 'Full name must be at least 2 characters' })
         .max(100, { message: 'Full name must be less than 100 characters' }),
     email: z
         .string()
+        .trim()
+        .toLowerCase()
         .min(1, { message: 'Email is required' })
         .email({ message: 'Please enter a valid email' }),
     phone: z
         .string()
+        .trim()
         .min(1, { message: 'Phone number is required' })
         .refine(
             (val) => /^[\d\s\-+()]{7,20}$/.test(val),
@@ -53,10 +57,12 @@ export const candidateProfileSchema = z.object({
         ),
     location: z
         .string()
+        .trim()
         .min(1, { message: 'Location is required' })
         .min(2, { message: 'Location must be at least 2 characters' }),
     dateOfBirth: z
         .string()
+        .trim()
         .min(1, { message: 'Date of birth is required' })
         .refine(
             (val) => {
@@ -76,31 +82,33 @@ export const candidateProfileSchema = z.object({
     experience: optionalString,
     bio: z
         .string()
+        .trim()
         .min(1, { message: 'Bio is required' })
         .min(10, { message: 'Bio must be at least 10 characters' })
         .max(1000, { message: 'Bio must be less than 1000 characters' }),
-    expectedSalary: z.string().min(1, { message: 'Expected salary is required' }),
+    expectedSalary: z.string().trim().min(1, { message: 'Expected salary is required' }),
     noticePeriod: z
         .string()
+        .trim()
         .min(1, { message: 'Notice period is required' })
         .refine(
             (val) => NOTICE_PERIOD_OPTIONS.includes(val as typeof NOTICE_PERIOD_OPTIONS[number]),
             { message: 'Please select a valid notice period' }
         ),
-    preferredWorkMode: z.string().min(1, { message: 'Preferred work mode is required' }),
-    preferredJobType: z.string().min(1, { message: 'Preferred job type is required' }),
+    preferredWorkMode: z.string().trim().min(1, { message: 'Preferred work mode is required' }),
+    preferredJobType: z.string().trim().min(1, { message: 'Preferred job type is required' }),
     willingToRelocate: z.boolean().catch(false),
-    skills: z.array(z.string()).catch(['']).refine(
-        (arr) => arr.some((s) => s.trim() !== ''),
+    skills: z.array(z.string().trim()).catch(['']).refine(
+        (arr) => arr.some((s) => s !== ''),
         { message: 'At least one skill is required' }
     ),
-    languages: z.array(z.string()).catch(['']).refine(
-        (arr) => arr.some((s) => s.trim() !== ''),
+    languages: z.array(z.string().trim()).catch(['']).refine(
+        (arr) => arr.some((s) => s !== ''),
         { message: 'At least one language is required' }
     ),
-    education: z.string().min(1, { message: 'Education is required' }),
-    university: z.string().min(1, { message: 'University/School is required' }),
-    graduationYear: z.string().min(1, { message: 'Graduation year is required' }),
+    education: z.string().trim().min(1, { message: 'Education is required' }),
+    university: z.string().trim().min(1, { message: 'University/School is required' }),
+    graduationYear: z.string().trim().min(1, { message: 'Graduation year is required' }),
     linkedinUrl: optionalLinkedInUrl,
     githubUrl: optionalGithubUrl,
     resumeUrl: optionalString,

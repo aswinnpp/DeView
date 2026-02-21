@@ -1,8 +1,9 @@
 import { resendOtpRequestSchema } from '../../../../Shared/contracts/auth/otp.js';
-import { zodToFastifyBody } from './schemaToFastify.js';
+import { zodBodyParser } from './zodParser.js';
+
+export const resendOTPBodyParser = zodBodyParser(resendOtpRequestSchema);
 
 export const resendOTPSchema = {
-    body: zodToFastifyBody(resendOtpRequestSchema),
     response: {
         200: {
             type: 'object',

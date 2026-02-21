@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { CompanyProfileController } from '../controllers/CompanyProfileController.js';
-import { updateCompanyProfileSchema } from '../schemas/companyProfileSchema.js';
+import { updateCompanyProfileSchema, updateCompanyProfileBodyParser } from '../schemas/companyProfileSchema.js';
 import { requireAuth } from '../middleware/authMiddleware.js';
 
 export async function companyProfileRoutes(
@@ -18,6 +18,7 @@ export async function companyProfileRoutes(
     // Update company profile (requires auth)
     fastify.put('/profile', {
         schema: updateCompanyProfileSchema,
+        preHandler: [updateCompanyProfileBodyParser],
         handler: controller.updateProfile,
     });
 

@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import { ZodError } from "zod";
 import { AppError } from "../../shared/errors/AppError";
 import { HttpStatus } from "../../shared/http/HttpStatus";
 
@@ -9,6 +10,20 @@ export function registerErrorHandler(app: FastifyInstance) {
       return reply.status(error.statusCode).send({
         success: false,
         message: error.message
+      });
+    }
+
+    if (error instanceof ZodError) {
+      const first = error.issues[0];
+      const message = first?.message ?? "Validation error";
+      const errors = error.issues.map((i) => ({
+        message: i.message,
+        path: i.path.join("."),
+      }));
+      return reply.status(HttpStatus.BAD_REQUEST).send({
+        success: false,
+        message,
+        errors,
       });
     }
 

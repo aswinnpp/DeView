@@ -4,8 +4,9 @@ import { requireAuth } from "../middleware/authMiddleware.js";
 import {
     createCandidateProfileSchema,
     updateCandidateProfileSchema,
+    createCandidateProfileBodyParser,
+    updateCandidateProfileBodyParser,
 } from "../schemas/candidateProfileSchema.js";
-import { fa } from "zod/v4/locales";
 
 export async function candidateProfileRoutes(
     fastify: FastifyInstance,
@@ -19,11 +20,13 @@ export async function candidateProfileRoutes(
 
     fastify.post("/profile", {
         schema: createCandidateProfileSchema,
+        preHandler: [createCandidateProfileBodyParser],
         handler: controller.createProfile,
     });
 
     fastify.patch("/profile", {
         schema: updateCandidateProfileSchema,
+        preHandler: [updateCandidateProfileBodyParser],
         handler: controller.updateProfile,
     });
 
