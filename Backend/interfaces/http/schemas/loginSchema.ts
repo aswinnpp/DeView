@@ -1,8 +1,9 @@
 import { loginRequestSchema } from '../../../../Shared/contracts/auth/login.js';
-import { zodToFastifyBody } from './schemaToFastify.js';
+import { zodBodyParser } from './zodParser.js';
+
+export const loginBodyParser = zodBodyParser(loginRequestSchema);
 
 export const loginSchema = {
-    body: zodToFastifyBody(loginRequestSchema),
     response: {
         200: {
             type: 'object',

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-const emailField = z.string().email({ message: 'Please enter a valid email' });
-const otpField = z.string().regex(/^\d{4}$/, { message: 'OTP must be a 4-digit code' });
+const emailField = z.string().trim().toLowerCase().email({ message: 'Please enter a valid email' });
+const otpField = z.string().trim().regex(/^\d{4}$/, { message: 'OTP must be a 4-digit code' });
 
 export const verifyOtpRequestSchema = z.object({
   email: emailField,

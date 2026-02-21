@@ -61,7 +61,6 @@ export function useCandidateProfile() {
     mode: 'onSubmit',
   });
 
-  const clearError = useCallback(() => setLocalError(null), []);
 
   // ─── Load profile on mount ────────────────────────────────────
   const fetchProfile = useCallback(async () => {
@@ -99,7 +98,6 @@ export function useCandidateProfile() {
     fetchProfile();
   }, [userEmail, fetchProfile]);
 
-  // ─── Array helpers (skills / languages) ───────────────────────
   const handleArrayChange = useCallback(
     (field: 'skills' | 'languages', index: number, value: string) => {
       const current = form.getValues(field);
@@ -191,26 +189,7 @@ const onSubmit = async (values: CandidateProfileData) => {
   }, [form]);
 
   
- const validateStep = useCallback(
-  async (fields: (keyof CandidateProfileData)[]) => {
-    const isValid = await form.trigger(fields);
 
-    if (isValid) {
-      setLocalError(null);
-      return true;
-    }
-
-    const errors = form.formState.errors;
-    const firstError = Object.values(errors)[0];
-    const message =
-      firstError?.message ?? 'Please fix the highlighted errors.';
-
-    setLocalError(message);
-
-    return false;
-  },
-  [form]
-);
 
 
   // ─── Logout ───────────────────────────────────────────────────
@@ -236,7 +215,6 @@ const onSubmit = async (values: CandidateProfileData) => {
     isSaving,
     isLoggingOut,
     error: localError,
-    clearError,
     validationErrors: form.formState.errors,
     profileExists,
     handleArrayChange,
@@ -244,7 +222,6 @@ const onSubmit = async (values: CandidateProfileData) => {
     removeArrayItem,
     handleFormSubmit,
     handleCancel,
-    validateStep,
     handleLogout,
   };
 }

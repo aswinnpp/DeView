@@ -62,6 +62,8 @@ export class MongoUserRepository implements UserRepositoryPort {
     return docs.map(doc => this.toDomain(doc));
   }
 
+  
+
   async save(user: User): Promise<void> {
     const doc = this.toDocument(user);
 
@@ -87,7 +89,8 @@ export class MongoUserRepository implements UserRepositoryPort {
       new Role(doc.role),
       doc.companyId,
       doc.isActive,
-      doc.isEmailVerified
+      doc.isEmailVerified,
+      doc.createdAt
     );
   }
 

@@ -1,6 +1,11 @@
 import { FastifyInstance } from 'fastify';
 import { CompanyApprovalController } from '../controllers/CompanyApprovalController.js';
-import { checkStatusSchema, submitCompanyApprovalSchema } from '../schemas/companyApprovalSchema.js';
+import {
+    checkStatusSchema,
+    submitCompanyApprovalSchema,
+    checkStatusBodyParser,
+    submitCompanyApprovalBodyParser,
+} from '../schemas/companyApprovalSchema.js';
 import { requireAuth } from '../middleware/authMiddleware.js';
 
 export async function companyApprovalRoutes(
@@ -12,6 +17,7 @@ export async function companyApprovalRoutes(
 
     fastify.post('/check-status', {
         schema: checkStatusSchema,
+        preHandler: [checkStatusBodyParser],
         handler: controller.checkStatus,
     });
 
@@ -24,7 +30,7 @@ export async function companyApprovalRoutes(
     // Submit company approval request (requires auth)
     fastify.post('/submit', {
         schema: submitCompanyApprovalSchema,
-        preHandler: [requireAuth],
+        preHandler: [submitCompanyApprovalBodyParser],
         handler: controller.submit,
     });
 

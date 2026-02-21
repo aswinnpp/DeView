@@ -3,5 +3,5 @@ export interface RegisterUserRequestDTO {
     email: string;
     password: string;
     role: 'candidate' | 'company';
-    companyName?: string;
+    companyId?: string;
 }

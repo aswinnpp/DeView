@@ -13,6 +13,7 @@ export type RegisterPayload = {
     email: string;
     password: string;
     role: string;
+    companyId?: string;
 };
 export type RegisterResponse = { message: string; userId?: string };
 

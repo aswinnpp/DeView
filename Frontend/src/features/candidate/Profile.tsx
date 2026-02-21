@@ -1,22 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 import { Input, Button } from '../../components/common';
 import CandidateNavHeader from './CandidateNavHeader';
 import { useCandidateProfile } from '../../hooks/candidate/useCandidateProfile';
 import { useFileUpload } from '../../hooks/useFileUpload';
 
-interface LocationState {
-    from?: string;
-    profileIncomplete?: boolean;
-    showProfileWarning?: boolean;
-    missingFields?: string[];
-    completionPercentage?: number;
-    requiredPercentage?: number;
-}
+
 
 const Profile = () => {
-    const location = useLocation();
-    const locationState = location.state as LocationState | null;
     const errorBannerRef = useRef<HTMLDivElement>(null);
 
     const {
@@ -65,7 +55,6 @@ const Profile = () => {
 
     const { register } = form;
 
-    const progressComplete = (locationState?.completionPercentage || 0) >= 80;
 
     const errorBorderStyle = (fieldError?: string): React.CSSProperties =>
         fieldError ? { borderColor: '#ef4444', boxShadow: '0 0 0 1px rgba(239, 68, 68, 0.3)' } : {};

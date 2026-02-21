@@ -1,8 +1,9 @@
 import { registerRequestSchema } from '../../../../Shared/contracts/auth/register.js';
-import { zodToFastifyBody } from './schemaToFastify.js';
+import { zodBodyParser } from './zodParser.js';
+
+export const registerBodyParser = zodBodyParser(registerRequestSchema);
 
 export const registerSchema = {
-    body: zodToFastifyBody(registerRequestSchema),
     response: {
         201: {
             type: 'object',

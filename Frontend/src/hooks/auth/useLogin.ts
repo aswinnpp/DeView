@@ -75,8 +75,9 @@ export function useLogin() {
 
 
       if (role === 'candidate') {
-        const profile = await candidateService.getProfile()
-        if (profile) {
+        const {data} = await candidateService.getProfile()
+        
+        if (data.profile) {
           navigate(APP_ROUTES.CANDIDATE_INTERVIEWS)
         } else {
           navigate(APP_ROUTES.CANDIDATE_PROFILE);

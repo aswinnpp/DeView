@@ -1,11 +1,8 @@
 import { approvalIdParamsSchema, rejectCompanyRequestBodySchema } from '../../../../Shared/contracts/companyApproval/admin.js';
-import { zodToFastifyBody, zodToFastifyParams } from './schemaToFastify.js';
+import { zodBodyParser, zodParamsParser } from './zodParser.js';
 
-export const approveCompanySchema = {
-    params: zodToFastifyParams(approvalIdParamsSchema),
-};
+export const approvalIdParamsParser = zodParamsParser(approvalIdParamsSchema);
+export const rejectCompanyBodyParser = zodBodyParser(rejectCompanyRequestBodySchema);
 
-export const rejectCompanySchema = {
-    params: zodToFastifyParams(approvalIdParamsSchema),
-    body: zodToFastifyBody(rejectCompanyRequestBodySchema),
-};
+export const approveCompanySchema = {};
+export const rejectCompanySchema = {};

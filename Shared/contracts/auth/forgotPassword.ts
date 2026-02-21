@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const emailField = z.string().email({ message: 'Please enter a valid email' });
+const emailField = z.string().trim().toLowerCase().email({ message: 'Please enter a valid email' });
 
 export const forgotPasswordRequestSchema = z.object({
   email: emailField,

@@ -44,6 +44,7 @@ export function useRegister() {
         email: values.email,
         password: values.password,
         role: values.role,
+        ...(values.companyId && { companyId: values.companyId }),
       });
 
       localStorage.setItem(STORAGE_KEY_PENDING_EMAIL, values.email);
