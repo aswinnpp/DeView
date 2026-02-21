@@ -1,4 +1,3 @@
-/** POST /generate-signature — body: category (required, enum). userId from auth. */
 export const generateSignatureSchema = {
     body: {
         type: 'object',

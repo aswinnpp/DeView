@@ -1,7 +1,6 @@
 import { userContractSchema } from '../../../../Shared/contracts/auth/user.js';
 import { zodToFastifyBody } from './schemaToFastify.js';
 
-// Common error response schema
 const errorResponse = {
     type: 'object',
     properties: {
@@ -16,7 +15,6 @@ const messageResponse = {
     },
 };
 
-// User Schema (from Zod contract)
 export const userSchema = zodToFastifyBody(userContractSchema);
 
 export const getUserSchema = {

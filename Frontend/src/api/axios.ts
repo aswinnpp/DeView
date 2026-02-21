@@ -32,7 +32,6 @@ const processQueue = (error: unknown) => {
     failedQueue = [];
 };
 
-/** Common API envelope: { success: true, data: T } */
 type ApiEnvelope<T> = { success: boolean; data?: T };
 
 api.interceptors.response.use(
@@ -47,21 +46,10 @@ api.interceptors.response.use(
         
         if (body && body.success === true && 'data' in body) {
             if (body.data !== undefined && body.data !== null) {
-                if (typeof body.data === 'object' && Object.keys(body.data).length === 0) {
-                    console.error('API returned empty data object. Original response:', {
-                        url: response.config?.url,
-                        originalData: JSON.stringify(originalData),
-                        body: JSON.stringify(body)
-                    });
-                }
+                
                 response.data = body.data;
-            } else {
-                console.warn('API response has success=true but data is undefined/null:', {
-                    url: response.config?.url,
-                    originalData: JSON.stringify(originalData),
-                    body: JSON.stringify(body)
-                });
-            }
+            } 
+            
         }
         return response;
     },

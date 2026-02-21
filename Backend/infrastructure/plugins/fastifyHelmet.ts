@@ -17,5 +17,5 @@ export async function registerHelmet(fastify: FastifyInstance): Promise<void> {
         crossOriginEmbedderPolicy: false,
         frameguard: false,
     });
-    console.log('✅ Security headers (Helmet) registered');
+    console.log('Security headers (Helmet) registered');
 }
