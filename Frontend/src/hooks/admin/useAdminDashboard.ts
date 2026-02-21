@@ -4,12 +4,10 @@ import { useSystemData } from '../../context/SystemDataContext';
 const TIME_PERIODS = ['daily', 'weekly', 'monthly', 'yearly'] as const;
 export type TimePeriod = (typeof TIME_PERIODS)[number];
 
-// Chart data shapes
 type GrowthDataItem = { label: string; count: number; period: string };
 type RegistrationStatusItem = { name: string; value: number; color: string };
 type SubscriptionPlanItem = { name: string; companies: number };
 
-// Fallback when no real data
 const DEFAULT_REGISTRATION_DATA: RegistrationStatusItem[] = [
   { name: 'Approved', value: 18, color: '#10b981' },
   { name: 'Pending', value: 5, color: '#fbbf24' },

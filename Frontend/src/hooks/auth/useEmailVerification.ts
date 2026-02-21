@@ -8,7 +8,6 @@ import { verifyOtpRequestSchema } from '@shared/contracts/auth/otp';
 import { extractApiError } from '../../api/axios';
 import { API_ROUTES } from '../../constants/routes';
 
-// UI schema — uses otpCode field name (maps to backend's otp)
 const otpSchema = z.object({
   otpCode: verifyOtpRequestSchema.shape.otp,
 });
