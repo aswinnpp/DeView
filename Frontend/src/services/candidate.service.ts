@@ -6,21 +6,34 @@ import type { CandidateProfileData as ProfileData } from '@shared/contracts/cand
 
 export type ProfileResponse = { profile: ProfileData };
 
+export type GetAllCandidatesParams = {
+    search?: string;
+    status?: string;
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+};
+
 // ─── Service functions ──────────────────────────────────────────
 
 export const candidateService = {
 
-    getAllCandidates(queryParams?: string) {
-        const url = queryParams 
-            ? `${API_ROUTES.CANDIDATE.GETALL}${queryParams}`
-            : API_ROUTES.CANDIDATE.GETALL;
+    getAllCandidates(params?: GetAllCandidatesParams) {
+        const searchParams = new URLSearchParams();
+        if (params?.search) searchParams.set('search', params.search);
+        if (params?.status) searchParams.set('status', params.status);
+        if (params?.sortOrder) searchParams.set('sortOrder', params.sortOrder);
+        if (params?.page != null) searchParams.set('page', String(params.page));
+        if (params?.limit != null) searchParams.set('limit', String(params.limit));
+        const query = searchParams.toString();
+        const url = query ? `${API_ROUTES.CANDIDATE.GETALL}?${query}` : API_ROUTES.CANDIDATE.GETALL;
         return api.get<{ data: Array<{
             id: string;
             fullName: string;
             email: string;
             isActive: boolean;
             createdAt?: string;
-        }> }>(url);
+        }>; total: number }>(url);
     },
 
     toggleCandidateStatus(id: string) {

@@ -1,6 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { candidateService } from "../../services/candidate.service";
 import { extractApiError } from "../../api/axios";
+import type { GetAllCandidatesParams } from "../../services/candidate.service";
 
 export interface CandidateListItem {
     id: string;
@@ -10,76 +11,107 @@ export interface CandidateListItem {
     createdAt?: string;
 }
 
+const DEFAULT_LIMIT = 2;
+
 export function useAdminCandidates() {
     const [candidates, setCandidates] = useState<CandidateListItem[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [total, setTotal] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [actionLoading, setActionLoading] = useState<string | null>(null);
-   
+    const [page, setPage] = useState(1);
+    const [limit] = useState(DEFAULT_LIMIT);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-    const fetchCandidates = useCallback(async (search?: string,  sortOrder?: 'asc' | 'desc') => {
-       
-
+    const fetchCandidates = useCallback(async (params: GetAllCandidatesParams) => {
+        setError(null);
         try {
-            const params = new URLSearchParams();
-            if (search) params.append("search", search);
-            if (sortOrder) params.append("sortOrder", sortOrder);
-
-            const { data } = await candidateService.getAllCandidates(
-                params.toString() ? `?${params.toString()}` : ""
-            );
+            const { data } = await candidateService.getAllCandidates({
+                ...params,
+                limit: params.limit ?? limit,
+            });
             setCandidates(data?.data ?? []);
+            setTotal(data?.total ?? 0);
         } catch (err) {
             setError(extractApiError(err));
-        } finally {
-            setLoading(false);
-            
-        }
+        } 
+        
+    }, [limit]);
+
+    const loadPage = useCallback((p: number, search?: string, order?: 'asc' | 'desc') => {
+        const opts: GetAllCandidatesParams = {
+            search: (search ?? searchQuery) || undefined,
+            sortOrder: order ?? sortOrder,
+            page: p,
+            limit,
+        };
+        void fetchCandidates(opts);
+        setPage(p);
+    }, [fetchCandidates, limit, searchQuery, sortOrder]);
+
+    useEffect(() => {
+        loadPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- initial fetch only
     }, []);
 
- 
-  
     const handleSearch = useCallback(
-        (query: string, sortOrder?: 'asc' | 'desc') => {
+        (query: string, order?: 'asc' | 'desc') => {
             setSearchQuery(query);
-            void fetchCandidates(query  || undefined, sortOrder);
+            const ord = order ?? sortOrder;
+            setSortOrder(ord);
+            void loadPage(1, query || undefined, ord);
         },
-        [fetchCandidates]
+        [loadPage, sortOrder]
     );
 
     const handleSortOrder = useCallback(
-        (sortOrder: 'asc' | 'desc') => {
-            void fetchCandidates(searchQuery  || undefined, sortOrder);
+        (order: 'asc' | 'desc') => {
+            setSortOrder(order);
+            void loadPage(1, searchQuery || undefined, order);
         },
-        [fetchCandidates, searchQuery]
+        [loadPage, searchQuery]
     );
 
- 
+    const goToPage = useCallback(
+        (p: number) => {
+            if (p < 1 || p > Math.ceil(total / limit)) return;
+            loadPage(p);
+        },
+        [loadPage, total, limit]
+    );
+
     const toggleCandidateStatus = useCallback(async (candidateId: string) => {
         setActionLoading(candidateId);
         setError(null);
         try {
             await candidateService.toggleCandidateStatus(candidateId);
-            setCandidates(prev => prev.map(c => 
+            setCandidates(prev => prev.map(c =>
                 c.id === candidateId ? { ...c, isActive: !c.isActive } : c
             ));
         } catch (err) {
             setError(extractApiError(err));
-            await fetchCandidates(searchQuery  || undefined);
+            void loadPage(page);
         } finally {
             setActionLoading(null);
         }
-    }, [fetchCandidates, searchQuery]);
+    }, [loadPage, page]);
+
+    const totalPages = Math.ceil(total / limit) || 1;
 
     return {
         candidates,
-        loading,
+        total,
+        page,
+        limit,
+        totalPages,
+        sortOrder,
+        
         error,
         searchQuery,
         actionLoading,
         handleSearch,
         handleSortOrder,
+        goToPage,
         toggleCandidateStatus,
     };
 }

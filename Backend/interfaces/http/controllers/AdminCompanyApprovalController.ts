@@ -14,8 +14,23 @@ interface RejectBody {
   reason: string;
 }
 
+interface PendingQuery {
+  search?: string;
+  sortOrder?: 'asc' | 'desc';
+  page?: string;
+  limit?: string;
+}
+
 interface SearchQuery {
   search?: string;
+}
+
+interface ApprovedQuery {
+  search?: string;
+  status?: string;
+  sortOrder?: 'asc' | 'desc';
+  page?: string;
+  limit?: string;
 }
 
 @injectable()
@@ -30,18 +45,24 @@ export class AdminCompanyApprovalController {
   ) { }
 
   getPending = async (
-    request: FastifyRequest<{ Querystring: SearchQuery }>,
+    request: FastifyRequest<{ Querystring: PendingQuery }>,
     reply: FastifyReply
   ) => {
-    const result = await this.getPendingUseCase.execute(request.query.search);
+    const { search, sortOrder, page: pageStr, limit: limitStr } = request.query;
+    const page = pageStr != null ? parseInt(pageStr, 10) : undefined;
+    const limit = limitStr != null ? parseInt(limitStr, 10) : undefined;
+    const result = await this.getPendingUseCase.execute(search, sortOrder, page, limit);
     reply.status(HttpStatus.OK).send(success(result));
   };
 
   getApproved = async (
-    request: FastifyRequest<{ Querystring: SearchQuery }>,
+    request: FastifyRequest<{ Querystring: ApprovedQuery }>,
     reply: FastifyReply
   ) => {
-    const result = await this.getApprovedUseCase.execute(request.query.search);
+    const { search, status, sortOrder, page: pageStr, limit: limitStr } = request.query;
+    const page = pageStr != null ? parseInt(pageStr, 10) : undefined;
+    const limit = limitStr != null ? parseInt(limitStr, 10) : undefined;
+    const result = await this.getApprovedUseCase.execute(search, status, sortOrder, page, limit);
     reply.status(HttpStatus.OK).send(success(result));
   };
 
