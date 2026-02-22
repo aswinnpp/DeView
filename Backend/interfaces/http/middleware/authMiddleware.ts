@@ -3,10 +3,8 @@ import { AppError } from "../../../shared/errors/AppError";
 import { getCookie } from "../cookies/cookieHelper";
 import { redisClient } from "../../../infrastructure/cache/RedisClient";
 
-// ─── Type: what a logged-in user looks like ──────────────────────
 export interface AuthenticatedUser {
   userId: string;
-  email: string;
   role: string;
   companyId?: string;
 }
@@ -41,16 +39,16 @@ async function attachUser(request: FastifyRequest) {
 
   
   const jti = user.jti;
-  if (jti) {
-    const exists = await redisClient.exists(`access:${jti}`);
-    if (!exists) {
-      throw AppError.unauthorized("Session expired - please login again");
-    }
+  if (!jti) {
+    throw AppError.unauthorized("Session expired - please login again");
+  }
+  const exists = await redisClient.exists(`access:${jti}`);
+  if (!exists) {
+    throw AppError.unauthorized("Session expired - please login again");
   }
 
   request.currentUser = {
     userId: user.userId,
-    email: user.email,
     role: user.role,
     companyId: user.companyId,
   };

@@ -1,13 +1,15 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
 import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
+import type { TokenServicePort } from "../../auth/ports/services/TokenServicePort";
 import { AppError } from "../../../shared/errors/AppError";
 import type { ToggleCandidateStatusUseCasePort } from "../ports/usecase/ToggleCandidateStatusUseCasePort";
 
 @injectable()
 export class ToggleCandidateStatusUseCase implements ToggleCandidateStatusUseCasePort {
     constructor(
-        @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort
+        @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
+        @inject(TYPES.TokenServicePort) private readonly tokenService: TokenServicePort
     ) {}
 
     async execute(candidateId: string): Promise<{ message: string; isActive: boolean }> {
@@ -24,6 +26,7 @@ export class ToggleCandidateStatusUseCase implements ToggleCandidateStatusUseCas
 
         if (user.isActive) {
             user.deactivate();
+            await this.tokenService.revokeAllUserTokens(candidateId);
         } else {
             user.activate();
         }

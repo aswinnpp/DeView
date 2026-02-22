@@ -13,7 +13,7 @@ export interface ListTeamMembersUseCasePort {
     role: "hr" | "interviewer",
     search?: string,
     status?: string,
-    page?: number,
-    limit?: number
+    page?: string,
+    limit?: string
   ): Promise<{ data: TeamMemberResponse[]; total: number }>;
 }

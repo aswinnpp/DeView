@@ -15,7 +15,8 @@ export class SecureJwtTokenService implements TokenServicePort {
   constructor(
     private refreshRepo: RedisRefreshTokenRepository,
     private accessRepo: RedisAccessTokenRepository,
-    private jwtSecret: string
+    private accessSecret: string,
+    private refreshSecret: string
   ) {}
 
   // ================= ACCESS TOKEN =================
@@ -25,7 +26,7 @@ export class SecureJwtTokenService implements TokenServicePort {
 
     const token = jwt.sign(
       { ...payload, jti },
-      this.jwtSecret,
+      this.accessSecret,
       { expiresIn: "15m" }
     );
 
@@ -35,7 +36,7 @@ export class SecureJwtTokenService implements TokenServicePort {
   }
 
   verifyAccessToken(token: string): TokenPayload {
-    return jwt.verify(token, this.jwtSecret) as TokenPayload;
+    return jwt.verify(token, this.accessSecret) as TokenPayload;
   }
 
   // ================= REFRESH TOKEN =================
@@ -45,7 +46,7 @@ export class SecureJwtTokenService implements TokenServicePort {
 
     const token = jwt.sign(
       { userId, jti: tokenId },
-      this.jwtSecret,
+      this.refreshSecret,
       { expiresIn: "7d" }
     );
 
@@ -60,7 +61,7 @@ export class SecureJwtTokenService implements TokenServicePort {
 
   async verifyRefreshToken(token: string): Promise<RefreshTokenPayload | null> {
     try {
-      const decoded = jwt.verify(token, this.jwtSecret) as RefreshTokenPayload;
+      const decoded = jwt.verify(token, this.refreshSecret) as RefreshTokenPayload;
 
       const exists = await this.refreshRepo.exists(decoded.jti);
       if (!exists) return null;
@@ -101,6 +102,7 @@ export class SecureJwtTokenService implements TokenServicePort {
   }
 
   async revokeAllUserTokens(userId: string): Promise<void> {
+    await this.accessRepo.deleteAllForUser(userId);
     await this.refreshRepo.deleteAllForUser(userId);
   }
 }

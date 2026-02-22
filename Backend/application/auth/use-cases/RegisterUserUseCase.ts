@@ -27,7 +27,7 @@ export class RegisterUserUseCase implements RegisterUserUseCasePort {
     const existingUser = await this.userRepo.findByEmail(email);
 
     if (existingUser && existingUser.isEmailVerified) {
-    throw AppError.notFound("User already Exist");
+    throw AppError.unauthorized("User already Exist");
     }
 
     const passwordHash = await this.passwordHasher.hash(dto.password);

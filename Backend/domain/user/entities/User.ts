@@ -13,12 +13,11 @@ export class User {
     public companyId?: string,
     public isActive: boolean = true,
     public isEmailVerified: boolean = false,
-     public creatAt?:any,
+    public createdAt  ?:Date,
     public authProvider: AuthProvider = "email"
    
   ) {}
 
-  // ✅ Factory (good)
   static create(params: {
     fullName: string;
     email: Email;
@@ -26,6 +25,7 @@ export class User {
     role: Role;
     authProvider?: AuthProvider;
     companyId?: string;
+    createdAt?: Date;
   }) {
     return new User(
       null,
@@ -36,6 +36,7 @@ export class User {
       params.companyId,
       true,
       params.authProvider === "google",
+      params.createdAt,
       params.authProvider ?? "email"
     );
   }

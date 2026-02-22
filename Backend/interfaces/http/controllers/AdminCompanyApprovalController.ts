@@ -48,9 +48,7 @@ export class AdminCompanyApprovalController {
     request: FastifyRequest<{ Querystring: PendingQuery }>,
     reply: FastifyReply
   ) => {
-    const { search, sortOrder, page: pageStr, limit: limitStr } = request.query;
-    const page = pageStr != null ? parseInt(pageStr, 10) : undefined;
-    const limit = limitStr != null ? parseInt(limitStr, 10) : undefined;
+    const { search, sortOrder, page, limit } = request.query;
     const result = await this.getPendingUseCase.execute(search, sortOrder, page, limit);
     reply.status(HttpStatus.OK).send(success(result));
   };
@@ -59,9 +57,7 @@ export class AdminCompanyApprovalController {
     request: FastifyRequest<{ Querystring: ApprovedQuery }>,
     reply: FastifyReply
   ) => {
-    const { search, status, sortOrder, page: pageStr, limit: limitStr } = request.query;
-    const page = pageStr != null ? parseInt(pageStr, 10) : undefined;
-    const limit = limitStr != null ? parseInt(limitStr, 10) : undefined;
+    const { search, status, sortOrder, page, limit } = request.query;
     const result = await this.getApprovedUseCase.execute(search, status, sortOrder, page, limit);
     reply.status(HttpStatus.OK).send(success(result));
   };

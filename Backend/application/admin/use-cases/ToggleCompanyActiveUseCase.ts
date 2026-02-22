@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
 import { CompanyApprovalRepositoryPort } from "../../company/ports/repository/CompanyApprovalRepositoryPort";
 import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
+import type { TokenServicePort } from "../../auth/ports/services/TokenServicePort";
 import { DomainError } from "../../../shared/errors/DomainError";
 import type { ToggleCompanyActiveUseCasePort } from "../ports/usecase/ToggleCompanyActiveUseCasePort";
 
@@ -9,7 +10,8 @@ import type { ToggleCompanyActiveUseCasePort } from "../ports/usecase/ToggleComp
 export class ToggleCompanyActiveUseCase implements ToggleCompanyActiveUseCasePort {
     constructor(
         @inject(TYPES.CompanyApprovalRepositoryPort) private repo: CompanyApprovalRepositoryPort,
-        @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort
+        @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort,
+        @inject(TYPES.TokenServicePort) private tokenService: TokenServicePort
     ) { }
 
     async execute(id: string) {
@@ -27,6 +29,10 @@ export class ToggleCompanyActiveUseCase implements ToggleCompanyActiveUseCasePor
 
         user.data[0].isActive = !user.data[0].isActive;
         company.isActive = user.data[0].isActive;
+
+        if (!user.data[0].isActive && user.data[0].id) {
+            await this.tokenService.revokeAllUserTokens(user.data[0].id);
+        }
 
         await this.userRepo.save(user.data[0]);
         await this.repo.save(company);

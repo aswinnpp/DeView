@@ -1,6 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
 import { UserRepositoryPort } from '../../shared/ports/repository/UserRepositoryPort.js';
+import type { TokenServicePort } from '../../auth/ports/services/TokenServicePort.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
 import type { ToggleTeamMemberStatusUseCasePort } from '../ports/usecase/ToggleTeamMemberStatusUseCasePort';
@@ -9,6 +10,7 @@ import type { ToggleTeamMemberStatusUseCasePort } from '../ports/usecase/ToggleT
 export class ToggleTeamMemberStatusUseCase implements ToggleTeamMemberStatusUseCasePort {
     constructor(
         @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
+        @inject(TYPES.TokenServicePort) private readonly tokenService: TokenServicePort,
         @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase
     ) {}
 
@@ -35,6 +37,7 @@ export class ToggleTeamMemberStatusUseCase implements ToggleTeamMemberStatusUseC
 
         if (user.isActive) {
             user.deactivate();
+            await this.tokenService.revokeAllUserTokens(memberId);
         } else {
             user.activate();
         }

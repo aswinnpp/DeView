@@ -59,6 +59,20 @@ api.interceptors.response.use(
             _retry?: boolean;
         };
 
+        const isForbidden = error.response?.status === 403;
+        const message = extractApiError(error);
+        const isBlocked = isForbidden && (
+            message.toLowerCase().includes("deactivated") ||
+            message.toLowerCase().includes("blocked")
+        );
+        const isLoginRequest = originalRequest?.url?.includes(API_ROUTES.AUTH.LOGIN);
+        if (isBlocked && !isLoginRequest) {
+            store.dispatch(logout());
+            api.post(API_ROUTES.AUTH.LOGOUT).catch(() => {});
+            window.location.href = APP_ROUTES.LOGIN;
+            return Promise.reject(error);
+        }
+
         const isUnauthorized = error.response?.status === 401;
         const alreadyRetried = originalRequest?._retry;
         const isRefreshRoute = originalRequest?.url?.includes(API_ROUTES.AUTH.REFRESH);

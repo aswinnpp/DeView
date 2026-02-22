@@ -33,7 +33,8 @@ export function bindServices(container: Container): void {
     return new SecureJwtTokenService(
       new RedisRefreshTokenRepository(redis),
       new RedisAccessTokenRepository(redis),
-      env.JWT_ACCESS_SECRET
+      env.JWT_ACCESS_SECRET,
+      env.JWT_REFRESH_SECRET
     );
   });
 }

@@ -7,5 +7,5 @@ export interface CandidateListItem {
 }
 
 export interface GetAllCandidatesUseCasePort {
-  execute(search?: string, status?: string, sortOrder?: 'asc' | 'desc', page?: number, limit?: number): Promise<{ data: CandidateListItem[]; total: number }>;
+  execute(search?: string, status?: string, sortOrder?: 'asc' | 'desc', page?: string, limit?: string): Promise<{ data: CandidateListItem[]; total: number }>;
 }

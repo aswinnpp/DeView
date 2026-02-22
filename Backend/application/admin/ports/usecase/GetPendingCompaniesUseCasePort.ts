@@ -1,3 +1,3 @@
 export interface GetPendingCompaniesUseCasePort {
-  execute(search?: string, sortOrder?: 'asc' | 'desc', page?: number, limit?: number): Promise<{ data: unknown[]; total: number }>;
+  execute(search?: string, sortOrder?: 'asc' | 'desc', page?: string, limit?: string): Promise<{ data: unknown[]; total: number }>;
 }
