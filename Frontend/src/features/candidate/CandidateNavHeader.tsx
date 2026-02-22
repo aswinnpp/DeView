@@ -16,8 +16,20 @@ interface Notification {
 
 const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => {
     const [showNotifications, setShowNotifications] = useState<boolean>(false);
+    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const notificationRef = useRef<HTMLDivElement>(null);
     const [candidateName, setCandidateName] = useState<string>(localStorage.getItem('userName') || '');
+
+    useEffect(() => {
+        if (sidebarOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [sidebarOpen]);
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -61,37 +73,66 @@ const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => 
     ];
 
     return (
-        <header className="sticky top-0 z-1000 max-md:py-3 max-md:px-4 flex justify-between items-center py-[18px] px-10 border-b border-[rgba(255,255,255,0.03)] bg-[rgba(15,15,25,0.98)] backdrop-blur-md max-[480px]:py-3 max-[480px]:px-4 zinde">
-            <div className="flex gap-3 items-center">
-                <h2 className="m-0 text-lg font-bold text-white">{title}</h2>
-            </div>
+        <>
+            {/* Mobile sidebar backdrop */}
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-[150] md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                    aria-hidden="true"
+                />
+            )}
 
-            <div className="flex gap-4 items-center">
-                {currentPage !== 'jobs' && (
-                    <Link to="/candidate/jobs" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
-                        Jobs
-                    </Link>
-                )}
-                {currentPage !== 'interviews' && currentPage !== 'dashboard' && (
-                    <Link to="/candidate/interviews" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
-                        Scheduled Interviews
-                    </Link>
-                )}
-                {currentPage !== 'history' && (
-                    <Link to="/candidate/history" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
-                        History
-                    </Link>
-                )}
-                {currentPage !== 'mails' && (
-                    <Link to="/candidate/mails" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
-                        Mails
-                    </Link>
-                )}
-                {currentPage !== 'applied' && (
-                    <Link to="/candidate/applied" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
-                        Applied Jobs
-                    </Link>
-                )}
+            <header className="sticky top-0 z-1000 max-md:py-3 max-md:px-4 flex justify-between items-center py-[18px] px-10 border-b border-[rgba(255,255,255,0.03)] bg-[rgba(15,15,25,0.98)] backdrop-blur-md max-[480px]:py-3 max-[480px]:px-4 zinde">
+                <div className="flex gap-3 items-center">
+                    {/* Mobile menu toggle */}
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setSidebarOpen((o) => !o)}
+                        className="md:hidden !bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-lg p-2 text-white flex items-center justify-center shrink-0"
+                        aria-label="Toggle menu"
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                            <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                    </Button>
+                    <h2 className="m-0 text-lg max-md:text-base font-bold text-white truncate">{title}</h2>
+                </div>
+
+                {/* Desktop navigation */}
+                <div className="hidden md:flex gap-4 items-center">
+                    {currentPage !== 'jobs' && (
+                        <Link to="/candidate/jobs" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
+                            Jobs
+                        </Link>
+                    )}
+                    {currentPage !== 'interviews' && currentPage !== 'dashboard' && (
+                        <Link to="/candidate/interviews" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
+                            Scheduled Interviews
+                        </Link>
+                    )}
+                    {currentPage !== 'history' && (
+                        <Link to="/candidate/history" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
+                            History
+                        </Link>
+                    )}
+                    {currentPage !== 'mails' && (
+                        <Link to="/candidate/mails" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
+                            Mails
+                        </Link>
+                    )}
+                    {currentPage !== 'applied' && (
+                        <Link to="/candidate/applied" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
+                            Applied Jobs
+                        </Link>
+                    )}
+                </div>
+
+                {/* Mobile/Desktop: Notifications and Profile */}
+                <div className="flex gap-3 max-md:gap-2 items-center">
 
                 <div className="relative" ref={notificationRef}>
                     <Button
@@ -114,7 +155,7 @@ const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => 
 
                     {showNotifications && (
                         <div
-                            className="absolute top-[110%] right-0 w-80 bg-[rgba(12,12,18,0.98)] border border-[rgba(255,255,255,0.03)] rounded-xl shadow-[0_12px_30px_rgba(0,0,0,0.5)] z-[2000]"
+                            className="absolute top-[110%] right-0 w-80 max-w-[calc(100vw-2rem)] bg-[rgba(12,12,18,0.98)] border border-[rgba(255,255,255,0.03)] rounded-xl shadow-[0_12px_30px_rgba(0,0,0,0.5)] z-[2000]"
                             id="notification-list"
                             role="menu"
                         >
@@ -163,8 +204,70 @@ const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => 
                         </div>
                     </NavLink>
                 )}
-            </div>
-        </header>
+                </div>
+            </header>
+
+            {/* Mobile sidebar menu */}
+            <aside
+                className={`fixed top-0 left-0 z-[200] h-full w-[240px] max-w-[85vw] bg-[rgba(15,15,25,0.98)] border-r border-[rgba(255,255,255,0.06)] py-5 px-4 flex flex-col shadow-xl transition-transform duration-200 ease-out md:hidden ${
+                    sidebarOpen ? "translate-x-0" : "-translate-x-full"
+                }`}
+            >
+                <div className="flex items-center justify-between mb-4 px-1">
+                    <span className="text-white font-semibold text-sm">Menu</span>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setSidebarOpen(false)}
+                        className="!bg-[rgba(255,255,255,0.05)] !border-[rgba(255,255,255,0.08)] p-2 rounded-lg text-white"
+                        aria-label="Close menu"
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </Button>
+                </div>
+                <nav className="flex flex-col gap-2 flex-1" onClick={() => setSidebarOpen(false)}>
+                    {currentPage !== 'jobs' && (
+                        <Link to="/candidate/jobs" className="text-[rgba(255,255,255,0.78)] no-underline py-2.5 px-3 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white transition-colors">
+                            Jobs
+                        </Link>
+                    )}
+                    {currentPage !== 'interviews' && currentPage !== 'dashboard' && (
+                        <Link to="/candidate/interviews" className="text-[rgba(255,255,255,0.78)] no-underline py-2.5 px-3 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white transition-colors">
+                            Scheduled Interviews
+                        </Link>
+                    )}
+                    {currentPage !== 'history' && (
+                        <Link to="/candidate/history" className="text-[rgba(255,255,255,0.78)] no-underline py-2.5 px-3 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white transition-colors">
+                            History
+                        </Link>
+                    )}
+                    {currentPage !== 'mails' && (
+                        <Link to="/candidate/mails" className="text-[rgba(255,255,255,0.78)] no-underline py-2.5 px-3 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white transition-colors">
+                            Mails
+                        </Link>
+                    )}
+                    {currentPage !== 'applied' && (
+                        <Link to="/candidate/applied" className="text-[rgba(255,255,255,0.78)] no-underline py-2.5 px-3 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white transition-colors">
+                            Applied Jobs
+                        </Link>
+                    )}
+                    {currentPage !== 'profile' && (
+                        <NavLink
+                            to="/candidate/profile"
+                            className={({ isActive }) =>
+                                `no-underline py-2.5 px-3 rounded-lg font-semibold transition-colors ${isActive ? "bg-[rgba(102,126,234,0.2)] text-white" : "text-[rgba(255,255,255,0.78)] hover:bg-[rgba(255,255,255,0.02)] hover:text-white"}`
+                            }
+                            title="Profile"
+                        >
+                            Profile
+                        </NavLink>
+                    )}
+                </nav>
+            </aside>
+        </>
     );
 };
 

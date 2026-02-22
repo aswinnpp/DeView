@@ -68,22 +68,21 @@ const CompanyApprovalFormPage = () => {
 
     return (
         <div className="min-h-screen bg-linear-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-[#e2e8f0]">
-            <header className="bg-[rgba(15,23,42,0.8)] backdrop-blur-[12px] border-b border-[rgba(99,102,241,0.2)] py-5 px-10 sticky top-0 z-[100] max-md:py-4 max-md:px-5">
-                <div className="max-w-[900px] mx-auto flex justify-between items-center max-md:flex-col max-md:gap-4 max-md:items-start">
-                    <div className="flex items-center gap-3">
-                        <div className="text-base font-extrabold text-white bg-linear-to-br from-[#6366f1] to-[#8b5cf6] py-3 px-3.5 rounded-xl tracking-wider">CO</div>
-                        <h1 className="m-0 text-2xl font-bold bg-linear-to-br from-[#f8fafc] to-[#cbd5e1] bg-clip-text text-transparent">Company Onboarding</h1>
+            <header className="bg-[rgba(15,23,42,0.8)] backdrop-blur-[12px] border-b border-[rgba(99,102,241,0.2)] py-5 px-10 sticky top-0 z-[100] max-md:py-4 max-md:px-4">
+                <div className="max-w-[900px] mx-auto flex justify-between items-center max-md:flex-col max-md:gap-3 max-md:items-start">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="text-base font-extrabold text-white bg-linear-to-br from-[#6366f1] to-[#8b5cf6] py-3 px-3.5 rounded-xl tracking-wider shrink-0">CO</div>
+                        <h1 className="m-0 text-2xl max-md:text-xl font-bold bg-linear-to-br from-[#f8fafc] to-[#cbd5e1] bg-clip-text text-transparent truncate">Company Onboarding</h1>
                     </div>
-                    
                 </div>
             </header>
 
-            <main className="py-10 px-10 max-w-[900px] mx-auto max-md:py-5 max-md:px-5">
-                <div className="bg-[rgba(30,41,59,0.6)] backdrop-blur-[12px] border border-[rgba(99,102,241,0.15)] rounded-[20px] p-10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] max-md:p-6">
+            <main className="py-10 px-10 max-w-[900px] mx-auto max-md:py-5 max-md:px-4 pb-20">
+                <div className="bg-[rgba(30,41,59,0.6)] backdrop-blur-[12px] border border-[rgba(99,102,241,0.15)] rounded-[20px] max-md:rounded-xl p-10 max-md:p-5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
 
                     {/* Resubmission Banner */}
                     {isResubmission && (
-                        <div className="mb-8 bg-[rgba(245,158,11,0.1)] border border-[rgba(245,158,11,0.3)] rounded-2xl p-6">
+                        <div className="mb-8 max-md:mb-6 bg-[rgba(245,158,11,0.1)] border border-[rgba(245,158,11,0.3)] rounded-2xl max-md:rounded-xl p-6 max-md:p-4">
                             <div className="flex items-center gap-3 mb-3">
                                 <div>
                                     <h3 className="m-0 text-lg font-bold text-[#fbbf24]">Resubmitting Application</h3>
@@ -104,11 +103,10 @@ const CompanyApprovalFormPage = () => {
                         </div>
                     )}
 
-                    <div className="mb-8 text-center">
-                        <h2 className="m-0 mb-3 text-[28px] font-bold text-white">
+                    <div className="mb-8 max-md:mb-6 text-center">
+                        <h2 className="m-0 mb-3 text-[28px] max-md:text-[22px] font-bold text-white">
                             {isResubmission ? 'Resubmit Verification' : 'Company Verification'}
                         </h2>
-                      
                     </div>
 
                     {error && (
@@ -118,14 +116,14 @@ const CompanyApprovalFormPage = () => {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
-                        <section className="bg-[rgba(15,23,42,0.5)] border border-[rgba(71,85,105,0.3)] rounded-2xl p-6">
-                            <h3 className="flex items-center gap-2.5 m-0 mb-5 text-lg font-bold text-[#f1f5f9]">
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 max-md:gap-6">
+                        <section className="bg-[rgba(15,23,42,0.5)] border border-[rgba(71,85,105,0.3)] rounded-2xl max-md:rounded-xl p-6 max-md:p-4">
+                            <h3 className="flex items-center gap-2.5 m-0 mb-5 max-md:mb-4 text-lg max-md:text-base font-bold text-[#f1f5f9]">
                                 <span className="flex items-center justify-center w-7 h-7 bg-linear-to-br from-[#6366f1] to-[#8b5cf6] rounded-lg text-sm font-bold text-white">1</span>
                                 Company Information
                             </h3>
 
-                            <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
+                            <div className="grid grid-cols-2 gap-5 max-md:gap-4 max-md:grid-cols-1">
                                 <Input
                                     type="text"
                                     label="Company Name *"
@@ -163,8 +161,9 @@ const CompanyApprovalFormPage = () => {
                                 <div className="flex flex-col gap-1.5">
                                     <label className="block mb-2 text-[13px] font-semibold text-[#cbd5e1]">Number of Employees *</label>
                                     <select
-                                        className="w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border border-[rgba(71,85,105,0.5)] rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border cursor-pointer focus:outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] [&_option]:bg-[#1e293b] [&_option]:text-[#e2e8f0]"
+                                        className={`w-full py-3 px-4 bg-[rgba(15,23,42,0.8)] border rounded-[10px] text-[#e2e8f0] text-sm transition-all duration-200 box-border cursor-pointer focus:outline-none focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] [&_option]:bg-[#1e293b] [&_option]:text-[#e2e8f0] ${errors.numberOfEmployees ? 'border-[#f87171] focus:border-[#f87171] focus:shadow-[0_0_0_3px_rgba(248,113,113,0.2)]' : 'border-[rgba(71,85,105,0.5)] focus:border-[#6366f1]'}`}
                                         {...register('numberOfEmployees')}
+                                        aria-invalid={!!errors.numberOfEmployees}
                                     >
                                         <option value="1-10">1-10 Employees</option>
                                         <option value="10-50">10-50 Employees</option>
@@ -192,13 +191,13 @@ const CompanyApprovalFormPage = () => {
                         </section>
 
                         {/* Contact Information Section */}
-                        <section className="bg-[rgba(15,23,42,0.5)] border border-[rgba(71,85,105,0.3)] rounded-2xl p-6">
-                            <h3 className="flex items-center gap-2.5 m-0 mb-5 text-lg font-bold text-[#f1f5f9]">
+                        <section className="bg-[rgba(15,23,42,0.5)] border border-[rgba(71,85,105,0.3)] rounded-2xl max-md:rounded-xl p-6 max-md:p-4">
+                            <h3 className="flex items-center gap-2.5 m-0 mb-5 max-md:mb-4 text-lg max-md:text-base font-bold text-[#f1f5f9]">
                                 <span className="flex items-center justify-center w-7 h-7 bg-linear-to-br from-[#6366f1] to-[#8b5cf6] rounded-lg text-sm font-bold text-white">2</span>
                                 Contact Information
                             </h3>
 
-                            <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
+                            <div className="grid grid-cols-2 gap-5 max-md:gap-4 max-md:grid-cols-1">
                                 <Input
                                     type="text"
                                     label="Authorized Contact Person *"
@@ -226,8 +225,8 @@ const CompanyApprovalFormPage = () => {
                         </section>
 
                         {/* Documents Section */}
-                        <section className="bg-[rgba(15,23,42,0.3)] border border-[rgba(71,85,105,0.3)] rounded-2xl p-6">
-                            <h3 className="flex items-center gap-2.5 m-0 mb-5 text-lg font-bold text-[#f1f5f9]">
+                        <section className="bg-[rgba(15,23,42,0.3)] border border-[rgba(71,85,105,0.3)] rounded-2xl max-md:rounded-xl p-6 max-md:p-4">
+                            <h3 className="flex items-center gap-2.5 m-0 mb-5 max-md:mb-4 text-lg max-md:text-base font-bold text-[#f1f5f9]">
                                 <span className="flex items-center justify-center w-7 h-7 bg-linear-to-br from-[#6366f1] to-[#8b5cf6] rounded-lg text-sm font-bold text-white">3</span>
                                 Verification Documents
                             </h3>
@@ -240,7 +239,7 @@ const CompanyApprovalFormPage = () => {
                                 </p>
                             )}
 
-                            <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
+                            <div className="grid grid-cols-2 gap-4 max-md:gap-3 max-md:grid-cols-1">
                                 {documentTypes.map((docType: { key: string; label: string; description: string; required: boolean }, index: number) => {
                                     const uploadedDoc = getUploadedDoc(docType.key);
                                     const isUploading = isDocUploading(docType.key);
@@ -249,11 +248,13 @@ const CompanyApprovalFormPage = () => {
                                     return (
                                         <div
                                             key={docType.key}
-                                            className={`rounded-[14px] p-[18px] transition-all duration-200 border ${isLocked
+                                            className={`rounded-[14px] max-md:rounded-xl p-[18px] max-md:p-4 transition-all duration-200 border ${isLocked
                                                 ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.08)]'
-                                                : uploadedDoc
-                                                    ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.05)]'
-                                                    : 'border-[rgba(71,85,105,0.3)] bg-[rgba(30,41,59,0.5)]'
+                                                : docType.required && !uploadedDoc && errors.documents
+                                                    ? 'border-[#f87171] bg-[rgba(248,113,113,0.08)]'
+                                                    : uploadedDoc
+                                                        ? 'border-[rgba(16,185,129,0.5)] bg-[rgba(16,185,129,0.05)]'
+                                                        : 'border-[rgba(71,85,105,0.3)] bg-[rgba(30,41,59,0.5)]'
                                                 } ${!isLocked ? 'hover:border-[rgba(99,102,241,0.4)] hover:-translate-y-0.5' : ''}`}
                                         >
                                             <div className="flex gap-3 mb-3.5">
@@ -329,8 +330,8 @@ const CompanyApprovalFormPage = () => {
                         </section>
 
                         {/* Submit Section */}
-                        <div className="pt-4">
-                            <div className="flex items-start gap-3 bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.2)] rounded-xl p-4 mb-6">
+                        <div className="pt-4 max-md:pt-2">
+                            <div className="flex items-start gap-3 bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.2)] rounded-xl max-md:rounded-lg p-4 max-md:p-3 mb-6 max-md:mb-4">
                                 <span className="flex items-center justify-center w-6 h-6 bg-[rgba(59,130,246,0.2)] rounded-full text-sm font-bold text-[#60a5fa] shrink-0">i</span>
                                 <p className="m-0 text-[13px] text-[#94a3b8] leading-relaxed">By submitting this form, you confirm that all information provided is accurate and the documents are authentic.
                                     False information may lead to rejection and legal action.</p>
@@ -339,7 +340,7 @@ const CompanyApprovalFormPage = () => {
                             <Button
                                 type="submit"
                                 variant="primary"
-                                className="w-full py-4 px-8 text-base font-bold rounded-xl flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="w-full py-4 max-md:py-3 px-8 max-md:px-4 text-base max-md:text-sm font-bold rounded-xl flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed"
                                 disabled={loading}
 
                             >

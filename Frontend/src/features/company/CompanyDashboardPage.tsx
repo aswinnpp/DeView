@@ -150,39 +150,28 @@ const CompanyDashboardPage = () => {
 
 
     return (
-        <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+        <div className="max-w-[1400px] mx-auto w-full min-w-0 max-md:px-0">
             {/* Header */}
-            <div style={{ marginBottom: 32 }}>
-                <h1 style={{ margin: 0, fontSize: 28, color: '#f1f5f9' }}>
+            <div className="mb-8 max-md:mb-6">
+                <h1 className="m-0 text-[28px] max-md:text-[22px] text-[#f1f5f9]">
                     Welcome back{company?.name ? `, ${company.name}` : ''}!
                 </h1>
-                <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: 14 }}>
+                <p className="mt-1 mb-0 text-[#94a3b8] text-sm max-md:text-xs">
                     Here's what's happening with your recruitment today
                 </p>
             </div>
 
             {/* Charts Grid */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)',
-                gap: 24,
-                marginBottom: 24
-            }}>
+            <div className="grid grid-cols-[1.5fr_1fr] max-md:grid-cols-1 gap-6 max-md:gap-4 mb-6 max-md:mb-4">
                 {/* Applications Over Time - Area Chart */}
-                <div style={{
-                    background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                    border: '1px solid #334155',
-                    borderRadius: 12,
-                    padding: 24,
-                    minHeight: 320
-                }}>
-                    <h3 style={{ margin: '0 0 8px 0', fontSize: 18, color: '#f1f5f9' }}>
+                <div className="bg-linear-to-br from-[#1e293b] to-[#0f172a] border border-[#334155] rounded-xl max-md:rounded-lg p-6 max-md:p-4 min-h-[320px] max-md:min-h-[280px]">
+                    <h3 className="m-0 mb-2 text-lg max-md:text-base text-[#f1f5f9]">
                         Applications Over Time
                     </h3>
-                    <p style={{ margin: '0 0 20px 0', fontSize: 13, color: '#64748b' }}>
+                    <p className="m-0 mb-5 max-md:mb-4 text-[13px] max-md:text-xs text-[#64748b]">
                         Daily application trends for the last 7 days
                     </p>
-                    <div style={{ height: 240 }}>
+                    <div className="h-[240px] max-md:h-[200px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={applicationsOverTime}>
                                 <defs>
@@ -233,20 +222,14 @@ const CompanyDashboardPage = () => {
                 </div>
 
                 {/* Application Status - Pie Chart */}
-                <div style={{
-                    background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                    border: '1px solid #334155',
-                    borderRadius: 12,
-                    padding: 24,
-                    minHeight: 320
-                }}>
-                    <h3 style={{ margin: '0 0 8px 0', fontSize: 18, color: '#f1f5f9' }}>
+                <div className="bg-linear-to-br from-[#1e293b] to-[#0f172a] border border-[#334155] rounded-xl max-md:rounded-lg p-6 max-md:p-4 min-h-[320px] max-md:min-h-[280px]">
+                    <h3 className="m-0 mb-2 text-lg max-md:text-base text-[#f1f5f9]">
                         Application Status
                     </h3>
-                    <p style={{ margin: '0 0 20px 0', fontSize: 13, color: '#64748b' }}>
+                    <p className="m-0 mb-5 max-md:mb-4 text-[13px] max-md:text-xs text-[#64748b]">
                         Distribution of candidates by status
                     </p>
-                    <div style={{ height: 240 }}>
+                    <div className="h-[240px] max-md:h-[200px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
@@ -281,19 +264,14 @@ const CompanyDashboardPage = () => {
             </div>
 
             {/* Applications by Job - Bar Chart */}
-            <div style={{
-                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                border: '1px solid #334155',
-                borderRadius: 12,
-                padding: 24,
-            }}>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: 18, color: '#f1f5f9' }}>
+            <div className="bg-linear-to-br from-[#1e293b] to-[#0f172a] border border-[#334155] rounded-xl max-md:rounded-lg p-6 max-md:p-4">
+                <h3 className="m-0 mb-2 text-lg max-md:text-base text-[#f1f5f9]">
                     Applications by Job Position
                 </h3>
-                <p style={{ margin: '0 0 20px 0', fontSize: 13, color: '#64748b' }}>
+                <p className="m-0 mb-5 max-md:mb-4 text-[13px] max-md:text-xs text-[#64748b]">
                     Number of applications received per job posting
                 </p>
-                <div style={{ height: 240 }}>
+                <div className="h-[240px] max-md:h-[200px] overflow-x-auto">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={applicationsByJob} layout="vertical">
                             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />

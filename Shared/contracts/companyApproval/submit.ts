@@ -20,7 +20,8 @@ const documentsSchema = z.object({
     data.gstCertificate &&
     data.panCard &&
     data.addressProof &&
-    data.authorizedSignatoryId,
+    data.authorizedSignatoryId &&
+    data.bankDocument,
   { message: 'All required documents must be uploaded' }
 );
 

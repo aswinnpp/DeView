@@ -19,7 +19,6 @@ export class ApproveCompanyUseCase implements ApproveCompanyUseCasePort {
       throw AppError.notFound("Company approval not found");
     }
 
-    console.log("aa",approval);
     
 
     approval.approve();

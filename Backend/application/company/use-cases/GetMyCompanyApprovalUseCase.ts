@@ -16,7 +16,7 @@ export class GetMyCompanyApprovalUseCase implements GetMyCompanyApprovalUseCaseP
     const approval = await this.repo.findByUserId(userId);
 
     if (!approval) {
-      throw AppError.notFound("Company approval not found");
+      throw AppError.notFound("Company approval needed");
     }
 
     return approval;

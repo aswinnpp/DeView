@@ -27,7 +27,7 @@ function Table<T>({
     return (
         <div className="bg-linear-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl overflow-hidden">
             <div className="overflow-x-auto w-full">
-                <table className="w-full border-collapse table-fixed min-w-[800px]">
+                <table className="w-full border-collapse table-fixed min-w-[800px] max-md:min-w-[560px]">
 
                     {/* ── Table Header ── */}
                     <thead className="bg-slate-900/80 border-b border-slate-700">

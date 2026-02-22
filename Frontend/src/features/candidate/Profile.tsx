@@ -78,14 +78,14 @@ const Profile = () => {
             <div className="w-full min-h-screen bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px] overflow-hidden">
                 <CandidateNavHeader title="PROFILE" currentPage="profile" />
 
-                <div className="pt-[72px] py-7 px-12 pb-20 w-full box-border max-[480px]:p-[18px] max-[480px]:pt-[68px]">
+                <div className="pt-[72px] py-7 px-12 max-md:py-5 max-md:px-4 pb-20 max-md:pb-12 w-full box-border max-[480px]:p-[18px] max-[480px]:pt-[68px]">
 
 
 
                     {!profileExists && (
-                        <div className="bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] border border-[rgba(102,126,234,0.2)] p-6 rounded-xl mb-6 text-center">
-                            <h2 className="m-0 mb-2 text-white text-xl font-bold">Welcome! Let's set up your profile</h2>
-                            <p className="m-0 text-[rgba(255,255,255,0.7)] text-[15px]">Complete your profile to apply for jobs and get noticed by employers.</p>
+                        <div className="bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] border border-[rgba(102,126,234,0.2)] p-6 max-md:p-4 rounded-xl mb-6 max-md:mb-4 text-center">
+                            <h2 className="m-0 mb-2 max-md:mb-1.5 text-white text-xl max-md:text-lg font-bold">Welcome! Let's set up your profile</h2>
+                            <p className="m-0 text-[rgba(255,255,255,0.7)] text-[15px] max-md:text-sm">Complete your profile to apply for jobs and get noticed by employers.</p>
                         </div>
                     )}
 
@@ -98,29 +98,29 @@ const Profile = () => {
                         noValidate
                     >
                         {/* Profile Header */}
-                        <div className="flex justify-between items-center gap-[18px] mb-[18px] max-[900px]:flex-col max-[900px]:items-start max-[900px]:gap-3">
-                            <div className="flex gap-4 items-center">
-                                <div className="w-22 h-22 rounded-[14px] bg-linear-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-4xl shadow-[0_6px_18px_rgba(0,0,0,0.4)] max-[480px]:w-[72px] max-[480px]:h-[72px] max-[480px]:text-[28px]">
+                        <div className="flex justify-between items-center gap-[18px] mb-[18px] max-md:mb-4 max-[900px]:flex-col max-[900px]:items-start max-[900px]:gap-3">
+                            <div className="flex gap-4 max-md:gap-3 items-center min-w-0 flex-1">
+                                <div className="w-22 h-22 max-md:w-16 max-md:h-16 rounded-[14px] bg-linear-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-4xl max-md:text-3xl shadow-[0_6px_18px_rgba(0,0,0,0.4)] max-[480px]:w-[72px] max-[480px]:h-[72px] max-[480px]:text-[28px] shrink-0">
                                     {profileData.fullName ? profileData.fullName.charAt(0).toUpperCase() : '👤'}
                                 </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <h1 className="m-0 text-2xl font-extrabold text-white max-[480px]:text-xl">{profileData.fullName || 'Your Name'}</h1>
-                                    <p className="m-0 text-sm text-[rgba(255,255,255,0.8)] font-semibold">{profileData.title || 'Your Title'}</p>
-                                    {profileData.currentCompany && <p className="m-0 text-[13px] text-[rgba(255,255,255,0.6)]">@ {profileData.currentCompany}</p>}
-                                    {profileData.location && <p className="m-0 text-[13px] text-[rgba(255,255,255,0.7)]">📍 {profileData.location}</p>}
+                                <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+                                    <h1 className="m-0 text-2xl max-md:text-xl font-extrabold text-white max-[480px]:text-lg truncate">{profileData.fullName || 'Your Name'}</h1>
+                                    <p className="m-0 text-sm max-md:text-xs text-[rgba(255,255,255,0.8)] font-semibold truncate">{profileData.title || 'Your Title'}</p>
+                                    {profileData.currentCompany && <p className="m-0 text-[13px] max-md:text-xs text-[rgba(255,255,255,0.6)] truncate">@ {profileData.currentCompany}</p>}
+                                    {profileData.location && <p className="m-0 text-[13px] max-md:text-xs text-[rgba(255,255,255,0.7)] truncate">📍 {profileData.location}</p>}
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 items-center max-[900px]:w-full max-[900px]:justify-end">
+                            <div className="flex gap-3 max-md:gap-2 items-center max-[900px]:w-full max-[900px]:justify-end max-md:flex-wrap">
                                 {!isEditing ? (
                                     <>
-                                        <Button type="button" variant="primary" className="py-2.5 px-4 rounded-[10px] font-bold" onClick={handleEditClick}>
+                                        <Button type="button" variant="primary" className="py-2.5 px-4 max-md:py-2 max-md:px-3 max-md:text-sm rounded-[10px] font-bold" onClick={handleEditClick}>
                                             Edit Profile
                                         </Button>
                                         <Button
                                             type="button"
                                             variant="danger"
-                                            className="py-2.5 px-4 rounded-[10px] font-bold ml-3"
+                                            className="py-2.5 px-4 max-md:py-2 max-md:px-3 max-md:text-sm rounded-[10px] font-bold max-md:ml-0"
                                             onClick={handleLogout}
                                             disabled={isLoggingOut}
                                         >
@@ -128,9 +128,9 @@ const Profile = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <div className="flex gap-3 items-center">
-                                        <Button type="button" variant="secondary" className="py-2.5 px-4 rounded-[10px] font-bold" onClick={handleCancelClick}>Cancel</Button>
-                                        <Button type="submit" variant="primary" className="py-2.5 px-4 rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSaving}>
+                                    <div className="flex gap-3 max-md:gap-2 items-center max-md:w-full max-md:flex-col">
+                                        <Button type="button" variant="secondary" className="py-2.5 px-4 max-md:w-full max-md:py-2 max-md:text-sm rounded-[10px] font-bold" onClick={handleCancelClick}>Cancel</Button>
+                                        <Button type="submit" variant="primary" className="py-2.5 px-4 max-md:w-full max-md:py-2 max-md:text-sm rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSaving}>
                                             {isSaving ? 'Saving...' : 'Save'}
                                         </Button>
                                     </div>
@@ -147,9 +147,9 @@ const Profile = () => {
                         {/* Profile Sections - full form */}
                         <div className="flex flex-col gap-6 mt-1.5">
 
-                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Personal Information</h3>
-                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Personal Information</h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-md:gap-y-2 max-md:gap-x-0 max-[900px]:grid-cols-1">
                                     <Input label="Full Name *" {...register('fullName')} disabled={!isEditing} placeholder="Enter your full name" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.fullName?.message} style={errorBorderStyle(validationErrors.fullName?.message)} />
                                     <Input label="Email" {...register('email')} type="email" disabled className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" wrapperClassName="flex flex-col gap-2" />
                                     <Input label="Phone *" {...register('phone')} disabled={!isEditing} placeholder="+1 (555) 123-4567" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.phone?.message} style={errorBorderStyle(validationErrors.phone?.message)} />
@@ -158,9 +158,9 @@ const Profile = () => {
                                 </div>
                             </section>
 
-                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">About & Availability</h3>
-                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">About & Availability</h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-md:gap-y-2 max-md:gap-x-0 max-[900px]:grid-cols-1">
                                     {/* Bio - textarea */}
                                     <div className="flex flex-col gap-2">
                                         <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Bio *</label>
@@ -200,9 +200,9 @@ const Profile = () => {
                             </section>
 
                             {/* Job Preferences */}
-                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Job Preferences</h3>
-                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Job Preferences</h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-md:gap-y-2 max-md:gap-x-0 max-[900px]:grid-cols-1">
                                     {/* Preferred Work Mode - select */}
                                     <div className="flex flex-col gap-2">
                                         <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Preferred Work Mode</label>
@@ -255,9 +255,9 @@ const Profile = () => {
                                 </div>
                             </section>
 
-                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Skills *</h3>
-                                <div className="flex flex-wrap gap-2.5 items-center">
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Skills *</h3>
+                                <div className="flex flex-wrap gap-2.5 max-md:gap-2 items-center">
                                     {profileData.skills.map((item: string, index: number) => (
                                         <div key={index}>
                                             {isEditing ? (
@@ -297,9 +297,9 @@ const Profile = () => {
                             </section>
 
                             {/* Languages */}
-                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Languages *</h3>
-                                <div className="flex flex-wrap gap-2.5 items-center">
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Languages *</h3>
+                                <div className="flex flex-wrap gap-2.5 max-md:gap-2 items-center">
                                     {profileData.languages.map((item: string, index: number) => (
                                         <div key={index}>
                                             {isEditing ? (
@@ -337,9 +337,9 @@ const Profile = () => {
                             </section>
 
                             {/* Education */}
-                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Education</h3>
-                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Education</h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-md:gap-y-2 max-md:gap-x-0 max-[900px]:grid-cols-1">
                                     <Input label="Highest Qualification *" {...register('education')} disabled={!isEditing} placeholder="e.g., Bachelor of Science in Computer Science" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.education?.message} style={errorBorderStyle(validationErrors.education?.message)} />
                                     <Input label="University/School *" {...register('university')} disabled={!isEditing} placeholder="e.g., Stanford University" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.university?.message} style={errorBorderStyle(validationErrors.university?.message)} />
                                     <Input label="Graduation Year *" {...register('graduationYear')} disabled={!isEditing} placeholder="e.g., 2021" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.graduationYear?.message} style={errorBorderStyle(validationErrors.graduationYear?.message)} />
@@ -347,9 +347,9 @@ const Profile = () => {
                             </section>
 
                             {/* Resume Upload */}
-                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Resume</h3>
-                                <div className="py-4">
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Resume</h3>
+                                <div className="py-4 max-md:py-3">
                                     {profileData.resumeUrl || isUploading ? (
                                         <div className="flex flex-wrap items-center gap-3 p-4 bg-[rgba(102,126,234,0.1)] border border-[rgba(102,126,234,0.2)] rounded-[10px]">
                                            
@@ -404,9 +404,9 @@ const Profile = () => {
                                 </div>
                             </section>
 
-                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 text-base font-bold text-white">Professional & Links (optional)</h3>
-                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-[900px]:grid-cols-1">
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
+                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Professional & Links (optional)</h3>
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-md:gap-y-2 max-md:gap-x-0 max-[900px]:grid-cols-1">
                                     <Input label="Job Title" {...register('title')} disabled={!isEditing} placeholder="e.g., Frontend Developer" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.title?.message} style={errorBorderStyle(validationErrors.title?.message)} />
                                     <Input label="Current Company" {...register('currentCompany')} disabled={!isEditing} placeholder="e.g., Google" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.currentCompany?.message} style={errorBorderStyle(validationErrors.currentCompany?.message)} />
                                     <Input label="Current Salary" {...register('currentSalary')} disabled={!isEditing} placeholder="e.g., $80,000/year" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.currentSalary?.message} style={errorBorderStyle(validationErrors.currentSalary?.message)} />
@@ -419,8 +419,8 @@ const Profile = () => {
 
                         {/* Save button at bottom when editing */}
                         {isEditing && (
-                            <div className="flex justify-end mt-8 pt-6 border-t border-[rgba(255,255,255,0.06)]">
-                                <Button type="submit" variant="primary" className="py-2.5 px-6 rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSaving}>
+                            <div className="flex justify-end max-md:justify-stretch mt-8 max-md:mt-6 pt-6 max-md:pt-4 border-t border-[rgba(255,255,255,0.06)]">
+                                <Button type="submit" variant="primary" className="py-2.5 px-6 max-md:w-full max-md:py-2 max-md:text-sm rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSaving}>
                                     {isSaving ? 'Saving...' : 'Save'}
                                 </Button>
                             </div>

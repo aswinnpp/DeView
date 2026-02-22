@@ -4,5 +4,5 @@ export const DOCUMENT_TYPES = [
   { key: 'panCard', label: 'Company PAN Card', description: 'Permanent Account Number card for the business', required: true },
   { key: 'addressProof', label: 'Address Proof', description: 'Utility bill, lease agreement, or property documents', required: true },
   { key: 'authorizedSignatoryId', label: 'Authorized Signatory ID', description: 'Aadhar Card, Passport, or Voter ID of the authorized person', required: true },
-  { key: 'bankDocument', label: 'Bank Verification Document', description: 'Cancelled cheque or bank statement (last 3 months)', required: false },
+  { key: 'bankDocument', label: 'Bank Verification Document', description: 'Cancelled cheque or bank statement (last 3 months)', required: true },
 ] as const;

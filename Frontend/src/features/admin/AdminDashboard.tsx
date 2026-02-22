@@ -31,11 +31,11 @@ const AdminDashboard = () => {
     return (
         <div className="max-w-[1400px] mx-auto">
 
-            <div className="mb-8">
-                <h1 className="m-0 text-[28px] text-[#f1f5f9] font-bold">
+            <div className="mb-6 max-md:mb-5">
+                <h1 className="m-0 text-[28px] max-md:text-[22px] text-[#f1f5f9] font-bold">
                     Admin Dashboard
                 </h1>
-                <p className="mt-2 mb-0 text-[#94a3b8] text-sm">
+                <p className="mt-2 mb-0 text-[#94a3b8] text-sm max-md:text-xs">
                     Welcome back! Here's an overview of your platform's activity
                 </p>
             </div>
@@ -148,16 +148,16 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Bar Chart */}
-                <div className="flex items-end gap-5 h-60 py-6 border-t border-[rgba(255,255,255,0.05)]">
+                <div className="flex items-end gap-2 max-md:gap-1 h-60 py-6 border-t border-[rgba(255,255,255,0.05)] overflow-x-auto">
                     {growthData.map((item, index) => {
                         const heightPercent = (item.count / maxValue) * 100;
                         const isLast = index === growthData.length - 1;
 
                         return (
-                            <div key={index} className="flex-1 flex flex-col items-center gap-3">
+                            <div key={index} className="flex-1 min-w-[44px] max-md:min-w-[36px] flex flex-col items-center gap-3">
                                 <div className="w-full h-[200px] flex items-end justify-center">
                                     <div
-                                        className={`w-[70%] rounded-t-lg relative transition-all duration-300 cursor-pointer hover:scale-y-105 ${isLast
+                                        className={`w-[70%] max-md:w-[60%] rounded-t-lg relative transition-all duration-300 cursor-pointer hover:scale-y-105 ${isLast
                                             ? 'bg-linear-to-b from-[#6366f1] to-[#4f46e5]'
                                             : 'bg-linear-to-b from-[#475569] to-[#334155]'
                                             } hover:bg-linear-to-b hover:from-[#6366f1] hover:to-[#4f46e5]`}
@@ -184,7 +184,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Legend */}
-                <div className="mt-5 pt-5 border-t border-[rgba(255,255,255,0.05)] flex justify-end gap-5 text-xs">
+                <div className="mt-5 pt-5 border-t border-[rgba(255,255,255,0.05)] flex flex-wrap justify-end gap-4 max-md:gap-3 text-xs">
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-sm bg-linear-to-b from-[#6366f1] to-[#4f46e5]" />
                         <span className="text-[#94a3b8]">Current Period</span>

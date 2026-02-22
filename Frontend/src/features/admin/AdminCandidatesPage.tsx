@@ -65,20 +65,20 @@ const AdminCandidatesPage = () => {
     );
 
     return (
-        <div className="max-w-[1400px] mx-auto text-slate-200 font-['Inter',sans-serif] pb-10">
+        <div className="max-w-[1400px] mx-auto w-full min-w-0 text-slate-200 font-['Inter',sans-serif] pb-10">
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="m-0 text-[28px] font-bold text-slate-50">
+            <div className="mb-6 max-md:mb-5">
+                <h1 className="m-0 text-[28px] max-md:text-[22px] font-bold text-slate-50">
                     Candidate Management
                 </h1>
-                <p className="mt-2 mb-0 text-slate-400 text-sm">
+                <p className="mt-2 mb-0 text-slate-400 text-sm max-md:text-xs">
                     View and manage all candidates registered on the platform
                 </p>
             </div>
 
             {/* Search and Order Controls */}
-            <div className="flex flex-wrap items-end gap-4 mb-6">
-                <div className="flex-1 min-w-[280px]">
+            <div className="flex flex-wrap items-end gap-4 mb-6 max-md:gap-3">
+                <div className="flex-1 min-w-0 w-full max-md:min-w-0">
                     <SearchInput
                         placeholder="Search by name or email..."
                         onSearch={searchCallback}
@@ -108,7 +108,49 @@ const AdminCandidatesPage = () => {
                         {error}
                     </div>
                 )}
-                { (
+                {/* Mobile: card list (no avatar) */}
+                <div className="md:hidden space-y-3">
+                    {candidates.length === 0 ? (
+                        <p className="text-slate-400 text-center py-8">No candidates found matching your criteria.</p>
+                    ) : (
+                        candidates.map((candidate) => (
+                            <div
+                                key={candidate.id}
+                                className="bg-linear-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl p-4"
+                            >
+                                <div className="text-slate-50 font-semibold text-[15px] mb-1">
+                                    {candidate.fullName}
+                                </div>
+                                <div className="text-slate-400 text-[13px] mb-2 break-all">
+                                    {candidate.email}
+                                </div>
+                                <div className="text-slate-500 text-[12px] mb-3">
+                                    Registered {formatDateFromId(candidate.id)}
+                                </div>
+                                <Button
+                                    onClick={() => openConfirmModal(
+                                        candidate,
+                                        candidate.isActive ? "deactivate" : "activate"
+                                    )}
+                                    disabled={actionLoading === candidate.id}
+                                    className={`w-full inline-flex items-center justify-center py-2.5 px-4 rounded-lg text-[13px] font-semibold text-white transition-all border-none ${
+                                        candidate.isActive
+                                            ? "bg-gradient-to-br from-red-500 to-red-600"
+                                            : "bg-gradient-to-br from-emerald-500 to-emerald-600"
+                                    } ${actionLoading === candidate.id ? "opacity-60 cursor-not-allowed" : ""}`}
+                                >
+                                    {actionLoading === candidate.id
+                                        ? "Processing..."
+                                        : candidate.isActive
+                                            ? "Deactivate"
+                                            : "Activate"}
+                                </Button>
+                            </div>
+                        ))
+                    )}
+                </div>
+                {/* Desktop: table (with avatar) */}
+                <div className="hidden md:block">
                     <Table
                         columns={[
                             {
@@ -189,14 +231,14 @@ const AdminCandidatesPage = () => {
                         rowKey={(candidate) => candidate.id}
                         emptyMessage="No candidates found matching your criteria."
                     />
-                )}
+                </div>
 
                 {/* Pagination (limit 2 for testing) */}
                 { total > 0 && (
-                    <div className="mt-4 flex items-center justify-between border-t border-slate-700 pt-4">
-                        <p className="text-sm text-slate-400">
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-700 pt-4 max-md:flex-col max-md:items-stretch">
+                        <p className="text-sm text-slate-400 max-md:order-2 max-md:text-center">
                         </p>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center gap-2 max-md:order-1">
                             <button
                                 type="button"
                                 onClick={() => goToPage(page - 1)}
@@ -223,15 +265,15 @@ const AdminCandidatesPage = () => {
 
             {/* Confirmation Modal */}
             {confirmModal.open && confirmModal.candidate && (
-                <div className="fixed inset-0 bg-black/70 z-[1000] flex items-center justify-center px-4">
-                    <div className="bg-gradient-to-br from-slate-800 to-slate-950 border border-slate-700 rounded-2xl p-7 w-[420px] max-w-[90vw] shadow-[0_18px_45px_rgba(15,23,42,0.8)]">
-                        <h3 className="m-0 mb-4 text-[20px] text-slate-50 font-semibold flex items-center gap-2.5">
-                            <span>{confirmModal.action === 'deactivate' ? '🚫' : '✅'}</span>
-                            {confirmModal.action === 'deactivate'
+                <div className="fixed inset-0 bg-black/70 z-[1000] flex items-center justify-center px-4 max-md:px-2">
+                    <div className="bg-gradient-to-br from-slate-800 to-slate-950 border border-slate-700 rounded-2xl max-md:rounded-xl p-7 max-md:p-5 w-[420px] max-w-[calc(100vw-1rem)] shadow-[0_18px_45px_rgba(15,23,42,0.8)]">
+                        <h3 className="m-0 mb-4 max-md:mb-3 text-[20px] max-md:text-lg text-slate-50 font-semibold flex items-center gap-2.5 max-md:gap-2">
+                            <span className="text-xl max-md:text-lg">{confirmModal.action === 'deactivate' ? '🚫' : '✅'}</span>
+                            <span className="max-md:text-base">{confirmModal.action === 'deactivate'
                                 ? 'Deactivate Candidate'
-                                : 'Activate Candidate'}
+                                : 'Activate Candidate'}</span>
                         </h3>
-                        <p className="m-0 mb-6 text-[14px] text-slate-400 leading-relaxed">
+                        <p className="m-0 mb-6 max-md:mb-4 text-[14px] max-md:text-sm text-slate-400 leading-relaxed">
                             Are you sure you want to{' '}
                             <strong
                                 className={
@@ -250,18 +292,18 @@ const AdminCandidatesPage = () => {
                                 ? ' They will not be able to access the platform or apply to jobs.'
                                 : ' They will regain full access to the platform.'}
                         </p>
-                        <div className="flex justify-end gap-3">
+                        <div className="flex flex-wrap justify-end gap-3 max-md:gap-2 max-md:flex-col">
                             <Button
                                 variant="secondary"
                                 onClick={closeConfirmModal}
-                                className="inline-flex items-center justify-center py-2.5 px-5 rounded-lg bg-white/5 border border-white/10 text-[14px] font-semibold text-slate-400 hover:bg-white/10 transition"
+                                className="inline-flex items-center justify-center py-2.5 px-5 max-md:w-full rounded-lg bg-white/5 border border-white/10 text-[14px] max-md:text-sm font-semibold text-slate-400 hover:bg-white/10 transition"
                             >
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleConfirmToggle}
                                 disabled={actionLoading === confirmModal.candidate.id}
-                                className={`inline-flex items-center justify-center py-2.5 px-5 rounded-lg text-[14px] font-semibold text-white border-none ${
+                                className={`inline-flex items-center justify-center py-2.5 px-5 max-md:w-full rounded-lg text-[14px] max-md:text-sm font-semibold text-white border-none ${
                                     confirmModal.action === 'deactivate'
                                         ? 'bg-gradient-to-br from-red-500 to-red-600'
                                         : 'bg-gradient-to-br from-emerald-500 to-emerald-600'
