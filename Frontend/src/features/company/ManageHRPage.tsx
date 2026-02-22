@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useManageTeam } from "../../hooks/company/useManageTeam";
-import { Table, SearchInput } from "../../components/common";
+import { Table, SearchInput, Pagination } from "../../components/common";
 import type { TeamMember } from "../../services/companyTeam.service";
 
 
@@ -256,31 +256,11 @@ const ManageHRPage = () => {
 
             {/* Pagination - keep visible when total > 0 so header/layout don't jump */}
             {total > 0 && (
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-700 pt-4 max-md:flex-col max-md:items-stretch">
-                    <p className="text-sm text-slate-400 max-md:order-2 max-md:text-center">
-                    </p>
-                    <div className="flex items-center justify-center gap-2 max-md:order-1">
-                        <button
-                            type="button"
-                            onClick={() => goToPage(page - 1)}
-                            disabled={page <= 1}
-                            className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
-                        >
-                            Previous
-                        </button>
-                        <span className="text-sm text-slate-400">
-                            Page {page} of {totalPages}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={() => goToPage(page + 1)}
-                            disabled={page >= totalPages}
-                            className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
-                        >
-                            Next
-                        </button>
-                    </div>
-                </div>
+                <Pagination
+                    page={page}
+                    totalPages={totalPages}
+                    onPageChange={goToPage}
+                />
             )}
 
             {/* Create Member Modal */}

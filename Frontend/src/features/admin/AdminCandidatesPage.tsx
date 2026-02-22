@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Button, SearchInput, Table } from "../../components/common";
+import { Button, SearchInput, Table, Pagination } from "../../components/common";
 import { useAdminCandidates } from "../../hooks/admin/useAdminCandidates";
 
 interface Candidate {
@@ -233,33 +233,13 @@ const AdminCandidatesPage = () => {
                     />
                 </div>
 
-                {/* Pagination (limit 2 for testing) */}
-                { total > 0 && (
-                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-700 pt-4 max-md:flex-col max-md:items-stretch">
-                        <p className="text-sm text-slate-400 max-md:order-2 max-md:text-center">
-                        </p>
-                        <div className="flex items-center justify-center gap-2 max-md:order-1">
-                            <button
-                                type="button"
-                                onClick={() => goToPage(page - 1)}
-                                disabled={page <= 1}
-                                className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
-                            >
-                                Previous
-                            </button>
-                            <span className="text-sm text-slate-400">
-                                Page {page} of {totalPages}
-                            </span>
-                            <button
-                                type="button"
-                                onClick={() => goToPage(page + 1)}
-                                disabled={page >= totalPages}
-                                className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
-                            >
-                                Next
-                            </button>
-                        </div>
-                    </div>
+                {/* Pagination */}
+                {total > 0 && (
+                    <Pagination
+                        page={page}
+                        totalPages={totalPages}
+                        onPageChange={goToPage}
+                    />
                 )}
             </div>
 
