@@ -1,15 +1,11 @@
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Background from "@components/Background/Background";
 import { useLogin } from "@/hooks/auth/useLogin";
 import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 import { Input, Button } from "../../components/common";
 import { useState } from "react";
 
-const URL_ERROR_MESSAGES: Record<string, string> = {
-  code_expired: "This sign-in link was already used or expired. Please try signing in with Google again.",
-  auth_failed: "Google sign-in failed. Please try again.",
-  missing_code: "Missing authorization. Please try signing in with Google again.",
-};
+
 
 const inputWrapperClass = "relative flex items-center bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]";
 const inputClass = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";

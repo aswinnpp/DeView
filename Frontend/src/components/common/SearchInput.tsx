@@ -13,7 +13,10 @@ const SearchInput = ({
 }: SearchInputProps) => {
     const [value, setValue] = useState("");
     const onSearchRef = useRef(onSearch);
-    onSearchRef.current = onSearch;
+
+    useEffect(() => {
+        onSearchRef.current = onSearch;
+    }, [onSearch]);
 
     useEffect(() => {
         const timer = setTimeout(() => onSearchRef.current(value), delay);

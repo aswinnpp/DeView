@@ -1,4 +1,3 @@
-import AdminDashboard from "@/features/admin/AdminDashboard";
 
 export const API_ROUTES = {
     AUTH: {

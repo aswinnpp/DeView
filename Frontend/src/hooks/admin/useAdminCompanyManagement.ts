@@ -102,7 +102,6 @@ export function useAdminCompanyManagement() {
     companies,
     total,
     page,
-    limit,
     totalPages,
     statusFilter,
     sortOrder,

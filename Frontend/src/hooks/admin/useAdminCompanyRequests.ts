@@ -93,7 +93,6 @@ export function useAdminCompanyRequests() {
     pendingCompanies,
     total,
     page,
-    limit,
     totalPages,
     sortOrder,
     initialLoading,

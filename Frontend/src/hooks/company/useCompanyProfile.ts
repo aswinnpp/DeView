@@ -34,11 +34,9 @@ export function useCompanyProfile() {
     const [isEditing, setIsEditing] = useState(false);
     const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
     const [formData, setFormData] = useState<Partial<CompanyProfileData>>({});
-    const [subscriptionPlans, setSubscriptionPlans] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
-    const [subscriptionLoading, setSubscriptionLoading] = useState(false);
 
     // Fetch company profile
     const fetchProfile = useCallback(async () => {
@@ -104,11 +102,9 @@ export function useCompanyProfile() {
         setIsEditing,
         showSubscriptionModal,
         setShowSubscriptionModal,
-        subscriptionPlans,
         isLoading,
         error,
         isSaving,
-        subscriptionLoading,
         updateProfile,
         
         handleLogout,

@@ -102,7 +102,6 @@ export function useAdminCandidates() {
         candidates,
         total,
         page,
-        limit,
         totalPages,
         sortOrder,
         

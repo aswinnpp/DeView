@@ -19,18 +19,16 @@ export class ToggleCompanyActiveUseCase implements ToggleCompanyActiveUseCasePor
             throw new DomainError("Company not found");
         }
 
-        const user = await this.userRepo.findByCompanyIdAndRole(id, "company")
+        const user = await this.userRepo.findByCompanyIdAndRole(id, "company");
 
-        if (!user.length) {
+        if (!user.data.length) {
             throw new DomainError("Company user not found");
         }
 
+        user.data[0].isActive = !user.data[0].isActive;
+        company.isActive = user.data[0].isActive;
 
-
-        user[0].isActive = !user[0].isActive;
-        company.isActive = user[0].isActive;
-
-        await this.userRepo.save(user[0]);
+        await this.userRepo.save(user.data[0]);
         await this.repo.save(company);
 
 

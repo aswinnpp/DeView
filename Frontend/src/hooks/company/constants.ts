@@ -1,4 +1,3 @@
-/** Document types required for company approval (KYC). */
 export const DOCUMENT_TYPES = [
   { key: 'certificateOfIncorporation', label: 'Certificate of Incorporation', description: 'Legal document proving business registration (CIN)', required: true },
   { key: 'gstCertificate', label: 'GST Certificate', description: 'Goods and Services Tax registration certificate', required: true },

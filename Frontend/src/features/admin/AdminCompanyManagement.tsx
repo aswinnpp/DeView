@@ -11,7 +11,6 @@ const AdminCompanyManagement = () => {
     companies,
     total,
     page,
-    limit,
     totalPages,
     statusFilter,
     sortOrder,
@@ -169,7 +168,6 @@ const AdminCompanyManagement = () => {
       {!loading && total > 0 && (
         <div className="mt-4 flex items-center justify-between border-t border-slate-700 pt-4">
           <p className="text-sm text-slate-400">
-            Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
           </p>
           <div className="flex items-center gap-2">
             <button

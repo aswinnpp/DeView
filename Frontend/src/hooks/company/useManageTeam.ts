@@ -130,7 +130,7 @@ export function useManageTeam() {
     [activeTab, loadPage, page]
   );
 
-  const confirmToggle = useCallback(async (memberToToggle: any, setMemberToToggle: any) => {
+  const confirmToggle = useCallback(async (memberToToggle: TeamMember | null, setMemberToToggle: (value: TeamMember | null) => void) => {
     if (!memberToToggle) return;
     setError(null);
     try {

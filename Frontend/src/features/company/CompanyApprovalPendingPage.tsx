@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { companyApprovalService, type CompanyApprovalStatus } from '../../services/companyApproval.service';
 import { Button } from '../../components/common';
@@ -8,7 +8,7 @@ const CompanyApprovalPendingPage = () => {
     const [approval, setApproval] = useState<CompanyApprovalStatus | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const loadApproval = async () => {
+    const loadApproval = useCallback(async () => {
         try {
             setLoading(true);
             const { data: response } = await companyApprovalService.getMyApproval();
@@ -27,11 +27,11 @@ const CompanyApprovalPendingPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    },[navigate])
 
     useEffect(() => {
         loadApproval();
-    }, []);
+    }, [loadApproval]);
 
     const handleResubmit = () => {
         navigate('/company/approval-form', {

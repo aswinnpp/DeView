@@ -1,29 +1,29 @@
 import type { ReactNode } from "react";
 
 // ── What each column needs ─────────────────────────────────────
-interface Column {
+interface Column<T> {
     header: string;
-    render: (item: any, index: number) => ReactNode;
+    render: (item: T, index: number) => ReactNode;
     cellClassName?: string;
 }
 
 // ── What the Table component needs ─────────────────────────────
-interface TableProps {
-    columns: Column[];
-    data: any[];
-    rowKey: (item: any, index: number) => string | number;
+interface TableProps<T> {
+    columns: Column<T>[];
+    data: T[];
+    rowKey: (item: T, index: number) => string | number;
     emptyMessage?: string;
     emptySubMessage?: string;
 }
 
 // ── The Table component ────────────────────────────────────────
-const Table = ({
+function Table<T>({
     columns,
     data,
     rowKey,
     emptyMessage = "No data available.",
     emptySubMessage,
-}: TableProps) => {
+}: TableProps<T>) {
     return (
         <div className="bg-linear-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl overflow-hidden">
             <div className="overflow-x-auto w-full">
@@ -83,6 +83,6 @@ const Table = ({
             </div>
         </div>
     );
-};
+}
 
 export default Table;

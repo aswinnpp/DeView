@@ -47,9 +47,11 @@ const CompanyApprovalFormPage = () => {
     { shouldValidate: true }
   );
 
-  setUploadingKey(null);
-  setUploadingFileName('');
-}, [uploadedFile?.url, uploadingKey, uploadingFileName]);
+  queueMicrotask(() => {
+    setUploadingKey(null);
+    setUploadingFileName('');
+  });
+}, [uploadedFile?.url, uploadingKey, uploadingFileName, documents, form]);
 
     const handleFileUpload = (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
