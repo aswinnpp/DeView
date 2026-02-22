@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CompanyApprovalRepositoryPort } from "../../company/ports/repository/CompanyApprovalRepositoryPort";
+import { CompanyProfileRepositoryPort } from "../../company/ports/repository/CompanyProfileRepositoryPort";
 import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
 import type { TokenServicePort } from "../../auth/ports/services/TokenServicePort";
 import { DomainError } from "../../../shared/errors/DomainError";
@@ -9,7 +9,7 @@ import type { ToggleCompanyActiveUseCasePort } from "../ports/usecase/ToggleComp
 @injectable()
 export class ToggleCompanyActiveUseCase implements ToggleCompanyActiveUseCasePort {
     constructor(
-        @inject(TYPES.CompanyApprovalRepositoryPort) private repo: CompanyApprovalRepositoryPort,
+        @inject(TYPES.CompanyProfileRepositoryPort) private repo: CompanyProfileRepositoryPort,
         @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort,
         @inject(TYPES.TokenServicePort) private tokenService: TokenServicePort
     ) { }

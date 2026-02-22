@@ -5,7 +5,7 @@ export const TYPES = {
 
   UserRepositoryPort: Symbol('UserRepositoryPort'),
   OTPRepositoryPort: Symbol('OTPRepositoryPort'),
-  CompanyApprovalRepositoryPort: Symbol('CompanyApprovalRepositoryPort'),
+  CompanyProfileRepositoryPort: Symbol('CompanyProfileRepositoryPort'),
   CandidateProfileRepositoryPort: Symbol('CandidateProfileRepositoryPort'),
   OAuthSessionPort: Symbol('OAuthSessionPort'),
 

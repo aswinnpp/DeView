@@ -4,11 +4,11 @@ import type { RedisClientType } from 'redis';
 
 import { TYPES } from './types.js';
 import type { UserRepositoryPort } from '../../application/shared/ports/repository/UserRepositoryPort.js';
-import type { CompanyApprovalRepositoryPort } from '../../application/company/ports/repository/CompanyApprovalRepositoryPort.js';
+import type { CompanyProfileRepositoryPort } from '../../application/company/ports/repository/CompanyProfileRepositoryPort.js';
 import type { OTPRepositoryPort } from '../../application/auth/ports/repository/OTPRepositoryPort.js';
 import type { CandidateProfileRepositoryPort } from '../../application/candidate/ports/repository/CandidateProfileRepositoryPort.js';
 import { MongoUserRepository } from '../persistence/mongodb/repositories/MongoUserRepository.js';
-import { MongoCompanyApprovalRepository } from '../persistence/mongodb/repositories/MongoCompanyApprovalRepository.js';
+import { MongoCompanyProfileRepository } from '../persistence/mongodb/repositories/MongoCompanyProfileRepository.js';
 import { MongoCandidateProfileRepository } from '../persistence/mongodb/repositories/MongoCandidateProfileRepository.js';
 import { RedisOTPRepository } from '../persistence/redis/RedisOTPRepository.js';
 import { RedisOAuthSessionRepository } from '../persistence/redis/RedisOAuthSessionRepository.js';
@@ -22,8 +22,8 @@ import { CandidateProfileDocument } from '../persistence/mongodb/schemas/Candida
 const createUserRepository = (db: Db) => 
   new MongoUserRepository(db.collection<UserDocument>('users'));
 
-const createCompanyApprovalRepository = (db: Db) => 
-  new MongoCompanyApprovalRepository(db.collection<CompanyApprovalDocument>('companyProfiles'));
+const createCompanyProfileRepository = (db: Db) => 
+  new MongoCompanyProfileRepository(db.collection<CompanyApprovalDocument>('companyProfiles'));
 
 const createCandidateProfileRepository = (db: Db) => 
   new MongoCandidateProfileRepository(db.collection<CandidateProfileDocument>('candidateProfiles'));
@@ -40,8 +40,8 @@ export function bindRepositories(container: Container): void {
     createUserRepository(container.get<Db>(TYPES.Db))
   );
 
-  container.bind<CompanyApprovalRepositoryPort>(TYPES.CompanyApprovalRepositoryPort).toDynamicValue(() =>
-    createCompanyApprovalRepository(container.get<Db>(TYPES.Db))
+  container.bind<CompanyProfileRepositoryPort>(TYPES.CompanyProfileRepositoryPort).toDynamicValue(() =>
+    createCompanyProfileRepository(container.get<Db>(TYPES.Db))
   );
 
   container.bind<CandidateProfileRepositoryPort>(TYPES.CandidateProfileRepositoryPort).toDynamicValue(() =>

@@ -5,14 +5,14 @@ import { Email } from "../../../domain/user/value-objects/Email";
 import { PasswordHasherPort } from "../ports/services/PasswordHasherPort";
 import { TokenServicePort } from "../ports/services/TokenServicePort";
 import { AppError } from "../../../shared/errors/AppError";
-import { CompanyApprovalRepositoryPort } from "../../company/ports/repository/CompanyApprovalRepositoryPort";
+import { CompanyProfileRepositoryPort } from "../../company/ports/repository/CompanyProfileRepositoryPort";
 import type { LoginUseCasePort } from "../ports/usecase/LoginUseCasePort";
 
 @injectable()
 export class LoginUseCase implements LoginUseCasePort {
   constructor(
     @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort,
-    @inject(TYPES.CompanyApprovalRepositoryPort) private companyRepo: CompanyApprovalRepositoryPort,
+    @inject(TYPES.CompanyProfileRepositoryPort) private companyRepo: CompanyProfileRepositoryPort,
     @inject(TYPES.PasswordHasherPort) private hasher: PasswordHasherPort,
     @inject(TYPES.TokenServicePort) private tokenService: TokenServicePort
   ) { }

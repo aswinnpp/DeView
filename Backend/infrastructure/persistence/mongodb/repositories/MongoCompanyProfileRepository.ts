@@ -1,9 +1,9 @@
 import { Collection, ObjectId } from "mongodb";
-import type { CompanyApprovalRepositoryPort, CompanyApprovalSearchOptions } from "../../../../application/company/ports/repository/CompanyApprovalRepositoryPort";
+import type { CompanyProfileRepositoryPort, CompanyProfileSearchOptions } from "../../../../application/company/ports/repository/CompanyProfileRepositoryPort";
 import { CompanyApproval } from "../../../../domain/company/entities/CompanyApprovalEntitie";
 import { CompanyApprovalDocument } from "../schemas/CompanyApprovalDocument";
 
-export class MongoCompanyApprovalRepository implements CompanyApprovalRepositoryPort {
+export class MongoCompanyProfileRepository implements CompanyProfileRepositoryPort {
   constructor(private collection: Collection<CompanyApprovalDocument>) { }
 
   async findById(id: string): Promise<CompanyApproval | null> {
@@ -16,7 +16,7 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
     return doc ? this.toDomain(doc) : null;
   }
 
-  async findPending(options?: CompanyApprovalSearchOptions): Promise<{ data: CompanyApproval[]; total: number }> {
+  async findPending(options?: CompanyProfileSearchOptions): Promise<{ data: CompanyApproval[]; total: number }> {
     const filter: Record<string, any> = { status: "pending" };
     const { search, sortOrder = "desc", page = 1, limit } = options ?? {};
 
@@ -44,7 +44,7 @@ export class MongoCompanyApprovalRepository implements CompanyApprovalRepository
     return { data: docs.map(d => this.toDomain(d)), total };
   }
 
-  async findApproved(options?: CompanyApprovalSearchOptions): Promise<{ data: CompanyApproval[]; total: number }> {
+  async findApproved(options?: CompanyProfileSearchOptions): Promise<{ data: CompanyApproval[]; total: number }> {
     const filter: Record<string, any> = { status: "approved" };
     const { search, sortOrder = "desc", page = 1, limit, status } = options ?? {};
 
