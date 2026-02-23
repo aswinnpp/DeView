@@ -30,7 +30,7 @@ import { ApproveCompanyUseCase } from '../../application/admin/use-cases/Approve
 import { RejectCompanyUseCase } from '../../application/admin/use-cases/RejectCompanyUseCase.js';
 import { MarkDocumentUseCase } from '../../application/admin/use-cases/MarkDocumentUseCase.js';
 import { GetApprovedCompaniesUseCase } from '../../application/admin/use-cases/GetApprovedCompaniesUseCase.js';
-import { ToggleCompanyActiveUseCase } from '../../application/admin/use-cases/ToggleCompanyActiveUseCase.js';
+import { AdminToggleActivityUseCase } from '../../application/admin/use-cases/AdminToggleActivityUseCase.js';
 
 // Candidate use cases
 import { CreateCandidateProfileUseCase } from '../../application/candidate/use-cases/CreateCandidateProfileUseCase.js';
@@ -78,7 +78,7 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ApproveCompanyUseCasePort).to(ApproveCompanyUseCase);
   container.bind(TYPES.RejectCompanyUseCasePort).to(RejectCompanyUseCase);
   container.bind(TYPES.MarkDocumentUseCasePort).to(MarkDocumentUseCase);
-  container.bind(TYPES.ToggleCompanyActiveUseCasePort).to(ToggleCompanyActiveUseCase);
+  container.bind(TYPES.ToggleCompanyActiveUseCasePort).to(AdminToggleActivityUseCase);
 
   // Candidate use cases
   container.bind(TYPES.CreateCandidateProfileUseCasePort).to(CreateCandidateProfileUseCase);

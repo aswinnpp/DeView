@@ -30,9 +30,6 @@ export async function candidateProfileRoutes(
         handler: controller.getAll
     });
 
-    fastify.post("/:id/toggle-status", {
-        handler: controller.toggleStatus
-    });
-
+ 
     console.log(" Candidate profile routes registered");
 }

@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { candidateService } from "../../services/candidate.service";
+import { adminCompanyManagementService } from "../../services/adminCompanyManagement.service";
+
 import { extractApiError } from "../../api/axios";
 import type { GetAllCandidatesParams } from "../../services/candidate.service";
 
@@ -84,7 +86,7 @@ export function useAdminCandidates() {
         setActionLoading(candidateId);
         setError(null);
         try {
-            await candidateService.toggleCandidateStatus(candidateId);
+            await adminCompanyManagementService.toggleActive(candidateId);
             setCandidates(prev => prev.map(c =>
                 c.id === candidateId ? { ...c, isActive: !c.isActive } : c
             ));

@@ -16,7 +16,6 @@ export class MongoCandidateProfileRepository
     return doc ? this.toDomain(doc as CandidateProfileDocument) : null;
   }
 
-  // Custom save logic for candidate profiles (update by userId)
   async save(profile: CandidateProfile): Promise<void> {
     const doc = this.toDocument(profile);
 

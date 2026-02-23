@@ -38,9 +38,10 @@ export class RegisterUserUseCase implements RegisterUserUseCasePort {
       email,
       passwordHash,
       role,
+      new Date(),
       dto.companyId ?? existingUser?.companyId,
-      true,   
-      false   
+      true,
+      false
     );
 
     // Generate OTP

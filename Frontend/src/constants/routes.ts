@@ -31,6 +31,7 @@ export const API_ROUTES = {
         COMPANY_REJECT: (id: string) => `/admin/company-requests/${id}/reject`,
         COMPANY_DOCUMENT_MARK: (companyId: string, documentKey: string) =>
             `/admin/company-requests/${companyId}/documents/${documentKey}/mark`,
+        COMPANYTOGGLE:(id:string)=>`/admin/company-requests/${id}/toggle-active`
     },
     CANDIDATE: {
         PROFILE: '/candidate/profile',

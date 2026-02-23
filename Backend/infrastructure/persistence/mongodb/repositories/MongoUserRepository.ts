@@ -86,10 +86,10 @@ export class MongoUserRepository
       new Email(doc.email),
       doc.passwordHash ?? undefined,
       new Role(doc.role),
+      doc.createdAt,
       doc.companyId,
       doc.isActive,
-      doc.isEmailVerified,
-      doc.createdAt
+      doc.isEmailVerified
     );
   }
 
@@ -103,8 +103,8 @@ export class MongoUserRepository
       role: user.role.getValue(),
       isActive: user.isActive,
       isEmailVerified: user.isEmailVerified,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: user.createdAt,
+      updatedAt: user.createdAt
     };
   }
 }

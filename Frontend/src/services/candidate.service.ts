@@ -36,11 +36,8 @@ export const candidateService = {
         }>; total: number }>(url);
     },
 
-    toggleCandidateStatus(id: string) {
-        return api.post<{ message: string; isActive: boolean }>(
-            `/candidate/${id}/toggle-status`
-        );
-    },
+   
+    
     
     getProfile() {
         return api.get<ProfileResponse>(API_ROUTES.CANDIDATE.PROFILE);

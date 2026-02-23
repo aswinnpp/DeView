@@ -10,10 +10,10 @@ export class User {
     public email: Email,
     public passwordHash: string | undefined,
     public role: Role,
+    public createdAt:Date,
     public companyId?: string,
     public isActive: boolean = true,
     public isEmailVerified: boolean = false,
-    public createdAt  ?:Date,
     public authProvider: AuthProvider = "email"
    
   ) {}
@@ -25,7 +25,7 @@ export class User {
     role: Role;
     authProvider?: AuthProvider;
     companyId?: string;
-    createdAt?: Date;
+    createdAt: Date;
   }) {
     return new User(
       null,
@@ -33,10 +33,10 @@ export class User {
       params.email,
       params.passwordHash,
       params.role,
+      params.createdAt,
       params.companyId,
       true,
       params.authProvider === "google",
-      params.createdAt,
       params.authProvider ?? "email"
     );
   }

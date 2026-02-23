@@ -82,10 +82,10 @@ export function useAdminCompanyManagement() {
     [loadPage, total, limit]
   );
 
-  const toggleCompany = useCallback(async (companyId: string) => {
+  const toggleCompany = useCallback(async (Id: string) => {
     setInitialLoading(true);
     try {
-      await adminCompanyManagementService.toggleActive(companyId);
+     await adminCompanyManagementService.toggleActive(Id);
       loadPage(page);
     } finally {
       setInitialLoading(false);

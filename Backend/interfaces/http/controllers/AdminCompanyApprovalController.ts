@@ -8,7 +8,7 @@ import type { ApproveCompanyUseCasePort } from "../../../application/admin/ports
 import type { RejectCompanyUseCasePort } from "../../../application/admin/ports/usecase/RejectCompanyUseCasePort";
 import type { MarkDocumentUseCasePort } from "../../../application/admin/ports/usecase/MarkDocumentUseCasePort";
 import type { GetApprovedCompaniesUseCasePort } from "../../../application/admin/ports/usecase/GetApprovedCompaniesUseCasePort";
-import type { ToggleCompanyActiveUseCasePort } from "../../../application/admin/ports/usecase/ToggleCompanyActiveUseCasePort";
+import type { AdminToggleActivityUseCasePort } from "../../../application/admin/ports/usecase/ToggleCompanyActiveUseCasePort";
 
 interface RejectBody {
   reason: string;
@@ -41,7 +41,7 @@ export class AdminCompanyApprovalController {
     @inject(TYPES.RejectCompanyUseCasePort) private readonly rejectUseCase: RejectCompanyUseCasePort,
     @inject(TYPES.MarkDocumentUseCasePort) private readonly markDocumentUseCase: MarkDocumentUseCasePort,
     @inject(TYPES.GetApprovedCompaniesUseCasePort) private readonly getApprovedUseCase: GetApprovedCompaniesUseCasePort,
-    @inject(TYPES.ToggleCompanyActiveUseCasePort) private readonly toggleActiveUseCase: ToggleCompanyActiveUseCasePort
+    @inject(TYPES.ToggleCompanyActiveUseCasePort) private readonly toggleActiveUseCase: AdminToggleActivityUseCasePort
   ) { }
 
   getPending = async (
@@ -87,7 +87,8 @@ export class AdminCompanyApprovalController {
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
   ) => {
-    const result = await this.toggleActiveUseCase.execute(request.params.id);
+    const { id } = request.params;
+    const result = await this.toggleActiveUseCase.execute(id);
 
     reply.status(HttpStatus.OK).send(success({
       message: "Company status toggled successfully",

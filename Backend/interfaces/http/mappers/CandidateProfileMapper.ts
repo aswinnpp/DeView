@@ -36,7 +36,7 @@ export const CandidateProfileMapper = {
     return {
       ...body,
       userId: user.userId,
-      email: body.email ?? user.email,
+     
     };
   },
 

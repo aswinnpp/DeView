@@ -34,6 +34,9 @@ type GetApprovedResponse = {
     total: number;
 };
 
+type ToggleActiveResponse = { isActive: boolean  };
+
+
 export type GetApprovedParams = {
     search?: string;
     status?: 'all' | 'active' | 'inactive';
@@ -61,7 +64,9 @@ export const adminCompanyManagementService = {
         return api.post(API_ROUTES.ADMIN.COMPANY_REJECT(id), { reason });
     },
 
-    toggleActive(id: string) {
-        return api.post(`/admin/company-requests/${id}/toggle-active`);
-    },
+   // in adminCompanyManagement.service.ts
+
+toggleActive(id: string) {
+  return api.post<ToggleActiveResponse>(API_ROUTES.ADMIN.COMPANYTOGGLE(id));
+}
 };

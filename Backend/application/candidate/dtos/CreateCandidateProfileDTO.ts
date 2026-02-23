@@ -1,7 +1,6 @@
 export interface CreateCandidateProfileDTO {
     userId: string;
     fullName: string;
-    email: string;
     phone: string;
     location: string;
     dateOfBirth: string;

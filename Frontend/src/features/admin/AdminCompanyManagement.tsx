@@ -33,7 +33,7 @@ const AdminCompanyManagement = () => {
   const confirmToggle = async () => {
     if (!toggleTarget) return;
 
-    await toggleCompany(toggleTarget.id);
+    await toggleCompany(toggleTarget.userId);
     setToggleTarget(null);
   };
 

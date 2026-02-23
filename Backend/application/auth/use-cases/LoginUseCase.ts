@@ -23,13 +23,9 @@ export class LoginUseCase implements LoginUseCasePort {
     if (!user || !user.passwordHash) {
       throw AppError.unauthorized("Invalid email or password");
     }
-    let userId = user?.id
-    const company = await this.companyRepo.findByUserId(`${userId}`)
+   
+  
 
-
-    if (company && !company.isActive) {
-      throw AppError.unauthorized("Account is deactivated");
-    }
 
 
    

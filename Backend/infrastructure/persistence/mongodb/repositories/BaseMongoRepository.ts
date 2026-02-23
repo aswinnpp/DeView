@@ -15,13 +15,11 @@ export abstract class BaseMongoRepository<TEntity extends { id?: string | null }
   async save(entity: TEntity): Promise<void> {
     const doc = this.toDocument(entity);
 
-    // Insert
     if (!entity.id) {
       await this.collection.insertOne(doc);
       return;
     }
 
-    // Update by _id
     const { _id, ...update } = doc as any;
     await this.collection.updateOne({ _id }, { $set: update });
   }

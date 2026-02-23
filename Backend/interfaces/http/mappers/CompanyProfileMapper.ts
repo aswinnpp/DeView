@@ -13,12 +13,8 @@ interface UpdateProfileBody {
   numberOfEmployees?: string;
 }
 
-/**
- * Maps HTTP request data to Company Profile UseCase DTOs.
- * Combines validated body + authenticated user (userId).
- */
+
 export const CompanyProfileMapper = {
-  /** PUT /company/profile — update company profile */
   toUpdateDTO(body: UpdateProfileBody, user: AuthenticatedUser): UpdateCompanyProfileDTO {
     return {
       userId: user.userId,

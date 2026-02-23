@@ -80,12 +80,5 @@ export class CandidateProfileController {
         reply.send(success(result));
     }
 
-    toggleStatus = async (
-        request: FastifyRequest<{ Params: { id: string } }>,
-        reply: FastifyReply
-    ) => {
-        const { id } = request.params;
-        const result = await this.toggleStatusUseCase.execute(id);
-        reply.send(success(result));
-    }
+
 }
