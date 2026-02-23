@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { ZodError } from "zod";
 import { AppError } from "../../shared/errors/AppError";
+import { DomainError } from "../../shared/errors/DomainError";
 import { HttpStatus } from "../../shared/http/HttpStatus";
 
 export function registerErrorHandler(app: FastifyInstance) {
@@ -10,6 +11,13 @@ export function registerErrorHandler(app: FastifyInstance) {
       return reply.status(error.statusCode).send({
         success: false,
         message: error.message
+      });
+    }
+
+    if (error instanceof DomainError) {
+      return reply.status(HttpStatus.BAD_REQUEST).send({
+        success: false,
+        message: error.message,
       });
     }
 

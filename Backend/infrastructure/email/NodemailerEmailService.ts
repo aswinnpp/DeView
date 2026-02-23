@@ -1,6 +1,7 @@
 import { injectable } from 'inversify';
 import nodemailer from 'nodemailer';
 import { EmailServicePort } from '../../application/auth/ports/services/EmailServicePort.js';
+import { env } from '../config/env.js';
 
 @injectable()
 export class NodemailerEmailService implements EmailServicePort {
@@ -9,14 +10,14 @@ export class NodemailerEmailService implements EmailServicePort {
         this.transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASSWORD,
+                user: env.EMAIL_USER,
+                pass: env.EMAIL_PASSWORD,
             },
         });
     }
     async sendOTP(email: string, otp: string, userName: string): Promise<void> {
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: env.EMAIL_USER,
             to: email,
             subject: 'Verify Your Email - DeView App',
             html: `
@@ -42,10 +43,10 @@ export class NodemailerEmailService implements EmailServicePort {
     }
 
     async sendPasswordResetEmail(email: string, resetToken: string, userName: string): Promise<void> {
-        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+        const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: env.EMAIL_USER,
             to: email,
             subject: 'Reset Your Password - DeView App',
             html: `
@@ -87,7 +88,7 @@ export class NodemailerEmailService implements EmailServicePort {
 
     async sendPasswordResetOTP(email: string, otp: string, userName: string): Promise<void> {
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: env.EMAIL_USER,
             to: email,
             subject: 'Reset Your Password - DeView App',
             html: `
@@ -118,11 +119,11 @@ export class NodemailerEmailService implements EmailServicePort {
     }
 
     async sendWelcomeEmail(email: string, userName: string, role: string, temporaryPassword: string): Promise<void> {
-        const loginUrl = `${process.env.FRONTEND_URL}/login`;
+        const loginUrl = `${env.FRONTEND_URL}/login`;
         const roleLabel = role === 'hr' ? 'HR' : 'Interviewer';
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: env.EMAIL_USER,
             to: email,
             subject: `Welcome to DeView - Your ${roleLabel} Account is Ready!`,
             html: `

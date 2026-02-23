@@ -18,6 +18,10 @@ export interface EnvConfig {
     CLOUDINARY_CLOUD_NAME?: string;
     CLOUDINARY_API_KEY?: string;
     CLOUDINARY_API_SECRET?: string;
+    EMAIL_USER?: string;
+    EMAIL_PASSWORD?: string;
+    ACCESS_TOKEN_TTL?: string;
+    REFRESH_TOKEN_TTL?: string;
 }
 function validateEnv(): EnvConfig {
     const requiredVars = ['PORT', 'MONGO_URI', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
@@ -39,6 +43,10 @@ function validateEnv(): EnvConfig {
         CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
         CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
         CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+        EMAIL_USER: process.env.EMAIL_USER,
+        EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
+        ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL,
+        REFRESH_TOKEN_TTL: process.env.REFRESH_TOKEN_TTL,
     };
 }
 export const env = validateEnv();

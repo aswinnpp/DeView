@@ -1,7 +1,8 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import { env } from "../../../infrastructure/config/env.js";
 
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = env.NODE_ENV === "production";
 
 const COOKIE_BASE = {
   httpOnly: true,           

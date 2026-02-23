@@ -4,6 +4,7 @@ import { success } from "../../../shared/http/apiResponse";
 import { TYPES } from "../../../infrastructure/di/types";
 import type { GoogleOAuthUseCasePort } from "../../../application/auth/ports/usecase/GoogleOAuthUseCasePort";
 import type { GoogleAuthPort } from "../../../application/auth/ports/services/GoogleAuthPort";
+import { env } from "../../../infrastructure/config/env.js";
 import {
   setAccessTokenCookie,
   setRefreshTokenCookie,
@@ -28,7 +29,7 @@ export class GoogleAuthController {
     request: FastifyRequest<{ Querystring: { code?: string; state?: string } }>,
     reply: FastifyReply
   ) => {
-    const frontendUrl = process.env.FRONTEND_URL ?? "";
+    const frontendUrl = env.FRONTEND_URL;
     const { code, state } = request.query;
 
     const sessionId = await this.googleOAuthUseCase.handleCallback(code, state);

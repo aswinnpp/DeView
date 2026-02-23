@@ -1,8 +1,9 @@
 import { MongoClient, Db } from "mongodb";
+import { env } from "../../../config/env.js";
 let client: MongoClient;
 let db: Db;
 export async function connectMongoDB(): Promise<Db> {
-    if (!process.env.MONGO_URI) {
+    if (!env.MONGO_URI) {
         throw new Error("MONGO_URI is not defined in environment variables");
     }
     if (db) {
@@ -10,7 +11,7 @@ export async function connectMongoDB(): Promise<Db> {
     }
 
     // Connection pooling configuration for better performance
-    client = new MongoClient(process.env.MONGO_URI, {
+    client = new MongoClient(env.MONGO_URI, {
         maxPoolSize: 10,              // Maximum connections in the pool
         minPoolSize: 2,               // Minimum connections to maintain
         maxIdleTimeMS: 30000,         // Close idle connections after 30 seconds

@@ -15,7 +15,7 @@ import { redisClient } from './infrastructure/cache/RedisClient.js';
 
 async function bootstrap() {
   const fastify = Fastify({
-    logger: process.env.NODE_ENV === 'production'
+    logger: env.NODE_ENV === 'production'
       ? true
       : { level: 'error' }
   });
