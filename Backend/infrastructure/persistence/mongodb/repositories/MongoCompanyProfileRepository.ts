@@ -2,18 +2,18 @@ import { Collection, ObjectId } from "mongodb";
 import type { CompanyProfileRepositoryPort, CompanyProfileSearchOptions } from "../../../../application/company/ports/repository/CompanyProfileRepositoryPort";
 import { CompanyApproval } from "../../../../domain/company/entities/CompanyApprovalEntitie";
 import { CompanyApprovalDocument } from "../schemas/CompanyApprovalDocument";
+import { BaseMongoRepository } from "./BaseMongoRepository";
 
-export class MongoCompanyProfileRepository implements CompanyProfileRepositoryPort {
-  constructor(private collection: Collection<CompanyApprovalDocument>) { }
-
-  async findById(id: string): Promise<CompanyApproval | null> {
-    const doc = await this.collection.findOne({ _id: new ObjectId(id) });
-    return doc ? this.toDomain(doc) : null;
+export class MongoCompanyProfileRepository
+  extends BaseMongoRepository<CompanyApproval>
+  implements CompanyProfileRepositoryPort {
+  constructor(collection: Collection<CompanyApprovalDocument>) {
+    super(collection);
   }
 
   async findByUserId(userId: string): Promise<CompanyApproval | null> {
     const doc = await this.collection.findOne({ userId });
-    return doc ? this.toDomain(doc) : null;
+    return doc ? this.toDomain(doc as CompanyApprovalDocument) : null;
   }
 
   async findPending(options?: CompanyProfileSearchOptions): Promise<{ data: CompanyApproval[]; total: number }> {
@@ -41,7 +41,7 @@ export class MongoCompanyProfileRepository implements CompanyProfileRepositoryPo
     }
 
     const docs = await cursor.toArray();
-    return { data: docs.map(d => this.toDomain(d)), total };
+    return { data: docs.map(d => this.toDomain(d as CompanyApprovalDocument)), total };
   }
 
   async findApproved(options?: CompanyProfileSearchOptions): Promise<{ data: CompanyApproval[]; total: number }> {
@@ -72,29 +72,10 @@ export class MongoCompanyProfileRepository implements CompanyProfileRepositoryPo
     }
 
     const docs = await cursor.toArray();
-    return { data: docs.map(d => this.toDomain(d)), total };
+    return { data: docs.map(d => this.toDomain(d as CompanyApprovalDocument)), total };
   }
 
-  async save(approval: CompanyApproval): Promise<void> {
-    const doc = this.toDocument(approval);
-
-    if (!approval.id) {
-      await this.collection.insertOne(doc);
-      return;
-    }
-
-    const { _id, ...update } = doc;
-
-    await this.collection.updateOne(
-      { _id },
-      { $set: update }
-    );
-  }
-
-
-
-
-  private toDomain(doc: CompanyApprovalDocument): CompanyApproval {
+  protected toDomain(doc: CompanyApprovalDocument): CompanyApproval {
     return new CompanyApproval(
       doc._id?.toString() || null,
       doc.userId,
@@ -115,7 +96,7 @@ export class MongoCompanyProfileRepository implements CompanyProfileRepositoryPo
     );
   }
 
-  private toDocument(entity: CompanyApproval): CompanyApprovalDocument {
+  protected toDocument(entity: CompanyApproval): CompanyApprovalDocument {
     return {
       ...(entity.id && { _id: new ObjectId(entity.id) }),
       userId: entity.userId,

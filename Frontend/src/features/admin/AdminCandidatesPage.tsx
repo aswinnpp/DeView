@@ -248,10 +248,20 @@ const AdminCandidatesPage = () => {
                 <div className="fixed inset-0 bg-black/70 z-[1000] flex items-center justify-center px-4 max-md:px-2">
                     <div className="bg-gradient-to-br from-slate-800 to-slate-950 border border-slate-700 rounded-2xl max-md:rounded-xl p-7 max-md:p-5 w-[420px] max-w-[calc(100vw-1rem)] shadow-[0_18px_45px_rgba(15,23,42,0.8)]">
                         <h3 className="m-0 mb-4 max-md:mb-3 text-[20px] max-md:text-lg text-slate-50 font-semibold flex items-center gap-2.5 max-md:gap-2">
-                            <span className="text-xl max-md:text-lg">{confirmModal.action === 'deactivate' ? '🚫' : '✅'}</span>
-                            <span className="max-md:text-base">{confirmModal.action === 'deactivate'
-                                ? 'Deactivate Candidate'
-                                : 'Activate Candidate'}</span>
+                            <span
+                                className={
+                                    confirmModal.action === 'deactivate'
+                                        ? 'text-xl max-md:text-lg text-red-400'
+                                        : 'text-xl max-md:text-lg text-emerald-400'
+                                }
+                            >
+                                {confirmModal.action === 'deactivate' ? 'Deactivate' : 'Activate'}
+                            </span>
+                            <span className="max-md:text-base">
+                                {confirmModal.action === 'deactivate'
+                                    ? 'Candidate'
+                                    : 'Candidate'}
+                            </span>
                         </h3>
                         <p className="m-0 mb-6 max-md:mb-4 text-[14px] max-md:text-sm text-slate-400 leading-relaxed">
                             Are you sure you want to{' '}

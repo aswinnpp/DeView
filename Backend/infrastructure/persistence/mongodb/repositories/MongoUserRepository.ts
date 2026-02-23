@@ -1,21 +1,21 @@
-import { Collection, ObjectId } from 'mongodb';
-import type { UserRepositoryPort, UserSearchOptions } from '../../../../application/shared/ports/repository/UserRepositoryPort';
-import { User } from '../../../../domain/user/entities/User';
-import { Email } from '../../../../domain/user/value-objects/Email';
-import { Role } from '../../../../domain/user/value-objects/Role';
-import { UserDocument } from '../schemas/UserDocument';
+import { Collection, ObjectId } from "mongodb";
+import type { UserRepositoryPort, UserSearchOptions } from "../../../../application/shared/ports/repository/UserRepositoryPort";
+import { User } from "../../../../domain/user/entities/User";
+import { Email } from "../../../../domain/user/value-objects/Email";
+import { Role } from "../../../../domain/user/value-objects/Role";
+import { UserDocument } from "../schemas/UserDocument";
+import { BaseMongoRepository } from "./BaseMongoRepository";
 
-export class MongoUserRepository implements UserRepositoryPort {
-  constructor(private collection: Collection<UserDocument>) { }
+export class MongoUserRepository
+  extends BaseMongoRepository<User>
+  implements UserRepositoryPort {
+  constructor(collection: Collection<UserDocument>) {
+    super(collection);
+  }
 
   async findByEmail(email: Email): Promise<User | null> {
     const doc = await this.collection.findOne({ email: email.getValue() });
-    return doc ? this.toDomain(doc) : null;
-  }
-
-  async findById(id: string): Promise<User | null> {
-    const doc = await this.collection.findOne({ _id: new ObjectId(id) });
-    return doc ? this.toDomain(doc) : null;
+    return doc ? this.toDomain(doc as UserDocument) : null;
   }
 
   async findByCompanyIdAndRole(
@@ -46,7 +46,7 @@ export class MongoUserRepository implements UserRepositoryPort {
     }
 
     const docs = await cursor.toArray();
-    return { data: docs.map(doc => this.toDomain(doc)), total };
+    return { data: docs.map(doc => this.toDomain(doc as UserDocument)), total };
   }
 
   async findByRole(
@@ -76,28 +76,10 @@ export class MongoUserRepository implements UserRepositoryPort {
     }
 
     const docs = await cursor.toArray();
-    return { data: docs.map(doc => this.toDomain(doc)), total };
+    return { data: docs.map(doc => this.toDomain(doc as UserDocument)), total };
   }
 
-  
-
-  async save(user: User): Promise<void> {
-    const doc = this.toDocument(user);
-
-    if (!user.id) {
-      await this.collection.insertOne(doc);
-      return;
-    }
-
-    const { _id, ...update } = doc;
-
-    await this.collection.updateOne(
-      { _id },
-      { $set: update }
-    );
-  }
-
-  private toDomain(doc: UserDocument): User {
+  protected toDomain(doc: UserDocument): User {
     return new User(
       doc._id?.toString() || null,
       doc.fullName,
@@ -111,7 +93,7 @@ export class MongoUserRepository implements UserRepositoryPort {
     );
   }
 
-  private toDocument(user: User): UserDocument {
+  protected toDocument(user: User): UserDocument {
     return {
       ...(user.id && { _id: new ObjectId(user.id) }),
       fullName: user.fullName,

@@ -20,6 +20,9 @@ export class LoginUseCase implements LoginUseCasePort {
   async execute(emailStr: string, password: string) {
     const email = new Email(emailStr);
     const user = await this.userRepo.findByEmail(email);
+    if (!user || !user.passwordHash) {
+      throw AppError.unauthorized("Invalid email or password");
+    }
     let userId = user?.id
     const company = await this.companyRepo.findByUserId(`${userId}`)
 
@@ -29,9 +32,7 @@ export class LoginUseCase implements LoginUseCasePort {
     }
 
 
-    if (!user || !user.passwordHash) {
-      throw AppError.unauthorized("Invalid email or password");
-    }
+   
     if (!user.isEmailVerified) {
       throw AppError.forbidden("Email not verified");
     }
