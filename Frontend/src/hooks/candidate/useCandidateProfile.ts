@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { candidateService } from '../../services/candidate.service';
 import { authService } from '../../services/auth.service';
 import type { RootState, AppDispatch } from '../../context/store';
-import {APP_ROUTES}from "../../constants/routes"
+import { APP_ROUTES } from '../../constants/routes';
 import { logout } from '../../context/authSlice';
 import {
   candidateProfileSchema,
@@ -131,55 +131,52 @@ export function useCandidateProfile() {
 
 
   // ─── Submit (save) ────────────────────────────────────────────
-const onSubmit = async (values: CandidateProfileData) => {
-  setLocalError(null);
-  setIsSaving(true);
+  const onSubmit = async (values: CandidateProfileData): Promise<boolean> => {
+    setLocalError(null);
+    setIsSaving(true);
 
-  try {
-    const saveProfile = profileExists
-      ? candidateService.updateProfile
-      : candidateService.createProfile;
+    try {
+      const isUpdate = profileExists;
+      const saveProfile = isUpdate
+        ? candidateService.updateProfile
+        : candidateService.createProfile;
 
-    await saveProfile(values);
+      const payload: Partial<CandidateProfileData> = values;
 
-    await fetchProfile();
+      await saveProfile(payload);
 
-    setProfileExists(true);
-    setIsEditing(false);
-  } catch (err) {
-    setLocalError(extractApiError(err));
-  } finally {
-    setIsSaving(false);
-  }
-};
+      await fetchProfile();
 
-
- const handleFormSubmit = (e?: React.BaseSyntheticEvent) => {
-  form.handleSubmit(
-    (values) => {
-      const hasChanges = form.formState.isDirty;
-
-      if (profileExists && !hasChanges) {
-        setIsEditing(false);
-        return;
-      }
-
-      console.log("eee",values);
-      
-
-      onSubmit(values);
-       navigate(APP_ROUTES.CANDIDATE_INTERVIEWS)
-      
-    },
-    (errors) => {
-      const firstError = Object.values(errors)[0];
-      const message =
-        firstError?.message ?? 'Please fix the highlighted errors.';
-
-      setLocalError(message);
+      setProfileExists(true);
+      setIsEditing(false);
+      return true;
+    } catch (err) {
+      setLocalError(extractApiError(err));
+      return false;
+    } finally {
+      setIsSaving(false);
     }
-  )(e);
-};
+  };
+
+
+  const handleFormSubmit = (e?: React.BaseSyntheticEvent) => {
+    form.handleSubmit(
+      async (values) => {
+        const ok = await onSubmit(values);
+
+        if (ok) {
+          navigate(APP_ROUTES.CANDIDATE_INTERVIEWS);
+        }
+      },
+      (errors) => {
+        const firstError = Object.values(errors)[0];
+        const message =
+          firstError?.message ?? 'Please fix the highlighted errors.';
+
+        setLocalError(message);
+      }
+    )(e);
+  };
 
 
   const handleCancel = useCallback(() => {

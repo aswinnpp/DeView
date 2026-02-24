@@ -1,18 +1,14 @@
 import { AppError } from "../../../shared/errors/AppError";
 
-/** Default page when not provided or invalid */
 const DEFAULT_PAGE = 1;
 
-/** Default limit when not provided or invalid */
 const DEFAULT_LIMIT = 10;
 
-/** Maximum allowed limit to prevent excessive data fetching */
 const MAX_LIMIT = 100;
 
-/** Minimum valid page number */
+
 const MIN_PAGE = 1;
 
-/** Minimum valid limit */
 const MIN_LIMIT = 1;
 
 export interface SearchParamsInput {
@@ -25,14 +21,7 @@ export interface ParsedSearchParams {
   limit: number;
 }
 
-/**
- * Parses and validates pagination query parameters from HTTP request.
- * Converts string values to numbers, applies defaults, and validates ranges.
- *
- * @param input - Raw query params (page and limit as strings)
- * @returns Validated { page, limit } as numbers
- * @throws AppError with BAD_REQUEST if values are invalid
- */
+
 export function parseSearchParams(input: SearchParamsInput): ParsedSearchParams {
   const pageValue = parsePage(input.page);
   const limitValue = parseLimit(input.limit);
