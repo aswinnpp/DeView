@@ -1,24 +1,24 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
-import { OTPRepositoryPort } from "../ports/repository/OTPRepositoryPort";
+import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
+import { IOtpRepository } from "../ports/repository/IOtpRepository";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
-import { EmailServicePort } from "../ports/services/EmailServicePort";
+import { IEmailService } from "../ports/services/IEmailService";
 import { AppError } from "../../../shared/errors/AppError";
-import { ResendOTPRequestDTO } from "../dtos/ResendOTPRequestDTO";
-import { ResendOTPResponseDTO } from "../dtos/ResendOTPResponseDTO";
-import type { ResendOTPUseCasePort } from "../ports/usecase/ResendOTPUseCasePort";
+import { IResendOtpRequestDTO } from "../dtos/ResendOTPRequestDTO";
+import { IResendOtpResponseDTO } from "../dtos/ResendOTPResponseDTO";
+import type { IResendOtpUseCase } from "../ports/usecase/IResendOtpUseCase";
 
 @injectable()
-export class ResendOTPUseCase implements ResendOTPUseCasePort {
+export class ResendOTPUseCase implements IResendOtpUseCase {
   constructor(
-    @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
-    @inject(TYPES.OTPRepositoryPort) private readonly otpRepository: OTPRepositoryPort,
-    @inject(TYPES.EmailServicePort) private readonly emailService: EmailServicePort
+    @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository,
+    @inject(TYPES.OTPRepositoryPort) private readonly otpRepository: IOtpRepository,
+    @inject(TYPES.EmailServicePort) private readonly emailService: IEmailService
   ) {}
 
-  async execute(dto: ResendOTPRequestDTO): Promise<ResendOTPResponseDTO> {
+  async execute(dto: IResendOtpRequestDTO): Promise<IResendOtpResponseDTO> {
     const email = new Email(dto.email);
 
     const existingUser = await this.userRepository.findByEmail(email);

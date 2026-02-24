@@ -1,14 +1,14 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
-import { UserRepositoryPort } from '../../shared/ports/repository/UserRepositoryPort.js';
+import { IUserRepository } from '../../shared/ports/repository/IUserRepository.js';
 import { parseSearchParams } from '../../shared/utils/parseSearchParams.js';
 import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
-import type { ListTeamMembersUseCasePort, TeamMemberResponse } from '../ports/usecase/ListTeamMembersUseCasePort';
+import type { IListTeamMembersUseCase, ITeamMemberResponse } from '../ports/usecase/IListTeamMembersUseCase';
 
 @injectable()
-export class ListTeamMembersUseCase implements ListTeamMembersUseCasePort {
+export class ListTeamMembersUseCase implements IListTeamMembersUseCase {
     constructor(
-        @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
+        @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository,
         @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase
     ) {}
 
@@ -20,11 +20,11 @@ export class ListTeamMembersUseCase implements ListTeamMembersUseCasePort {
         status?: string,
         page?: string,
         limit?: string
-    ): Promise<{ data: TeamMemberResponse[]; total: number }> {
+    ): Promise<{ data: ITeamMemberResponse[]; total: number }> {
         const { page: parsedPage, limit: parsedLimit } = parseSearchParams({ page, limit });
         const companyId = await this.resolveCompany.execute(userId, companyIdFromToken);
         const { data: users, total } = await this.userRepository.findByCompanyIdAndRole(companyId, role, { search, status, page: parsedPage, limit: parsedLimit });
-        const data: TeamMemberResponse[] = users.map((user) => ({
+        const data: ITeamMemberResponse[] = users.map((user) => ({
             id: user.id || '',
             fullName: user.fullName,
             email: user.email.getValue(),

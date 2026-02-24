@@ -1,17 +1,17 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CompanyProfileRepositoryPort } from "../../company/ports/repository/CompanyProfileRepositoryPort";
-import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
-import type { TokenServicePort } from "../../auth/ports/services/TokenServicePort";
+import { ICompanyProfileRepository } from "../../company/ports/repository/ICompanyProfileRepository";
+import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
+import type { ITokenService } from "../../auth/ports/services/ITokenService";
 import { DomainError } from "../../../shared/errors/DomainError";
-import type { AdminToggleActivityUseCasePort } from "../ports/usecase/ToggleCompanyActiveUseCasePort";
+import type { IAdminToggleActivityUseCase } from "../ports/usecase/IAdminToggleActivityUseCase";
 
 @injectable()
-export class AdminToggleActivityUseCase implements AdminToggleActivityUseCasePort {
+export class AdminToggleActivityUseCase implements IAdminToggleActivityUseCase {
     constructor(
-        @inject(TYPES.CompanyProfileRepositoryPort) private repo: CompanyProfileRepositoryPort,
-        @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort,
-        @inject(TYPES.TokenServicePort) private tokenService: TokenServicePort
+        @inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository,
+        @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository,
+        @inject(TYPES.TokenServicePort) private tokenService: ITokenService
     ) { }
 
     async execute(id: string) {

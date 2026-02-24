@@ -8,6 +8,7 @@ const DEFAULT_LIMIT = 2;
 export function useAdminCompanyManagement() {
   const [companies, setCompanies] = useState<CompanyApproval[]>([]);
   const [total, setTotal] = useState(0);
+ 
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,14 +17,21 @@ export function useAdminCompanyManagement() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
+
+ 
   const fetchCompanies = useCallback(async (params: GetApprovedParams) => {
     setInitialLoading(true);
     setError(null);
     try {
+
+     
+      
       const { data } = await adminCompanyManagementService.getApproved({
         ...params,
         limit: params.limit ?? limit,
       });
+
+    
       setCompanies(data?.approvals ?? []);
       setTotal(data?.total ?? 0);
     } catch (err) {

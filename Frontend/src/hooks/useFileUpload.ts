@@ -1,22 +1,22 @@
 import { useState } from 'react';
 import { uploadService, type UploadCategory } from '../services/upload.service';
 
-interface FileUploadResponse {
+interface IFileUploadResponse {
     url: string;
 }
 
-interface UseFileUploadReturn {
+interface IUseFileUploadReturn {
     upload: (file: File, category: UploadCategory) => Promise<void>;
     isUploading: boolean;
     error: string | null;
-    uploadedFile: FileUploadResponse | null;
+    uploadedFile: IFileUploadResponse | null;
     reset: () => void;
 }
 
-export function useFileUpload(): UseFileUploadReturn {
+export function useFileUpload(): IUseFileUploadReturn {
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [uploadedFile, setUploadedFile] = useState<FileUploadResponse | null>(null);
+    const [uploadedFile, setUploadedFile] = useState<IFileUploadResponse | null>(null);
 
     const reset = () => {
         setError(null);

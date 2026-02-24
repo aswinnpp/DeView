@@ -189,6 +189,8 @@ export function useCandidateProfile() {
 
 
 
+
+
   // ─── Logout ───────────────────────────────────────────────────
   const handleLogout = useCallback(async () => {
     setIsLoggingOut(true);

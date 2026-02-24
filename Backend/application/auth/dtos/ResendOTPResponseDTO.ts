@@ -1,4 +1,4 @@
-export interface ResendOTPResponseDTO {
+export interface IResendOtpResponseDTO {
     message: string;
     email: string;
 }

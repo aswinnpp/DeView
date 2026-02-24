@@ -3,7 +3,7 @@ import { AppError } from "../../../shared/errors/AppError";
 import { getCookie } from "../cookies/cookieHelper";
 import { redisClient } from "../../../infrastructure/cache/RedisClient";
 
-export interface AuthenticatedUser {
+export interface IAuthenticatedUser {
   userId: string;
   role: string;
   companyId?: string;
@@ -11,7 +11,7 @@ export interface AuthenticatedUser {
 
 declare module "fastify" {
   interface FastifyRequest {
-    currentUser: AuthenticatedUser;
+    currentUser: IAuthenticatedUser;
   }
 }
 

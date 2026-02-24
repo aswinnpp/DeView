@@ -1,9 +1,9 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Interview, Candidate } from "../types";
+import type { IInterview, ICandidate } from "../types";
 
 // Type Definitions
-interface SubscriptionPlan {
+interface ISubscriptionPlan {
     id: string;
     name: string;
     price: string;
@@ -12,7 +12,7 @@ interface SubscriptionPlan {
     features: string[];
 }
 
-interface PaymentRequest {
+interface IPaymentRequest {
     id: string;
     status: string;
     createdAt: string;
@@ -26,13 +26,13 @@ interface PaymentRequest {
     paidAt?: string;
 }
 
-interface HR {
+interface IHR {
     id: string;
     active: boolean;
     [key: string]: any;
 }
 
-interface Interviewer {
+interface IInterviewer {
     id: string;
     active: boolean;
     walletBalance?: number;
@@ -40,7 +40,7 @@ interface Interviewer {
     [key: string]: any;
 }
 
-interface Company {
+interface ICompany {
     id: string;
     status: string;
     subscription: string;
@@ -53,34 +53,34 @@ interface Company {
     website: string;
     documents: any[];
     rejectionReason: string;
-    owner: CompanyOwner | null;
+    owner: ICompanyOwner | null;
     debugOtp?: string;
     [key: string]: any;
 }
 
-interface CompanyOwner {
+interface ICompanyOwner {
     id: string;
     name: string;
     email: string;
     password: string;
 }
 
-interface Job {
+interface IJob {
     id: string;
     createdAt: string;
-    applicants: JobApplicant[];
+    applicants: IJobApplicant[];
     status: string;
     [key: string]: any;
 }
 
-interface JobApplicant {
+interface IJobApplicant {
     candidateId: string;
     status: string;
     updatedAt: string;
     [key: string]: any;
 }
 
-interface Mail {
+interface IMail {
     id: string;
     candidateEmail: string;
     candidateName: string;
@@ -110,69 +110,69 @@ interface Mail {
     };
 }
 
-interface SystemDataContextType {
-    hrs: HR[];
-    interviews: Interview[];
-    interviewers: Interviewer[];
-    candidates: Candidate[];
-    paymentRequests: PaymentRequest[];
-    companies: Company[];
-    jobs: Job[];
-    subscriptionPlans: SubscriptionPlan[];
-    mails: Mail[];
-    addHr: (hr: HR) => void;
+interface ISystemDataContextType {
+    hrs: IHR[];
+    interviews: IInterview[];
+    interviewers: IInterviewer[];
+    candidates: ICandidate[];
+    paymentRequests: IPaymentRequest[];
+    companies: ICompany[];
+    jobs: IJob[];
+    subscriptionPlans: ISubscriptionPlan[];
+    mails: IMail[];
+    addHr: (hr: IHR) => void;
     toggleInterviewerActive: (id: string) => void;
-    addInterviewer: (interviewer: Interviewer) => void;
+    addInterviewer: (interviewer: IInterviewer) => void;
     toggleHrActive: (id: string) => void;
     toggleCandidateActive: (id: string) => void;
-    createPaymentRequest: (payload: Partial<PaymentRequest>) => void;
+    createPaymentRequest: (payload: Partial<IPaymentRequest>) => void;
     markPaymentRequestPaid: (id: string) => void;
-    registerCompany: (companyData: Partial<Company>) => Company;
-    updateCompany: (id: string, updates: Partial<Company>) => void;
+    registerCompany: (companyData: Partial<ICompany>) => ICompany;
+    updateCompany: (id: string, updates: Partial<ICompany>) => void;
     markCompanyPendingApproval: (id: string) => void;
     adminApproveCompanyInline: (id: string) => void;
     adminRejectCompanyInline: (id: string, reason: string) => void;
     subscribeCompany: (id: string, plan: string) => void;
-    upsertSubscriptionPlan: (plan: SubscriptionPlan) => void;
-    attachCompanyOwnerCredentials: (id: string, ownerPayload: Partial<CompanyOwner> & { name: string; email: string; password: string }) => void;
-    createJob: (jobData: Partial<Job>) => Job;
-    updateJob: (id: string, updates: Partial<Job>) => void;
+    upsertSubscriptionPlan: (plan: ISubscriptionPlan) => void;
+    attachCompanyOwnerCredentials: (id: string, ownerPayload: Partial<ICompanyOwner> & { name: string; email: string; password: string }) => void;
+    createJob: (jobData: Partial<IJob>) => IJob;
+    updateJob: (id: string, updates: Partial<IJob>) => void;
     deleteJob: (id: string) => void;
-    updateCandidate: (id: string, updates: Partial<Candidate>) => void;
+    updateCandidate: (id: string, updates: Partial<ICandidate>) => void;
     updateJobApplicantStatus: (jobId: string, candidateId: string, status: string) => void;
-    scheduleInterviewForApplicant: (jobId: string, candidateId: string, details: Partial<Interview> & { candidateName: string }) => void;
+    scheduleInterviewForApplicant: (jobId: string, candidateId: string, details: Partial<IInterview> & { candidateName: string }) => void;
     markMailAsRead: (mailId: string) => void;
-    sendCounterOffer: (mailId: string, counterDetails: Mail['counterDetails']) => void;
+    sendCounterOffer: (mailId: string, counterDetails: IMail['counterDetails']) => void;
     acceptOffer: (mailId: string) => void;
     rejectOffer: (mailId: string) => void;
 }
 
-const SystemDataContext = createContext<SystemDataContextType | null>(null);
+const SystemDataContext = createContext<ISystemDataContextType | null>(null);
 
-interface SystemDataProviderProps {
+interface ISystemDataProviderProps {
     children: ReactNode;
 }
 
-export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
-    const [hrs, setHrs] = useState<HR[]>([]);
-    const [interviews, setInterviews] = useState<Interview[]>([]);
-    const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
-    const [candidates, setCandidates] = useState<Candidate[]>([]);
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const [jobs, setJobs] = useState<Job[]>([]);
-    const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([
+export const SystemDataProvider = ({ children }: ISystemDataProviderProps) => {
+    const [hrs, setHrs] = useState<IHR[]>([]);
+    const [interviews, setInterviews] = useState<IInterview[]>([]);
+    const [interviewers, setInterviewers] = useState<IInterviewer[]>([]);
+    const [candidates, setCandidates] = useState<ICandidate[]>([]);
+    const [companies, setCompanies] = useState<ICompany[]>([]);
+    const [jobs, setJobs] = useState<IJob[]>([]);
+    const [subscriptionPlans, setSubscriptionPlans] = useState<ISubscriptionPlan[]>([
         { id: "plan-free", name: "Free", price: "₹0", features: ["Basic access"] },
         { id: "plan-pro", name: "Pro", price: "₹9,999", features: ["Priority support", "More jobs"] },
         { id: "plan-enterprise", name: "Enterprise", price: "Custom", features: ["Custom SLA", "Dedicated CSM"] },
     ]);
 
-    const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
+    const [paymentRequests, setPaymentRequests] = useState<IPaymentRequest[]>([]);
 
     // Initialize mails with current user's email from localStorage
     const getUserEmail = () => localStorage.getItem('userEmail') || 'candidate@example.com';
     const getUserName = () => localStorage.getItem('userName') || 'Candidate';
 
-    const [mails, setMails] = useState<Mail[]>([
+    const [mails, setMails] = useState<IMail[]>([
         {
             id: 'mail-1',
             candidateEmail: getUserEmail(),
@@ -209,7 +209,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
     ]);
 
     // HR Actions
-    const addHr = (hr: HR) => {
+    const addHr = (hr: IHR) => {
         setHrs((prev) => [hr, ...prev]);
     };
 
@@ -230,7 +230,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
         );
     };
 
-    const addInterviewer = (interviewer: Interviewer) => {
+    const addInterviewer = (interviewer: IInterviewer) => {
         setInterviewers((prev) => [interviewer, ...prev]);
     };
 
@@ -244,7 +244,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
     };
 
     // Payment Actions
-    const createPaymentRequest = (payload: Partial<PaymentRequest>) => {
+    const createPaymentRequest = (payload: Partial<IPaymentRequest>) => {
         setPaymentRequests((prev) => [
             {
                 id: `req-${Date.now()}`,
@@ -285,8 +285,8 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
     };
 
     // Company Actions
-    const registerCompany = (companyData: Partial<Company>): Company => {
-        const newCompany: Company = {
+    const registerCompany = (companyData: Partial<ICompany>): ICompany => {
+        const newCompany: ICompany = {
             id: `comp-${Date.now()}`,
             status: "profile_incomplete",
             subscription: "none",
@@ -307,7 +307,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
         return newCompany;
     };
 
-    const updateCompany = (id: string, updates: Partial<Company>) => {
+    const updateCompany = (id: string, updates: Partial<ICompany>) => {
         setCompanies(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
     };
 
@@ -327,7 +327,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
         updateCompany(id, { subscription: plan });
     };
 
-    const upsertSubscriptionPlan = (plan: SubscriptionPlan) => {
+    const upsertSubscriptionPlan = (plan: ISubscriptionPlan) => {
         setSubscriptionPlans((prev) => {
             const existing = prev.find((p) => p.id === plan.id);
             if (!existing) {
@@ -337,7 +337,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
         });
     };
 
-    const attachCompanyOwnerCredentials = (id: string, ownerPayload: Partial<CompanyOwner> & { name: string; email: string; password: string }) => {
+    const attachCompanyOwnerCredentials = (id: string, ownerPayload: Partial<ICompanyOwner> & { name: string; email: string; password: string }) => {
         updateCompany(id, {
             owner: {
                 id: ownerPayload.id || `owner-${Date.now()}`,
@@ -349,8 +349,8 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
     };
 
     // Job Actions
-    const createJob = (jobData: Partial<Job>): Job => {
-        const newJob: Job = {
+    const createJob = (jobData: Partial<IJob>): IJob => {
+        const newJob: IJob = {
             id: `job-${Date.now()}`,
             createdAt: new Date().toISOString(),
             applicants: [],
@@ -361,7 +361,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
         return newJob;
     };
 
-    const updateJob = (id: string, updates: Partial<Job>) => {
+    const updateJob = (id: string, updates: Partial<IJob>) => {
         setJobs(prev => prev.map(j => j.id === id ? { ...j, ...updates } : j));
     };
 
@@ -392,8 +392,8 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
         );
     };
 
-    const scheduleInterviewForApplicant = (jobId: string, candidateId: string, details: Partial<Interview> & { candidateName: string }) => {
-        const newInterview: Interview = {
+    const scheduleInterviewForApplicant = (jobId: string, candidateId: string, details: Partial<IInterview> & { candidateName: string }) => {
+        const newInterview: IInterview = {
             id: `int-${Date.now()}`,
             hrName: details.hrName || "HR Partner",
             interviewerName: details.interviewerName || "Interviewer TBD",
@@ -407,7 +407,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
         setInterviews(prev => [newInterview, ...prev]);
     };
 
-    const updateCandidate = (id: string, updates: Partial<Candidate>) => {
+    const updateCandidate = (id: string, updates: Partial<ICandidate>) => {
         setCandidates((prev) =>
             prev.map((cand) => (cand.id === id ? { ...cand, ...updates } : cand))
         );
@@ -420,7 +420,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
         ));
     };
 
-    const sendCounterOffer = (mailId: string, counterDetails: Mail['counterDetails']) => {
+    const sendCounterOffer = (mailId: string, counterDetails: IMail['counterDetails']) => {
         setMails(prev => prev.map(mail =>
             mail.id === mailId ? {
                 ...mail,
@@ -488,7 +488,7 @@ export const SystemDataProvider = ({ children }: SystemDataProviderProps) => {
     return <SystemDataContext.Provider value={value}>{children}</SystemDataContext.Provider>;
 };
 
-export const useSystemData = (): SystemDataContextType => {
+export const useSystemData = (): ISystemDataContextType => {
     const ctx = useContext(SystemDataContext);
     if (!ctx) {
         throw new Error("useSystemData must be used within a SystemDataProvider");

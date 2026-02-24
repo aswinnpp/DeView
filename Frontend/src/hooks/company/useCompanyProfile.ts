@@ -8,7 +8,7 @@ import type { AppDispatch } from "../../context/store";
 import { authService } from "../../services/auth.service";
 import { APP_ROUTES } from "../../constants/routes";
 
-export interface CompanyProfileData {
+export interface ICompanyProfileData {
     id?: string;
     userId: string;
     companyName: string;
@@ -30,10 +30,10 @@ export function useCompanyProfile() {
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     
-    const [companyData, setCompanyData] = useState<CompanyProfileData | null>(null);
+    const [companyData, setCompanyData] = useState<ICompanyProfileData | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-    const [formData, setFormData] = useState<Partial<CompanyProfileData>>({});
+    const [formData, setFormData] = useState<Partial<ICompanyProfileData>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
@@ -43,7 +43,7 @@ export function useCompanyProfile() {
         try {
             setIsLoading(true);
             setError(null);
-            const response = await api.get<{ data: CompanyProfileData }>('/company/profile');
+            const response = await api.get<{ data: ICompanyProfileData }>('/company/profile');
             if (response.data?.data) {
                 setCompanyData(response.data.data);
                 setFormData(response.data.data);
@@ -57,7 +57,7 @@ export function useCompanyProfile() {
 
 
     // Update profile
-    const updateProfile = useCallback(async (data: Partial<CompanyProfileData>) => {
+    const updateProfile = useCallback(async (data: Partial<ICompanyProfileData>) => {
         try {
             setIsSaving(true);
             await api.put('/company/profile', { data });

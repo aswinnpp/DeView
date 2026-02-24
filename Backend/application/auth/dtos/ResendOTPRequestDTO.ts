@@ -1,3 +1,3 @@
-export interface ResendOTPRequestDTO {
+export interface IResendOtpRequestDTO {
     email: string;
 }

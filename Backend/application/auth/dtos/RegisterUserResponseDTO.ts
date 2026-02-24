@@ -1,10 +1,10 @@
-export interface UserDTO {
+export interface IUserDTO {
     id: string;
     fullName: string;
     email: string;
     role: string;
 }
-export interface RegisterUserResponseDTO {
+export interface IRegisterUserResponseDTO {
     message: string;
     email: string;
 }

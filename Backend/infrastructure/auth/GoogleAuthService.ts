@@ -1,8 +1,8 @@
 import { OAuth2Client } from 'google-auth-library';
-import { GoogleAuthPort } from '../../application/auth/ports/services/GoogleAuthPort.js';
-import { GoogleUserDTO } from '../../application/auth/dtos/GoogleUserDTO.js';
+import { IGoogleAuth } from '../../application/auth/ports/services/IGoogleAuth.js';
+import { IGoogleUserDTO } from '../../application/auth/dtos/GoogleUserDTO.js';
 
-interface GoogleUser {
+interface IGoogleUser {
     email: string;
     name: string;
     picture?: string;
@@ -10,7 +10,7 @@ interface GoogleUser {
     sub: string;
 }
 
-export class GoogleAuthService implements GoogleAuthPort {
+export class GoogleAuthService implements IGoogleAuth {
     private client: OAuth2Client | null;
     private clientId: string;
     private clientSecret: string;
@@ -50,7 +50,7 @@ export class GoogleAuthService implements GoogleAuthPort {
         });
     }
 
-    async verifyToken(code: string): Promise<GoogleUserDTO> {
+    async verifyToken(code: string): Promise<IGoogleUserDTO> {
         const client = this.getClient();
         try {
             const { tokens } = await client.getToken(code);

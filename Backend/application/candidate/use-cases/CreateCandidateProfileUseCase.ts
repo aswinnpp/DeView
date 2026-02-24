@@ -1,16 +1,16 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CandidateProfileRepositoryPort } from "../ports/repository/CandidateProfileRepositoryPort";
+import { ICandidateProfileRepository } from "../ports/repository/ICandidateProfileRepository";
 import { CandidateProfile } from "../../../domain/candidate/entities/CandidateProfile";
-import { CreateCandidateProfileDTO } from "../dtos/CreateCandidateProfileDTO";
+import { ICreateCandidateProfileDTO } from "../dtos/CreateCandidateProfileDTO";
 import { AppError } from "../../../shared/errors/AppError";
-import type { CreateCandidateProfileUseCasePort } from "../ports/usecase/CreateCandidateProfileUseCasePort";
+import type { ICreateCandidateProfileUseCase } from "../ports/usecase/ICreateCandidateProfileUseCase";
 
 @injectable()
-export class CreateCandidateProfileUseCase implements CreateCandidateProfileUseCasePort {
-    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private repo: CandidateProfileRepositoryPort) { }
+export class CreateCandidateProfileUseCase implements ICreateCandidateProfileUseCase {
+    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private repo: ICandidateProfileRepository) { }
 
-    async execute(dto: CreateCandidateProfileDTO): Promise<{ message: string }> {
+    async execute(dto: ICreateCandidateProfileDTO): Promise<{ message: string }> {
         if (!dto.userId) {
             throw AppError.badRequest("UserId is required");
         }

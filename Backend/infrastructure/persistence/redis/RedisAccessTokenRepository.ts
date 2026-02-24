@@ -4,7 +4,7 @@ export class RedisAccessTokenRepository {
   constructor(private redis: RedisClientType) {}
 
   async save(jti: string, userId: string) {
-    await this.redis.set(`access:${jti}`, userId, { EX: 900 });
+    await this.redis.set(`access:${jti}`, userId, { EX: 5 });
   }
 
   async delete(jti: string) {

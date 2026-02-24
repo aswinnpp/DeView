@@ -1,5 +1,5 @@
 
-export interface SubmitCompanyApprovalDTO {
+export interface ISubmitCompanyApprovalDTO {
   userId: string;
   companyName: string;
   address: string;

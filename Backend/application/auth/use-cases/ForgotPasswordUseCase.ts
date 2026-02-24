@@ -1,19 +1,19 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
-import { OTPRepositoryPort } from "../ports/repository/OTPRepositoryPort";
+import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
+import { IOtpRepository } from "../ports/repository/IOtpRepository";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
-import { EmailServicePort } from "../ports/services/EmailServicePort";
+import { IEmailService } from "../ports/services/IEmailService";
 import { AppError } from "../../../shared/errors/AppError";
-import type { ForgotPasswordUseCasePort } from "../ports/usecase/ForgotPasswordUseCasePort";
+import type { IForgotPasswordUseCase } from "../ports/usecase/IForgotPasswordUseCase";
 
 @injectable()
-export class ForgotPasswordUseCase implements ForgotPasswordUseCasePort {
+export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
   constructor(
-    @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort,
-    @inject(TYPES.OTPRepositoryPort) private otpRepo: OTPRepositoryPort,
-    @inject(TYPES.EmailServicePort) private emailService: EmailServicePort
+    @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository,
+    @inject(TYPES.OTPRepositoryPort) private otpRepo: IOtpRepository,
+    @inject(TYPES.EmailServicePort) private emailService: IEmailService
   ) {}
 
   async execute(emailStr: string) {

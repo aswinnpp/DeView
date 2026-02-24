@@ -1,10 +1,10 @@
 import { injectable } from 'inversify';
 import nodemailer from 'nodemailer';
-import { EmailServicePort } from '../../application/auth/ports/services/EmailServicePort.js';
+import { IEmailService } from '../../application/auth/ports/services/IEmailService.js';
 import { env } from '../config/env.js';
 
 @injectable()
-export class NodemailerEmailService implements EmailServicePort {
+export class NodemailerEmailService implements IEmailService {
     private transporter: nodemailer.Transporter;
     constructor() {
         this.transporter = nodemailer.createTransport({

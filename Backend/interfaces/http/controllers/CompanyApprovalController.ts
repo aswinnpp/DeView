@@ -3,13 +3,13 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { CheckCompanyStatusUseCasePort } from "../../../application/company/ports/usecase/CheckCompanyStatusUseCasePort";
-import type { SubmitCompanyApprovalUseCasePort } from "../../../application/company/ports/usecase/SubmitCompanyApprovalUseCasePort";
-import type { GetMyCompanyApprovalUseCasePort } from "../../../application/company/ports/usecase/GetMyCompanyApprovalUseCasePort";
+import type { ICheckCompanyStatusUseCase } from "../../../application/company/ports/usecase/ICheckCompanyStatusUseCase";
+import type { ISubmitCompanyApprovalUseCase } from "../../../application/company/ports/usecase/ISubmitCompanyApprovalUseCase";
+import type { IGetMyCompanyApprovalUseCase } from "../../../application/company/ports/usecase/IGetMyCompanyApprovalUseCase";
 import { CompanyApprovalMapper } from "../mappers/CompanyApprovalMapper.js";
 
 /** Body shape from Zod-validated request */
-interface SubmitApprovalBody {
+interface ISubmitApprovalBody {
   companyName: string;
   address: string;
   contactPerson: string;
@@ -23,9 +23,9 @@ interface SubmitApprovalBody {
 @injectable()
 export class CompanyApprovalController {
   constructor(
-    @inject(TYPES.CheckCompanyStatusUseCasePort) private readonly checkStatusUseCase: CheckCompanyStatusUseCasePort,
-    @inject(TYPES.SubmitCompanyApprovalUseCasePort) private readonly submitApprovalUseCase: SubmitCompanyApprovalUseCasePort,
-    @inject(TYPES.GetMyCompanyApprovalUseCasePort) private readonly getMyApprovalUseCase: GetMyCompanyApprovalUseCasePort,
+    @inject(TYPES.CheckCompanyStatusUseCasePort) private readonly checkStatusUseCase: ICheckCompanyStatusUseCase,
+    @inject(TYPES.SubmitCompanyApprovalUseCasePort) private readonly submitApprovalUseCase: ISubmitCompanyApprovalUseCase,
+    @inject(TYPES.GetMyCompanyApprovalUseCasePort) private readonly getMyApprovalUseCase: IGetMyCompanyApprovalUseCase,
   ) {}
 
   checkStatus = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -43,7 +43,7 @@ export class CompanyApprovalController {
   };
 
   submit = async (
-    request: FastifyRequest<{ Body: SubmitApprovalBody }>,
+    request: FastifyRequest<{ Body: ISubmitApprovalBody }>,
     reply: FastifyReply,
   ) => {
     const dto = CompanyApprovalMapper.toSubmitDTO(request.body, request.currentUser);

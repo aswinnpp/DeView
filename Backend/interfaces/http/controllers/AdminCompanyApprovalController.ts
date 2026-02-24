@@ -3,29 +3,29 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { GetPendingCompaniesUseCasePort } from "../../../application/admin/ports/usecase/GetPendingCompaniesUseCasePort";
-import type { ApproveCompanyUseCasePort } from "../../../application/admin/ports/usecase/ApproveCompanyUseCasePort";
-import type { RejectCompanyUseCasePort } from "../../../application/admin/ports/usecase/RejectCompanyUseCasePort";
-import type { MarkDocumentUseCasePort } from "../../../application/admin/ports/usecase/MarkDocumentUseCasePort";
-import type { GetApprovedCompaniesUseCasePort } from "../../../application/admin/ports/usecase/GetApprovedCompaniesUseCasePort";
-import type { AdminToggleActivityUseCasePort } from "../../../application/admin/ports/usecase/ToggleCompanyActiveUseCasePort";
+import type { IGetPendingCompaniesUseCase } from "../../../application/admin/ports/usecase/IGetPendingCompaniesUseCase";
+import type { IApproveCompanyUseCase } from "../../../application/admin/ports/usecase/IApproveCompanyUseCase";
+import type { IRejectCompanyUseCase } from "../../../application/admin/ports/usecase/IRejectCompanyUseCase";
+import type { IMarkDocumentUseCase } from "../../../application/admin/ports/usecase/IMarkDocumentUseCase";
+import type { IGetApprovedCompaniesUseCase } from "../../../application/admin/ports/usecase/IGetApprovedCompaniesUseCase";
+import type { IAdminToggleActivityUseCase } from "../../../application/admin/ports/usecase/IAdminToggleActivityUseCase";
 
-interface RejectBody {
+interface IRejectBody {
   reason: string;
 }
 
-interface PendingQuery {
+interface IPendingQuery {
   search?: string;
   sortOrder?: 'asc' | 'desc';
   page?: string;
   limit?: string;
 }
 
-interface SearchQuery {
+interface ISearchQuery {
   search?: string;
 }
 
-interface ApprovedQuery {
+interface IApprovedQuery {
   search?: string;
   status?: string;
   sortOrder?: 'asc' | 'desc';
@@ -36,16 +36,16 @@ interface ApprovedQuery {
 @injectable()
 export class AdminCompanyApprovalController {
   constructor(
-    @inject(TYPES.GetPendingCompaniesUseCasePort) private readonly getPendingUseCase: GetPendingCompaniesUseCasePort,
-    @inject(TYPES.ApproveCompanyUseCasePort) private readonly approveUseCase: ApproveCompanyUseCasePort,
-    @inject(TYPES.RejectCompanyUseCasePort) private readonly rejectUseCase: RejectCompanyUseCasePort,
-    @inject(TYPES.MarkDocumentUseCasePort) private readonly markDocumentUseCase: MarkDocumentUseCasePort,
-    @inject(TYPES.GetApprovedCompaniesUseCasePort) private readonly getApprovedUseCase: GetApprovedCompaniesUseCasePort,
-    @inject(TYPES.ToggleCompanyActiveUseCasePort) private readonly toggleActiveUseCase: AdminToggleActivityUseCasePort
+    @inject(TYPES.GetPendingCompaniesUseCasePort) private readonly getPendingUseCase: IGetPendingCompaniesUseCase,
+    @inject(TYPES.ApproveCompanyUseCasePort) private readonly approveUseCase: IApproveCompanyUseCase,
+    @inject(TYPES.RejectCompanyUseCasePort) private readonly rejectUseCase: IRejectCompanyUseCase,
+    @inject(TYPES.MarkDocumentUseCasePort) private readonly markDocumentUseCase: IMarkDocumentUseCase,
+    @inject(TYPES.GetApprovedCompaniesUseCasePort) private readonly getApprovedUseCase: IGetApprovedCompaniesUseCase,
+    @inject(TYPES.ToggleCompanyActiveUseCasePort) private readonly toggleActiveUseCase: IAdminToggleActivityUseCase
   ) { }
 
   getPending = async (
-    request: FastifyRequest<{ Querystring: PendingQuery }>,
+    request: FastifyRequest<{ Querystring: IPendingQuery }>,
     reply: FastifyReply
   ) => {
     const { search, sortOrder, page, limit } = request.query;
@@ -54,7 +54,7 @@ export class AdminCompanyApprovalController {
   };
 
   getApproved = async (
-    request: FastifyRequest<{ Querystring: ApprovedQuery }>,
+    request: FastifyRequest<{ Querystring: IApprovedQuery }>,
     reply: FastifyReply
   ) => {
     const { search, status, sortOrder, page, limit } = request.query;
@@ -72,7 +72,7 @@ export class AdminCompanyApprovalController {
   };
 
   reject = async (
-    request: FastifyRequest<{ Params: { id: string }; Body: RejectBody }>,
+    request: FastifyRequest<{ Params: { id: string }; Body: IRejectBody }>,
     reply: FastifyReply
   ) => {
     const { id } = request.params;

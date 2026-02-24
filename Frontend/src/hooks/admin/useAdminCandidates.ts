@@ -5,7 +5,7 @@ import { adminCompanyManagementService } from "../../services/adminCompanyManage
 import { extractApiError } from "../../api/axios";
 import type { GetAllCandidatesParams } from "../../services/candidate.service";
 
-export interface CandidateListItem {
+export interface ICandidateListItem {
     id: string;
     fullName: string;
     email: string;
@@ -16,7 +16,7 @@ export interface CandidateListItem {
 const DEFAULT_LIMIT = 2;
 
 export function useAdminCandidates() {
-    const [candidates, setCandidates] = useState<CandidateListItem[]>([]);
+    const [candidates, setCandidates] = useState<ICandidateListItem[]>([]);
     const [total, setTotal] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");

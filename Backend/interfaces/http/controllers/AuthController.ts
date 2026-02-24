@@ -4,15 +4,15 @@ import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 
 import { TYPES } from "../../../infrastructure/di/types";
-import type { RegisterUserUseCasePort } from "../../../application/auth/ports/usecase/RegisterUserUseCasePort";
-import type { VerifyOTPUseCasePort } from "../../../application/auth/ports/usecase/VerifyOTPUseCasePort";
-import type { LoginUseCasePort } from "../../../application/auth/ports/usecase/LoginUseCasePort";
-import type { ResendOTPUseCasePort } from "../../../application/auth/ports/usecase/ResendOTPUseCasePort";
-import type { RefreshTokenUseCasePort } from "../../../application/auth/ports/usecase/RefreshTokenUseCasePort";
-import type { LogoutUseCasePort } from "../../../application/auth/ports/usecase/LogoutUseCasePort";
-import type { ForgotPasswordUseCasePort } from "../../../application/auth/ports/usecase/ForgotPasswordUseCasePort";
-import type { VerifyPasswordResetOTPUseCasePort } from "../../../application/auth/ports/usecase/VerifyPasswordResetOTPUseCasePort";
-import type { ResetPasswordUseCasePort } from "../../../application/auth/ports/usecase/ResetPasswordUseCasePort";
+import type { IRegisterUserUseCase } from "../../../application/auth/ports/usecase/IRegisterUserUseCase";
+import type { IVerifyOtpUseCase } from "../../../application/auth/ports/usecase/IVerifyOtpUseCase";
+import type { ILoginUseCase } from "../../../application/auth/ports/usecase/ILoginUseCase";
+import type { IResendOtpUseCase } from "../../../application/auth/ports/usecase/IResendOtpUseCase";
+import type { IRefreshTokenUseCase } from "../../../application/auth/ports/usecase/IRefreshTokenUseCase";
+import type { ILogoutUseCase } from "../../../application/auth/ports/usecase/ILogoutUseCase";
+import type { IForgotPasswordUseCase } from "../../../application/auth/ports/usecase/IForgotPasswordUseCase";
+import type { IVerifyPasswordResetOtpUseCase } from "../../../application/auth/ports/usecase/IVerifyPasswordResetOtpUseCase";
+import type { IResetPasswordUseCase } from "../../../application/auth/ports/usecase/IResetPasswordUseCase";
 
 import {
   getCookie,
@@ -21,37 +21,37 @@ import {
   clearCookie,
 } from "../cookies/cookieHelper";
 
-import type { RegisterUserRequestDTO } from "../../../application/auth/dtos/RegisterUserRequestDTO";
-import type { LoginRequestDTO } from "../../../application/auth/dtos/LoginRequestDTO";
+import type { IRegisterUserRequestDTO } from "../../../application/auth/dtos/RegisterUserRequestDTO";
+import type { ILoginRequestDTO } from "../../../application/auth/dtos/LoginRequestDTO";
 import type { ResetPasswordRequest } from "../../../../Shared/contracts/auth/resetPassword";
 
-interface VerifyOTPBody {
+interface IVerifyOtpBody {
   email: string;
   otp: string;
 }
 
-interface EmailBody {
+interface IEmailBody {
   email: string;
 }
 
 @injectable()
 export class AuthController {
   constructor(
-    @inject(TYPES.RegisterUserUseCasePort) private readonly registerUserUseCase: RegisterUserUseCasePort,
-    @inject(TYPES.VerifyOTPUseCasePort) private readonly verifyOTPUseCase: VerifyOTPUseCasePort,
-    @inject(TYPES.LoginUseCasePort) private readonly loginUseCase: LoginUseCasePort,
-    @inject(TYPES.ResendOTPUseCasePort) private readonly resendOTPUseCase: ResendOTPUseCasePort,
-    @inject(TYPES.RefreshTokenUseCasePort) private readonly refreshTokenUseCase: RefreshTokenUseCasePort,
-    @inject(TYPES.LogoutUseCasePort) private readonly logoutUseCase: LogoutUseCasePort,
-    @inject(TYPES.ForgotPasswordUseCasePort) private readonly forgotPasswordUseCase: ForgotPasswordUseCasePort,
-    @inject(TYPES.VerifyPasswordResetOTPUseCasePort) private readonly verifyPasswordResetOTPUseCase: VerifyPasswordResetOTPUseCasePort,
-    @inject(TYPES.ResetPasswordUseCasePort) private readonly resetPasswordUseCase: ResetPasswordUseCasePort
+    @inject(TYPES.RegisterUserUseCasePort) private readonly registerUserUseCase: IRegisterUserUseCase,
+    @inject(TYPES.VerifyOTPUseCasePort) private readonly verifyOTPUseCase: IVerifyOtpUseCase,
+    @inject(TYPES.LoginUseCasePort) private readonly loginUseCase: ILoginUseCase,
+    @inject(TYPES.ResendOTPUseCasePort) private readonly resendOTPUseCase: IResendOtpUseCase,
+    @inject(TYPES.RefreshTokenUseCasePort) private readonly refreshTokenUseCase: IRefreshTokenUseCase,
+    @inject(TYPES.LogoutUseCasePort) private readonly logoutUseCase: ILogoutUseCase,
+    @inject(TYPES.ForgotPasswordUseCasePort) private readonly forgotPasswordUseCase: IForgotPasswordUseCase,
+    @inject(TYPES.VerifyPasswordResetOTPUseCasePort) private readonly verifyPasswordResetOTPUseCase: IVerifyPasswordResetOtpUseCase,
+    @inject(TYPES.ResetPasswordUseCasePort) private readonly resetPasswordUseCase: IResetPasswordUseCase
   ) {}
 
   // ---------------- REGISTER ----------------
 
   register = async (
-    request: FastifyRequest<{ Body: RegisterUserRequestDTO }>,
+    request: FastifyRequest<{ Body: IRegisterUserRequestDTO }>,
     reply: FastifyReply
   ) => {
     const result = await this.registerUserUseCase.execute(request.body);
@@ -61,7 +61,7 @@ export class AuthController {
   // ---------------- VERIFY OTP ----------------
 
   verifyOTP = async (
-    request: FastifyRequest<{ Body: VerifyOTPBody }>,
+    request: FastifyRequest<{ Body: IVerifyOtpBody }>,
     reply: FastifyReply
   ) => {
     await this.verifyOTPUseCase.execute(
@@ -73,7 +73,7 @@ export class AuthController {
   };
 
   resendOTP = async (
-    request: FastifyRequest<{ Body: EmailBody }>,
+    request: FastifyRequest<{ Body: IEmailBody }>,
     reply: FastifyReply
   ) => {
     const result = await this.resendOTPUseCase.execute(request.body);
@@ -83,7 +83,7 @@ export class AuthController {
   // ---------------- LOGIN ----------------
 
   login = async (
-    request: FastifyRequest<{ Body: LoginRequestDTO }>,
+    request: FastifyRequest<{ Body: ILoginRequestDTO }>,
     reply: FastifyReply
   ) => {
     const { email, password } = request.body;
@@ -122,7 +122,7 @@ export class AuthController {
   // ---------------- PASSWORD RESET ----------------
 
   forgotPassword = async (
-    request: FastifyRequest<{ Body: EmailBody }>,
+    request: FastifyRequest<{ Body: IEmailBody }>,
     reply: FastifyReply
   ) => {
     await this.forgotPasswordUseCase.execute(request.body.email);
@@ -130,7 +130,7 @@ export class AuthController {
   };
 
   verifyPasswordResetOTP = async (
-    request: FastifyRequest<{ Body: VerifyOTPBody }>,
+    request: FastifyRequest<{ Body: IVerifyOtpBody }>,
     reply: FastifyReply
   ) => {
     await this.verifyPasswordResetOTPUseCase.execute(

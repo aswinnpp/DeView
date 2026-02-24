@@ -2,11 +2,11 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { GetCompanyProfileUseCasePort } from "../../../application/company/ports/usecase/GetCompanyProfileUseCasePort";
-import type { UpdateCompanyProfileUseCasePort } from "../../../application/company/ports/usecase/UpdateCompanyProfileUseCasePort";
+import type { IGetCompanyProfileUseCase } from "../../../application/company/ports/usecase/IGetCompanyProfileUseCase";
+import type { IUpdateCompanyProfileUseCase } from "../../../application/company/ports/usecase/IUpdateCompanyProfileUseCase";
 import { CompanyProfileMapper } from "../mappers/CompanyProfileMapper.js";
 
-interface UpdateProfileBody {
+interface IUpdateProfileBody {
   companyName?: string;
   address?: string;
   contactPerson?: string;
@@ -20,8 +20,8 @@ interface UpdateProfileBody {
 @injectable()
 export class CompanyProfileController {
   constructor(
-    @inject(TYPES.GetCompanyProfileUseCasePort) private readonly getProfileUseCase: GetCompanyProfileUseCasePort,
-    @inject(TYPES.UpdateCompanyProfileUseCasePort) private readonly updateProfileUseCase: UpdateCompanyProfileUseCasePort,
+    @inject(TYPES.GetCompanyProfileUseCasePort) private readonly getProfileUseCase: IGetCompanyProfileUseCase,
+    @inject(TYPES.UpdateCompanyProfileUseCasePort) private readonly updateProfileUseCase: IUpdateCompanyProfileUseCase,
   ) {}
 
   getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -33,7 +33,7 @@ export class CompanyProfileController {
   };
 
   updateProfile = async (
-    request: FastifyRequest<{ Body: UpdateProfileBody }>,
+    request: FastifyRequest<{ Body: IUpdateProfileBody }>,
     reply: FastifyReply,
   ) => {
     const dto = CompanyProfileMapper.toUpdateDTO(request.body, request.currentUser);

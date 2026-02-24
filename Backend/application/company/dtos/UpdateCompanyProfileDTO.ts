@@ -1,4 +1,4 @@
-export interface UpdateCompanyProfileDTO {
+export interface IUpdateCompanyProfileDTO {
     userId: string;
     companyName?: string;
     address?: string;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-interface SearchInputProps {
+interface ISearchInputProps {
     placeholder?: string;
     onSearch: (query: string) => void;
     delay?: number;
@@ -10,7 +10,7 @@ const SearchInput = ({
     placeholder = "Search...",
     onSearch,
     delay = 400,
-}: SearchInputProps) => {
+}: ISearchInputProps) => {
     const [value, setValue] = useState("");
     const onSearchRef = useRef(onSearch);
 

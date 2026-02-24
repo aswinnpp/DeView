@@ -1,26 +1,26 @@
 import { injectable, inject } from 'inversify';
-import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
-import { OTPRepositoryPort } from "../ports/repository/OTPRepositoryPort";
+import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
+import { IOtpRepository } from "../ports/repository/IOtpRepository";
 import { User } from "../../../domain/user/entities/User";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { Role } from "../../../domain/user/value-objects/Role";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
-import { PasswordHasherPort } from "../ports/services/PasswordHasherPort";
-import { EmailServicePort } from "../ports/services/EmailServicePort";
+import { IPasswordHasher } from "../ports/services/IPasswordHasher";
+import { IEmailService } from "../ports/services/IEmailService";
 import { AppError } from "../../../shared/errors/AppError";
 import { TYPES } from "../../../shared/di/types";
-import type { RegisterUserUseCasePort, RegisterUserDTO } from "../ports/usecase/RegisterUserUseCasePort";
+import type { IRegisterUserUseCase, IRegisterUserDTO } from "../ports/usecase/IRegisterUserUseCase";
 
 @injectable()
-export class RegisterUserUseCase implements RegisterUserUseCasePort {
+export class RegisterUserUseCase implements IRegisterUserUseCase {
   constructor(
-    @inject(TYPES.UserRepositoryPort) private readonly userRepo: UserRepositoryPort,
-    @inject(TYPES.OTPRepositoryPort) private readonly otpRepo: OTPRepositoryPort,
-    @inject(TYPES.PasswordHasherPort) private readonly passwordHasher: PasswordHasherPort,
-    @inject(TYPES.EmailServicePort) private readonly emailService: EmailServicePort
+    @inject(TYPES.UserRepositoryPort) private readonly userRepo: IUserRepository,
+    @inject(TYPES.OTPRepositoryPort) private readonly otpRepo: IOtpRepository,
+    @inject(TYPES.PasswordHasherPort) private readonly passwordHasher: IPasswordHasher,
+    @inject(TYPES.EmailServicePort) private readonly emailService: IEmailService
   ) {}
 
-  async execute(dto: RegisterUserDTO): Promise<{ message: string; email: string }> {
+  async execute(dto: IRegisterUserDTO): Promise<{ message: string; email: string }> {
     const email = new Email(dto.email);
     const role = new Role(dto.role);
 

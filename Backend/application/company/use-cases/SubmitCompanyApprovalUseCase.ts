@@ -1,20 +1,20 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CompanyProfileRepositoryPort } from "../ports/repository/CompanyProfileRepositoryPort";
-import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
+import { ICompanyProfileRepository } from "../ports/repository/ICompanyProfileRepository";
+import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
 import { CompanyApproval } from "../../../domain/company/entities/CompanyApprovalEntitie";
-import { SubmitCompanyApprovalDTO } from "../dtos/SubmitCompanyApprovalDTO";
+import { ISubmitCompanyApprovalDTO } from "../dtos/SubmitCompanyApprovalDTO";
 import { AppError } from "../../../shared/errors/AppError";
-import type { SubmitCompanyApprovalUseCasePort } from "../ports/usecase/SubmitCompanyApprovalUseCasePort";
+import type { ISubmitCompanyApprovalUseCase } from "../ports/usecase/ISubmitCompanyApprovalUseCase";
 
 @injectable()
-export class SubmitCompanyApprovalUseCase implements SubmitCompanyApprovalUseCasePort {
+export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCase {
   constructor(
-    @inject(TYPES.CompanyProfileRepositoryPort) private repo: CompanyProfileRepositoryPort,
-    @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort
+    @inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository,
+    @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository
   ) { }
 
-  async execute(dto: SubmitCompanyApprovalDTO) {
+  async execute(dto: ISubmitCompanyApprovalDTO) {
     if (!dto.userId) {
       throw AppError.badRequest("UserId is required");
     }

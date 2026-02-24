@@ -1,7 +1,7 @@
-import { OAuthSessionPort } from "../../../application/auth/ports/services/OAuthSessionPort";
+import { IOAuthSession } from "../../../application/auth/ports/services/IOAuthSession";
 import { RedisClientType } from "redis";
 
-export class RedisOAuthSessionRepository implements OAuthSessionPort {
+export class RedisOAuthSessionRepository implements IOAuthSession {
   constructor(private redis: RedisClientType) {}
 
   async save(sessionId: string, payload: unknown): Promise<void> {

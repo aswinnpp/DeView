@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '../../components/common';
 import { SystemDataProvider } from '../../context/SystemDataContext';
 
-interface CompanyData {
+interface ICompanyData {
     companyName: string;
     contactEmail?: string;
     subscription?: string;
@@ -12,7 +12,7 @@ interface CompanyData {
 const CompanyLayout = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [companyData] = useState<CompanyData | null>(null);
+    const [companyData] = useState<ICompanyData | null>(null);
 
     useEffect(() => {
         if (sidebarOpen) {

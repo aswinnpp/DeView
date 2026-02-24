@@ -1,15 +1,15 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { CandidateProfileRepositoryPort } from "../ports/repository/CandidateProfileRepositoryPort";
-import { UpdateCandidateProfileDTO } from "../dtos/UpdateCandidateProfileDTO";
+import { ICandidateProfileRepository } from "../ports/repository/ICandidateProfileRepository";
+import { IUpdateCandidateProfileDTO } from "../dtos/UpdateCandidateProfileDTO";
 import { AppError } from "../../../shared/errors/AppError";
-import type { UpdateCandidateProfileUseCasePort } from "../ports/usecase/UpdateCandidateProfileUseCasePort";
+import type { IUpdateCandidateProfileUseCase } from "../ports/usecase/IUpdateCandidateProfileUseCase";
 
 @injectable()
-export class UpdateCandidateProfileUseCase implements UpdateCandidateProfileUseCasePort {
-    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private repo: CandidateProfileRepositoryPort) { }
+export class UpdateCandidateProfileUseCase implements IUpdateCandidateProfileUseCase {
+    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private repo: ICandidateProfileRepository) { }
 
-    async execute(dto: UpdateCandidateProfileDTO): Promise<{ message: string }> {
+    async execute(dto: IUpdateCandidateProfileDTO): Promise<{ message: string }> {
         if (!dto.userId) {
             throw AppError.badRequest("UserId is required");
         }

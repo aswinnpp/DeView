@@ -1,15 +1,15 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
-import type { TokenServicePort } from "../../auth/ports/services/TokenServicePort";
+import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
+import type { ITokenService } from "../../auth/ports/services/ITokenService";
 import { AppError } from "../../../shared/errors/AppError";
-import type { ToggleCandidateStatusUseCasePort } from "../ports/usecase/ToggleCandidateStatusUseCasePort";
+import type { IToggleCandidateStatusUseCase } from "../ports/usecase/IToggleCandidateStatusUseCase";
 
 @injectable()
-export class ToggleCandidateStatusUseCase implements ToggleCandidateStatusUseCasePort {
+export class ToggleCandidateStatusUseCase implements IToggleCandidateStatusUseCase {
     constructor(
-        @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
-        @inject(TYPES.TokenServicePort) private readonly tokenService: TokenServicePort
+        @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository,
+        @inject(TYPES.TokenServicePort) private readonly tokenService: ITokenService
     ) {}
 
     async execute(candidateId: string): Promise<{ message: string; isActive: boolean }> {

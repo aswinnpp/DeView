@@ -1,4 +1,4 @@
-export interface CreateCandidateProfileDTO {
+export interface ICreateCandidateProfileDTO {
     userId: string;
     fullName: string;
     email: string;

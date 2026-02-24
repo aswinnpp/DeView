@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Button, SearchInput, Table, Pagination } from "../../components/common";
 import { useAdminCandidates } from "../../hooks/admin/useAdminCandidates";
 
-interface Candidate {
+interface ICandidate {
     id: string;
     fullName: string;
     email: string;
@@ -25,7 +25,7 @@ const AdminCandidatesPage = () => {
     } = useAdminCandidates();
     const [confirmModal, setConfirmModal] = useState<{ 
         open: boolean; 
-        candidate: Candidate | null; 
+        candidate: ICandidate | null; 
         action: "activate" | "deactivate" 
     }>({
         open: false,
@@ -45,7 +45,7 @@ const AdminCandidatesPage = () => {
         });
     };
 
-    const openConfirmModal = (candidate: Candidate, action: "activate" | "deactivate") => {
+    const openConfirmModal = (candidate: ICandidate, action: "activate" | "deactivate") => {
         setConfirmModal({ open: true, candidate, action });
     };
 
@@ -155,7 +155,7 @@ const AdminCandidatesPage = () => {
                         columns={[
                             {
                                 header: "Candidate",
-                                render: (candidate: Candidate) => (
+                                render: (candidate: ICandidate) => (
                                     <div className="flex items-center gap-3">
                                         <div
                                             className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-[14px] shadow-[0_4px_12px_rgba(15,23,42,0.6)] ${
@@ -180,7 +180,7 @@ const AdminCandidatesPage = () => {
                             },
                             {
                                 header: "Contact",
-                                render: (candidate: Candidate) => (
+                                render: (candidate: ICandidate) => (
                                     <div>
                                         <div className="text-slate-100 text-[13px]">
                                             {candidate.email}
@@ -190,7 +190,7 @@ const AdminCandidatesPage = () => {
                             },
                             {
                                 header: "Registered",
-                                render: (candidate: Candidate) => (
+                                render: (candidate: ICandidate) => (
                                     <span className="text-[13px] text-slate-400">
                                         {formatDateFromId(candidate.id)}
                                     </span>
@@ -199,7 +199,7 @@ const AdminCandidatesPage = () => {
                             {
                                 header: "Actions",
                                 cellClassName: "text-left",
-                                render: (candidate: Candidate) => (
+                                render: (candidate: ICandidate) => (
                                     <div className="flex items-center">
                                         <Button
                                             onClick={() => openConfirmModal(

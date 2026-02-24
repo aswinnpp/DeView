@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-interface PaginationProps {
+interface IPaginationProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -16,7 +16,7 @@ function Pagination({
   totalPages,
   onPageChange,
   leftContent,
-}: PaginationProps) {
+}: IPaginationProps) {
   return (
     <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-700 pt-4 max-md:flex-col max-md:items-stretch">
       <div className="text-sm text-slate-400 max-md:order-2 max-md:text-center">

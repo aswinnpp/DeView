@@ -1,5 +1,5 @@
 
 
-export interface CheckCompanyStatusDTO {
+export interface ICheckCompanyStatusDTO {
   userId: string;
 }

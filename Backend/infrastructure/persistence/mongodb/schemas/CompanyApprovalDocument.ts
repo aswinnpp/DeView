@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 
-export interface CompanyApprovalDocument {
+export interface ICompanyApprovalDocument {
     _id?: ObjectId;
     userId: string;
     companyName: string;
@@ -11,7 +11,7 @@ export interface CompanyApprovalDocument {
     taxId: string;
     website?: string;
     numberOfEmployees: string;
-    documents: CompanyDocuments;
+    documents: ICompanyDocuments;
     status: 'pending' | 'approved' | 'rejected';
     rejectionReason?: string;
     isActive: boolean;
@@ -19,16 +19,16 @@ export interface CompanyApprovalDocument {
     updatedAt: Date;
 }
 
-export interface CompanyDocuments {
-    certificateOfIncorporation?: DocumentUpload;
-    gstCertificate?: DocumentUpload;
-    panCard?: DocumentUpload;
-    addressProof?: DocumentUpload;
-    authorizedSignatoryId?: DocumentUpload;
-    bankDocument?: DocumentUpload;
+export interface ICompanyDocuments {
+    certificateOfIncorporation?: IDocumentUpload;
+    gstCertificate?: IDocumentUpload;
+    panCard?: IDocumentUpload;
+    addressProof?: IDocumentUpload;
+    authorizedSignatoryId?: IDocumentUpload;
+    bankDocument?: IDocumentUpload;
 }
 
-export interface DocumentUpload {
+export interface IDocumentUpload {
     fileName: string;
     fileUrl: string;
     uploadedAt: Date;

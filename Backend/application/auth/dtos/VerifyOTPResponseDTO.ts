@@ -1,3 +1,3 @@
-export interface VerifyOTPResponseDTO {
+export interface IVerifyOtpResponseDTO {
     message: string;
 }

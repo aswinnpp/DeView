@@ -3,21 +3,21 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { success } from '../../../shared/http/apiResponse';
 import { HttpStatus } from '../../../shared/http/HttpStatus';
 import { TYPES } from '../../../infrastructure/di/types.js';
-import type { CreateTeamMemberUseCasePort } from '../../../application/company/ports/usecase/CreateTeamMemberUseCasePort.js';
-import type { ListTeamMembersUseCasePort } from '../../../application/company/ports/usecase/ListTeamMembersUseCasePort.js';
-import type { ToggleTeamMemberStatusUseCasePort } from '../../../application/company/ports/usecase/ToggleTeamMemberStatusUseCasePort.js';
+import type { ICreateTeamMemberUseCase } from '../../../application/company/ports/usecase/ICreateTeamMemberUseCase.js';
+import type { IListTeamMembersUseCase } from '../../../application/company/ports/usecase/IListTeamMembersUseCase.js';
+import type { IToggleTeamMemberStatusUseCase } from '../../../application/company/ports/usecase/IToggleTeamMemberStatusUseCase.js';
 import { CompanyTeamMapper } from '../mappers/CompanyTeamMapper.js';
 
-interface CreateBody {
+interface ICreateBody {
     fullName: string;
     email: string;
 }
 
-interface ToggleParams {
+interface IToggleParams {
     id: string;
 }
 
-interface SearchQuery {
+interface ISearchQuery {
     search?: string;
     status?: string;
     page?: string;
@@ -27,13 +27,13 @@ interface SearchQuery {
 @injectable()
 export class CompanyTeamController {
     constructor(
-        @inject(TYPES.CreateTeamMemberUseCasePort) private readonly createTeamMemberUseCase: CreateTeamMemberUseCasePort,
-        @inject(TYPES.ListTeamMembersUseCasePort) private readonly listTeamMembersUseCase: ListTeamMembersUseCasePort,
-        @inject(TYPES.ToggleTeamMemberStatusUseCasePort) private readonly toggleTeamMemberStatusUseCase: ToggleTeamMemberStatusUseCasePort
+        @inject(TYPES.CreateTeamMemberUseCasePort) private readonly createTeamMemberUseCase: ICreateTeamMemberUseCase,
+        @inject(TYPES.ListTeamMembersUseCasePort) private readonly listTeamMembersUseCase: IListTeamMembersUseCase,
+        @inject(TYPES.ToggleTeamMemberStatusUseCasePort) private readonly toggleTeamMemberStatusUseCase: IToggleTeamMemberStatusUseCase
     ) {}
 
     listHRs = async (
-        request: FastifyRequest<{ Querystring: SearchQuery }>,
+        request: FastifyRequest<{ Querystring: ISearchQuery }>,
         reply: FastifyReply
     ) => {
         const { userId, companyId } = request.currentUser;
@@ -43,7 +43,7 @@ export class CompanyTeamController {
     };
 
     createHR = async (
-        request: FastifyRequest<{ Body: CreateBody }>,
+        request: FastifyRequest<{ Body: ICreateBody }>,
         reply: FastifyReply
     ) => {
         const dto = CompanyTeamMapper.toCreateHRDTO(request.body, request.currentUser);
@@ -52,7 +52,7 @@ export class CompanyTeamController {
     };
 
     toggleHRStatus = async (
-        request: FastifyRequest<{ Params: ToggleParams }>,
+        request: FastifyRequest<{ Params: IToggleParams }>,
         reply: FastifyReply
     ) => {
         const { userId, companyId } = request.currentUser;
@@ -67,7 +67,7 @@ export class CompanyTeamController {
     };
 
     listInterviewers = async (
-        request: FastifyRequest<{ Querystring: SearchQuery }>,
+        request: FastifyRequest<{ Querystring: ISearchQuery }>,
         reply: FastifyReply
     ) => {
         const { userId, companyId } = request.currentUser;
@@ -77,7 +77,7 @@ export class CompanyTeamController {
     };
 
     createInterviewer = async (
-        request: FastifyRequest<{ Body: CreateBody }>,
+        request: FastifyRequest<{ Body: ICreateBody }>,
         reply: FastifyReply
     ) => {
         const dto = CompanyTeamMapper.toCreateInterviewerDTO(request.body, request.currentUser);
@@ -86,7 +86,7 @@ export class CompanyTeamController {
     };
 
     toggleInterviewerStatus = async (
-        request: FastifyRequest<{ Params: ToggleParams }>,
+        request: FastifyRequest<{ Params: IToggleParams }>,
         reply: FastifyReply
     ) => {
         const { userId, companyId } = request.currentUser;

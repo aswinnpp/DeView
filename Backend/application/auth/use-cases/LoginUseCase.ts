@@ -1,20 +1,20 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
+import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
 import { Email } from "../../../domain/user/value-objects/Email";
-import { PasswordHasherPort } from "../ports/services/PasswordHasherPort";
-import { TokenServicePort } from "../ports/services/TokenServicePort";
+import { IPasswordHasher } from "../ports/services/IPasswordHasher";
+import { ITokenService } from "../ports/services/ITokenService";
 import { AppError } from "../../../shared/errors/AppError";
-import { CompanyProfileRepositoryPort } from "../../company/ports/repository/CompanyProfileRepositoryPort";
-import type { LoginUseCasePort } from "../ports/usecase/LoginUseCasePort";
+import { ICompanyProfileRepository } from "../../company/ports/repository/ICompanyProfileRepository";
+import type { ILoginUseCase } from "../ports/usecase/ILoginUseCase";
 
 @injectable()
-export class LoginUseCase implements LoginUseCasePort {
+export class LoginUseCase implements ILoginUseCase {
   constructor(
-    @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort,
-    @inject(TYPES.CompanyProfileRepositoryPort) private companyRepo: CompanyProfileRepositoryPort,
-    @inject(TYPES.PasswordHasherPort) private hasher: PasswordHasherPort,
-    @inject(TYPES.TokenServicePort) private tokenService: TokenServicePort
+    @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository,
+    @inject(TYPES.CompanyProfileRepositoryPort) private companyRepo: ICompanyProfileRepository,
+    @inject(TYPES.PasswordHasherPort) private hasher: IPasswordHasher,
+    @inject(TYPES.TokenServicePort) private tokenService: ITokenService
   ) { }
 
   async execute(emailStr: string, password: string) {

@@ -1,8 +1,8 @@
 import { RedisClientType } from "redis";
-import { OTPRepositoryPort } from "../../../application/auth/ports/repository/OTPRepositoryPort";
+import { IOtpRepository } from "../../../application/auth/ports/repository/IOtpRepository";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 
-export class RedisOTPRepository implements OTPRepositoryPort {
+export class RedisOTPRepository implements IOtpRepository {
   private readonly PREFIX = "otp:";
   private readonly TTL_SECONDS = 60;
 

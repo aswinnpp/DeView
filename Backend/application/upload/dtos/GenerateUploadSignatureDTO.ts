@@ -1,9 +1,9 @@
-export interface GenerateUploadSignatureInputDTO {
+export interface IGenerateUploadSignatureInputDTO {
     category: string;
     userId: string;
 }
 
-export interface GenerateUploadSignatureOutputDTO {
+export interface IGenerateUploadSignatureOutputDTO {
     signature: string;
     timestamp: number;
     apiKey: string;

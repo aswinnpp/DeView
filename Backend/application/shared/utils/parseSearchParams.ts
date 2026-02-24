@@ -11,18 +11,18 @@ const MIN_PAGE = 1;
 
 const MIN_LIMIT = 1;
 
-export interface SearchParamsInput {
+export interface ISearchParamsInput {
   page?: string | null;
   limit?: string | null;
 }
 
-export interface ParsedSearchParams {
+export interface IParsedSearchParams {
   page: number;
   limit: number;
 }
 
 
-export function parseSearchParams(input: SearchParamsInput): ParsedSearchParams {
+export function parseSearchParams(input: ISearchParamsInput): IParsedSearchParams {
   const pageValue = parsePage(input.page);
   const limitValue = parseLimit(input.limit);
 

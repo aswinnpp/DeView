@@ -2,11 +2,11 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { success } from '../../../shared/http/apiResponse';
 import { TYPES } from '../../../infrastructure/di/types.js';
-import type { GenerateUploadSignatureUseCasePort } from '../../../application/upload/ports/usecase/GenerateUploadSignatureUseCasePort.js';
+import type { IGenerateUploadSignatureUseCase } from '../../../application/upload/ports/usecase/IGenerateUploadSignatureUseCase.js';
 
 @injectable()
 export class UploadController {
-    constructor(@inject(TYPES.GenerateUploadSignatureUseCasePort) private readonly generateSignatureUseCase: GenerateUploadSignatureUseCasePort) {}
+    constructor(@inject(TYPES.GenerateUploadSignatureUseCasePort) private readonly generateSignatureUseCase: IGenerateUploadSignatureUseCase) {}
 
     generateSignature = async (
         request: FastifyRequest<{ Body: { category: string } }>,

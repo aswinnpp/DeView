@@ -1,9 +1,9 @@
-import type { CheckCompanyStatusDTO } from "../../../application/company/dtos/CheckCompanyStatusDTO.js";
-import type { SubmitCompanyApprovalDTO } from "../../../application/company/dtos/SubmitCompanyApprovalDTO.js";
-import type { AuthenticatedUser } from "../middleware/authMiddleware.js";
+import type { ICheckCompanyStatusDTO } from "../../../application/company/dtos/CheckCompanyStatusDTO.js";
+import type { ISubmitCompanyApprovalDTO } from "../../../application/company/dtos/SubmitCompanyApprovalDTO.js";
+import type { IAuthenticatedUser } from "../middleware/authMiddleware.js";
 
 /** Body shape from Zod-validated request */
-interface SubmitApprovalBody {
+interface ISubmitApprovalBody {
   companyName: string;
   address: string;
   contactPerson: string;
@@ -16,11 +16,11 @@ interface SubmitApprovalBody {
 
 
 export const CompanyApprovalMapper = {
-  toCheckStatusDTO(user: AuthenticatedUser): CheckCompanyStatusDTO {
+  toCheckStatusDTO(user: IAuthenticatedUser): ICheckCompanyStatusDTO {
     return { userId: user.userId };
   },
 
-  toSubmitDTO(body: SubmitApprovalBody, user: AuthenticatedUser): SubmitCompanyApprovalDTO {
+  toSubmitDTO(body: ISubmitApprovalBody, user: IAuthenticatedUser): ISubmitCompanyApprovalDTO {
     return {
       userId: user.userId,
       ...body,

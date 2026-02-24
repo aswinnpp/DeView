@@ -1,4 +1,4 @@
-export interface LoginResponseDTO {
+export interface ILoginResponseDTO {
     user: {
         id: string;
         fullName: string;

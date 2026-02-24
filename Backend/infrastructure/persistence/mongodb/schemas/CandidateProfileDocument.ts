@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-export interface CandidateProfileDocument {
+export interface ICandidateProfileDocument {
     _id?: ObjectId;
     userId: string;
     fullName: string;

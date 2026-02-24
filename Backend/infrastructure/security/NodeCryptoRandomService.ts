@@ -1,9 +1,9 @@
 import { injectable } from 'inversify';
 import crypto from "crypto";
-import { CryptoRandomPort } from "../../application/shared/ports/services/CryptoRandomPort";
+import { ICryptoRandom } from "../../application/shared/ports/services/ICryptoRandom";
 
 @injectable()
-export class NodeCryptoRandomService implements CryptoRandomPort {
+export class NodeCryptoRandomService implements ICryptoRandom {
   generateRandomString(length: number, charset?: string): string {
     const chars =
       charset ||

@@ -1,16 +1,16 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
-import { UserRepositoryPort } from '../../shared/ports/repository/UserRepositoryPort.js';
-import type { TokenServicePort } from '../../auth/ports/services/TokenServicePort.js';
+import { IUserRepository } from '../../shared/ports/repository/IUserRepository.js';
+import type { ITokenService } from '../../auth/ports/services/ITokenService.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { ResolveCompanyForUserUseCase } from './ResolveCompanyForUserUseCase.js';
-import type { ToggleTeamMemberStatusUseCasePort } from '../ports/usecase/ToggleTeamMemberStatusUseCasePort';
+import type { IToggleTeamMemberStatusUseCase } from '../ports/usecase/IToggleTeamMemberStatusUseCase';
 
 @injectable()
-export class ToggleTeamMemberStatusUseCase implements ToggleTeamMemberStatusUseCasePort {
+export class ToggleTeamMemberStatusUseCase implements IToggleTeamMemberStatusUseCase {
     constructor(
-        @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
-        @inject(TYPES.TokenServicePort) private readonly tokenService: TokenServicePort,
+        @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository,
+        @inject(TYPES.TokenServicePort) private readonly tokenService: ITokenService,
         @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase
     ) {}
 

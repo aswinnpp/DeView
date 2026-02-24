@@ -9,7 +9,7 @@ export type UploadCategory =
     | 'authorizedSignatoryId'
     | 'bankDocument';
 
-export interface GenerateSignatureResponse {
+export interface IGenerateSignatureResponse {
     signature: string;
     timestamp: number;
     apiKey: string;
@@ -19,6 +19,6 @@ export interface GenerateSignatureResponse {
 
 export const uploadService = {
     generateSignature(category: UploadCategory) {
-        return api.post<GenerateSignatureResponse>('/generate-signature', { category });
+        return api.post<IGenerateSignatureResponse>('/generate-signature', { category });
     },
 };

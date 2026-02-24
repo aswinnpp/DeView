@@ -1,14 +1,14 @@
-import type { CreateTeamMemberDTO } from "../../../application/company/ports/usecase/CreateTeamMemberUseCasePort.js";
-import type { AuthenticatedUser } from "../middleware/authMiddleware.js";
+import type { ICreateTeamMemberDTO } from "../../../application/company/ports/usecase/ICreateTeamMemberUseCase.js";
+import type { IAuthenticatedUser } from "../middleware/authMiddleware.js";
 
-interface CreateTeamMemberBody {
+interface ICreateTeamMemberBody {
   fullName: string;
   email: string;
 }
 
 
 export const CompanyTeamMapper = {
-  toCreateHRDTO(body: CreateTeamMemberBody, user: AuthenticatedUser): CreateTeamMemberDTO {
+  toCreateHRDTO(body: ICreateTeamMemberBody, user: IAuthenticatedUser): ICreateTeamMemberDTO {
     return {
       fullName: body.fullName,
       email: body.email,
@@ -18,7 +18,7 @@ export const CompanyTeamMapper = {
     };
   },
 
-  toCreateInterviewerDTO(body: CreateTeamMemberBody, user: AuthenticatedUser): CreateTeamMemberDTO {
+  toCreateInterviewerDTO(body: ICreateTeamMemberBody, user: IAuthenticatedUser): ICreateTeamMemberDTO {
     return {
       fullName: body.fullName,
       email: body.email,

@@ -1,15 +1,15 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { TokenServicePort } from "../ports/services/TokenServicePort";
-import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
+import { ITokenService } from "../ports/services/ITokenService";
+import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
 import { AppError } from "../../../shared/errors/AppError";
-import type { RefreshTokenUseCasePort } from "../ports/usecase/RefreshTokenUseCasePort";
+import type { IRefreshTokenUseCase } from "../ports/usecase/IRefreshTokenUseCase";
 
 @injectable()
-export class RefreshTokenUseCase implements RefreshTokenUseCasePort {
+export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   constructor(
-    @inject(TYPES.TokenServicePort) private tokenService: TokenServicePort,
-    @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort
+    @inject(TYPES.TokenServicePort) private tokenService: ITokenService,
+    @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository
   ) {}
 
   async execute(refreshToken: string | undefined) {

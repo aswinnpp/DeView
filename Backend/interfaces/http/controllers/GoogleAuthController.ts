@@ -2,8 +2,8 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { GoogleOAuthUseCasePort } from "../../../application/auth/ports/usecase/GoogleOAuthUseCasePort";
-import type { GoogleAuthPort } from "../../../application/auth/ports/services/GoogleAuthPort";
+import type { IGoogleOAuthUseCase } from "../../../application/auth/ports/usecase/IGoogleOAuthUseCase";
+import type { IGoogleAuth } from "../../../application/auth/ports/services/IGoogleAuth";
 import { env } from "../../../infrastructure/config/env.js";
 import {
   setAccessTokenCookie,
@@ -13,8 +13,8 @@ import {
 @injectable()
 export class GoogleAuthController {
   constructor(
-    @inject(TYPES.GoogleOAuthUseCasePort) private readonly googleOAuthUseCase: GoogleOAuthUseCasePort,
-    @inject(TYPES.GoogleAuthPort) private readonly googleAuthService: GoogleAuthPort
+    @inject(TYPES.GoogleOAuthUseCasePort) private readonly googleOAuthUseCase: IGoogleOAuthUseCase,
+    @inject(TYPES.GoogleAuthPort) private readonly googleAuthService: IGoogleAuth
   ) {}
 
   initiateAuth = async (

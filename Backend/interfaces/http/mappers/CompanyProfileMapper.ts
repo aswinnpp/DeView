@@ -1,8 +1,8 @@
-import type { UpdateCompanyProfileDTO } from "../../../application/company/dtos/UpdateCompanyProfileDTO.js";
-import type { AuthenticatedUser } from "../middleware/authMiddleware.js";
+import type { IUpdateCompanyProfileDTO } from "../../../application/company/dtos/UpdateCompanyProfileDTO.js";
+import type { IAuthenticatedUser } from "../middleware/authMiddleware.js";
 
 /** Body shape from Zod-validated request (flat fields after schema transform) */
-interface UpdateProfileBody {
+interface IUpdateProfileBody {
   companyName?: string;
   address?: string;
   contactPerson?: string;
@@ -15,7 +15,7 @@ interface UpdateProfileBody {
 
 
 export const CompanyProfileMapper = {
-  toUpdateDTO(body: UpdateProfileBody, user: AuthenticatedUser): UpdateCompanyProfileDTO {
+  toUpdateDTO(body: IUpdateProfileBody, user: IAuthenticatedUser): IUpdateCompanyProfileDTO {
     return {
       userId: user.userId,
       ...body,

@@ -1,12 +1,12 @@
 import { injectable } from 'inversify';
 import { v2 as cloudinary } from "cloudinary";
-import { FileStoragePort } from "../../application/upload/ports/services/FileStoragePort.js";
+import { IFileStorage } from "../../application/upload/ports/services/IFileStorage.js";
 
-import { GenerateUploadSignatureOutputDTO } from "../../application/upload/dtos/GenerateUploadSignatureDTO.js";
+import { IGenerateUploadSignatureOutputDTO } from "../../application/upload/dtos/GenerateUploadSignatureDTO.js";
 import { env } from "../config/env.js";
 
 @injectable()
-export class CloudinaryFileStorageService implements FileStoragePort {
+export class CloudinaryFileStorageService implements IFileStorage {
   constructor() {
     cloudinary.config({
       cloud_name: env.CLOUDINARY_CLOUD_NAME,
@@ -15,7 +15,7 @@ export class CloudinaryFileStorageService implements FileStoragePort {
     });
   }
 
-  async generateUploadSignature(category: string, userId: string): Promise<GenerateUploadSignatureOutputDTO> {
+  async generateUploadSignature(category: string, userId: string): Promise<IGenerateUploadSignatureOutputDTO> {
     const folder = category === 'resume' 
       ? `resumes/${userId}`
       : `company-docs/${userId}/${category}`;

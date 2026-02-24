@@ -4,7 +4,7 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '../../.env') });
-export interface EnvConfig {
+export interface IEnvConfig {
     PORT: number;
     MONGO_URI: string;
     JWT_ACCESS_SECRET: string;
@@ -23,7 +23,7 @@ export interface EnvConfig {
     ACCESS_TOKEN_TTL?: string;
     REFRESH_TOKEN_TTL?: string;
 }
-function validateEnv(): EnvConfig {
+function validateEnv(): IEnvConfig {
     const requiredVars = ['PORT', 'MONGO_URI', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
     const missing = requiredVars.filter(varName => !process.env[varName]);
     if (missing.length > 0) {

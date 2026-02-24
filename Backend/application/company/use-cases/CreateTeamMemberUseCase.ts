@@ -1,27 +1,27 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
-import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort.js";
-import { PasswordHasherPort } from "../../auth/ports/services/PasswordHasherPort.js";
-import { EmailServicePort } from "../../auth/ports/services/EmailServicePort.js";
+import { IUserRepository } from "../../shared/ports/repository/IUserRepository.js";
+import { IPasswordHasher } from "../../auth/ports/services/IPasswordHasher.js";
+import { IEmailService } from "../../auth/ports/services/IEmailService.js";
 import { User } from "../../../domain/user/entities/User.js";
 import { Email } from "../../../domain/user/value-objects/Email.js";
 import { Role, RoleType } from "../../../domain/user/value-objects/Role.js";
 import { AppError } from "../../../shared/errors/AppError.js";
 import { ResolveCompanyForUserUseCase } from "./ResolveCompanyForUserUseCase.js";
-import { CryptoRandomPort } from "../../shared/ports/services/CryptoRandomPort";
-import type { CreateTeamMemberUseCasePort, CreateTeamMemberDTO } from "../ports/usecase/CreateTeamMemberUseCasePort";
+import { ICryptoRandom } from "../../shared/ports/services/ICryptoRandom";
+import type { ICreateTeamMemberUseCase, ICreateTeamMemberDTO } from "../ports/usecase/ICreateTeamMemberUseCase";
 
 @injectable()
-export class CreateTeamMemberUseCase implements CreateTeamMemberUseCasePort {
+export class CreateTeamMemberUseCase implements ICreateTeamMemberUseCase {
     constructor(
-        @inject(TYPES.UserRepositoryPort) private readonly userRepository: UserRepositoryPort,
-        @inject(TYPES.PasswordHasherPort) private readonly passwordHasher: PasswordHasherPort,
-        @inject(TYPES.EmailServicePort) private readonly emailService: EmailServicePort,
+        @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository,
+        @inject(TYPES.PasswordHasherPort) private readonly passwordHasher: IPasswordHasher,
+        @inject(TYPES.EmailServicePort) private readonly emailService: IEmailService,
         @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase,
-        @inject(TYPES.CryptoRandomPort) private readonly cryptoRandom: CryptoRandomPort
+        @inject(TYPES.CryptoRandomPort) private readonly cryptoRandom: ICryptoRandom
     ) {}
 
-    async execute(dto: CreateTeamMemberDTO): Promise<{ message: string; userId: string }> {
+    async execute(dto: ICreateTeamMemberDTO): Promise<{ message: string; userId: string }> {
         const companyId = await this.resolveCompany.execute(dto.userId, dto.companyIdFromToken);
 
         const email = new Email(dto.email);

@@ -1,19 +1,19 @@
 import { Collection, ObjectId } from "mongodb";
-import { CandidateProfileRepositoryPort } from "../../../../application/candidate/ports/repository/CandidateProfileRepositoryPort";
+import { ICandidateProfileRepository } from "../../../../application/candidate/ports/repository/ICandidateProfileRepository";
 import { CandidateProfile } from "../../../../domain/candidate/entities/CandidateProfile";
-import { CandidateProfileDocument } from "../schemas/CandidateProfileDocument";
+import { ICandidateProfileDocument } from "../schemas/CandidateProfileDocument";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 
 export class MongoCandidateProfileRepository
   extends BaseMongoRepository<CandidateProfile>
-  implements CandidateProfileRepositoryPort {
-  constructor(collection: Collection<CandidateProfileDocument>) {
+  implements ICandidateProfileRepository {
+  constructor(collection: Collection<ICandidateProfileDocument>) {
     super(collection);
   }
 
   async findByUserId(userId: string): Promise<CandidateProfile | null> {
     const doc = await this.collection.findOne({ userId });
-    return doc ? this.toDomain(doc as CandidateProfileDocument) : null;
+    return doc ? this.toDomain(doc as ICandidateProfileDocument) : null;
   }
 
   async save(profile: CandidateProfile): Promise<void> {
@@ -24,10 +24,10 @@ export class MongoCandidateProfileRepository
       return;
     }
 
-    const { _id, ...rest } = doc as CandidateProfileDocument;
+    const { _id, ...rest } = doc as ICandidateProfileDocument;
     const update = Object.fromEntries(
       Object.entries(rest).filter(([, v]) => v !== undefined)
-    ) as Omit<CandidateProfileDocument, "_id">;
+    ) as Omit<ICandidateProfileDocument, "_id">;
 
     const result = await this.collection.updateOne(
       { userId: profile.userId },
@@ -39,7 +39,7 @@ export class MongoCandidateProfileRepository
     }
   }
 
-  protected toDomain(doc: CandidateProfileDocument): CandidateProfile {
+  protected toDomain(doc: ICandidateProfileDocument): CandidateProfile {
     return new CandidateProfile(
       doc._id?.toString() || null,
       doc.userId,
@@ -71,7 +71,7 @@ export class MongoCandidateProfileRepository
     );
   }
 
-  protected toDocument(entity: CandidateProfile): CandidateProfileDocument {
+  protected toDocument(entity: CandidateProfile): ICandidateProfileDocument {
     return {
       ...(entity.id && { _id: new ObjectId(entity.id) }),
       userId: entity.userId,

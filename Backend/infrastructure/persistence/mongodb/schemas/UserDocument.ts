@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 
-export interface UserDocument {
+export interface IUserDocument {
     _id?: ObjectId;
     fullName: string;
     companyName?: string | null;

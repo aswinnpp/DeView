@@ -3,15 +3,15 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { CreateCandidateProfileUseCasePort } from "../../../application/candidate/ports/usecase/CreateCandidateProfileUseCasePort";
-import type { GetCandidateProfileUseCasePort } from "../../../application/candidate/ports/usecase/GetCandidateProfileUseCasePort";
-import type { UpdateCandidateProfileUseCasePort } from "../../../application/candidate/ports/usecase/UpdateCandidateProfileUseCasePort";
-import type { GetAllCandidatesUseCasePort } from "../../../application/candidate/ports/usecase/GetAllCandidateUsecasePort";
-import type { ToggleCandidateStatusUseCasePort } from "../../../application/candidate/ports/usecase/ToggleCandidateStatusUseCasePort";
+import type { ICreateCandidateProfileUseCase } from "../../../application/candidate/ports/usecase/ICreateCandidateProfileUseCase";
+import type { IGetCandidateProfileUseCase } from "../../../application/candidate/ports/usecase/IGetCandidateProfileUseCase";
+import type { IUpdateCandidateProfileUseCase } from "../../../application/candidate/ports/usecase/IUpdateCandidateProfileUseCase";
+import type { IGetAllCandidatesUseCase } from "../../../application/candidate/ports/usecase/IGetAllCandidatesUseCase";
+import type { IToggleCandidateStatusUseCase } from "../../../application/candidate/ports/usecase/IToggleCandidateStatusUseCase";
 import { CandidateProfileMapper } from "../mappers/CandidateProfileMapper.js";
 
 /** Body shape from Zod-validated request */
-interface ProfileBody {
+interface IProfileBody {
     fullName: string;
     email: string;
     phone: string;
@@ -40,11 +40,11 @@ interface ProfileBody {
 @injectable()
 export class CandidateProfileController {
     constructor(
-        @inject(TYPES.CreateCandidateProfileUseCasePort) private readonly createProfileUseCase: CreateCandidateProfileUseCasePort,
-        @inject(TYPES.GetCandidateProfileUseCasePort) private readonly getProfileUseCase: GetCandidateProfileUseCasePort,
-        @inject(TYPES.UpdateCandidateProfileUseCasePort) private readonly updateProfileUseCase: UpdateCandidateProfileUseCasePort,
-        @inject(TYPES.GetAllCandidatesUseCasePort) private readonly getAllCandidatesUseCase: GetAllCandidatesUseCasePort,
-        @inject(TYPES.ToggleCandidateStatusUseCasePort) private readonly toggleStatusUseCase: ToggleCandidateStatusUseCasePort
+        @inject(TYPES.CreateCandidateProfileUseCasePort) private readonly createProfileUseCase: ICreateCandidateProfileUseCase,
+        @inject(TYPES.GetCandidateProfileUseCasePort) private readonly getProfileUseCase: IGetCandidateProfileUseCase,
+        @inject(TYPES.UpdateCandidateProfileUseCasePort) private readonly updateProfileUseCase: IUpdateCandidateProfileUseCase,
+        @inject(TYPES.GetAllCandidatesUseCasePort) private readonly getAllCandidatesUseCase: IGetAllCandidatesUseCase,
+        @inject(TYPES.ToggleCandidateStatusUseCasePort) private readonly toggleStatusUseCase: IToggleCandidateStatusUseCase
     ) { }
 
     getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -54,7 +54,7 @@ export class CandidateProfileController {
     };
 
     createProfile = async (
-        request: FastifyRequest<{ Body: ProfileBody }>,
+        request: FastifyRequest<{ Body: IProfileBody }>,
         reply: FastifyReply
     ) => {
         const dto = CandidateProfileMapper.toCreateDTO(request.body, request.currentUser);
@@ -63,7 +63,7 @@ export class CandidateProfileController {
     };
 
     updateProfile = async (
-        request: FastifyRequest<{ Body: Partial<ProfileBody> }>,
+        request: FastifyRequest<{ Body: Partial<IProfileBody> }>,
         reply: FastifyReply
     ) => {
         const dto = CandidateProfileMapper.toUpdateDTO(request.body, request.currentUser);

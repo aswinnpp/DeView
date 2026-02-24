@@ -2,16 +2,16 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
 import {
-  TokenServicePort,
-  TokenPayload,
-  RefreshTokenData,
-  RefreshTokenPayload,
-} from "../../application/auth/ports/services/TokenServicePort";
+  ITokenService,
+  ITokenPayload,
+  IRefreshTokenData,
+  IRefreshTokenPayload,
+} from "../../application/auth/ports/services/ITokenService";
 
 import { RedisRefreshTokenRepository } from "../persistence/redis/RedisRefreshTokenRepository";
 import { RedisAccessTokenRepository } from "../persistence/redis/RedisAccessTokenRepository";
 
-export class SecureJwtTokenService implements TokenServicePort {
+export class SecureJwtTokenService implements ITokenService {
   constructor(
     private refreshRepo: RedisRefreshTokenRepository,
     private accessRepo: RedisAccessTokenRepository,
@@ -21,7 +21,7 @@ export class SecureJwtTokenService implements TokenServicePort {
 
   // ================= ACCESS TOKEN =================
 
-  async signAccessToken(payload: TokenPayload): Promise<string> {
+  async signAccessToken(payload: ITokenPayload): Promise<string> {
     const jti = crypto.randomUUID();
 
     const token = jwt.sign(
@@ -35,13 +35,13 @@ export class SecureJwtTokenService implements TokenServicePort {
     return token;
   }
 
-  verifyAccessToken(token: string): TokenPayload {
-    return jwt.verify(token, this.accessSecret) as TokenPayload;
+  verifyAccessToken(token: string): ITokenPayload {
+    return jwt.verify(token, this.accessSecret) as ITokenPayload;
   }
 
   // ================= REFRESH TOKEN =================
 
-  async generateRefreshToken(userId: string): Promise<RefreshTokenData> {
+  async generateRefreshToken(userId: string): Promise<IRefreshTokenData> {
     const tokenId = crypto.randomUUID();
 
     const token = jwt.sign(
@@ -59,9 +59,9 @@ export class SecureJwtTokenService implements TokenServicePort {
     };
   }
 
-  async verifyRefreshToken(token: string): Promise<RefreshTokenPayload | null> {
+  async verifyRefreshToken(token: string): Promise<IRefreshTokenPayload | null> {
     try {
-      const decoded = jwt.verify(token, this.refreshSecret) as RefreshTokenPayload;
+      const decoded = jwt.verify(token, this.refreshSecret) as IRefreshTokenPayload;
 
       const exists = await this.refreshRepo.exists(decoded.jti);
       if (!exists) return null;
@@ -72,7 +72,7 @@ export class SecureJwtTokenService implements TokenServicePort {
     }
   }
 
-  async rotateRefreshToken(oldToken: string): Promise<RefreshTokenData | null> {
+  async rotateRefreshToken(oldToken: string): Promise<IRefreshTokenData | null> {
     const decoded = await this.verifyRefreshToken(oldToken);
     if (!decoded) return null;
 

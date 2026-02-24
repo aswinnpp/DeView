@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
 
 // ── What each column needs ─────────────────────────────────────
-interface Column<T> {
+interface IColumn<T> {
     header: string;
     render: (item: T, index: number) => ReactNode;
     cellClassName?: string;
 }
 
 // ── What the Table component needs ─────────────────────────────
-interface TableProps<T> {
-    columns: Column<T>[];
+interface ITableProps<T> {
+    columns: IColumn<T>[];
     data: T[];
     rowKey: (item: T, index: number) => string | number;
     emptyMessage?: string;
@@ -23,7 +23,7 @@ function Table<T>({
     rowKey,
     emptyMessage = "No data available.",
     emptySubMessage,
-}: TableProps<T>) {
+}: ITableProps<T>) {
     return (
         <div className="bg-linear-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl overflow-hidden">
             <div className="overflow-x-auto w-full">

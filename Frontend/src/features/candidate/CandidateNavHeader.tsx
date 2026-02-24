@@ -3,18 +3,18 @@ import { Link, NavLink } from 'react-router-dom';
 import { candidateService } from '../../services/candidate.service';
 import { Button } from '../../components/common';
 
-interface CandidateNavHeaderProps {
+interface ICandidateNavHeaderProps {
     title: string;
     currentPage?: 'jobs' | 'dashboard' | 'profile' | 'history' | 'mails' | 'interviews' | 'applied';
 }
 
-interface Notification {
+interface INotification {
     id: number;
     text: string;
     time: string;
 }
 
-const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => {
+const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) => {
     const [showNotifications, setShowNotifications] = useState<boolean>(false);
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const notificationRef = useRef<HTMLDivElement>(null);
@@ -67,7 +67,7 @@ const CandidateNavHeader = ({ title, currentPage }: CandidateNavHeaderProps) => 
         };
     }, [showNotifications]);
 
-    const notifications: Notification[] = [
+    const notifications: INotification[] = [
         { id: 1, text: "New job opportunity available", time: "5m ago" },
         { id: 2, text: "Interview scheduled for tomorrow", time: "1h ago" },
     ];

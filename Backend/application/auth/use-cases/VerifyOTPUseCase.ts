@@ -1,17 +1,17 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
-import { UserRepositoryPort } from "../../shared/ports/repository/UserRepositoryPort";
-import { OTPRepositoryPort } from "../ports/repository/OTPRepositoryPort";
+import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
+import { IOtpRepository } from "../ports/repository/IOtpRepository";
 import { Email } from "../../../domain/user/value-objects/Email";
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 import { AppError } from "../../../shared/errors/AppError";
-import type { VerifyOTPUseCasePort } from "../ports/usecase/VerifyOTPUseCasePort";
+import type { IVerifyOtpUseCase } from "../ports/usecase/IVerifyOtpUseCase";
 
 @injectable()
-export class VerifyOTPUseCase implements VerifyOTPUseCasePort {
+export class VerifyOTPUseCase implements IVerifyOtpUseCase {
   constructor(
-    @inject(TYPES.UserRepositoryPort) private userRepo: UserRepositoryPort,
-    @inject(TYPES.OTPRepositoryPort) private otpRepo: OTPRepositoryPort
+    @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository,
+    @inject(TYPES.OTPRepositoryPort) private otpRepo: IOtpRepository
   ) {}
 
   async execute(emailStr: string, otpStr: string) {

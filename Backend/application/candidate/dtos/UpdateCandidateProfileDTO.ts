@@ -1,4 +1,4 @@
-export interface UpdateCandidateProfileDTO {
+export interface IUpdateCandidateProfileDTO {
     userId: string;
     fullName?: string;
     email?: string;

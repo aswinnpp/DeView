@@ -1,15 +1,15 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
-import { CompanyProfileRepositoryPort } from '../ports/repository/CompanyProfileRepositoryPort.js';
-import { UserRepositoryPort } from '../../shared/ports/repository/UserRepositoryPort.js';
+import { ICompanyProfileRepository } from '../ports/repository/ICompanyProfileRepository.js';
+import { IUserRepository } from '../../shared/ports/repository/IUserRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 
 @injectable()
 export class ResolveCompanyForUserUseCase {
     constructor(
-@inject(TYPES.CompanyProfileRepositoryPort) private readonly companyProfileRepo: CompanyProfileRepositoryPort,
-    @inject(TYPES.UserRepositoryPort) private readonly userRepo: UserRepositoryPort
+@inject(TYPES.CompanyProfileRepositoryPort) private readonly companyProfileRepo: ICompanyProfileRepository,
+    @inject(TYPES.UserRepositoryPort) private readonly userRepo: IUserRepository
     ) {}
 
     async execute(userId: string, companyIdFromToken?: string): Promise<string> {

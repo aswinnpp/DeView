@@ -1,27 +1,27 @@
 import { Collection, ObjectId } from "mongodb";
-import type { UserRepositoryPort, UserSearchOptions } from "../../../../application/shared/ports/repository/UserRepositoryPort";
+import type { IUserRepository, IUserSearchOptions } from "../../../../application/shared/ports/repository/IUserRepository";
 import { User } from "../../../../domain/user/entities/User";
 import { Email } from "../../../../domain/user/value-objects/Email";
 import { Role } from "../../../../domain/user/value-objects/Role";
-import { UserDocument } from "../schemas/UserDocument";
+import { IUserDocument } from "../schemas/UserDocument";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 
 export class MongoUserRepository
   extends BaseMongoRepository<User>
-  implements UserRepositoryPort {
-  constructor(collection: Collection<UserDocument>) {
+  implements IUserRepository {
+  constructor(collection: Collection<IUserDocument>) {
     super(collection);
   }
 
   async findByEmail(email: Email): Promise<User | null> {
     const doc = await this.collection.findOne({ email: email.getValue() });
-    return doc ? this.toDomain(doc as UserDocument) : null;
+    return doc ? this.toDomain(doc as IUserDocument) : null;
   }
 
   async findByCompanyIdAndRole(
     companyId: string,
     role: string,
-    options?: UserSearchOptions
+    options?: IUserSearchOptions
   ): Promise<{ data: User[]; total: number }> {
     const { search, status, sortOrder = "desc", page = 1, limit } = options ?? {};
     const filter: Record<string, any> = { companyId, role };
@@ -46,12 +46,12 @@ export class MongoUserRepository
     }
 
     const docs = await cursor.toArray();
-    return { data: docs.map(doc => this.toDomain(doc as UserDocument)), total };
+    return { data: docs.map(doc => this.toDomain(doc as IUserDocument)), total };
   }
 
   async findByRole(
     role: string,
-    options?: UserSearchOptions
+    options?: IUserSearchOptions
   ): Promise<{ data: User[]; total: number }> {
     const { search, status, sortOrder = "desc", page = 1, limit } = options ?? {};
     const filter: Record<string, any> = { role };
@@ -76,10 +76,10 @@ export class MongoUserRepository
     }
 
     const docs = await cursor.toArray();
-    return { data: docs.map(doc => this.toDomain(doc as UserDocument)), total };
+    return { data: docs.map(doc => this.toDomain(doc as IUserDocument)), total };
   }
 
-  protected toDomain(doc: UserDocument): User {
+  protected toDomain(doc: IUserDocument): User {
     return new User(
       doc._id?.toString() || null,
       doc.fullName,
@@ -93,7 +93,7 @@ export class MongoUserRepository
     );
   }
 
-  protected toDocument(user: User): UserDocument {
+  protected toDocument(user: User): IUserDocument {
     return {
       ...(user.id && { _id: new ObjectId(user.id) }),
       fullName: user.fullName,
