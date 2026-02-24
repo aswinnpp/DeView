@@ -2,45 +2,45 @@ import { Container } from 'inversify';
 import { TYPES } from './types.js';
 
 // Auth use cases
-import { RegisterUserUseCase } from '../../application/auth/use-cases/RegisterUserUseCase.js';
-import { VerifyOTPUseCase } from '../../application/auth/use-cases/VerifyOTPUseCase.js';
-import { LoginUseCase } from '../../application/auth/use-cases/LoginUseCase.js';
-import { ResendOTPUseCase } from '../../application/auth/use-cases/ResendOTPUseCase.js';
-import { RefreshTokenUseCase } from '../../application/auth/use-cases/RefreshTokenUseCase.js';
-import { LogoutUseCase } from '../../application/auth/use-cases/LogoutUseCase.js';
-import { ForgotPasswordUseCase } from '../../application/auth/use-cases/ForgotPasswordUseCase.js';
-import { VerifyPasswordResetOTPUseCase } from '../../application/auth/use-cases/VerifyPasswordResetOTPUseCase.js';
-import { ResetPasswordUseCase } from '../../application/auth/use-cases/ResetPasswordUseCase.js';
-import { GoogleOAuthUseCase } from '../../application/auth/use-cases/GoogleOAuthUseCase.js';
+import { RegisterUserUseCase } from '../../application/auth/use-cases/register-user.usecase.js';
+import { VerifyOTPUseCase } from '../../application/auth/use-cases/verify-otp.usecase.js';
+import { LoginUseCase } from '../../application/auth/use-cases/login.usecase.js';
+import { ResendOTPUseCase } from '../../application/auth/use-cases/resend-otp.usecase.js';
+import { RefreshTokenUseCase } from '../../application/auth/use-cases/refresh-token.usecase.js';
+import { LogoutUseCase } from '../../application/auth/use-cases/logout.usecase.js';
+import { ForgotPasswordUseCase } from '../../application/auth/use-cases/forgot-password.usecase.js';
+import { VerifyPasswordResetOTPUseCase } from '../../application/auth/use-cases/verify-password-reset-otp.usecase.js';
+import { ResetPasswordUseCase } from '../../application/auth/use-cases/reset-password.usecase.js';
+import { GoogleOAuthUseCase } from '../../application/auth/use-cases/google-oauth.usecase.js';
 
 // Company use cases
-import { ResolveCompanyForUserUseCase } from '../../application/company/use-cases/ResolveCompanyForUserUseCase.js';
-import { CheckCompanyStatusUseCase } from '../../application/company/use-cases/CheckCompanyStatusUseCase.js';
-import { SubmitCompanyApprovalUseCase } from '../../application/company/use-cases/SubmitCompanyApprovalUseCase.js';
-import { GetMyCompanyApprovalUseCase } from '../../application/company/use-cases/GetMyCompanyApprovalUseCase.js';
-import { GetCompanyProfileUseCase } from '../../application/company/use-cases/GetCompanyProfileUseCase.js';
-import { UpdateCompanyProfileUseCase } from '../../application/company/use-cases/UpdateCompanyProfileUseCase.js';
-import { CreateTeamMemberUseCase } from '../../application/company/use-cases/CreateTeamMemberUseCase.js';
-import { ListTeamMembersUseCase } from '../../application/company/use-cases/ListTeamMembersUseCase.js';
-import { ToggleTeamMemberStatusUseCase } from '../../application/company/use-cases/ToggleTeamMemberStatusUseCase.js';
+import { ResolveCompanyForUserUseCase } from '../../application/company/use-cases/resolve-company-for-user.usecase.js';
+import { CheckCompanyStatusUseCase } from '../../application/company/use-cases/check-company-status.usecase.js';
+import { SubmitCompanyApprovalUseCase } from '../../application/company/use-cases/submit-company-approval.usecase.js';
+import { GetMyCompanyApprovalUseCase } from '../../application/company/use-cases/get-my-company-approval.usecase.js';
+import { GetCompanyProfileUseCase } from '../../application/company/use-cases/get-company-profile.usecase.js';
+import { UpdateCompanyProfileUseCase } from '../../application/company/use-cases/update-company-profile.usecase.js';
+import { CreateTeamMemberUseCase } from '../../application/company/use-cases/create-team-member.usecase.js';
+import { ListTeamMembersUseCase } from '../../application/company/use-cases/list-team-members.usecase.js';
+import { ToggleTeamMemberStatusUseCase } from '../../application/company/use-cases/toggle-team-member-status.usecase.js';
 
 // Admin use cases
-import { GetPendingCompaniesUseCase } from '../../application/admin/use-cases/GetPendingCompaniesUseCase.js';
-import { ApproveCompanyUseCase } from '../../application/admin/use-cases/ApproveCompanyUseCase.js';
-import { RejectCompanyUseCase } from '../../application/admin/use-cases/RejectCompanyUseCase.js';
-import { MarkDocumentUseCase } from '../../application/admin/use-cases/MarkDocumentUseCase.js';
-import { GetApprovedCompaniesUseCase } from '../../application/admin/use-cases/GetApprovedCompaniesUseCase.js';
-import { AdminToggleActivityUseCase } from '../../application/admin/use-cases/AdminToggleActivityUseCase.js';
+import { GetPendingCompaniesUseCase } from '../../application/admin/use-cases/get-pending-companies.usecase.js';
+import { ApproveCompanyUseCase } from '../../application/admin/use-cases/approve-company.usecase.js';
+import { RejectCompanyUseCase } from '../../application/admin/use-cases/reject-company.usecase.js';
+import { MarkDocumentUseCase } from '../../application/admin/use-cases/mark-document.usecase.js';
+import { GetApprovedCompaniesUseCase } from '../../application/admin/use-cases/get-approved-companies.usecase.js';
+import { AdminToggleActivityUseCase } from '../../application/admin/use-cases/admin-toggle-activity.usecase.js';
 
 // Candidate use cases
-import { CreateCandidateProfileUseCase } from '../../application/candidate/use-cases/CreateCandidateProfileUseCase.js';
-import { GetCandidateProfileUseCase } from '../../application/candidate/use-cases/GetCandidateProfileUseCase.js';
-import { UpdateCandidateProfileUseCase } from '../../application/candidate/use-cases/UpdateCandidateProfileUseCase.js';
-import { GetAllCandidatesUseCase } from '../../application/candidate/use-cases/GetAllCandidatesUseCase.js';
-import { ToggleCandidateStatusUseCase } from '../../application/candidate/use-cases/ToggleCandidateStatusUseCase.js';
+import { CreateCandidateProfileUseCase } from '../../application/candidate/use-cases/create-candidate-profile.usecase.js';
+import { GetCandidateProfileUseCase } from '../../application/candidate/use-cases/get-candidate-profile.usecase.js';
+import { UpdateCandidateProfileUseCase } from '../../application/candidate/use-cases/update-candidate-profile.usecase.js';
+import { GetAllCandidatesUseCase } from '../../application/candidate/use-cases/get-all-candidates.usecase.js';
+import { ToggleCandidateStatusUseCase } from '../../application/candidate/use-cases/toggle-candidate-status.usecase.js';
 
 // Upload use cases
-import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/GenerateUploadSignatureUseCase.js';
+import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
 
 /**
  * Binds all use case dependencies to the container.
