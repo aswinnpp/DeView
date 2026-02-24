@@ -35,11 +35,7 @@ export class GoogleOAuthUseCase implements GoogleOAuthUseCasePort {
     @inject(TYPES.CryptoRandomPort) private readonly cryptoRandom: CryptoRandomPort
   ) {}
 
-  /**
-   * Handles OAuth callback: validates code, verifies with Google, creates/gets user, returns sessionId.
-   * @throws AppError.badRequest("missing_code") when code is missing
-   * @throws AppError.unauthorized("code_expired" | "auth_failed") when token verification fails
-   */
+ 
   async handleCallback(code: string | undefined, state?: string): Promise<string> {
     if (!code || !String(code).trim()) {
       throw AppError.badRequest("missing_code");
@@ -74,6 +70,7 @@ export class GoogleOAuthUseCase implements GoogleOAuthUseCasePort {
         email,
         role: roleVO,
         authProvider: "google",
+        createdAt: new Date(),
       });
       await this.userRepo.save(user);
       user = await this.userRepo.findByEmail(email);

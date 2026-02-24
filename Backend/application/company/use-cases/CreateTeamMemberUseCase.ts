@@ -10,7 +10,6 @@ import { AppError } from "../../../shared/errors/AppError.js";
 import { ResolveCompanyForUserUseCase } from "./ResolveCompanyForUserUseCase.js";
 import { CryptoRandomPort } from "../../shared/ports/services/CryptoRandomPort";
 import type { CreateTeamMemberUseCasePort, CreateTeamMemberDTO } from "../ports/usecase/CreateTeamMemberUseCasePort";
-import { time } from 'node:console';
 
 @injectable()
 export class CreateTeamMemberUseCase implements CreateTeamMemberUseCasePort {
@@ -44,6 +43,7 @@ export class CreateTeamMemberUseCase implements CreateTeamMemberUseCasePort {
             passwordHash,
             role,
             companyId,
+            createdAt: new Date(),
         });
 
         user.markEmailAsVerified();

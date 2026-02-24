@@ -3,7 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "@/context/store";
 import Router from "@/app/Router";
-import "@/styles/index.css";
+import "./index.css";
 
 const App = () => {
     return (

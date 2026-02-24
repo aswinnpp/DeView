@@ -56,35 +56,33 @@ const AppRouter = () => {
         {/* ─── Public Routes ───────────────────────── */}
 
         <Route element={<PublicRoute />}>
-        </Route>
-
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/" element={<LandingPage />} />
-       
-
-
-        <Route path="/verify-email" element={<EmailVerificationPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        </Route>
 
 
 
         {/* ─── Protected Routes ───────────────────── */}
 
         <Route element={<PrivateRoute />}>
-        </Route>
-
-          <Route path="/company/approval" element={<Navigate to="/company/approval-form" replace />} />
+          <Route
+            path="/company/approval"
+            element={<Navigate to="/company/approval-form" replace />}
+          />
           <Route path="/company/approval-form" element={<CompanyApprovalFormPage />} />
           <Route path="/company/approval-pending" element={<CompanyApprovalPendingPage />} />
 
-
-          <Route path="/candidate" element={<Navigate to="/candidate/profile" replace />} />
+          <Route
+            path="/candidate"
+            element={<Navigate to="/candidate/profile" replace />}
+          />
           <Route path="/candidate/profile" element={<Profile />} />
           <Route path="/candidate/interviews" element={<CandidateInterviews />} />
-
 
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
@@ -93,13 +91,13 @@ const AppRouter = () => {
             <Route path="candidates" element={<AdminCandidatesPage />} />
           </Route>
 
-
           <Route path="/company" element={<CompanyLayout />}>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<CompanyDashboardPage />} />
             <Route path="team" element={<ManageHRPage />} />
             <Route path="profile" element={<CompanyProfilePage />} />
           </Route>
+        </Route>
 
         
 

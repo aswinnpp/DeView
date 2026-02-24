@@ -15,7 +15,6 @@ export class AdminToggleActivityUseCase implements AdminToggleActivityUseCasePor
     ) { }
 
     async execute(id: string) {
-        // `id` is the company owner's userId coming from the route
 
         const user = await this.userRepo.findById(id);
 
@@ -25,11 +24,10 @@ export class AdminToggleActivityUseCase implements AdminToggleActivityUseCasePor
 
         const company = await this.repo.findByUserId(id);
 
-      
-        // Toggle active status and keep User + CompanyApproval in sync
+
         user.isActive = !user.isActive;
-        
-  if (company) {
+
+        if (company) {
             company.isActive = user.isActive;
             await this.repo.save(company);
         }
@@ -39,7 +37,7 @@ export class AdminToggleActivityUseCase implements AdminToggleActivityUseCasePor
         }
 
         await this.userRepo.save(user);
-       
+
 
         return { isActive: user.isActive };
     }

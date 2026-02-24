@@ -64,7 +64,7 @@ export async function requireAuth(
   await attachUser(request);
 }
 
-
+  
 export function requireRoles(...roles: string[]) {
   return async (
     request: FastifyRequest,

@@ -13,7 +13,7 @@ import { CandidateProfileMapper } from "../mappers/CandidateProfileMapper.js";
 /** Body shape from Zod-validated request */
 interface ProfileBody {
     fullName: string;
-    email?: string;
+    email: string;
     phone: string;
     location: string;
     dateOfBirth: string;

@@ -5,7 +5,7 @@ import type { AuthenticatedUser } from "../middleware/authMiddleware.js";
 /** Body shape from Zod-validated request (create) */
 interface CreateProfileBody {
   fullName: string;
-  email?: string;
+  email: string;
   phone: string;
   location: string;
   dateOfBirth: string;
