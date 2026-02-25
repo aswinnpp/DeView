@@ -1,11 +1,11 @@
-import { Collection, ObjectId } from "mongodb";
+import { Collection, ObjectId, type Filter } from "mongodb";
 import type { ICompanyProfileRepository, ICompanyProfileSearchOptions } from "../../../../application/company/ports/repository/ICompanyProfileRepository";
 import { CompanyApproval } from "../../../../domain/company/entities/CompanyApprovalEntitie";
 import { ICompanyApprovalDocument } from "../schemas/CompanyApprovalDocument";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 
 export class MongoCompanyProfileRepository
-  extends BaseMongoRepository<CompanyApproval>
+  extends BaseMongoRepository<CompanyApproval, ICompanyApprovalDocument>
   implements ICompanyProfileRepository {
   constructor(collection: Collection<ICompanyApprovalDocument>) {
     super(collection);
@@ -17,7 +17,7 @@ export class MongoCompanyProfileRepository
   }
 
   async findPending(options?: ICompanyProfileSearchOptions): Promise<{ data: CompanyApproval[]; total: number }> {
-    const filter: Record<string, any> = { status: "pending" };
+    const filter: Filter<ICompanyApprovalDocument> = { status: "pending" };
     const { search, sortOrder = "desc", page = 1, limit } = options ?? {};
 
     if (search && search.trim()) {
@@ -45,7 +45,7 @@ export class MongoCompanyProfileRepository
   }
 
   async findApproved(options?: ICompanyProfileSearchOptions): Promise<{ data: CompanyApproval[]; total: number }> {
-    const filter: Record<string, any> = { status: "approved" };
+    const filter: Filter<ICompanyApprovalDocument> = { status: "approved" };
     const { search, sortOrder = "desc", page = 1, limit, status } = options ?? {};
 
     if (search && search.trim()) {

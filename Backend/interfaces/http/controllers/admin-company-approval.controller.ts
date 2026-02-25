@@ -100,7 +100,7 @@ export class AdminCompanyApprovalController {
     const { id, key } = request.params;
     const { verified } = request.body;
 
-    const result = await this.markDocumentUseCase.execute(id, key, verified);
+    const result = await this.markDocumentUseCase.execute(id, key as Parameters<IMarkDocumentUseCase["execute"]>[1], verified);
 
     reply.status(HttpStatus.OK).send(success(result));
   };

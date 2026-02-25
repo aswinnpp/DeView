@@ -1,7 +1,9 @@
+import type { CompanyDocuments } from "../../../../domain/company/entities/CompanyApprovalEntitie";
+
 export interface IMarkDocumentUseCase {
   execute(
     companyId: string,
-    documentKey: string,
+    documentKey: keyof CompanyDocuments,
     verified: boolean
-  ): Promise<{ documentKey: string; marked: boolean }>;
+  ): Promise<{ documentKey: keyof CompanyDocuments; marked: boolean }>;
 }

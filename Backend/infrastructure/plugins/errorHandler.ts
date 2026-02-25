@@ -35,7 +35,7 @@ export function registerErrorHandler(app: FastifyInstance) {
       });
     }
 
-    const validation = (error as any).validation;
+    const validation = (error as { validation?: { message?: string }[] }).validation;
     if (Array.isArray(validation) && validation.length > 0) {
       const first = validation[0];
       const message =

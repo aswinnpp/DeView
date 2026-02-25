@@ -7,7 +7,7 @@ export async function registerRateLimit(fastify: FastifyInstance): Promise<void>
         global: true,
         max: 100,
         timeWindow: '15 minutes',
-        errorResponseBuilder: (request, context) => {
+        errorResponseBuilder: (_request, context) => {
             return {
                 error: 'Too Many Requests',
                 message: `Rate limit exceeded. You can make ${context.max} requests per ${context.after}. Try again later.`,
@@ -22,10 +22,10 @@ export async function registerAuthRateLimit(fastify: FastifyInstance): Promise<v
         max: 5,
         timeWindow: '1 minute',
         keyGenerator: (request) => {
-            const body = request.body as any;
+            const body = request.body as { email?: string } | undefined;
             return body?.email || request.ip;
         },
-        errorResponseBuilder: (request, context) => {
+        errorResponseBuilder: (_request, _context) => {
             return {
                 error: 'Too Many Requests',
                 message: 'Too many authentication attempts. Please try again in 1 minute.',

@@ -29,7 +29,6 @@ interface IPaymentRequest {
 interface IHR {
     id: string;
     active: boolean;
-    [key: string]: any;
 }
 
 interface IInterviewer {
@@ -37,8 +36,16 @@ interface IInterviewer {
     active: boolean;
     walletBalance?: number;
     pendingAmount?: number;
-    [key: string]: any;
 }
+
+interface ICompanyDocumentUpload {
+    fileName: string;
+    fileUrl: string;
+    uploadedAt: string;
+    marked: boolean;
+}
+
+type ICompanyDocuments = Record<string, ICompanyDocumentUpload>;
 
 interface ICompany {
     id: string;
@@ -51,11 +58,11 @@ interface ICompany {
     taxId: string;
     employees: string;
     website: string;
-    documents: any[];
+    documents: ICompanyDocuments;
     rejectionReason: string;
     owner: ICompanyOwner | null;
     debugOtp?: string;
-    [key: string]: any;
+    generatedOtp?: string;
 }
 
 interface ICompanyOwner {
@@ -70,14 +77,12 @@ interface IJob {
     createdAt: string;
     applicants: IJobApplicant[];
     status: string;
-    [key: string]: any;
 }
 
 interface IJobApplicant {
     candidateId: string;
     status: string;
     updatedAt: string;
-    [key: string]: any;
 }
 
 interface IMail {
@@ -297,10 +302,10 @@ export const SystemDataProvider = ({ children }: ISystemDataProviderProps) => {
             taxId: "",
             employees: "",
             website: "",
-            documents: [],
+            documents: {},
             rejectionReason: "",
             owner: null,
-            debugOtp: (companyData as any).debugOtp || (companyData as any).generatedOtp || "",
+            debugOtp: companyData.debugOtp || companyData.generatedOtp || "",
             ...companyData
         };
         setCompanies(prev => [newCompany, ...prev]);

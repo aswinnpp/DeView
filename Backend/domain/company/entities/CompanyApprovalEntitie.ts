@@ -1,6 +1,22 @@
 import { CompanyStatus } from "../value-objects/CompanyStatus";
 import { DomainError } from "../../../shared/errors/DomainError";
 
+export interface CompanyDocumentUpload {
+  fileName: string;
+  fileUrl: string;
+  uploadedAt: Date;
+  marked: boolean;
+}
+
+export interface CompanyDocuments {
+  certificateOfIncorporation?: CompanyDocumentUpload;
+  gstCertificate?: CompanyDocumentUpload;
+  panCard?: CompanyDocumentUpload;
+  addressProof?: CompanyDocumentUpload;
+  authorizedSignatoryId?: CompanyDocumentUpload;
+  bankDocument?: CompanyDocumentUpload;
+}
+
 export class CompanyApproval {
   constructor(
     public id: string | null,
@@ -12,7 +28,7 @@ export class CompanyApproval {
     public contactPhone: string,
     public taxId: string,
     public numberOfEmployees: string,
-    public documents: Record<string, any>,
+    public documents: CompanyDocuments,
     public website?: string,
     public status: CompanyStatus = "pending",
     public rejectionReason?: string,
@@ -69,7 +85,7 @@ export class CompanyApproval {
     this.updatedAt = new Date();
   }
 
-  markDocument(documentKey: string, verified: boolean) {
+  markDocument(documentKey: keyof CompanyDocuments, verified: boolean) {
     if (!this.documents[documentKey]) {
       throw new DomainError(`Document "${documentKey}" not found`);
     }
@@ -79,15 +95,29 @@ export class CompanyApproval {
   }
 
   updateFields(fields: Partial<Omit<CompanyApproval, "id" | "userId" | "documents" | "status" | "rejectionReason" | "isActive" | "createdAt" | "updatedAt">>) {
-    const allowedKeys: (keyof typeof fields)[] = [
-      "companyName", "address", "contactPerson", "contactEmail",
-      "contactPhone", "taxId", "website", "numberOfEmployees"
-    ];
-
-    for (const key of allowedKeys) {
-      if (key in fields) {
-        (this as any)[key] = fields[key];
-      }
+    if (fields.companyName !== undefined) {
+      this.companyName = fields.companyName;
+    }
+    if (fields.address !== undefined) {
+      this.address = fields.address;
+    }
+    if (fields.contactPerson !== undefined) {
+      this.contactPerson = fields.contactPerson;
+    }
+    if (fields.contactEmail !== undefined) {
+      this.contactEmail = fields.contactEmail;
+    }
+    if (fields.contactPhone !== undefined) {
+      this.contactPhone = fields.contactPhone;
+    }
+    if (fields.taxId !== undefined) {
+      this.taxId = fields.taxId;
+    }
+    if (fields.website !== undefined) {
+      this.website = fields.website;
+    }
+    if (fields.numberOfEmployees !== undefined) {
+      this.numberOfEmployees = fields.numberOfEmployees;
     }
 
     this.updatedAt = new Date();

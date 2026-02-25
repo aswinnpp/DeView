@@ -8,7 +8,7 @@ import type { IMarkDocumentUseCase } from "../ports/usecase/IMarkDocumentUseCase
 export class MarkDocumentUseCase implements IMarkDocumentUseCase {
   constructor(@inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository) { }
 
-    async execute(companyId: string, documentKey: string, verified: boolean) {
+    async execute(companyId: string, documentKey: Parameters<IMarkDocumentUseCase["execute"]>[1], verified: boolean) {
         const company = await this.repo.findById(companyId);
 
         if (!company) {

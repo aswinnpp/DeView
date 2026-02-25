@@ -31,7 +31,12 @@ async function attachUser(request: FastifyRequest) {
 
   await request.jwtVerify();
 
-  const user = request.user as any;
+  const user = request.user as {
+    userId: string;
+    role: string;
+    companyId?: string;
+    jti?: string;
+  } | undefined;
 
   if (!user) {
     throw AppError.unauthorized("Authentication required");
@@ -59,7 +64,7 @@ async function attachUser(request: FastifyRequest) {
 
 export async function requireAuth(
   request: FastifyRequest,
-  reply: FastifyReply
+  _reply: FastifyReply
 ) {
   await attachUser(request);
 }
@@ -68,7 +73,7 @@ export async function requireAuth(
 export function requireRoles(...roles: string[]) {
   return async (
     request: FastifyRequest,
-    reply: FastifyReply
+    _reply: FastifyReply
   ) => {
     const user = await attachUser(request);
 

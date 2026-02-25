@@ -2,6 +2,7 @@ import fastifyJwt from '@fastify/jwt';
 import fp from 'fastify-plugin';
 import { FastifyInstance } from 'fastify';
 import { env } from '../config/env.js';
+import type { IRefreshTokenPayload } from '../../application/auth/ports/services/ITokenService';
 
 
 async function jwtPlugin(fastify: FastifyInstance) {
@@ -10,10 +11,10 @@ async function jwtPlugin(fastify: FastifyInstance) {
         sign: { expiresIn: env.ACCESS_TOKEN_TTL },
     });
 
-    fastify.decorate('signRefreshToken', (payload: any) => {
+    fastify.decorate('signRefreshToken', (payload: IRefreshTokenPayload) => {
         return fastify.jwt.sign(payload, {
             expiresIn: env.REFRESH_TOKEN_TTL,
-        } as any);
+        });
     });
 }
 

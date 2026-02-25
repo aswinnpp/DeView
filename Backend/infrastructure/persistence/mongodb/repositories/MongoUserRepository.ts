@@ -1,4 +1,4 @@
-import { Collection, ObjectId } from "mongodb";
+import { Collection, ObjectId, type Filter } from "mongodb";
 import type { IUserRepository, IUserSearchOptions } from "../../../../application/shared/ports/repository/IUserRepository";
 import { User } from "../../../../domain/user/entities/User";
 import { Email } from "../../../../domain/user/value-objects/Email";
@@ -7,7 +7,7 @@ import { IUserDocument } from "../schemas/UserDocument";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 
 export class MongoUserRepository
-  extends BaseMongoRepository<User>
+  extends BaseMongoRepository<User, IUserDocument>
   implements IUserRepository {
   constructor(collection: Collection<IUserDocument>) {
     super(collection);
@@ -24,7 +24,7 @@ export class MongoUserRepository
     options?: IUserSearchOptions
   ): Promise<{ data: User[]; total: number }> {
     const { search, status, sortOrder = "desc", page = 1, limit } = options ?? {};
-    const filter: Record<string, any> = { companyId, role };
+    const filter: Filter<IUserDocument> = { companyId, role };
 
     if (search && search.trim()) {
       const regex = { $regex: search.trim(), $options: "i" };
@@ -54,7 +54,7 @@ export class MongoUserRepository
     options?: IUserSearchOptions
   ): Promise<{ data: User[]; total: number }> {
     const { search, status, sortOrder = "desc", page = 1, limit } = options ?? {};
-    const filter: Record<string, any> = { role };
+    const filter: Filter<IUserDocument> = { role };
 
     if (search && search.trim()) {
       const regex = { $regex: search.trim(), $options: "i" };

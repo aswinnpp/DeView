@@ -4,7 +4,7 @@ import { RedisClientType } from "redis";
 export class RedisOAuthSessionRepository implements IOAuthSession {
   constructor(private redis: RedisClientType) {}
 
-  async save(sessionId: string, payload: unknown): Promise<void> {
+  async save(sessionId: string, payload: IOAuthSession["save"] extends (id: string, p: infer P) => Promise<void> ? P : never): Promise<void> {
     await this.redis.setEx(
       `oauth:session:${sessionId}`,
       900,

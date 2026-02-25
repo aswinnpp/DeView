@@ -32,20 +32,29 @@ export class CandidateProfile {
     ) { }
 
     updateFields(fields: Partial<Omit<CandidateProfile, "id" | "userId" | "createdAt" | "updatedAt">>) {
-        const allowedKeys: (keyof typeof fields)[] = [
-            "fullName", "email", "phone", "location", "dateOfBirth",
-            "title", "currentCompany", "currentSalary", "experience",
-            "bio", "expectedSalary", "noticePeriod", "preferredWorkMode",
-            "preferredJobType", "willingToRelocate", "skills", "languages",
-            "education", "university", "graduationYear",
-            "linkedinUrl", "githubUrl", "resumeUrl",
-        ];
-
-        for (const key of allowedKeys) {
-            if (key in fields) {
-                (this as any)[key] = fields[key];
-            }
-        }
+        if (fields.fullName !== undefined) this.fullName = fields.fullName;
+        if (fields.email !== undefined) this.email = fields.email;
+        if (fields.phone !== undefined) this.phone = fields.phone;
+        if (fields.location !== undefined) this.location = fields.location;
+        if (fields.dateOfBirth !== undefined) this.dateOfBirth = fields.dateOfBirth;
+        if (fields.title !== undefined) this.title = fields.title;
+        if (fields.currentCompany !== undefined) this.currentCompany = fields.currentCompany;
+        if (fields.currentSalary !== undefined) this.currentSalary = fields.currentSalary;
+        if (fields.experience !== undefined) this.experience = fields.experience;
+        if (fields.bio !== undefined) this.bio = fields.bio;
+        if (fields.expectedSalary !== undefined) this.expectedSalary = fields.expectedSalary;
+        if (fields.noticePeriod !== undefined) this.noticePeriod = fields.noticePeriod;
+        if (fields.preferredWorkMode !== undefined) this.preferredWorkMode = fields.preferredWorkMode;
+        if (fields.preferredJobType !== undefined) this.preferredJobType = fields.preferredJobType;
+        if (fields.willingToRelocate !== undefined) this.willingToRelocate = fields.willingToRelocate;
+        if (fields.skills !== undefined) this.skills = fields.skills;
+        if (fields.languages !== undefined) this.languages = fields.languages;
+        if (fields.education !== undefined) this.education = fields.education;
+        if (fields.university !== undefined) this.university = fields.university;
+        if (fields.graduationYear !== undefined) this.graduationYear = fields.graduationYear;
+        if (fields.linkedinUrl !== undefined) this.linkedinUrl = fields.linkedinUrl;
+        if (fields.githubUrl !== undefined) this.githubUrl = fields.githubUrl;
+        if (fields.resumeUrl !== undefined) this.resumeUrl = fields.resumeUrl;
 
         this.updatedAt = new Date();
     }

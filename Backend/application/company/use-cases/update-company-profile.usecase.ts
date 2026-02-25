@@ -21,7 +21,7 @@ export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase
         }
 
         // Exclude documents and other protected fields from update
-        const { userId, ...fields } = dto;
+        const {  ...fields } = dto;
         profile.updateFields(fields);
 
         await this.repo.save(profile);

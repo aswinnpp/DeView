@@ -2,14 +2,6 @@ import { OAuth2Client } from 'google-auth-library';
 import { IGoogleAuth } from '../../application/auth/ports/services/IGoogleAuth.js';
 import { IGoogleUserDTO } from '../../application/auth/dtos/GoogleUserDTO.js';
 
-interface IGoogleUser {
-    email: string;
-    name: string;
-    picture?: string;
-    email_verified: boolean;
-    sub: string;
-}
-
 export class GoogleAuthService implements IGoogleAuth {
     private client: OAuth2Client | null;
     private clientId: string;

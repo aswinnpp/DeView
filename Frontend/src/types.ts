@@ -2,7 +2,6 @@ export interface ICandidate {
   id: string;
   active: boolean;
   status?: string;
-  [key: string]: any;
 }
 
 export interface IInterview {
@@ -14,6 +13,5 @@ export interface IInterview {
   scheduledAt: string;
   jd?: string;
   jobId?: string;
-  [key: string]: any;
 }
 

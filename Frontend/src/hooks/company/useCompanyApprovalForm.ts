@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -79,10 +79,14 @@ export function useCompanyApprovalForm({
     mode: "onSubmit",
   });
 
-  const documents = (form.watch("documents") ?? {}) as Record<
-    string,
-    DocumentUpload
-  >;
+  const watchedDocuments = form.watch("documents") as
+    | Record<string, DocumentUpload>
+    | undefined;
+
+  const documents = useMemo(
+    () => watchedDocuments ?? {},
+    [watchedDocuments]
+  );
 
   const remove = useCallback(
     (key: string) => {
