@@ -10,11 +10,8 @@ export type UploadCategory =
     | 'bankDocument';
 
 export interface IGenerateSignatureResponse {
-    signature: string;
-    timestamp: number;
-    apiKey: string;
-    cloudName: string;
-    folder: string;
+    uploadUrl: string;
+    fileUrl: string;
 }
 
 export const uploadService = {

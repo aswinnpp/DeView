@@ -29,26 +29,19 @@ export function useFileUpload(): IUseFileUploadReturn {
             setIsUploading(true);
             setError(null);
 
-            // Step 1: Get signed upload params from backend
+            // Step 1: Get pre-signed upload URL from backend
             const { data: sig } = await uploadService.generateSignature(category);
 
-            // Step 2: Upload directly to Cloudinary
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('api_key', sig.apiKey);
-            formData.append('timestamp', String(sig.timestamp));
-            formData.append('signature', sig.signature);
-            formData.append('folder', sig.folder);
+            // Step 2: Upload directly to S3 using the pre-signed URL
+            const res = await fetch(sig.uploadUrl, {
+                method: 'PUT',
+                body: file,
+            });
 
-            const res = await fetch(
-                `https://api.cloudinary.com/v1_1/${sig.cloudName}/auto/upload`,
-                { method: 'POST', body: formData }
-            );
+            if (!res.ok) throw new Error('Failed to upload to S3');
 
-            if (!res.ok) throw new Error('Failed to upload to Cloudinary');
-
-            const result = await res.json();
-            setUploadedFile({ url: result.secure_url });
+            // We already know the final public URL from the backend
+            setUploadedFile({ url: sig.fileUrl });
         } catch (err) {
             const msg = err instanceof Error ? err.message : 'Failed to upload file';
             setError(msg);

@@ -6,7 +6,7 @@ import { BcryptPasswordHasher } from '../security/BcryptPasswordHasher.js';
 import { SecureJwtTokenService } from '../security/SecureJwtTokenService.js';
 import { NodemailerEmailService } from '../email/NodemailerEmailService.js';
 import { GoogleAuthService } from '../auth/GoogleAuthService.js';
-import { CloudinaryFileStorageService } from '../storage/CloudinaryFileStorageService.js';
+import { S3FileStorageService } from '../storage/S3FileStorageService.js';
 import { NodeCryptoRandomService } from '../security/NodeCryptoRandomService.js';
 import { RedisAccessTokenRepository } from '../persistence/redis/RedisAccessTokenRepository.js';
 import { RedisRefreshTokenRepository } from '../persistence/redis/RedisRefreshTokenRepository.js';
@@ -17,7 +17,7 @@ export function bindServices(container: Container): void {
 
   container.bind(TYPES.PasswordHasherPort).to(BcryptPasswordHasher);
   container.bind(TYPES.EmailServicePort).to(NodemailerEmailService);
-  container.bind(TYPES.FileStoragePort).to(CloudinaryFileStorageService);
+  container.bind(TYPES.FileStoragePort).to(S3FileStorageService);
   container.bind(TYPES.CryptoRandomPort).to(NodeCryptoRandomService);
 
   container.bind(TYPES.GoogleAuthPort).toConstantValue(

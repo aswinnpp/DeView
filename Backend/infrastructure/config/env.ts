@@ -18,6 +18,10 @@ export interface IEnvConfig {
     CLOUDINARY_CLOUD_NAME?: string;
     CLOUDINARY_API_KEY?: string;
     CLOUDINARY_API_SECRET?: string;
+    AWS_ACCESS_KEY_ID?: string;
+    AWS_SECRET_ACCESS_KEY?: string;
+    AWS_REGION?: string;
+    AWS_S3_BUCKET?: string;
     EMAIL_USER?: string;
     EMAIL_PASSWORD?: string;
     ACCESS_TOKEN_TTL?: string;
@@ -43,6 +47,10 @@ function validateEnv(): IEnvConfig {
         CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
         CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
         CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+        AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+        AWS_REGION: process.env.AWS_REGION,
+        AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
         EMAIL_USER: process.env.EMAIL_USER,
         EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
         ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL,

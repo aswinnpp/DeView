@@ -15,9 +15,17 @@ import { redisClient } from './infrastructure/cache/RedisClient.js';
 
 async function bootstrap() {
   const fastify = Fastify({
-    logger: env.NODE_ENV === 'production'
-      ? true
-      : { level: 'error' }
+    logger: {
+      level: 'info',
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          translateTime: 'SYS:standard',
+          ignore: 'pid,hostname',
+        },
+      },
+    },
   });
 
   await registerHelmet(fastify);
@@ -51,6 +59,7 @@ async function bootstrap() {
   await fastify.register(jwtPlugin);
 
   await fastify.register(multipart, { limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB max for resume uploads
+
 
   const ioc = createContainer(db);
   const controllers = getControllers(ioc);
