@@ -1,4 +1,5 @@
 
+
 export const TYPES = {
   Db: Symbol('Db'),
   Redis: Symbol('Redis'),
@@ -45,10 +46,16 @@ export const TYPES = {
   ToggleCompanyActiveUseCasePort: Symbol('ToggleCompanyActiveUseCasePort'),
 
   CreateCandidateProfileUseCasePort: Symbol('CreateCandidateProfileUseCasePort'),
-  GetCandidateProfileUseCasePort: Symbol('GetCandidateProfileUseCasePort'),
+  GetCandidateProfileUseCasePort: Symbol('GetCandidateProfileUseCasePort'), 
   UpdateCandidateProfileUseCasePort: Symbol('UpdateCandidateProfileUseCasePort'),
   GetAllCandidatesUseCasePort: Symbol('GetAllCandidatesUseCasePort'),
   ToggleCandidateStatusUseCasePort: Symbol('ToggleCandidateStatusUseCasePort'),
 
   GenerateUploadSignatureUseCasePort: Symbol('GenerateUploadSignatureUseCasePort'),
+  CreateSubscribtioUsecasePort : Symbol("CreateSubscribtioUsecasePort"),
+  ListSubscribtionsUsecasePort: Symbol("ListSubscribtionsUsecasePort"),
+  ToggleSubscribtionStatusUsecasePort: Symbol("ToggleSubscribtionStatusUsecasePort"),
+  UpdateSubscribtionUsecasePort: Symbol("UpdateSubscribtionUsecasePort"),
+  SubscribtionRepositoryPort: Symbol("SubscribtionRepositoryPort"),
+
 } as const;

@@ -8,10 +8,8 @@ import { UploadController } from '../../interfaces/http/controllers/upload.contr
 import { CompanyTeamController } from '../../interfaces/http/controllers/company-team.controller.js';
 import { CandidateProfileController } from '../../interfaces/http/controllers/candidate-profile.controller.js';
 import { CompanyProfileController } from '../../interfaces/http/controllers/company-profile.controller.js';
+import {AdminSubscribtionController}from"../../interfaces/http/controllers/admin-subscribtion.controller.js"
 
-/**
- * Binds all controller dependencies to the container
- */
 export function bindControllers(container: Container): void {
   container.bind(AuthController).toSelf();
   container.bind(GoogleAuthController).toSelf();
@@ -21,4 +19,5 @@ export function bindControllers(container: Container): void {
   container.bind(CompanyTeamController).toSelf();
   container.bind(CandidateProfileController).toSelf();
   container.bind(CompanyProfileController).toSelf();
+  container.bind(AdminSubscribtionController).toSelf();
 }

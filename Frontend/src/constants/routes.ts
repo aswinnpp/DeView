@@ -31,7 +31,11 @@ export const API_ROUTES = {
         COMPANY_REJECT: (id: string) => `/admin/company-requests/${id}/reject`,
         COMPANY_DOCUMENT_MARK: (companyId: string, documentKey: string) =>
             `/admin/company-requests/${companyId}/documents/${documentKey}/mark`,
-        COMPANYTOGGLE:(id:string)=>`/admin/company-requests/${id}/toggle-active`
+        COMPANYTOGGLE:(id:string)=>`/admin/company-requests/${id}/toggle-active`,
+        SUBSCRIPTION_CREATE: '/admin/company-requests/subscribtion',
+        SUBSCRIPTION_LIST: '/admin/company-requests/subscribtion',
+        SUBSCRIPTION_TOGGLE: (id: string) => `/admin/company-requests/subscribtion/${id}/toggle-active`,
+        SUBSCRIPTION_UPDATE: (id: string) => `/admin/company-requests/subscribtion/${id}`,
     },
     CANDIDATE: {
         PROFILE: '/candidate/profile',

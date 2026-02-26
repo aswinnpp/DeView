@@ -8,6 +8,7 @@ import { adminCompanyApprovalRoutes } from '../../interfaces/http/routes/admin-c
 import { uploadRoutes } from '../../interfaces/http/routes/upload.routes.js';
 import { companyTeamRoutes } from '../../interfaces/http/routes/company-team.routes.js';
 import { candidateProfileRoutes } from '../../interfaces/http/routes/candidate-profile.routes.js';
+import { subcribtionRoutes } from '../../interfaces/http/routes/admin-subscribtion.routes.js';
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     await fastify.register(
@@ -30,6 +31,7 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
     await fastify.register(
         async (instance) => {
             await adminCompanyApprovalRoutes(instance, controllers.adminCompanyApprovalController);
+            await subcribtionRoutes(instance, controllers.adminsubscribtioncontroller);
         },
         { prefix: '/admin/company-requests' }
     );

@@ -32,6 +32,7 @@ const AdminLayout = lazy(() => import("../features/admin/AdminLayout"));
 const AdminCompanyRequestsPage = lazy(() => import("../features/admin/AdminCompanyRequestsPage"));
 const AdminCompanyManagement = lazy(() => import("../features/admin/AdminCompanyManagement"));
 const AdminCandidatesPage = lazy(() => import("../features/admin/AdminCandidatesPage"));
+const AdminSubscriptionsPage = lazy(() => import("../features/admin/AdminSubscriptionsPage"));
 
 
 
@@ -65,6 +66,8 @@ const AppRouter = () => {
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Route>
 
+        {/* Unprotected admin subscriptions preview route */}
+
 
 
         {/* ─── Protected Routes ───────────────────── */}
@@ -89,6 +92,8 @@ const AppRouter = () => {
             <Route path="company-requests" element={<AdminCompanyRequestsPage />} />
             <Route path="companies" element={<AdminCompanyManagement />} />
             <Route path="candidates" element={<AdminCandidatesPage />} />
+            <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
+
           </Route>
 
           <Route path="/company" element={<CompanyLayout />}>

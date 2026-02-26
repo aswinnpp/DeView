@@ -31,6 +31,10 @@ import { RejectCompanyUseCase } from '../../application/admin/use-cases/reject-c
 import { MarkDocumentUseCase } from '../../application/admin/use-cases/mark-document.usecase.js';
 import { GetApprovedCompaniesUseCase } from '../../application/admin/use-cases/get-approved-companies.usecase.js';
 import { AdminToggleActivityUseCase } from '../../application/admin/use-cases/admin-toggle-activity.usecase.js';
+import {AdminCreateSubscribtion} from "../../application/admin/use-cases/admin-subscribtion.usecase.js"
+import { AdminListSubscribtionsUsecase } from "../../application/admin/use-cases/admin-list-subscribtions.usecase.js";
+import { AdminToggleSubscribtionStatusUsecase } from "../../application/admin/use-cases/admin-toggle-subscribtion-status.usecase.js";
+import { AdminUpdateSubscribtion } from "../../application/admin/use-cases/admin-update-subscribtion.usecase.js";
 
 // Candidate use cases
 import { CreateCandidateProfileUseCase } from '../../application/candidate/use-cases/create-candidate-profile.usecase.js';
@@ -42,10 +46,7 @@ import { ToggleCandidateStatusUseCase } from '../../application/candidate/use-ca
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
 
-/**
- * Binds all use case dependencies to the container.
- * Controllers inject ports (abstractions); ports are bound to concrete use cases.
- */
+
 export function bindUseCases(container: Container): void {
   // Internal use cases (injected by other use cases, not controllers)
   container.bind(ResolveCompanyForUserUseCase).toSelf();
@@ -89,4 +90,8 @@ export function bindUseCases(container: Container): void {
 
   // Upload use cases
   container.bind(TYPES.GenerateUploadSignatureUseCasePort).to(GenerateUploadSignatureUseCase);
+  container.bind(TYPES.CreateSubscribtioUsecasePort).to(AdminCreateSubscribtion);
+  container.bind(TYPES.ListSubscribtionsUsecasePort).to(AdminListSubscribtionsUsecase);
+  container.bind(TYPES.ToggleSubscribtionStatusUsecasePort).to(AdminToggleSubscribtionStatusUsecase);
+  container.bind(TYPES.UpdateSubscribtionUsecasePort).to(AdminUpdateSubscribtion);
 }
