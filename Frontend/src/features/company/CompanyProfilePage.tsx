@@ -10,6 +10,7 @@ const CompanyProfilePage = () => {
         setIsEditing,
         showSubscriptionModal,
         setShowSubscriptionModal,
+        subscription,
         isLoading,
         error,
         isSaving,
@@ -372,11 +373,92 @@ const CompanyProfilePage = () => {
                             </Button>
                         </div>
 
-                        {/* Subscription Plans */}
-                        <div className="grid gap-6 max-md:gap-4 max-md:grid-cols-1 grid-cols-3">
-                            <div className="col-span-full text-center py-10 max-md:py-8 text-slate-500">
-                                <p className="text-base max-md:text-sm">Subscription plans feature coming soon.</p>
-                            </div>
+                       {/* Subscription Plans */}
+                    {/* Subscription Plans */}
+                        <div className="grid gap-6 max-md:gap-5 max-md:grid-cols-1 grid-cols-3">
+                        {subscription
+                            ?.filter((plan) => plan.isActive)
+                            .map((plan, index) => {
+                            const isPopular = index === 1; // example highlight middle plan
+
+                            return (
+                                <div
+                                key={plan._id || index}
+                                className={`relative rounded-2xl border p-7 max-md:p-6 min-h-[260px] ${
+                                    isPopular
+                                    ? "border-indigo-500 bg-slate-900/80 shadow-[0_0_0_1px_rgba(129,140,248,0.5)]"
+                                    : "border-slate-700 bg-slate-900/70"
+                                }`}
+                                >
+                                {/* Popular Badge */}
+                                {isPopular && (
+                                    <span className="absolute top-4 right-4 bg-indigo-500 text-white text-[11px] px-3 py-1 rounded-full tracking-wide uppercase">
+                                    Most Popular
+                                    </span>
+                                )}
+
+                                {/* Plan Name */}
+                                <h3 className="text-lg font-semibold text-slate-50 mb-1.5">
+                                    {plan.name}
+                                </h3>
+
+                                {/* Duration badge */}
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-200 mb-4">
+                                    {plan.duration}
+                                </span>
+
+                                {/* Price */}
+                                <div className="mb-6">
+                                    <span className="text-3xl font-bold text-emerald-400">
+                                    ₹{plan.price}
+                                    </span>
+                                    <span className="text-slate-400 text-sm ml-1">/ {plan.duration}</span>
+                                </div>
+
+                                {/* Features */}
+                                <ul className="space-y-2.5 mb-7 text-sm text-slate-200">
+                                    {/* Interview Feature */}
+                                    <li className="flex items-center">
+                                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-3"></span>
+                                    {plan.interviewUnlimited
+                                        ? "Unlimited Interviews"
+                                        : `${plan.interviewLimit} Interviews`}
+                                    </li>
+
+                                    {/* Job Posting Feature */}
+                                    <li className="flex items-center">
+                                    <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full mr-3"></span>
+                                    {plan.jobUnlimited
+                                        ? "Unlimited Job Posts"
+                                        : `${plan.jobPostLimit} Job Posts`}
+                                    </li>
+
+                                    {/* AI Feature */}
+                                    <li className="flex items-center">
+                                    <span
+                                        className={`w-1.5 h-1.5 rounded-full mr-3 ${
+                                        plan.hasAI ? "bg-violet-400" : "bg-slate-600"
+                                        }`}
+                                    ></span>
+                                    {plan.hasAI ? "AI features included" : "No AI access"}
+                                    </li>
+                                </ul>
+
+                                {/* Button */}
+                                <Button
+                                    type="button"
+                                    disabled={!plan.isActive}
+                                    className={`w-full py-2.5 rounded-lg text-sm font-semibold transition border ${
+                                        isPopular
+                                            ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none hover:opacity-90"
+                                            : "bg-slate-800 text-slate-100 border-slate-600 hover:bg-slate-700"
+                                    } ${!plan.isActive ? "opacity-60 cursor-not-allowed" : ""}`}
+                                >
+                                    Choose Plan
+                                </Button>
+                                </div>
+                            );
+                            })}
                         </div>
                     </div>
                 </div>

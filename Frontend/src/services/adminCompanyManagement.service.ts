@@ -64,7 +64,6 @@ export const adminCompanyManagementService = {
         return api.post(API_ROUTES.ADMIN.COMPANY_REJECT(id), { reason });
     },
 
-   // in adminCompanyManagement.service.ts
 
 toggleActive(id: string) {
   return api.post<ToggleActiveResponse>(API_ROUTES.ADMIN.COMPANYTOGGLE(id));

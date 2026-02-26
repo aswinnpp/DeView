@@ -23,7 +23,6 @@ const ForgotPasswordPage = () => {
         {/* Header */}
         <div className="py-5 px-7 border-b border-[rgba(255,255,255,0.1)] flex justify-between items-center max-md:py-4 max-md:px-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-linear-to-br from-brand-primary to-brand-secondary rounded-xl flex items-center justify-center text-white">D</div>
             <h2 className="text-white text-lg font-semibold tracking-wider">DEVIEW</h2>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { api } from '../api/axios';
 import { API_ROUTES } from '../constants/routes';
 
-export interface CreateSubscriptionRequest {
+export interface ICreateSubscriptionRequest {
   name: string;
   price: number;
   duration: 'Monthly' | 'Quarterly' | 'Annual';
@@ -13,7 +13,7 @@ export interface CreateSubscriptionRequest {
   hasAI: boolean;
 }
 
-export type SubscriptionPlan = CreateSubscriptionRequest & {
+export type SubscriptionPlan = ICreateSubscriptionRequest & {
   id: string;
   createdAt: string;
   updatedAt: string;
@@ -29,15 +29,17 @@ export type GetSubscriptionsParams = {
 };
 
 export const adminSubscriptionService = {
-  create(data: CreateSubscriptionRequest) {
+  create(data: ICreateSubscriptionRequest) {
     return api.post(API_ROUTES.ADMIN.SUBSCRIPTION_CREATE, data);
   },
 
-  update(id: string, data: CreateSubscriptionRequest) {
+  update(id: string, data: ICreateSubscriptionRequest) {
     return api.put(API_ROUTES.ADMIN.SUBSCRIPTION_UPDATE(id), data);
   },
 
   list(params?: GetSubscriptionsParams) {
+    console.log('list', params);
+    
     const searchParams = new URLSearchParams();
     if (params?.search) searchParams.set('search', params.search);
     if (params?.status) searchParams.set('status', params.status);
@@ -46,7 +48,7 @@ export const adminSubscriptionService = {
     if (params?.page != null) searchParams.set('page', String(params.page));
     if (params?.limit != null) searchParams.set('limit', String(params.limit));
     const query = searchParams.toString();
-    const url = query ? `${API_ROUTES.ADMIN.SUBSCRIPTION_LIST}?${query}` : API_ROUTES.ADMIN.SUBSCRIPTION_LIST;
+    const url = `${API_ROUTES.ADMIN.SUBSCRIPTION_LIST}?${query}`
     return api.get<{ data: SubscriptionPlan[]; total: number }>(url);
   },
 

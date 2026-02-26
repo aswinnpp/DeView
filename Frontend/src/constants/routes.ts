@@ -18,6 +18,7 @@ export const API_ROUTES = {
         SUBMIT_APPROVAL: '/company/submit',
         MY_APPROVAL: '/company/my-approval',
         PROFILE: '/company/profile',
+        SUBSCRIPTION_LIST: '/company/subscribtion',
         HR_LIST: '/company/hr/list',
         HR_CREATE: '/company/hr/create',
         HR_TOGGLE_STATUS: (id: string) => `/company/hr/${id}/toggle-status`,

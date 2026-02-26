@@ -6,7 +6,7 @@ export async function subcribtionRoutes(
   fastify: FastifyInstance,
   controller: AdminSubscribtionController
 ): Promise<void> {
-  fastify.addHook("preHandler", requireRoles('admin'));
+  fastify.addHook("preHandler", requireRoles('admin', 'company'));
 
   fastify.get("/subscribtion", {
     handler: controller.list,
