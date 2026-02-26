@@ -26,6 +26,9 @@ export interface IEnvConfig {
     EMAIL_PASSWORD?: string;
     ACCESS_TOKEN_TTL?: string;
     REFRESH_TOKEN_TTL?: string;
+    STRIPE_SECRET_KEY?: string;
+    STRIPE_WEBHOOK_SECRET?: string;
+    STRIPE_CURRENCY?: string;
 }
 function validateEnv(): IEnvConfig {
     const requiredVars = ['PORT', 'MONGO_URI', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
@@ -55,6 +58,9 @@ function validateEnv(): IEnvConfig {
         EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
         ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL,
         REFRESH_TOKEN_TTL: process.env.REFRESH_TOKEN_TTL,
+        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+        STRIPE_CURRENCY: process.env.STRIPE_CURRENCY || 'inr',
     };
 }
 export const env = validateEnv();

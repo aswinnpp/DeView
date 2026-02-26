@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-  "lint": "eslint .",
-  "lint:fix": "eslint . --fix"
-
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "repository": {
     "type": "git",
@@ -29,5 +28,8 @@
     "globals": "^17.3.0",
     "jiti": "^2.6.1",
     "typescript-eslint": "^8.56.1"
+  },
+  "dependencies": {
+    "stripe": "^20.4.0"
   }
 }

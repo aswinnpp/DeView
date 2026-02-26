@@ -143,3 +143,16 @@
     transform: translateY(-20px) rotate(180deg);
   }
 }
+
+/* ===== Payment Result Animations ===== */
+
+
+.dv-pop {
+  animation: dv-pop 180ms ease-out both;
+}
+
+.dv-stroke {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: dv-draw 600ms ease-out forwards;
+}

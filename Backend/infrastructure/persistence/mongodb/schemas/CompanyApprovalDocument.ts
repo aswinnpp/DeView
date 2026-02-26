@@ -15,6 +15,8 @@ export interface ICompanyApprovalDocument {
     status: 'pending' | 'approved' | 'rejected';
     rejectionReason?: string;
     isActive: boolean;
+    subscriptionPlanId?: string;
+    subscriptionEndsAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }

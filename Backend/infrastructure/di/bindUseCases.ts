@@ -23,6 +23,8 @@ import { UpdateCompanyProfileUseCase } from '../../application/company/use-cases
 import { CreateTeamMemberUseCase } from '../../application/company/use-cases/create-team-member.usecase.js';
 import { ListTeamMembersUseCase } from '../../application/company/use-cases/list-team-members.usecase.js';
 import { ToggleTeamMemberStatusUseCase } from '../../application/company/use-cases/toggle-team-member-status.usecase.js';
+import { CreatePaymentIntentUseCase } from '../../application/company/use-cases/create-payment-intent.usecase.js';
+import { HandlePaymentWebhookUseCase } from '../../application/company/use-cases/handle-payment-webhook.usecase.js';
 
 // Admin use cases
 import { GetPendingCompaniesUseCase } from '../../application/admin/use-cases/get-pending-companies.usecase.js';
@@ -72,6 +74,8 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.CreateTeamMemberUseCasePort).to(CreateTeamMemberUseCase);
   container.bind(TYPES.ListTeamMembersUseCasePort).to(ListTeamMembersUseCase);
   container.bind(TYPES.ToggleTeamMemberStatusUseCasePort).to(ToggleTeamMemberStatusUseCase);
+  container.bind(TYPES.CreatePaymentIntentUseCasePort).to(CreatePaymentIntentUseCase);
+  container.bind(TYPES.HandlePaymentWebhookUseCasePort).to(HandlePaymentWebhookUseCase);
 
   // Admin use cases
   container.bind(TYPES.GetPendingCompaniesUseCasePort).to(GetPendingCompaniesUseCase);

@@ -57,5 +57,8 @@ export const TYPES = {
   ToggleSubscribtionStatusUsecasePort: Symbol("ToggleSubscribtionStatusUsecasePort"),
   UpdateSubscribtionUsecasePort: Symbol("UpdateSubscribtionUsecasePort"),
   SubscribtionRepositoryPort: Symbol("SubscribtionRepositoryPort"),
+  PaymentRepositoryPort: Symbol("PaymentRepositoryPort"),
 
+  CreatePaymentIntentUseCasePort: Symbol("CreatePaymentIntentUseCasePort"),
+  HandlePaymentWebhookUseCasePort: Symbol("HandlePaymentWebhookUseCasePort"),
 } as const;

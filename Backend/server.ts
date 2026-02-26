@@ -3,6 +3,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
 import multipart from '@fastify/multipart';
+import fastifyRawBody from 'fastify-raw-body';
 
 import { env } from './infrastructure/config/env.js';
 import { initializeDatabase } from './infrastructure/database/index.js';
@@ -26,6 +27,13 @@ async function bootstrap() {
         },
       },
     },
+  });
+
+  await fastify.register(fastifyRawBody, {
+    field: 'rawBody',
+    global: false,
+    encoding: 'utf8',
+    runFirst: true,
   });
 
   await registerHelmet(fastify);

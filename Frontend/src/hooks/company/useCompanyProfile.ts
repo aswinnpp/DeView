@@ -85,6 +85,7 @@ export function useCompanyProfile() {
             navigate(APP_ROUTES.LOGIN, { replace: true });
         }
     }, [dispatch, navigate]);
+    
 
     const fetchSubscribtion = useCallback(async () => {
         try {

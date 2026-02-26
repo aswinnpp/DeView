@@ -91,6 +91,8 @@ export class MongoCompanyProfileRepository
       doc.status,
       doc.rejectionReason,
       doc.isActive ?? true,
+      doc.subscriptionPlanId,
+      doc.subscriptionEndsAt,
       doc.createdAt,
       doc.updatedAt
     );
@@ -112,6 +114,8 @@ export class MongoCompanyProfileRepository
       status: entity.status,
       rejectionReason: entity.rejectionReason,
       isActive: entity.isActive,
+      subscriptionPlanId: entity.subscriptionPlanId,
+      subscriptionEndsAt: entity.subscriptionEndsAt,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt
     };

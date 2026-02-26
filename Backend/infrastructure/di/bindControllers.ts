@@ -9,6 +9,7 @@ import { CompanyTeamController } from '../../interfaces/http/controllers/company
 import { CandidateProfileController } from '../../interfaces/http/controllers/candidate-profile.controller.js';
 import { CompanyProfileController } from '../../interfaces/http/controllers/company-profile.controller.js';
 import {AdminSubscribtionController}from"../../interfaces/http/controllers/admin-subscribtion.controller.js"
+import { CompanyPaymentController } from '../../interfaces/http/controllers/company-payment.controller.js';
 
 export function bindControllers(container: Container): void {
   container.bind(AuthController).toSelf();
@@ -20,4 +21,5 @@ export function bindControllers(container: Container): void {
   container.bind(CandidateProfileController).toSelf();
   container.bind(CompanyProfileController).toSelf();
   container.bind(AdminSubscribtionController).toSelf();
+  container.bind(CompanyPaymentController).toSelf();
 }

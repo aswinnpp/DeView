@@ -33,9 +33,17 @@ export class CompanyApproval {
     public status: CompanyStatus = "pending",
     public rejectionReason?: string,
     public isActive: boolean = true,
+    public subscriptionPlanId?: string,
+    public subscriptionEndsAt?: Date,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) { }
+
+  setSubscription(planId: string, endsAt: Date): void {
+    this.subscriptionPlanId = planId;
+    this.subscriptionEndsAt = endsAt;
+    this.updatedAt = new Date();
+  }
 
   approve() {
     if (this.status == "approved" ) {
