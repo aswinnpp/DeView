@@ -5,6 +5,13 @@ import type { SubscriptionPlan } from "../../services/adminSubscription.service"
 import type { ICompanySubscriptionView } from "../../hooks/company/useCompanyProfile";
 import { useCompanyProfile, useCompanySubscription } from "../../hooks/company";
 import { Button, Input, Table, Pagination } from "../../components/common";
+
+type PaymentResult = {
+    open: boolean;
+    status: "success" | "failed";
+    title: string;
+    message?: string;
+};
 const CompanyPaymentCheckout: React.FC<{
     clientSecret: string;
     selectedPlan: SubscriptionPlan | null;
@@ -158,14 +165,8 @@ const CompanyProfilePage = () => {
 
     const {
         plans: subscription,
-        showSubscriptionModal,
-        setShowSubscriptionModal,
         selectedPlan,
-        isCheckoutOpen,
-        setIsCheckoutOpen,
         isStartingPayment,
-        paymentResult,
-        setPaymentResult,
         startPaymentForPlan: handleChoosePlan,
         clientSecret,
         // subscription table
@@ -187,11 +188,13 @@ const CompanyProfilePage = () => {
         fetchProfile,
     });
 
-    // subscription/payment state + handlers moved to useCompanySubscription
-
-  
-
-
+    const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [paymentResult, setPaymentResult] = useState<PaymentResult>({
+        open: false,
+        status: "success",
+        title: "",
+    });
     const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
@@ -763,7 +766,21 @@ const CompanyProfilePage = () => {
                                 <Button
                                     type="button"
                                     disabled={!plan.isActive || isStartingPayment || isCurrentPlan}
-                                    onClick={() => handleChoosePlan(plan)}
+                                    onClick={async () => {
+                                        try {
+                                            await handleChoosePlan(plan);
+                                            setIsCheckoutOpen(true);
+                                        } catch (err) {
+                                            const message =
+                                                err instanceof Error ? err.message : String(err);
+                                            setPaymentResult({
+                                                open: true,
+                                                status: "failed",
+                                                title: "Failed to start payment",
+                                                message,
+                                            });
+                                        }
+                                    }}
                                     className={`w-full py-2.5 rounded-lg text-sm font-semibold transition border ${
                                         isCurrentPlan
                                             ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none"

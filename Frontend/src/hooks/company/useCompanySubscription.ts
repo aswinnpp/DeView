@@ -4,34 +4,19 @@ import { companySubscriptionService } from "../../services/companySubscription.s
 import { extractApiError } from "../../api/axios";
 import type { ICompanyProfileData } from "./useCompanyProfile";
 
-type PaymentResult = {
-  open: boolean;
-  status: "success" | "failed";
-  title: string;
-  message?: string;
-};
-
 export function useCompanySubscription(opts?: {
   companyData?: ICompanyProfileData | null;
-  fetchProfile?: (opts?: { page?: number; limit?: number }) => Promise<void>;
+  fetchProfile?: (opts?: { page?: number; limit?: number; silent?: boolean }) => Promise<void>;
   onPaymentSucceeded?: () => void | Promise<void>;
 }) {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(false);
   const [plansError, setPlansError] = useState<string | null>(null);
 
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const [isStartingPayment, setIsStartingPayment] = useState(false);
-  const [paymentResult, setPaymentResult] = useState<PaymentResult>({
-    open: false,
-    status: "success",
-    title: "",
-  });
 
   const activePlans = useMemo(() => plans.filter((p) => p.isActive), [plans]);
 
@@ -90,9 +75,6 @@ export function useCompanySubscription(opts?: {
     void fetchPlans();
   }, [fetchPlans]);
 
-  const openPlansModal = useCallback(() => setShowSubscriptionModal(true), []);
-  const closePlansModal = useCallback(() => setShowSubscriptionModal(false), []);
-
   const startPaymentForPlan = useCallback(async (plan: SubscriptionPlan) => {
     try {
       setIsStartingPayment(true);
@@ -102,15 +84,10 @@ export function useCompanySubscription(opts?: {
       const secret = response.data.clientSecret;
 
       setClientSecret(secret);
-      setIsCheckoutOpen(true);
+      return secret;
     } catch (err) {
       const message = err instanceof Error ? err.message : extractApiError(err);
-      setPaymentResult({
-        open: true,
-        status: "failed",
-        title: "Failed to start payment",
-        message,
-      });
+      throw new Error(message);
     } finally {
       setIsStartingPayment(false);
     }
@@ -147,23 +124,15 @@ export function useCompanySubscription(opts?: {
   }, [subscriptionsTotalPages]);
 
   return {
-    // plan list + modal
+    // plan list
     plans: activePlans,
     plansLoading,
     plansError,
-    showSubscriptionModal,
-    setShowSubscriptionModal,
-    openPlansModal,
-    closePlansModal,
 
     // payment flow
     selectedPlan,
     clientSecret,
-    isCheckoutOpen,
-    setIsCheckoutOpen,
     isStartingPayment,
-    paymentResult,
-    setPaymentResult,
     startPaymentForPlan,
     refetchPlans: fetchPlans,
 
