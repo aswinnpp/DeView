@@ -4,6 +4,7 @@ import type { IAuthenticatedUser } from "../middleware/authMiddleware.js";
 /** Body shape from Zod-validated request (flat fields after schema transform) */
 interface IUpdateProfileBody {
   companyName?: string;
+  location?: string;
   address?: string;
   contactPerson?: string;
   contactEmail?: string;

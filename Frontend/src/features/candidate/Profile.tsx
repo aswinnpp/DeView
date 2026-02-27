@@ -30,7 +30,6 @@ const Profile = () => {
 
     const { upload, isUploading, uploadedFile } = useFileUpload();
 
-    // Sync uploaded URL into form
     useEffect(() => {
         if (uploadedFile?.url) {
             form.setValue('resumeUrl', uploadedFile.url, { shouldDirty: true, shouldValidate: true });
@@ -345,8 +344,6 @@ const Profile = () => {
                                     <Input label="Graduation Year *" {...register('graduationYear')} disabled={!isEditing} placeholder="e.g., 2021" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.graduationYear?.message} style={errorBorderStyle(validationErrors.graduationYear?.message)} />
                                 </div>
                             </section>
-
-                            {/* Resume Upload */}
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Resume</h3>
                                 <div className="py-4 max-md:py-3">
@@ -417,7 +414,6 @@ const Profile = () => {
                             </section>
                         </div>
 
-                        {/* Save button at bottom when editing */}
                         {isEditing && (
                             <div className="flex justify-end max-md:justify-stretch mt-8 max-md:mt-6 pt-6 max-md:pt-4 border-t border-[rgba(255,255,255,0.06)]">
                                 <Button type="submit" variant="primary" className="py-2.5 px-6 max-md:w-full max-md:py-2 max-md:text-sm rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSaving}>

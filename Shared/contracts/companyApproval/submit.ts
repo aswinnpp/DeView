@@ -27,6 +27,7 @@ const documentsSchema = z.object({
 
 export const submitCompanyApprovalRequestSchema = z.object({
   companyName: z.string().trim().min(1, { message: 'Company name is required' }).max(200),
+  location: z.string().trim().max(200).optional(),
   address: z.string().trim().min(1, { message: 'Address is required' }).max(500),
   contactPerson: z.string().trim().min(1, { message: 'Contact person is required' }).max(100),
   contactPhone: z.string().trim().min(10, { message: 'Phone must be at least 10 digits' }).max(20),

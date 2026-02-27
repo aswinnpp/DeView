@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 const flatFieldsSchema = z.object({
   companyName: z.string().trim().min(1).max(200).optional(),
+  location: z.string().trim().min(1).max(200).optional(),
   address: z.string().trim().min(1).max(500).optional(),
   contactPerson: z.string().trim().min(1).max(100).optional(),
   contactEmail: z.string().trim().toLowerCase().email().optional(),
@@ -11,7 +12,7 @@ const flatFieldsSchema = z.object({
   numberOfEmployees: z.string().trim().min(1).optional(),
 });
 
-/** Accepts flat { companyName?, ... } or nested { data: { companyName?, ... } }. */
+
 export const updateCompanyProfileRequestSchema = z.union([
   flatFieldsSchema,
   z.object({ data: flatFieldsSchema }),

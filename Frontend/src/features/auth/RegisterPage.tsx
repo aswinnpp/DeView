@@ -50,20 +50,16 @@ const RegisterPage = () => {
       <Background />
 
       <div className="bg-[rgba(15,15,25,0.95)] rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.1)] w-full max-w-[960px] min-h-[600px] overflow-hidden relative flex flex-col max-md:rounded-2xl max-sm:rounded-xl max-sm:min-h-[520px]">
-        {/* Header */}
         <div className="py-5 px-7 border-b border-[rgba(255,255,255,0.1)] flex justify-between items-center max-md:py-4 max-md:px-5">
           <div className="flex items-center gap-3">
             <h2 className="text-white text-lg font-semibold tracking-wider">DEVIEW</h2>
           </div>
         </div>
 
-        {/* Content */}
         <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
-          {/* Left Section — Form */}
           <div className="py-6 px-8 flex flex-col justify-center relative text-center max-sm:py-5 max-sm:px-5">
             {reduxError && <p className="text-brand-red text-sm mt-0.5 whitespace-nowrap block">{reduxError}</p>}
 
-            {/* Role Picker */}
             <div className="flex gap-2 mb-3">
               <Button
                 type="button"
@@ -83,9 +79,7 @@ const RegisterPage = () => {
               </Button>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-              {/* Full Name */}
               <div className="mb-3">
                 <div className={`${inputWrapperBase} ${formState.errors.fullName ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                   <span className={`${iconBase} text-sm before:content-['●']`}></span>
@@ -99,7 +93,6 @@ const RegisterPage = () => {
                 {formState.errors.fullName?.message && <span className={errorMsgClass}>{formState.errors.fullName.message}</span>}
               </div>
 
-              {/* Email */}
               <div className="mb-3">
                 <div className={`${inputWrapperBase} ${formState.errors.email ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                   <span className={iconBase}>@</span>
@@ -113,7 +106,6 @@ const RegisterPage = () => {
                 {formState.errors.email?.message && <span className={errorMsgClass}>{formState.errors.email.message}</span>}
               </div>
 
-              {/* Password */}
               <div className="mb-3">
                 <div className={`${inputWrapperBase} ${formState.errors.password ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                   <span className={passwordIconClass}></span>
@@ -130,7 +122,6 @@ const RegisterPage = () => {
                 {formState.errors.password?.message && <span className={errorMsgClass}>{formState.errors.password.message}</span>}
               </div>
 
-              {/* Confirm Password */}
               <div className="mb-3">
                 <div className={`${inputWrapperBase} ${formState.errors.confirmPassword ? "border-brand-red" : "border-[rgba(255,255,255,0.1)]"}`}>
                   <span className={passwordIconClass}></span>
@@ -153,7 +144,6 @@ const RegisterPage = () => {
                 {isLoading ? "Creating Account..." : "REGISTER"}
               </Button>
 
-              {/* Mobile Google Auth */}
               <div className="block mt-3 min-[680px]:hidden">
                 <div className="flex items-center my-3 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
                   <span className="px-4">OR</span>
@@ -165,14 +155,12 @@ const RegisterPage = () => {
               </div>
             </form>
 
-            {/* Mobile "Already have account" link */}
             <div className="hidden max-[679px]:block text-center mt-4 text-[rgba(255,255,255,0.7)] text-sm">
               <span>Already have an account? </span>
               <Link to="/login" className="text-brand-blue no-underline font-semibold transition-colors duration-300 hover:text-[#5a67d8]">Sign in</Link>
             </div>
           </div>
 
-          {/* Right Panel — Welcome Section */}
           <div className="hidden min-[680px]:flex bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] py-8 px-8 flex-col justify-center relative overflow-hidden text-center">
             <h1 className="text-white text-4xl font-bold mb-3 relative z-[1]">Join Us.</h1>
             <p className="text-[rgba(255,255,255,0.8)] text-sm leading-relaxed mb-6 relative z-[1]">Create your account to get started.</p>

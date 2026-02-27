@@ -57,9 +57,11 @@ export function useCompanyProfile() {
     const [isSaving, setIsSaving] = useState(false);
 
     // Fetch company profile
-    const fetchProfile = useCallback(async (opts?: { page?: number; limit?: number }) => {
+    const fetchProfile = useCallback(async (opts?: { page?: number; limit?: number; silent?: boolean }) => {
         try {
-            setIsLoading(true);
+            if (!opts?.silent) {
+                setIsLoading(true);
+            }
             setError(null);
             const response = await api.get<{ data: ICompanyProfileData }>('/company/profile', {
                 params: {
@@ -74,7 +76,9 @@ export function useCompanyProfile() {
         } catch (err) {
             setError(extractApiError(err));
         } finally {
-            setIsLoading(false);
+            if (!opts?.silent) {
+                setIsLoading(false);
+            }
         }
     }, []);
 
@@ -83,11 +87,24 @@ export function useCompanyProfile() {
     }, [fetchProfile]);
 
 
-    // Update profile
     const updateProfile = useCallback(async (data: Partial<ICompanyProfileData>) => {
         try {
             setIsSaving(true);
-            await api.put('/company/profile', { data });
+
+            // Only send fields that the backend schema accepts
+            const payload = {
+                companyName: data.companyName,
+                location: data.location,
+                address: data.address,
+                contactPerson: data.contactPerson,
+                contactEmail: data.contactEmail,
+                contactPhone: data.contactPhone,
+                taxId: data.taxId,
+                website: data.website,
+                numberOfEmployees: data.numberOfEmployees,
+            };
+
+            await api.put('/company/profile', payload);
             await fetchProfile();
             setIsEditing(false);
         } catch (err) {
