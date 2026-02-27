@@ -61,4 +61,5 @@ export const TYPES = {
 
   CreatePaymentIntentUseCasePort: Symbol("CreatePaymentIntentUseCasePort"),
   HandlePaymentWebhookUseCasePort: Symbol("HandlePaymentWebhookUseCasePort"),
+  ActivatePendingSubscriptionNowUseCasePort: Symbol("ActivatePendingSubscriptionNowUseCasePort"),
 } as const;

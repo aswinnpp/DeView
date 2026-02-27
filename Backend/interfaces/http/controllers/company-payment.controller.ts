@@ -5,6 +5,7 @@ import { stripe } from '../../../infrastructure/payments/stripeClient.js';
 import { TYPES } from '../../../infrastructure/di/types.js';
 import type { ICreatePaymentIntentUseCase } from '../../../application/company/ports/usecase/ICreatePaymentIntentUseCase.js';
 import type { IHandlePaymentWebhookUseCase } from '../../../application/company/ports/usecase/IHandlePaymentWebhookUseCase.js';
+import type { IActivatePendingSubscriptionNowUseCase } from '../../../application/company/ports/usecase/IActivatePendingSubscriptionNowUseCase.js';
 import { success } from '../../../shared/http/apiResponse.js';
 import { HttpStatus } from '../../../shared/http/HttpStatus.js';
 import { AppError } from '../../../shared/errors/AppError.js';
@@ -15,11 +16,17 @@ type CreatePaymentIntentBody = {
   planId: string;
 };
 
+type ActivatePendingNowParams = {
+  pendingId: string;
+};
+
 @injectable()
 export class CompanyPaymentController {
   constructor(
     @inject(TYPES.CreatePaymentIntentUseCasePort) private readonly createPaymentIntentUseCase: ICreatePaymentIntentUseCase,
     @inject(TYPES.HandlePaymentWebhookUseCasePort) private readonly handlePaymentWebhookUseCase: IHandlePaymentWebhookUseCase,
+    @inject(TYPES.ActivatePendingSubscriptionNowUseCasePort)
+    private readonly activatePendingSubscriptionNowUseCase: IActivatePendingSubscriptionNowUseCase,
   ) {}
 
   createPaymentIntent = async (
@@ -41,14 +48,35 @@ export class CompanyPaymentController {
     return reply.status(HttpStatus.OK).send(success({ clientSecret: result.clientSecret }));
   };
 
+  activatePendingNow = async (
+    request: FastifyRequest<{ Params: ActivatePendingNowParams }>,
+    reply: FastifyReply,
+  ) => {
+    const user = request.currentUser;
+    if (!user.companyId) {
+      throw AppError.forbidden('Company id missing on user');
+    }
+
+    const { pendingId } = request.params;
+
+    await this.activatePendingSubscriptionNowUseCase.execute({
+      companyId: user.companyId,
+      pendingSubscriptionId: pendingId,
+    });
+
+    return reply.status(HttpStatus.OK).send(success({}));
+  };
+
   handleWebhook = async (request: FastifyRequest, reply: FastifyReply) => {
     const signature = request.headers['stripe-signature'];
 
     if (!signature) {
+      request.log.error('Stripe webhook missing signature header');
       return reply.status(400).send('Missing Stripe signature');
     }
 
     if (!env.STRIPE_WEBHOOK_SECRET) {
+      request.log.error('STRIPE_WEBHOOK_SECRET is not configured');
       throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
     }
 
@@ -69,7 +97,7 @@ export class CompanyPaymentController {
       );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      request.log.error({ err }, 'Stripe webhook signature verification failed');
+      request.log.error({ err, signature }, 'Stripe webhook signature verification failed');
       return reply.status(400).send(`Webhook Error: ${message}`);
     }
 

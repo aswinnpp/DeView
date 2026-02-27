@@ -1,12 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { api, extractApiError } from "../../api/axios";
 import { logout } from "../../context/authSlice";
 import type { AppDispatch } from "../../context/store";
 import { authService } from "../../services/auth.service";
-import { companySubscriptionService } from "../../services/companySubscription.service";
-import type { SubscriptionPlan } from "../../services/adminSubscription.service";
 import { APP_ROUTES } from "../../constants/routes";
 
 export interface ICompanyProfileData {
@@ -24,7 +22,26 @@ export interface ICompanyProfileData {
     numberOfEmployees: string;
     founded?: string;
     description?: string;
-    subscription: string;
+    activeSubscription?: ICompanySubscriptionView | null;
+    subscriptions?: {
+        items: ICompanySubscriptionView[];
+        total: number;
+        page: number;
+        limit: number;
+        pendingTotal: number;
+        historyTotal: number;
+    };
+}
+
+export interface ICompanySubscriptionView {
+    id: string;
+    planId: string;
+    planName: string;
+    price: number;
+    duration: 'Monthly' | 'Quarterly' | 'Annual';
+    startAt: string;
+    endsAt: string;
+    status: 'Active' | 'Pending' | 'Expired';
 }
 
 
@@ -34,19 +51,22 @@ export function useCompanyProfile() {
     
     const [companyData, setCompanyData] = useState<ICompanyProfileData | null>(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [subscription, setSubscription] = useState<SubscriptionPlan[]>([]);
-    const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
     const [formData, setFormData] = useState<Partial<ICompanyProfileData>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
 
     // Fetch company profile
-    const fetchProfile = useCallback(async () => {
+    const fetchProfile = useCallback(async (opts?: { page?: number; limit?: number }) => {
         try {
             setIsLoading(true);
             setError(null);
-            const response = await api.get<{ data: ICompanyProfileData }>('/company/profile');
+            const response = await api.get<{ data: ICompanyProfileData }>('/company/profile', {
+                params: {
+                    page: opts?.page ?? 1,
+                    limit: opts?.limit ?? 3,
+                },
+            });
             if (response.data?.data) {
                 setCompanyData(response.data.data);
                 setFormData(response.data.data);
@@ -57,6 +77,10 @@ export function useCompanyProfile() {
             setIsLoading(false);
         }
     }, []);
+
+    useEffect(() => {
+        void fetchProfile();
+    }, [fetchProfile]);
 
 
     // Update profile
@@ -87,36 +111,12 @@ export function useCompanyProfile() {
     }, [dispatch, navigate]);
     
 
-    const fetchSubscribtion = useCallback(async () => {
-        try {
-            const { data } = await companySubscriptionService.listActive();
-            setSubscription(data.data);
-        } catch (err) {
-            setError(extractApiError(err));
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchProfile();
-    }, [fetchProfile]);
-
-    useEffect(() => {
-        fetchSubscribtion();
-    }, [fetchSubscribtion]);
-
-   
-
-   
-  
     return {
         companyData,
         formData,
         setFormData,
         isEditing,
         setIsEditing,
-        showSubscriptionModal,
-        setShowSubscriptionModal,
-        subscription,
         isLoading,
         error,
         isSaving,

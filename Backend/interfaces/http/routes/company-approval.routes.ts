@@ -15,9 +15,7 @@ export async function companyApprovalRoutes(
         handler: controller.checkStatus,
     });
 
-    // Get current user's approval (requires auth)
     fastify.get('/my-approval', {
-        preHandler: [requireAuth],
         handler: controller.getMyApproval,
     });
 

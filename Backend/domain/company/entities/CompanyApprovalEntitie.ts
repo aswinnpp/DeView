@@ -17,6 +17,40 @@ export interface CompanyDocuments {
   bankDocument?: CompanyDocumentUpload;
 }
 
+export type CompanySubscriptionStatus = "Active" | "Pending" | "Expired";
+
+export interface CompanySubscriptionRecord {
+  id: string;
+  planId: string;
+  planName: string;
+  price: number;
+  duration: "Monthly" | "Quarterly" | "Annual";
+  startAt: Date;
+  endsAt: Date;
+  status: CompanySubscriptionStatus;
+  createdAt: Date;
+  sourcePaymentIntentId?: string;
+}
+
+function addMonths(date: Date, months: number): Date {
+  const result = new Date(date);
+  result.setMonth(result.getMonth() + months);
+  return result;
+}
+
+function calculateEndDate(startAt: Date, duration: "Monthly" | "Quarterly" | "Annual"): Date {
+  switch (duration) {
+    case "Monthly":
+      return addMonths(startAt, 1);
+    case "Quarterly":
+      return addMonths(startAt, 3);
+    case "Annual":
+      return addMonths(startAt, 12);
+    default:
+      return addMonths(startAt, 1);
+  }
+}
+
 export class CompanyApproval {
   constructor(
     public id: string | null,
@@ -36,17 +70,211 @@ export class CompanyApproval {
     public subscriptionPlanId?: string,
     public subscriptionEndsAt?: Date,
     public createdAt: Date = new Date(),
-    public updatedAt: Date = new Date()
-  ) { }
+    public updatedAt: Date = new Date(),
+    public activeSubscription: CompanySubscriptionRecord | null = null,
+    public pendingSubscriptions: CompanySubscriptionRecord[] = [],
+    public subscriptionHistory: CompanySubscriptionRecord[] = []
+  ) {}
 
+  /**
+   * Legacy setter kept for backward compatibility.
+   * Internally, keep new subscription model in sync.
+   */
   setSubscription(planId: string, endsAt: Date): void {
     this.subscriptionPlanId = planId;
     this.subscriptionEndsAt = endsAt;
+    const now = new Date();
+
+    const record: CompanySubscriptionRecord = {
+      id: crypto.randomUUID(),
+      planId,
+      planName: "",
+      price: 0,
+      duration: "Monthly",
+      startAt: now,
+      endsAt,
+      status: "Active",
+      createdAt: now,
+    };
+
+    this.activeSubscription = record;
     this.updatedAt = new Date();
   }
 
+  private ensureSubscriptionArraysInitialized(): void {
+    if (!this.pendingSubscriptions) this.pendingSubscriptions = [];
+    if (!this.subscriptionHistory) this.subscriptionHistory = [];
+  }
+
+  private migrateLegacySubscriptionIfNeeded(): void {
+    this.ensureSubscriptionArraysInitialized();
+
+    if (!this.activeSubscription && this.subscriptionPlanId && this.subscriptionEndsAt) {
+      const now = new Date();
+      const record: CompanySubscriptionRecord = {
+        id: crypto.randomUUID(),
+        planId: this.subscriptionPlanId,
+        planName: "",
+        price: 0,
+        duration: "Monthly",
+        startAt: now,
+        endsAt: this.subscriptionEndsAt,
+        status: "Active",
+        createdAt: now,
+      };
+
+      this.activeSubscription = record;
+    }
+  }
+
+  private syncLegacyFieldsFromActive(): void {
+    if (this.activeSubscription) {
+      this.subscriptionPlanId = this.activeSubscription.planId;
+      this.subscriptionEndsAt = this.activeSubscription.endsAt;
+    } else {
+      this.subscriptionPlanId = undefined;
+      this.subscriptionEndsAt = undefined;
+    }
+    this.updatedAt = new Date();
+  }
+
+  /**
+   * Refresh subscription state based on current time:
+   * - Migrate legacy fields if needed
+   * - Move expired active subscriptions to history
+   * - Promote pending subscriptions when appropriate
+   */
+  refreshSubscriptions(now: Date): void {
+    this.ensureSubscriptionArraysInitialized();
+    this.migrateLegacySubscriptionIfNeeded();
+
+    let changed = false;
+
+    while (this.activeSubscription && this.activeSubscription.endsAt <= now) {
+      const expired = {
+        ...this.activeSubscription,
+        status: "Expired" as const,
+      };
+      this.subscriptionHistory.push(expired);
+      this.activeSubscription = null;
+      changed = true;
+
+      if (!this.pendingSubscriptions.length) {
+        break;
+      }
+
+      const next = this.pendingSubscriptions.shift()!;
+      const startAt = next.startAt <= now ? next.startAt : now;
+      const endsAt = calculateEndDate(startAt, next.duration);
+      this.activeSubscription = {
+        ...next,
+        startAt,
+        endsAt,
+        status: "Active",
+      };
+    }
+
+    if (changed) {
+      this.syncLegacyFieldsFromActive();
+    }
+  }
+
+  /**
+   * Enqueue a newly purchased subscription, activating immediately if there is no active plan.
+   */
+  addPurchasedPlanAsActiveOrPending(
+    input: {
+      planId: string;
+      planName: string;
+      price: number;
+      duration: "Monthly" | "Quarterly" | "Annual";
+      sourcePaymentIntentId?: string;
+    },
+    now: Date
+  ): void {
+    this.ensureSubscriptionArraysInitialized();
+    this.refreshSubscriptions(now);
+
+    const lastEnd =
+      this.activeSubscription?.endsAt ??
+      this.pendingSubscriptions[this.pendingSubscriptions.length - 1]?.endsAt ??
+      now;
+
+    const isFirst = !this.activeSubscription && this.pendingSubscriptions.length === 0;
+    const startAt = isFirst ? now : lastEnd;
+    const endsAt = calculateEndDate(startAt, input.duration);
+
+    const record: CompanySubscriptionRecord = {
+      id: crypto.randomUUID(),
+      planId: input.planId,
+      planName: input.planName,
+      price: input.price,
+      duration: input.duration,
+      startAt,
+      endsAt,
+      status: isFirst ? "Active" : "Pending",
+      createdAt: now,
+      sourcePaymentIntentId: input.sourcePaymentIntentId,
+    };
+
+    if (isFirst) {
+      this.activeSubscription = record;
+    } else {
+      this.pendingSubscriptions.push(record);
+    }
+
+    this.syncLegacyFieldsFromActive();
+  }
+
+  /**
+   * Manually activate a pending subscription immediately.
+   */
+  activatePendingNow(pendingId: string, now: Date): void {
+    this.ensureSubscriptionArraysInitialized();
+    this.refreshSubscriptions(now);
+
+    const index = this.pendingSubscriptions.findIndex((p) => p.id === pendingId);
+    if (index === -1) {
+      throw new DomainError("Pending subscription not found");
+    }
+
+    const selected = this.pendingSubscriptions.splice(index, 1)[0];
+
+    if (this.activeSubscription) {
+      const expired = {
+        ...this.activeSubscription,
+        status: "Expired" as const,
+        endsAt: now,
+      };
+      this.subscriptionHistory.push(expired);
+    }
+
+    const endsAt = calculateEndDate(now, selected.duration);
+    this.activeSubscription = {
+      ...selected,
+      startAt: now,
+      endsAt,
+      status: "Active",
+    };
+
+    let cursor = this.activeSubscription.endsAt;
+    this.pendingSubscriptions = this.pendingSubscriptions.map((p) => {
+      const startAt = cursor;
+      const nextEndsAt = calculateEndDate(startAt, p.duration);
+      cursor = nextEndsAt;
+      return {
+        ...p,
+        startAt,
+        endsAt: nextEndsAt,
+        status: "Pending" as const,
+      };
+    });
+
+    this.syncLegacyFieldsFromActive();
+  }
+
   approve() {
-    if (this.status == "approved" ) {
+    if (this.status == "approved") {
       throw new DomainError("already approved");
     }
 
@@ -56,8 +284,6 @@ export class CompanyApproval {
   }
 
   reject(reason: string) {
-   
-
     if (!reason.trim()) {
       throw new DomainError("Rejection reason required");
     }
@@ -102,7 +328,14 @@ export class CompanyApproval {
     this.updatedAt = new Date();
   }
 
-  updateFields(fields: Partial<Omit<CompanyApproval, "id" | "userId" | "documents" | "status" | "rejectionReason" | "isActive" | "createdAt" | "updatedAt">>) {
+  updateFields(
+    fields: Partial<
+      Omit<
+        CompanyApproval,
+        "id" | "userId" | "documents" | "status" | "rejectionReason" | "isActive" | "createdAt" | "updatedAt"
+      >
+    >
+  ) {
     if (fields.companyName !== undefined) {
       this.companyName = fields.companyName;
     }

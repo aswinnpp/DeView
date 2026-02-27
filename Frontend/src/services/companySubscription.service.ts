@@ -13,5 +13,9 @@ export const companySubscriptionService = {
       planId,
     });
   },
+
+  activatePendingNow(pendingId: string) {
+    return api.post(API_ROUTES.COMPANY.ACTIVATE_PENDING_SUBSCRIPTION(pendingId));
+  },
 };
 

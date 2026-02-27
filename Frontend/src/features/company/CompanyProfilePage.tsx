@@ -1,9 +1,147 @@
 import { useState } from "react";
-import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from "@stripe/react-stripe-js";
-import { useCompanyProfile } from "../../hooks/company";
-import { Button, Input } from "../../components/common";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { stripePromise } from "../../stripe";
 import type { SubscriptionPlan } from "../../services/adminSubscription.service";
-import { companySubscriptionService } from "../../services/companySubscription.service";
+import { useCompanyProfile, useCompanySubscription } from "../../hooks/company";
+import { Button, Input } from "../../components/common";
+
+
+
+const CompanyPaymentCheckout: React.FC<{
+    clientSecret: string;
+    selectedPlan: SubscriptionPlan | null;
+    onClose: () => void;
+    onSuccess: (message: string) => Promise<void> | void;
+  }> = ({ clientSecret, selectedPlan, onClose, onSuccess }) => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [isConfirming, setIsConfirming] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  
+    const handleConfirm = async () => {
+      if (!stripe || !elements) return;
+
+      setIsConfirming(true);
+      setErrorMessage(null);
+
+      // Required for PaymentElement when using deferred/payment methods (e.g. UPI, wallets)
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        setErrorMessage(submitError.message || "Unable to submit payment details");
+        setIsConfirming(false);
+        return;
+      }
+
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        clientSecret,
+        redirect: "if_required",
+      });
+  
+      if (error) {
+        setErrorMessage(error.message || "Payment failed");
+        setIsConfirming(false);
+        return;
+      }
+  
+      const status = paymentIntent?.status;
+
+      // For UPI and some wallets Stripe can return "processing" first; treat it as accepted
+      if (status === "succeeded" || status === "processing") {
+        await onSuccess(
+          status === "processing"
+            ? "Payment is processing. Your plan will be activated shortly."
+            : "Your plan will be activated shortly.",
+        );
+        onClose();
+        setIsConfirming(false);
+        return;
+      }
+
+      setErrorMessage(
+        `Payment not completed${
+          status ? ` (status: ${status})` : ""
+        }`,
+      );
+      setIsConfirming(false);
+    };
+  
+    // Custom dark appearance for Stripe PaymentElement
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const paymentElementOptions: any = {
+      layout: "tabs",
+      appearance: {
+        theme: "night",
+        variables: {
+          colorPrimary: "#22c55e",
+          colorBackground: "#020617",
+          colorText: "#e5e7eb",
+          colorTextSecondary: "#9ca3af",
+          colorDanger: "#f97373",
+          borderRadius: "12px",
+          fontFamily:
+            "system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif",
+        },
+      },
+    };
+
+  return (
+    <div className="bg-gradient-to-b from-slate-900 to-slate-950 rounded-2xl max-w-2xl w-full shadow-2xl shadow-black/70 border border-slate-700/80 overflow-hidden">
+        <div className="px-8 pt-7 pb-4 border-b border-slate-800/80">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+              {/* icon */}
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-50">Complete payment</h3>
+              <p className="text-slate-400 text-sm mt-0.5">
+                Choose a payment method (Card / UPI)
+              </p>
+            </div>
+          </div>
+          {selectedPlan && (
+            <div className="mt-4 flex items-center justify-between rounded-lg bg-slate-900/80 px-4 py-3 border border-slate-700/80">
+              <span className="text-slate-300 text-sm font-medium">{selectedPlan.name}</span>
+              <span className="text-emerald-400 font-bold">₹{selectedPlan.price}</span>
+            </div>
+          )}
+        </div>
+  
+      <div className="px-8 py-6 bg-slate-950/60">
+          {errorMessage && (
+            <div className="mb-4 flex items-start gap-3 rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-3 text-red-300 text-sm">
+              <span>{errorMessage}</span>
+            </div>
+          )}
+          <div className="rounded-2xl border border-slate-700 bg-slate-900/70 p-4 mb-4 focus-within:border-emerald-500/60 focus-within:ring-2 focus-within:ring-emerald-500/25 transition-all">
+            <PaymentElement options={paymentElementOptions} />
+          </div>
+          <p className="mt-3 text-slate-500 text-xs">
+            Your payment details are secured by Stripe and never stored on our servers.
+          </p>
+        </div>
+  
+      <div className="px-8 pb-6 pt-3 flex gap-3 justify-end border-t border-slate-800/80 bg-slate-950/80">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            className="bg-slate-800/80 text-slate-300 border border-slate-600 hover:bg-slate-700 hover:text-slate-100 hover:border-slate-500 py-2.5 px-5 rounded-xl text-sm font-semibold transition"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={handleConfirm}
+            disabled={isConfirming}
+            className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none py-2.5 px-6 rounded-xl text-sm font-semibold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/30 hover:opacity-95 disabled:opacity-50 disabled:shadow-none transition"
+          >
+            {isConfirming ? "Processing…" : "Pay now"}
+          </Button>
+        </div>
+      </div>
+    );
+  };
 
 const CompanyProfilePage = () => {
     const {
@@ -12,9 +150,6 @@ const CompanyProfilePage = () => {
         setFormData,
         isEditing,
         setIsEditing,
-        showSubscriptionModal,
-        setShowSubscriptionModal,
-        subscription,
         isLoading,
         error,
         isSaving,
@@ -23,37 +158,42 @@ const CompanyProfilePage = () => {
         fetchProfile,
     } = useCompanyProfile();
 
-    const stripe = useStripe();
-    const elements = useElements();
-
-    const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
-    const [clientSecret, setClientSecret] = useState<string | null>(null);
-    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-    const [isStartingPayment, setIsStartingPayment] = useState(false);
-    const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
-    const [paymentError, setPaymentError] = useState<string | null>(null);
-    const [postalCode, setPostalCode] = useState("");
-    const [paymentResult, setPaymentResult] = useState<{
-        open: boolean;
-        status: "success" | "failed";
-        title: string;
-        message?: string;
-    }>({ open: false, status: "success", title: "" });
-
-    const stripeElementStyle = {
-        base: {
-            fontSize: "16px",
-            color: "#f1f5f9",
-            fontWeight: "500" as const,
-            fontFamily: "system-ui, -apple-system, sans-serif",
-            "::placeholder": { color: "#94a3b8" },
-            ":-webkit-autofill": { color: "#f1f5f9" },
+    const {
+        plans: subscription,
+        showSubscriptionModal,
+        setShowSubscriptionModal,
+        selectedPlan,
+        isCheckoutOpen,
+        setIsCheckoutOpen,
+        isStartingPayment,
+        paymentResult,
+        setPaymentResult,
+        startPaymentForPlan: handleChoosePlan,
+        clientSecret,
+        // subscription table
+        subscriptionRowsPage,
+        subscriptionsTotalPages,
+        canPrevSubscriptionsPage,
+        canNextSubscriptionsPage,
+        prevSubscriptionsPage,
+        nextSubscriptionsPage,
+        subscriptionActionLoadingId,
+        subscriptionActionError,
+        activatePendingNow,
+        formatDate,
+        activePlanId,
+    } = useCompanySubscription({
+        onPaymentSucceeded: async () => {
+            // refresh profile after successful payment
+            await fetchProfile({ page: 1 });
         },
-        invalid: {
-            color: "#f87171",
-            iconColor: "#f87171",
-        },
-    };
+        companyData,
+        fetchProfile,
+    });
+
+    // subscription/payment state + handlers moved to useCompanySubscription
+
+  
 
 
     const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -72,87 +212,7 @@ const CompanyProfilePage = () => {
         }
     };
 
-    const handleChoosePlan = async (plan: SubscriptionPlan) => {
-        try {
-            setIsStartingPayment(true);
-            setSelectedPlan(plan);
-            setPaymentError(null);
-
-            const response = await companySubscriptionService.createPaymentIntent(plan.id);
-            const secret = response.data.clientSecret;
-
-            setClientSecret(secret);
-            setPostalCode("");
-            setIsCheckoutOpen(true);
-        } catch (err) {
-            const message = err instanceof Error ? err.message : "Failed to start payment";
-            setPaymentError(message);
-        } finally {
-            setIsStartingPayment(false);
-        }
-    };
-
-    const handleConfirmPayment = async () => {
-        if (!stripe || !elements || !clientSecret) return;
-
-        const cardNumberElement = elements.getElement(CardNumberElement);
-        if (!cardNumberElement) return;
-
-        setIsConfirmingPayment(true);
-        setPaymentError(null);
-
-        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-            payment_method: {
-                card: cardNumberElement,
-                billing_details: {
-                    address: { postal_code: postalCode.trim() || undefined },
-                },
-            },
-        });
-
-        if (error) {
-            const message = error.message || "Payment failed";
-            setPaymentError(message);
-            setIsConfirmingPayment(false);
-            setIsCheckoutOpen(false);
-            setPaymentResult({
-                open: true,
-                status: "failed",
-                title: "Payment failed",
-                message,
-            });
-            return;
-        }
-
-        if (paymentIntent?.status === "succeeded") {
-            setIsCheckoutOpen(false);
-            setPaymentResult({
-                open: true,
-                status: "success",
-                title: "Payment successful",
-                message: "Your plan will be activated shortly.",
-            });
-
-            window.setTimeout(() => {
-                fetchProfile().catch(() => {});
-            }, 1500);
-
-            window.setTimeout(() => {
-                setPaymentResult((prev) => ({ ...prev, open: false }));
-            }, 2500);
-        } else {
-            const status = paymentIntent?.status ? `Status: ${paymentIntent.status}` : "Payment not completed";
-            setIsCheckoutOpen(false);
-            setPaymentResult({
-                open: true,
-                status: "failed",
-                title: "Payment not completed",
-                message: status,
-            });
-        }
-
-        setIsConfirmingPayment(false);
-    };
+    // handleChoosePlan + handleConfirmPayment moved to useCompanySubscription
 
     if (isLoading) {
         return (
@@ -174,16 +234,16 @@ const CompanyProfilePage = () => {
     const labelClassName = "block mb-2 text-slate-400 text-[13px] font-semibold";
     const wrapperClassName = "";
 
+    const totalSubscriptionsPages = subscriptionsTotalPages;
+    const totalSubscriptionRows = companyData.subscriptions?.total ?? 0;
+
     return (
         <div className="text-slate-200 font-['Inter',sans-serif] pb-[60px] max-md:pb-12 p-0">
             {/* Header */}
             <header className="mb-6 max-md:mb-4">
                 <div className="flex flex-wrap justify-between items-end gap-4 max-md:flex-col max-md:items-start">
                     <div className="min-w-0 flex-1">
-                        <h2 className="m-0 text-[32px] max-md:text-[24px] font-bold text-slate-50">Company Profile</h2>
-                        <p className="mt-2 mb-0 text-slate-400 text-sm max-md:text-xs">
-                            Manage your company information and settings
-                        </p>
+                       
                     </div>
                     <div className="flex gap-3 max-md:w-full max-md:flex-col">
                         {!isEditing && (
@@ -229,10 +289,23 @@ const CompanyProfilePage = () => {
                         <div className="flex gap-3 items-center flex-wrap">
                             <div className="flex flex-col gap-1">
                                 <span className="text-[11px] text-slate-500 font-semibold uppercase">PLAN</span>
-                                <div className="flex gap-2 items-center">
-                                    <span className="py-1 px-3 rounded-md text-[13px] font-semibold bg-blue-500/20 inline-block" style={{ }}>
-                                       
-                                    </span>
+                                <div className="flex flex-wrap gap-2 items-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSubscriptionModal(true)}
+                                        className="py-1 px-3 rounded-md text-[13px] font-semibold bg-blue-500/20 text-blue-100 inline-flex items-center gap-2 hover:bg-blue-500/30 transition"
+                                    >
+                                        <span>
+                                            {companyData.activeSubscription
+                                                ? companyData.activeSubscription.planName
+                                                : "No active plan"}
+                                        </span>
+                                        {companyData.activeSubscription && (
+                                            <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/20">
+                                                Active
+                                            </span>
+                                        )}
+                                    </button>
                                     <Button
                                         onClick={() => setShowSubscriptionModal(true)}
                                         className="py-1 px-3 rounded-md text-xs font-semibold bg-gradient-to-r from-green-500 to-green-600 text-white border-none transition-all duration-200 hover:-translate-y-0.5"
@@ -240,6 +313,11 @@ const CompanyProfilePage = () => {
                                         Upgrade
                                     </Button>
                                 </div>
+                                {companyData.activeSubscription?.endsAt && (
+                                    <div className="text-[11px] text-slate-400">
+                                        Valid until {formatDate(companyData.activeSubscription.endsAt)}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -346,6 +424,7 @@ const CompanyProfilePage = () => {
                                 type="text"
                                 value={formData.location || ''}
                                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                required
                                 className={inputClassName}
                                 labelClassName={labelClassName}
                                 wrapperClassName={wrapperClassName}
@@ -357,6 +436,7 @@ const CompanyProfilePage = () => {
                                 value={formData.website || ''}
                                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                                 placeholder="https://"
+                                required
                                 className={inputClassName}
                                 labelClassName={labelClassName}
                                 wrapperClassName={wrapperClassName}
@@ -465,6 +545,121 @@ const CompanyProfilePage = () => {
                 )}
             </div>
 
+            {/* Subscriptions (single table: pending first, then history) */}
+            <div className="mt-8">
+                <section className="bg-slate-900/40 border border-slate-700 rounded-2xl overflow-hidden">
+                    <div className="px-6 py-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <div className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-slate-500" />
+                                Subscriptions
+                            </div>
+                            <div className="text-xs text-slate-400 mt-1">
+                            Activating  pending plan will immediately replace your current active subscription.                            </div>
+                        </div>
+                        {subscriptionActionError && (
+                            <div className="text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                                {subscriptionActionError}
+                            </div>
+                        )}
+                    </div>
+
+                    {totalSubscriptionRows > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full text-sm">
+                                <thead className="text-[11px] uppercase tracking-wide text-slate-400 bg-slate-900/60">
+                                    <tr>
+                                        <th className="text-left px-6 py-3 font-semibold">Plan</th>
+                                        <th className="text-left px-6 py-3 font-semibold">Price</th>
+                                        <th className="text-left px-6 py-3 font-semibold">Duration</th>
+                                        <th className="text-left px-6 py-3 font-semibold">Start</th>
+                                        <th className="text-left px-6 py-3 font-semibold">Expiry</th>
+                                        <th className="text-left px-6 py-3 font-semibold">Status</th>
+                                        <th className="text-right px-6 py-3 font-semibold">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-800">
+                                    {subscriptionRowsPage.map((sub) => (
+                                        <tr key={sub.id} className="hover:bg-white/5 transition">
+                                            <td className="px-6 py-4 text-slate-100 font-semibold">
+                                                {sub.planName}
+                                            </td>
+                                            <td className="px-6 py-4 text-emerald-300 font-semibold">
+                                                ₹{sub.price}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-200">{sub.duration}</td>
+                                            <td className="px-6 py-4 text-slate-300">
+                                                {formatDate(sub.startAt)}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-300">
+                                                {formatDate(sub.endsAt)}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {sub.status === "Pending" ? (
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-200 border border-amber-500/20">
+                                                        Pending
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-red-500/10 text-red-200 border border-red-500/20">
+                                                        Expired
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                {sub.status === "Pending" ? (
+                                                    <Button
+                                                        type="button"
+                                                        disabled={subscriptionActionLoadingId === sub.id}
+                                                        className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none px-3 py-2 rounded-lg text-[12px] font-semibold disabled:opacity-60"
+                                                        onClick={async () => {
+                                                            await activatePendingNow(sub.id);
+                                                        }}
+                                                    >
+                                                        {subscriptionActionLoadingId === sub.id
+                                                            ? "Activating..."
+                                                            : "Activate Now"}
+                                                    </Button>
+                                                ) : (
+                                                    <span className="text-slate-400">—</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+
+                            {/* Pagination */}
+                            {totalSubscriptionsPages > 1 && (
+                                <div className="px-6 py-4 border-t border-slate-700 flex items-center justify-end gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        className="bg-slate-900/60 text-slate-300 border border-slate-700 hover:bg-slate-800 px-3 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
+                                        disabled={!canPrevSubscriptionsPage}
+                                        onClick={prevSubscriptionsPage}
+                                    >
+                                        Prev
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        className="bg-slate-900/60 text-slate-300 border border-slate-700 hover:bg-slate-800 px-3 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
+                                        disabled={!canNextSubscriptionsPage}
+                                        onClick={nextSubscriptionsPage}
+                                    >
+                                        Next
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="px-6 py-6 text-sm text-slate-400">
+                            No subscription history yet.
+                        </div>
+                    )}
+                </section>
+            </div>
+
             {/* Subscription Modal */}
             {showSubscriptionModal && (
                 <div
@@ -482,6 +677,16 @@ const CompanyProfilePage = () => {
                                 <p className="mt-2 mb-0 text-slate-400 text-sm max-md:text-xs">
                                     Select the perfect plan for your hiring needs
                                 </p>
+                                {companyData.activeSubscription && (
+                                    <div className="mt-3 inline-flex flex-wrap items-center gap-2 text-xs">
+                                        <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-200 border border-emerald-500/20 font-semibold">
+                                            Current: {companyData.activeSubscription.planName}
+                                        </span>
+                                        <span className="text-slate-400">
+                                            Valid until {formatDate(companyData.activeSubscription.endsAt)}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                             <Button
                                 onClick={() => setShowSubscriptionModal(false)}
@@ -498,21 +703,20 @@ const CompanyProfilePage = () => {
                         {subscription
                             ?.filter((plan) => plan.isActive)
                             .map((plan, index) => {
-                            const isPopular = index === 1; // example highlight middle plan
+                            const isCurrentPlan = !!activePlanId && plan.id === activePlanId;
 
                             return (
                                 <div
                                 key={plan.id || index}
                                 className={`relative rounded-2xl border p-7 max-md:p-6 min-h-[260px] ${
-                                    isPopular
-                                    ? "border-indigo-500 bg-slate-900/80 shadow-[0_0_0_1px_rgba(129,140,248,0.5)]"
-                                    : "border-slate-700 bg-slate-900/70"
+                                    isCurrentPlan
+                                        ? "border-emerald-500/60 bg-slate-900/80 shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+                                        : "border-slate-700 bg-slate-900/70"
                                 }`}
                                 >
-                                {/* Popular Badge */}
-                                {isPopular && (
-                                    <span className="absolute top-4 right-4 bg-indigo-500 text-white text-[11px] px-3 py-1 rounded-full tracking-wide uppercase">
-                                    Most Popular
+                                {isCurrentPlan && (
+                                    <span className="absolute top-4 right-4 z-10 bg-emerald-500/20 text-emerald-200 text-[11px] px-3 py-1 rounded-full tracking-wide uppercase border border-emerald-500/30">
+                                        Current plan
                                     </span>
                                 )}
 
@@ -535,6 +739,9 @@ const CompanyProfilePage = () => {
                                 </div>
 
                                 {/* Features */}
+                                <div className="text-[11px] text-slate-400 font-semibold uppercase tracking-wide mb-2">
+                                    Benefits
+                                </div>
                                 <ul className="space-y-2.5 mb-7 text-sm text-slate-200">
                                     {/* Interview Feature */}
                                     <li className="flex items-center">
@@ -566,15 +773,19 @@ const CompanyProfilePage = () => {
                                 {/* Button */}
                                 <Button
                                     type="button"
-                                    disabled={!plan.isActive || isStartingPayment}
+                                    disabled={!plan.isActive || isStartingPayment || isCurrentPlan}
                                     onClick={() => handleChoosePlan(plan)}
                                     className={`w-full py-2.5 rounded-lg text-sm font-semibold transition border ${
-                                        isPopular
-                                            ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none hover:opacity-90"
+                                        isCurrentPlan
+                                            ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none"
                                             : "bg-slate-800 text-slate-100 border-slate-600 hover:bg-slate-700"
                                     } ${!plan.isActive ? "opacity-60 cursor-not-allowed" : ""}`}
                                 >
-                                    {isStartingPayment && selectedPlan?.id === plan.id ? "Starting..." : "Choose Plan"}
+                                    {isCurrentPlan
+                                        ? "Current Plan"
+                                        : isStartingPayment && selectedPlan?.id === plan.id
+                                            ? "Starting..."
+                                            : "Choose Plan"}
                                 </Button>
                                 </div>
                             );
@@ -584,110 +795,26 @@ const CompanyProfilePage = () => {
                 </div>
             )}
 
-            {isCheckoutOpen && (
-                <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                    <div className="bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl max-w-md w-full shadow-2xl shadow-black/50 border border-slate-600/80 overflow-hidden">
-                        {/* Header */}
-                        <div className="px-6 pt-6 pb-4 border-b border-slate-700/80">
-                            <div className="flex items-center gap-3 mb-1">
-                                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                                    <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-slate-50">
-                                        Complete payment
-                                    </h3>
-                                    <p className="text-slate-400 text-sm mt-0.5">
-                                        Enter your card details below
-                                    </p>
-                                </div>
-                            </div>
-                            {selectedPlan && (
-                                <div className="mt-4 flex items-center justify-between rounded-lg bg-slate-800/60 px-4 py-3 border border-slate-700/60">
-                                    <span className="text-slate-300 text-sm font-medium">{selectedPlan.name}</span>
-                                    <span className="text-emerald-400 font-bold">₹{selectedPlan.price}</span>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Body */}
-                        <div className="px-6 py-5">
-                            {paymentError && (
-                                <div className="mb-4 flex items-start gap-3 rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-3 text-red-300 text-sm">
-                                    <svg className="w-5 h-5 shrink-0 mt-0.5 text-red-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden>
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                    </svg>
-                                    <span>{paymentError}</span>
-                                </div>
-                            )}
-                            <label className="block text-slate-400 text-[13px] font-semibold uppercase tracking-wide mb-2">
-                                Card number
-                            </label>
-                            <div className="rounded-xl border border-slate-600 bg-slate-800/50 p-3 mb-4 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
-                                <CardNumberElement options={{ style: stripeElementStyle }} />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label className="block text-slate-400 text-[13px] font-semibold uppercase tracking-wide mb-2">
-                                        Expiry
-                                    </label>
-                                    <div className="rounded-xl border border-slate-600 bg-slate-800/50 p-3 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
-                                        <CardExpiryElement options={{ style: stripeElementStyle }} />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-slate-400 text-[13px] font-semibold uppercase tracking-wide mb-2">
-                                        CVC
-                                    </label>
-                                    <div className="rounded-xl border border-slate-600 bg-slate-800/50 p-3 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
-                                        <CardCvcElement options={{ style: stripeElementStyle }} />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <label className="block text-slate-400 text-[13px] font-semibold uppercase tracking-wide mb-2">
-                                ZIP / Postal code
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="e.g. 400001"
-                                value={postalCode}
-                                onChange={(e) => setPostalCode(e.target.value)}
-                                className="w-full rounded-xl border border-slate-600 bg-slate-800/50 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all mb-4"
-                            />
-                            <p className="mt-3 text-slate-500 text-xs flex items-center gap-1.5">
-                                <svg className="w-4 h-4 text-slate-500 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden>
-                                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                                </svg>
-                                Your card details are secured by Stripe and never stored on our servers.
-                            </p>
-                        </div>
-
-                        {/* Footer */}
-                        <div className="px-6 pb-6 pt-2 flex gap-3 justify-end border-t border-slate-700/80">
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                onClick={() => setIsCheckoutOpen(false)}
-                                className="bg-slate-800/80 text-slate-300 border border-slate-600 hover:bg-slate-700 hover:text-slate-100 hover:border-slate-500 py-2.5 px-5 rounded-xl text-sm font-semibold transition"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="button"
-                                onClick={handleConfirmPayment}
-                                disabled={!stripe || !elements || isConfirmingPayment}
-                                className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none py-2.5 px-6 rounded-xl text-sm font-semibold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/30 hover:opacity-95 disabled:opacity-50 disabled:shadow-none transition"
-                            >
-                                {isConfirmingPayment ? "Processing…" : "Pay now"}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {isCheckoutOpen && clientSecret && (
+  <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <Elements stripe={stripePromise} options={{ clientSecret }}>
+      <CompanyPaymentCheckout
+        clientSecret={clientSecret}
+        selectedPlan={selectedPlan}
+        onClose={() => setIsCheckoutOpen(false)}
+        onSuccess={async (message) => {
+          setPaymentResult({
+            open: true,
+            status: "success",
+            title: "Payment successful",
+            message,
+          });
+          await fetchProfile({ page: 1 }); // refresh active/pending/history
+        }}
+      />
+    </Elements>
+  </div>
+)}
 
             {paymentResult.open && (
                 <div className="fixed inset-0 z-[1200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -743,7 +870,6 @@ const CompanyProfilePage = () => {
                                     type="button"
                                     onClick={() => {
                                         setPaymentResult((p) => ({ ...p, open: false }));
-                                        setPaymentError(null);
                                         setIsCheckoutOpen(true);
                                     }}
                                     className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none py-2.5 px-6 rounded-xl text-sm font-semibold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/30 hover:opacity-95 transition"
@@ -754,7 +880,15 @@ const CompanyProfilePage = () => {
                             <Button
                                 type="button"
                                 variant="secondary"
-                                onClick={() => setPaymentResult((p) => ({ ...p, open: false }))}
+                                onClick={() => {
+                                    const shouldRefresh = paymentResult.status === "success";
+                                    setPaymentResult((p) => ({ ...p, open: false }));
+                                    if (shouldRefresh) {
+                                        void (async () => {
+                                            await fetchProfile({ page: 1, limit: 2 });
+                                        })();
+                                    }
+                                }}
                                 className="bg-slate-800/80 text-slate-300 border border-slate-600 hover:bg-slate-700 hover:text-slate-100 hover:border-slate-500 py-2.5 px-6 rounded-xl text-sm font-semibold transition"
                             >
                                 Close
@@ -762,7 +896,7 @@ const CompanyProfilePage = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            )}  
         </div>
     );
 };

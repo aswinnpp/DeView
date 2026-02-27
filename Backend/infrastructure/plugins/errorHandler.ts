@@ -8,6 +8,10 @@ export function registerErrorHandler(app: FastifyInstance) {
   app.setErrorHandler((error, request, reply) => {
 
     if (error instanceof AppError) {
+      request.log.error(
+        { err: error, statusCode: error.statusCode, url: request.url },
+        'AppError handled',
+      );
       return reply.status(error.statusCode).send({
         success: false,
         message: error.message
@@ -15,6 +19,10 @@ export function registerErrorHandler(app: FastifyInstance) {
     }
 
     if (error instanceof DomainError) {
+      request.log.error(
+        { err: error, url: request.url },
+        'DomainError handled',
+      );
       return reply.status(HttpStatus.BAD_REQUEST).send({
         success: false,
         message: error.message,
@@ -51,7 +59,7 @@ export function registerErrorHandler(app: FastifyInstance) {
       });
     }
 
-    console.error(error); 
+    request.log.error({ err: error, url: request.url }, 'Unhandled error');
 
     return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
       success: false,

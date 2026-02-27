@@ -36,6 +36,8 @@ export class CreatePaymentIntentUseCase implements ICreatePaymentIntentUseCase {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountMinor,
       currency,
+      // Enables card + UPI (and other eligible methods) via Stripe Payment Element
+      automatic_payment_methods: { enabled: true },
       metadata: {
         planId: plan.id ?? '',
         companyId,

@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { CompanyPaymentController } from '../controllers/company-payment.controller.js';
 import { requireAuth } from '../middleware/authMiddleware.js';
 
@@ -12,13 +12,15 @@ export async function companyPaymentRoutes(
   });
 
   fastify.post(
-    '/payments/webhook/stripe',
+    '/subscriptions/pending/:pendingId/activate-now',
     {
-      config: {
-        rawBody: true,
-      },
+      preHandler: requireAuth,
     },
-    controller.handleWebhook,
+    (request, reply) =>
+      controller.activatePendingNow(
+        request as FastifyRequest<{ Params: { pendingId: string } }>,
+        reply,
+      ),
   );
 }
 

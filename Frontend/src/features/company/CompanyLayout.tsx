@@ -3,16 +3,10 @@ import { useState, useEffect } from 'react';
 import { Button } from '../../components/common';
 import { SystemDataProvider } from '../../context/SystemDataContext';
 
-interface ICompanyData {
-    companyName: string;
-    contactEmail?: string;
-    subscription?: string;
-}
 
 const CompanyLayout = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [companyData] = useState<ICompanyData | null>(null);
 
     useEffect(() => {
         if (sidebarOpen) {
@@ -29,8 +23,7 @@ const CompanyLayout = () => {
         { id: 1, text: 'Welcome to Intervu for Business!', time: 'Just now' },
     ];
 
-    const companyName = companyData?.companyName || 'Company';
-    const companyInitial = companyName.charAt(0).toUpperCase();
+
 
     const navTabClass = (isActive: boolean) =>
         `block py-2.5 px-3 rounded-lg no-underline font-semibold text-sm transition-all duration-200 ${isActive
@@ -59,7 +52,7 @@ const CompanyLayout = () => {
                             </svg>
                         </Button>
                         <h2 className="text-[#e5e7eb] m-0 max-md:text-base truncate">
-                            {companyName} Dashboard
+                            Dashboard
                         </h2>
                     </div>
                     <div className="flex gap-4 items-center">
@@ -129,12 +122,12 @@ const CompanyLayout = () => {
                         >
                             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-linear-to-br from-[#6366f1] to-[#8b5cf6] overflow-hidden shrink-0">
                                 <div className="font-bold text-lg text-white p-1.5">
-                                    {companyInitial}
+                                   P
                                 </div>
                             </div>
                             <div className="flex flex-col min-w-0">
-                                <div className="text-[13px] font-semibold text-[#e6eef7] whitespace-nowrap overflow-hidden text-ellipsis">{companyName}</div>
-                                <div className="text-[11px] text-[#94a3b8]">View Profile</div>
+                                <div className="text-[13px] font-semibold text-[#e6eef7] whitespace-nowrap overflow-hidden text-ellipsis">View Profile </div>
+                                <div className="text-[11px] text-[#94a3b8]"></div>
                             </div>
                         </NavLink>
                     </aside>
@@ -181,12 +174,11 @@ const CompanyLayout = () => {
                         >
                             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-linear-to-br from-[#6366f1] to-[#8b5cf6] overflow-hidden shrink-0">
                                 <div className="font-bold text-lg text-white p-1.5">
-                                    {companyInitial}
+                                    P
                                 </div>
                             </div>
                             <div className="flex flex-col min-w-0">
-                                <div className="text-[13px] font-semibold text-[#e6eef7] whitespace-nowrap overflow-hidden text-ellipsis">{companyName}</div>
-                                <div className="text-[11px] text-[#94a3b8]">View Profile</div>
+                                <div className="text-[13px] font-semibold text-[#e6eef7] whitespace-nowrap overflow-hidden text-ellipsis">View Profile</div>
                             </div>
                         </NavLink>
                     </aside>

@@ -11,6 +11,7 @@ import { candidateProfileRoutes } from '../../interfaces/http/routes/candidate-p
 import { subcribtionRoutes } from '../../interfaces/http/routes/admin-subscribtion.routes.js';
 import { companySubcribtionRoutes } from '../../interfaces/http/routes/company-subscribtion.routes.js';
 import { companyPaymentRoutes } from '../../interfaces/http/routes/company-payment.routes.js';
+import { stripeWebhookRoutes } from '../../interfaces/http/routes/stripe-webhook.routes.js';
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     await fastify.register(
@@ -30,6 +31,14 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
             await companyPaymentRoutes(instance, controllers.companyPaymentController);
         },
         { prefix: '/company' }
+    );
+
+    // Stripe webhooks must be public and outside /company auth hooks
+    await fastify.register(
+        async (instance) => {
+            await stripeWebhookRoutes(instance, controllers.companyPaymentController);
+        },
+        { prefix: '/webhooks' }
     );
 
     await fastify.register(

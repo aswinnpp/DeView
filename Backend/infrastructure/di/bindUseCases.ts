@@ -47,6 +47,7 @@ import { ToggleCandidateStatusUseCase } from '../../application/candidate/use-ca
 
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
+import { ActivatePendingSubscriptionNowUseCase } from '../../application/company/use-cases/activate-pending-subscription-now.usecase.js';
 
 
 export function bindUseCases(container: Container): void {
@@ -98,4 +99,7 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ListSubscribtionsUsecasePort).to(AdminListSubscribtionsUsecase);
   container.bind(TYPES.ToggleSubscribtionStatusUsecasePort).to(AdminToggleSubscribtionStatusUsecase);
   container.bind(TYPES.UpdateSubscribtionUsecasePort).to(AdminUpdateSubscribtion);
+  container
+    .bind(TYPES.ActivatePendingSubscriptionNowUseCasePort)
+    .to(ActivatePendingSubscriptionNowUseCase);
 }

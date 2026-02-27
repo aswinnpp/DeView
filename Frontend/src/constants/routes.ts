@@ -20,6 +20,8 @@ export const API_ROUTES = {
         PROFILE: '/company/profile',
         SUBSCRIPTION_LIST: '/company/subscribtion',
         CREATE_PAYMENT_INTENT: '/company/payments/create-intent',
+        ACTIVATE_PENDING_SUBSCRIPTION: (pendingId: string) =>
+            `/company/subscriptions/pending/${pendingId}/activate-now`,
         HR_LIST: '/company/hr/list',
         HR_CREATE: '/company/hr/create',
         HR_TOGGLE_STATUS: (id: string) => `/company/hr/${id}/toggle-status`,
