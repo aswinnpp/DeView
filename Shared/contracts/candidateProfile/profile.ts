@@ -1,10 +1,8 @@
 import { z } from 'zod';
 
 
-/** Optional string (empty allowed). */
 const optionalString = z.string().trim().catch('');
 
-/** Optional URL: empty allowed; if provided must be valid. */
 const optionalLinkedInUrl = z.string().trim().catch('').refine(
     (val) => {
         const v = (val ?? '').trim();
@@ -116,5 +114,4 @@ export const candidateProfileSchema = z.object({
 
 export type CandidateProfileData = z.infer<typeof candidateProfileSchema>;
 
-/** For PATCH: all fields optional; when present they are validated. */
 export const candidateProfileUpdateSchema = candidateProfileSchema.partial();

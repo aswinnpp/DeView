@@ -65,7 +65,11 @@ export function useCompanySubscription(opts?: {
   // initial + page changes fetch profile (backend pagination)
   useEffect(() => {
     if (!opts?.fetchProfile) return;
-    void opts.fetchProfile({ page: subscriptionsPage, limit: SUBSCRIPTIONS_LIMIT });
+    void opts.fetchProfile({
+      page: subscriptionsPage,
+      limit: SUBSCRIPTIONS_LIMIT,
+      silent: true,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opts?.fetchProfile, subscriptionsPage]);
 
@@ -119,7 +123,11 @@ export function useCompanySubscription(opts?: {
         setSubscriptionActionLoadingId(pendingId);
         await companySubscriptionService.activatePendingNow(pendingId);
         if (opts?.fetchProfile) {
-          await opts.fetchProfile({ page: subscriptionsPage, limit: SUBSCRIPTIONS_LIMIT });
+          await opts.fetchProfile({
+            page: subscriptionsPage,
+            limit: SUBSCRIPTIONS_LIMIT,
+            silent: true,
+          });
         }
       } catch (err) {
         setSubscriptionActionError(extractApiError(err));

@@ -8,6 +8,7 @@ import { CompanyProfileMapper } from "../mappers/company-profile.mapper.js";
 
 interface IUpdateProfileBody {
   companyName?: string;
+  location?: string;
   address?: string;
   contactPerson?: string;
   contactEmail?: string;

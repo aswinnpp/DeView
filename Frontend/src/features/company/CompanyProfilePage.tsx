@@ -2,11 +2,9 @@ import { useState } from "react";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../stripe";
 import type { SubscriptionPlan } from "../../services/adminSubscription.service";
+import type { ICompanySubscriptionView } from "../../hooks/company/useCompanyProfile";
 import { useCompanyProfile, useCompanySubscription } from "../../hooks/company";
-import { Button, Input } from "../../components/common";
-
-
-
+import { Button, Input, Table, Pagination } from "../../components/common";
 const CompanyPaymentCheckout: React.FC<{
     clientSecret: string;
     selectedPlan: SubscriptionPlan | null;
@@ -172,20 +170,18 @@ const CompanyProfilePage = () => {
         clientSecret,
         // subscription table
         subscriptionRowsPage,
+        subscriptionsPage,
         subscriptionsTotalPages,
-        canPrevSubscriptionsPage,
-        canNextSubscriptionsPage,
         prevSubscriptionsPage,
         nextSubscriptionsPage,
         subscriptionActionLoadingId,
-        subscriptionActionError,
         activatePendingNow,
         formatDate,
         activePlanId,
     } = useCompanySubscription({
         onPaymentSucceeded: async () => {
             // refresh profile after successful payment
-            await fetchProfile({ page: 1 });
+            await fetchProfile({ page: 1, silent: false });
         },
         companyData,
         fetchProfile,
@@ -212,6 +208,10 @@ const CompanyProfilePage = () => {
         }
     };
 
+    const [confirmActivateId, setConfirmActivateId] = useState<string | null>(null);
+    const confirmActivateSub =
+        subscriptionRowsPage.find((s) => s.id === confirmActivateId) ?? null;
+
     // handleChoosePlan + handleConfirmPayment moved to useCompanySubscription
 
     if (isLoading) {
@@ -234,8 +234,74 @@ const CompanyProfilePage = () => {
     const labelClassName = "block mb-2 text-slate-400 text-[13px] font-semibold";
     const wrapperClassName = "";
 
-    const totalSubscriptionsPages = subscriptionsTotalPages;
     const totalSubscriptionRows = companyData.subscriptions?.total ?? 0;
+
+    const subscriptionColumns: {
+        header: string;
+        render: (sub: ICompanySubscriptionView) => React.ReactNode;
+    }[] = [
+        {
+            header: "Plan",
+            render: (sub) => (
+                <span className="text-slate-100 font-semibold">{sub.planName}</span>
+            ),
+        },
+        {
+            header: "Price",
+            render: (sub) => (
+                <span className="text-emerald-300 font-semibold">₹{sub.price}</span>
+            ),
+        },
+        {
+            header: "Duration",
+            render: (sub) => (
+                <span className="text-slate-200">{sub.duration}</span>
+            ),
+        },
+        {
+            header: "Start",
+            render: (sub) => (
+                <span className="text-slate-300">{formatDate(sub.startAt)}</span>
+            ),
+        },
+        {
+            header: "Expiry",
+            render: (sub) => (
+                <span className="text-slate-300">{formatDate(sub.endsAt)}</span>
+            ),
+        },
+        {
+            header: "Status",
+            render: (sub) =>
+                sub.status === "Pending" ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-200 border border-amber-500/20">
+                        Pending
+                    </span>
+                ) : (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-red-500/10 text-red-200 border border-red-500/20">
+                        Expired
+                    </span>
+                ),
+        },
+        {
+            header: "Action",
+            render: (sub) =>
+                sub.status === "Pending" ? (
+                    <Button
+                        type="button"
+                        disabled={subscriptionActionLoadingId === sub.id}
+                        className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none px-3 py-2 rounded-lg text-[12px] font-semibold disabled:opacity-60"
+                        onClick={() => {
+                            setConfirmActivateId(sub.id);
+                        }}
+                    >
+                        {subscriptionActionLoadingId === sub.id ? "Activating..." : "Activate Now"}
+                    </Button>
+                ) : (
+                    <span className="text-slate-400">—</span>
+                ),
+        },
+    ];
 
     return (
         <div className="text-slate-200 font-['Inter',sans-serif] pb-[60px] max-md:pb-12 p-0">
@@ -457,9 +523,8 @@ const CompanyProfilePage = () => {
                                 label="Contact Email"
                                 type="email"
                                 value={formData.contactEmail || ''}
-                                onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                                required
-                                className={inputClassName}
+                                disabled
+                                className={`${inputClassName} opacity-70 cursor-not-allowed`}
                                 labelClassName={labelClassName}
                                 wrapperClassName={wrapperClassName}
                             />
@@ -475,7 +540,11 @@ const CompanyProfilePage = () => {
                                 wrapperClassName={wrapperClassName}
                             />
 
-                            <div className="col-span-2 max-md:col-span-1">
+                            {/* Address: label left on desktop, above on mobile */}
+                            <div className="hidden md:flex md:items-center">
+                                <span className={labelClassName}>Address</span>
+                            </div>
+                            <div className="md:col-start-2">
                                 <Input
                                     label="Address"
                                     type="text"
@@ -483,24 +552,17 @@ const CompanyProfilePage = () => {
                                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                     required
                                     className={inputClassName}
-                                    labelClassName={labelClassName}
+                                    labelClassName={`${labelClassName} md:hidden`}
                                     wrapperClassName={wrapperClassName}
                                 />
                             </div>
 
-                            <Input
-                                label="Tax ID"
-                                type="text"
-                                value={formData.taxId || ''}
-                                onChange={(e) => setFormData({ ...formData, taxId: e.target.value })}
-                                required
-                                className={inputClassName}
-                                labelClassName={labelClassName}
-                                wrapperClassName={wrapperClassName}
-                            />
-
-                            <div>
-                                <label className={labelClassName}>Number of Employees</label>
+                            {/* Number of Employees: label left on desktop, above on mobile */}
+                            <div className="hidden md:flex md:items-center">
+                                <span className={labelClassName}>Number of Employees</span>
+                            </div>
+                            <div className="md:col-start-2">
+                                <label className={`${labelClassName} md:hidden`}>Number of Employees</label>
                                 <select
                                     value={formData.numberOfEmployees || ''}
                                     onChange={(e) => setFormData({ ...formData, numberOfEmployees: e.target.value })}
@@ -515,13 +577,23 @@ const CompanyProfilePage = () => {
                                 </select>
                             </div>
 
-                        {/* Industry */}
-                        <div>
-                            <label className="block text-xs text-slate-500 mb-2 font-semibold uppercase">
-                                Industry
-                            </label>
-                            <div className="text-slate-200 text-[15px]">{companyData.industry || 'Not specified'}</div>
-                        </div>
+                            {/* Tax ID: label left on desktop, above on mobile */}
+                            <div className="hidden md:flex md:items-center">
+                                <span className={labelClassName}>Tax ID</span>
+                            </div>
+                            <div className="md:col-start-2">
+                                <Input
+                                    label="Tax ID"
+                                    type="text"
+                                    value={formData.taxId || ''}
+                                    onChange={(e) => setFormData({ ...formData, taxId: e.target.value })}
+                                    required
+                                    className={inputClassName}
+                                    labelClassName={`${labelClassName} md:hidden`}
+                                    wrapperClassName={wrapperClassName}
+                                />
+                            </div>
+
                         </div>
 
                         <div className="flex flex-wrap gap-3 max-md:gap-2 mt-6 max-md:mt-4 justify-end max-md:justify-stretch">
@@ -547,117 +619,34 @@ const CompanyProfilePage = () => {
 
             {/* Subscriptions (single table: pending first, then history) */}
             <div className="mt-8">
-                <section className="bg-slate-900/40 border border-slate-700 rounded-2xl overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <div className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-slate-500" />
-                                Subscriptions
-                            </div>
-                            <div className="text-xs text-slate-400 mt-1">
-                            Activating  pending plan will immediately replace your current active subscription.                            </div>
-                        </div>
-                        {subscriptionActionError && (
-                            <div className="text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
-                                {subscriptionActionError}
-                            </div>
-                        )}
-                    </div>
+                   
 
                     {totalSubscriptionRows > 0 ? (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full text-sm">
-                                <thead className="text-[11px] uppercase tracking-wide text-slate-400 bg-slate-900/60">
-                                    <tr>
-                                        <th className="text-left px-6 py-3 font-semibold">Plan</th>
-                                        <th className="text-left px-6 py-3 font-semibold">Price</th>
-                                        <th className="text-left px-6 py-3 font-semibold">Duration</th>
-                                        <th className="text-left px-6 py-3 font-semibold">Start</th>
-                                        <th className="text-left px-6 py-3 font-semibold">Expiry</th>
-                                        <th className="text-left px-6 py-3 font-semibold">Status</th>
-                                        <th className="text-right px-6 py-3 font-semibold">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-800">
-                                    {subscriptionRowsPage.map((sub) => (
-                                        <tr key={sub.id} className="hover:bg-white/5 transition">
-                                            <td className="px-6 py-4 text-slate-100 font-semibold">
-                                                {sub.planName}
-                                            </td>
-                                            <td className="px-6 py-4 text-emerald-300 font-semibold">
-                                                ₹{sub.price}
-                                            </td>
-                                            <td className="px-6 py-4 text-slate-200">{sub.duration}</td>
-                                            <td className="px-6 py-4 text-slate-300">
-                                                {formatDate(sub.startAt)}
-                                            </td>
-                                            <td className="px-6 py-4 text-slate-300">
-                                                {formatDate(sub.endsAt)}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {sub.status === "Pending" ? (
-                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-200 border border-amber-500/20">
-                                                        Pending
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-red-500/10 text-red-200 border border-red-500/20">
-                                                        Expired
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                {sub.status === "Pending" ? (
-                                                    <Button
-                                                        type="button"
-                                                        disabled={subscriptionActionLoadingId === sub.id}
-                                                        className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none px-3 py-2 rounded-lg text-[12px] font-semibold disabled:opacity-60"
-                                                        onClick={async () => {
-                                                            await activatePendingNow(sub.id);
-                                                        }}
-                                                    >
-                                                        {subscriptionActionLoadingId === sub.id
-                                                            ? "Activating..."
-                                                            : "Activate Now"}
-                                                    </Button>
-                                                ) : (
-                                                    <span className="text-slate-400">—</span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <>
+                            <Table<ICompanySubscriptionView>
+                                columns={subscriptionColumns}
+                                data={subscriptionRowsPage}
+                                rowKey={(sub) => sub.id}
+                                emptyMessage=""
+                            />
 
-                            {/* Pagination */}
-                            {totalSubscriptionsPages > 1 && (
-                                <div className="px-6 py-4 border-t border-slate-700 flex items-center justify-end gap-2">
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        className="bg-slate-900/60 text-slate-300 border border-slate-700 hover:bg-slate-800 px-3 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
-                                        disabled={!canPrevSubscriptionsPage}
-                                        onClick={prevSubscriptionsPage}
-                                    >
-                                        Prev
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        className="bg-slate-900/60 text-slate-300 border border-slate-700 hover:bg-slate-800 px-3 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
-                                        disabled={!canNextSubscriptionsPage}
-                                        onClick={nextSubscriptionsPage}
-                                    >
-                                        Next
-                                    </Button>
-                                </div>
+                            {subscriptionsTotalPages > 1 && (
+                                <Pagination
+                                    page={subscriptionsPage}
+                                    totalPages={subscriptionsTotalPages}
+                                    onPageChange={(page) => {
+                                        if (page < subscriptionsPage) prevSubscriptionsPage();
+                                        if (page > subscriptionsPage) nextSubscriptionsPage();
+                                    }}
+                                />
                             )}
-                        </div>
+                        </>
                     ) : (
                         <div className="px-6 py-6 text-sm text-slate-400">
                             No subscription history yet.
                         </div>
                     )}
-                </section>
+                
             </div>
 
             {/* Subscription Modal */}
@@ -790,6 +779,51 @@ const CompanyProfilePage = () => {
                                 </div>
                             );
                             })}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirm activation modal */}
+            {confirmActivateSub && (
+                <div className="fixed inset-0 z-[1150] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="bg-slate-900 rounded-2xl max-w-md w-full border border-slate-700 shadow-2xl shadow-black/60 overflow-hidden">
+                        <div className="px-6 pt-6 pb-4 border-b border-slate-800">
+                            <h3 className="text-lg font-bold text-slate-50 m-0">
+                                Activate pending plan?
+                            </h3>
+                            <p className="mt-2 text-sm text-slate-300">
+                                This will immediately expire your current active subscription
+                                (if any) and replace it with{" "}
+                                <span className="font-semibold text-emerald-300">
+                                    {confirmActivateSub.planName}
+                                </span>{" "}
+                                scheduled from {formatDate(confirmActivateSub.startAt)} to{" "}
+                                {formatDate(confirmActivateSub.endsAt)}.
+                            </p>
+                        </div>
+                        <div className="px-6 py-4 flex justify-end gap-3 border-t border-slate-800 bg-slate-950/80">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => setConfirmActivateId(null)}
+                                className="bg-slate-800/80 text-slate-300 border border-slate-600 hover:bg-slate-700 hover:text-slate-100 hover:border-slate-500 py-2.5 px-5 rounded-xl text-sm font-semibold transition"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="button"
+                                disabled={subscriptionActionLoadingId === confirmActivateSub.id}
+                                onClick={async () => {
+                                    await activatePendingNow(confirmActivateSub.id);
+                                    setConfirmActivateId(null);
+                                }}
+                                className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none py-2.5 px-6 rounded-xl text-sm font-semibold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/30 hover:opacity-95 disabled:opacity-60 disabled:shadow-none transition"
+                            >
+                                {subscriptionActionLoadingId === confirmActivateSub.id
+                                    ? "Activating..."
+                                    : "Yes, activate now"}
+                            </Button>
                         </div>
                     </div>
                 </div>

@@ -63,6 +63,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       null,
       dto.userId,
       dto.companyName,
+      dto.location,
       dto.address,
       dto.contactPerson,
       user.email.getValue(),

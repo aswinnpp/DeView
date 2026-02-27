@@ -56,6 +56,7 @@ export class CompanyApproval {
     public id: string | null,
     public userId: string,
     public companyName: string,
+    public location: string | undefined,
     public address: string,
     public contactPerson: string,
     public contactEmail: string,
@@ -338,6 +339,9 @@ export class CompanyApproval {
   ) {
     if (fields.companyName !== undefined) {
       this.companyName = fields.companyName;
+    }
+    if (fields.location !== undefined) {
+      this.location = fields.location;
     }
     if (fields.address !== undefined) {
       this.address = fields.address;
