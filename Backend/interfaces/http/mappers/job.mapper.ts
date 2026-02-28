@@ -8,8 +8,11 @@ import type { JobStatus } from '../../../domain/job/entities/Job.js';
 interface IJobListQuery {
   search?: string;
   status?: JobStatus;
+  jobType?: string;
   page?: number;
   limit?: number;
+  sortBy?: 'date' | 'salary' | 'title';
+  sortOrder?: 'asc' | 'desc';
 }
 
 export const JobMapper = {
@@ -35,8 +38,8 @@ export const JobMapper = {
   },
 
   toListInput(query: IJobListQuery | undefined, user: IAuthenticatedUser): IListJobsInput {
-    const page = query?.page != null ? Number(query.page) : undefined;
-    const limit = query?.limit != null ? Number(query.limit) : undefined;
+    const page = query?.page != null ? Number(query.page) : Number.NaN;
+    const limit = query?.limit != null ? Number(query.limit) : Number.NaN;
     return {
       companyId: user.companyId || '',
       search: query?.search,
@@ -55,6 +58,20 @@ export const JobMapper = {
       jobId: params.id,
       companyId: user.companyId || '',
       status: body.status,
+    };
+  },
+
+  toListAllForCandidatesInput(query: IJobListQuery | undefined) {
+    const page = query?.page != null ? Number(query.page) : Number.NaN;
+    const limit = query?.limit != null ? Number(query.limit) : Number.NaN;
+    return {
+      search: query?.search,
+      status: query?.status,
+      jobType: query?.jobType,
+      page: Number.isFinite(page) && page >= 1 ? page : undefined,
+      limit: Number.isFinite(limit) && limit >= 1 ? limit : undefined,
+      sortBy: query?.sortBy,
+      sortOrder: query?.sortOrder,
     };
   },
 };

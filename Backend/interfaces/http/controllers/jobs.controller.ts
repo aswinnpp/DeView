@@ -63,6 +63,7 @@ export class jobController {
     const input = JobMapper.toListInput(request.query, user);
     const result = await this.listJobsUseCase.execute(input);
 
+
     reply.send(success(result));
   };
 }

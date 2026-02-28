@@ -26,6 +26,7 @@ const JobsPage = lazy(() => import("../features/jobs/JobsPage"));
 
 const Profile = lazy(() => import("../features/candidate/Profile"));
 const CandidateInterviews = lazy(() => import("../features/candidate/CandidateInterviews"));
+const CandidateJobsPage = lazy(() => import("../features/candidate/CandidateJobsPage"));
 
 
 const AdminDashboard = lazy(() => import("../features/admin/AdminDashboard"));
@@ -77,19 +78,16 @@ const AppRouter = () => {
         {/* ─── Protected Routes ───────────────────── */}
 
         <Route element={<PrivateRoute />}>
-          <Route
-            path="/company/approval"
-            element={<Navigate to="/company/approval-form" replace />}
-          />
+          <Route path="/company/approval" element={<Navigate to="/company/approval-form" replace />}/>
           <Route path="/company/approval-form" element={<CompanyApprovalFormPage />} />
           <Route path="/company/approval-pending" element={<CompanyApprovalPendingPage />} />
 
-          <Route
-            path="/candidate"
-            element={<Navigate to="/candidate/profile" replace />}
-          />
-          <Route path="/candidate/profile" element={<Profile />} />
-          <Route path="/candidate/interviews" element={<CandidateInterviews />} />
+          <Route path="/candidate">
+            <Route index element={<Navigate to="/candidate/profile" replace />}/>
+            <Route path="profile" element={<Profile />} />
+            <Route path="jobs" element={<CandidateJobsPage />} />
+            <Route path="interviews" element={<CandidateInterviews />} />
+          </Route>
 
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />

@@ -50,6 +50,7 @@ import { GetCandidateProfileUseCase } from '../../application/candidate/use-case
 import { UpdateCandidateProfileUseCase } from '../../application/candidate/use-cases/update-candidate-profile.usecase.js';
 import { GetAllCandidatesUseCase } from '../../application/candidate/use-cases/get-all-candidates.usecase.js';
 import { ToggleCandidateStatusUseCase } from '../../application/candidate/use-cases/toggle-candidate-status.usecase.js';
+import { ListAllJobsForCandidatesUseCase } from '../../application/candidate/use-cases/list-all-jobs-for-candidates.usecase.js';
 
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
@@ -102,6 +103,9 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.UpdateCandidateProfileUseCasePort).to(UpdateCandidateProfileUseCase);
   container.bind(TYPES.GetAllCandidatesUseCasePort).to(GetAllCandidatesUseCase);
   container.bind(TYPES.ToggleCandidateStatusUseCasePort).to(ToggleCandidateStatusUseCase);
+  container
+    .bind(TYPES.ListAllJobsForCandidatesUseCasePort)
+    .to(ListAllJobsForCandidatesUseCase);
 
   // Upload use cases
   container.bind(TYPES.GenerateUploadSignatureUseCasePort).to(GenerateUploadSignatureUseCase);

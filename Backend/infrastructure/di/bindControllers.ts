@@ -7,6 +7,7 @@ import { AdminCompanyApprovalController } from '../../interfaces/http/controller
 import { UploadController } from '../../interfaces/http/controllers/upload.controller.js';
 import { CompanyTeamController } from '../../interfaces/http/controllers/company-team.controller.js';
 import { CandidateProfileController } from '../../interfaces/http/controllers/candidate-profile.controller.js';
+import { CandidateJobsController } from '../../interfaces/http/controllers/candidate-jobs.controller.js';
 import { CompanyProfileController } from '../../interfaces/http/controllers/company-profile.controller.js';
 import {AdminSubscribtionController}from"../../interfaces/http/controllers/admin-subscribtion.controller.js"
 import { CompanyPaymentController } from '../../interfaces/http/controllers/company-payment.controller.js';
@@ -19,6 +20,7 @@ export function bindControllers(container: Container): void {
   container.bind(UploadController).toSelf();
   container.bind(CompanyTeamController).toSelf();
   container.bind(CandidateProfileController).toSelf();
+  container.bind(CandidateJobsController).toSelf();
   container.bind(CompanyProfileController).toSelf();
   container.bind(AdminSubscribtionController).toSelf();
   container.bind(CompanyPaymentController).toSelf();

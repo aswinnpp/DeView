@@ -18,6 +18,7 @@ import { AdminCompanyApprovalController } from '../../interfaces/http/controller
 import { UploadController } from '../../interfaces/http/controllers/upload.controller.js';
 import { CompanyTeamController } from '../../interfaces/http/controllers/company-team.controller.js';
 import { CandidateProfileController } from '../../interfaces/http/controllers/candidate-profile.controller.js';
+import { CandidateJobsController } from '../../interfaces/http/controllers/candidate-jobs.controller.js';
 import { CompanyProfileController } from '../../interfaces/http/controllers/company-profile.controller.js';
 import { AdminSubscribtionController } from '../../interfaces/http/controllers/admin-subscribtion.controller.js';
 import { CompanyPaymentController } from '../../interfaces/http/controllers/company-payment.controller.js';
@@ -46,6 +47,7 @@ export function getControllers(container: ContainerType) {
     uploadController: container.get(UploadController),
     companyTeamController: container.get(CompanyTeamController),
     candidateProfileController: container.get(CandidateProfileController),
+    candidateJobsController: container.get(CandidateJobsController),
     companyProfileController: container.get(CompanyProfileController),
     adminsubscribtioncontroller: container.get(AdminSubscribtionController),
     companyPaymentController: container.get(CompanyPaymentController),

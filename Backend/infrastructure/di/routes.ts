@@ -8,6 +8,7 @@ import { adminCompanyApprovalRoutes } from '../../interfaces/http/routes/admin-c
 import { uploadRoutes } from '../../interfaces/http/routes/upload.routes.js';
 import { companyTeamRoutes } from '../../interfaces/http/routes/company-team.routes.js';
 import { candidateProfileRoutes } from '../../interfaces/http/routes/candidate-profile.routes.js';
+import { candidateJobsRoutes } from '../../interfaces/http/routes/candidate-jobs.routes.js';
 import { subcribtionRoutes } from '../../interfaces/http/routes/admin-subscribtion.routes.js';
 import { companySubcribtionRoutes } from '../../interfaces/http/routes/company-subscribtion.routes.js';
 import { companyPaymentRoutes } from '../../interfaces/http/routes/company-payment.routes.js';
@@ -57,10 +58,11 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
         },
     );
 
-    // Candidate profile routes
+    // Candidate routes (profile + jobs)
     await fastify.register(
         async (instance) => {
             await candidateProfileRoutes(instance, controllers.candidateProfileController);
+            await candidateJobsRoutes(instance, controllers.candidateJobsController);
         },
         { prefix: '/candidate' }
     );

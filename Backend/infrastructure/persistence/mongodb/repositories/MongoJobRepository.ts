@@ -55,6 +55,51 @@ export class MongoJobRepository
     };
   }
 
+  async listAllPaginated(
+    options?: IListJobsOptions
+  ): Promise<{ data: Job[]; total: number }> {
+    const filter: Filter<IJobDocument> = {};
+
+    if (options?.status) {
+      filter.status = options.status;
+    }
+
+    if (options?.jobType?.trim()) {
+      filter.jobType = { $regex: new RegExp(`^${options.jobType.trim()}$`, 'i') };
+    }
+
+    if (options?.search?.trim()) {
+      const search = options.search.trim();
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { department: { $regex: search, $options: 'i' } },
+        { location: { $regex: search, $options: 'i' } },
+        { skills: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const page = Math.max(1, options?.page ?? 1);
+    const limit = Math.min(100, Math.max(1, options?.limit ?? 10));
+    const skip = (page - 1) * limit;
+    const sortOrder = options?.sortOrder ?? 'desc';
+    const sortDir = sortOrder === 'asc' ? 1 : -1;
+
+    const [total, docs] = await Promise.all([
+      this.collection.countDocuments(filter),
+      this.collection
+        .find(filter)
+        .sort({ createdAt: sortDir })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+    ]);
+
+    return {
+      data: docs.map((doc) => this.toDomain(doc)),
+      total,
+    };
+  }
+
   protected toDomain(doc: IJobDocument): Job {
     return new Job(
       doc._id?.toString() ?? null,

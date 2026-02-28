@@ -66,5 +66,6 @@ export const TYPES = {
   CreateJobUseCasePort: Symbol('CreateJobUseCasePort'),
   UpdateJobUseCasePort: Symbol('UpdateJobUseCasePort'),
   ListJobsUseCasePort: Symbol('ListJobsUseCasePort'),
+  ListAllJobsForCandidatesUseCasePort: Symbol('ListAllJobsForCandidatesUseCasePort'),
   ToggleJobStatusUseCasePort: Symbol('ToggleJobStatusUseCasePort'),
 } as const;

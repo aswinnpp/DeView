@@ -50,7 +50,8 @@ export const API_ROUTES = {
     },
     CANDIDATE: {
         PROFILE: '/candidate/profile',
-        GETALL: '/candidate/list'
+        GETALL: '/candidate/list',
+        JOBS: '/candidate/jobs',
     },
 } as const;
 
