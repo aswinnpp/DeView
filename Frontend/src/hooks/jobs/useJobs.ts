@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm, useFieldArray, type Resolver, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,7 +40,7 @@ function getEmployerBase(pathname: string): EmployerBase {
   return "company";
 }
 
-const PAGE_SIZE = 1;
+const PAGE_SIZE = 2;
 
 export function useJobs() {
   const navigate = useNavigate();
@@ -48,6 +48,7 @@ export function useJobs() {
   const employerBase = getEmployerBase(location.pathname);
 
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [jobsError, setJobsError] = useState<string | null>(null);
   const [jobCreateError, setJobCreateError] = useState<string | null>(null);
@@ -72,50 +73,50 @@ export function useJobs() {
   const isActive = true;
 
   const fetchJobs = useCallback(
-    async (search?: string, status?: string) => {
+    async (opts?: { search?: string; status?: string; page?: number }) => {
       setIsLoading(true);
       setJobsError(null);
 
-      const effectiveSearch = search ?? searchQuery;
-      const effectiveStatus = status ?? statusFilter;
+      const effectiveSearch = opts?.search ?? searchQuery;
+      const effectiveStatus = opts?.status ?? statusFilter;
+      const effectivePage = opts?.page ?? page;
 
       try {
-        const { data } = await jobsService.list({
+        const { data: jobsData, total } = await jobsService.list({
           search: effectiveSearch || undefined,
           status:
             effectiveStatus === "all"
               ? undefined
               : (effectiveStatus as "OPEN" | "CLOSED"),
+          page: effectivePage,
+          limit: PAGE_SIZE,
         });
-        setJobs(data );
+        setJobs(jobsData);
+        setTotal(total);
       } catch (err) {
         setJobsError(extractApiError(err));
         setJobs([]);
+        setTotal(0);
       } finally {
         setIsLoading(false);
       }
     },
-    [searchQuery, statusFilter]
+    [searchQuery, statusFilter, page]
   );
 
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
+
   const myJobs = jobs;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const paginatedJobs = jobs;
 
-  const totalPages = Math.max(1, Math.ceil(jobs.length / PAGE_SIZE));
-  const paginatedJobs = useMemo(
-    () => jobs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
-    [jobs, page]
-  );
-
-  const paginationLabel =
-    jobs.length > 0
-      ? `Showing ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, jobs.length)} of ${jobs.length}`
-      : undefined;
-
+  
   useEffect(() => {
     setPage(1);
+    fetchJobs({ page: 1 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, statusFilter]);
 
   useEffect(() => {
@@ -220,7 +221,6 @@ export function useJobs() {
     myJobs,
     paginatedJobs,
     totalPages,
-    paginationLabel,
 
     // modal/editing state
     isCreating,

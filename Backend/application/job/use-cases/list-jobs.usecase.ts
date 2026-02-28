@@ -10,24 +10,11 @@ export class ListJobsUseCase implements IListJobsUseCase {
   ) {}
 
   async execute(input: IListJobsInput) {
-    const base = await this.repo.listByCompanyId(input.companyId);
-
-    const search = input.search?.trim().toLowerCase();
-    const status = input.status;
-
-    return base.filter((job) => {
-      if (status && job.status !== status) return false;
-
-      if (search) {
-        const q = search;
-        const inTitle = job.title?.toLowerCase().includes(q) ?? false;
-
-        if (!inTitle) {
-          return false;
-        }
-      }
-
-      return true;
+    return this.repo.listByCompanyIdPaginated(input.companyId, {
+      search: input.search,
+      status: input.status,
+      page: input.page,
+      limit: input.limit,
     });
   }
 }

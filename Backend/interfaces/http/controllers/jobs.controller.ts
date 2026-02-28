@@ -54,13 +54,15 @@ export class jobController {
   };
 
   getJobs = async (
-    request: FastifyRequest<{ Querystring: { search?: string; status?: 'OPEN' | 'CLOSED' } }>,
+    request: FastifyRequest<{
+      Querystring: { search?: string; status?: 'OPEN' | 'CLOSED'; page?: number; limit?: number };
+    }>,
     reply: FastifyReply
   ) => {
     const user = request.currentUser;
     const input = JobMapper.toListInput(request.query, user);
-    const jobs = await this.listJobsUseCase.execute(input);
+    const result = await this.listJobsUseCase.execute(input);
 
-    reply.send(success(jobs));
+    reply.send(success(result));
   };
 }

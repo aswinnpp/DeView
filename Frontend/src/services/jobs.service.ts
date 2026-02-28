@@ -36,32 +36,41 @@ export type JobCreatePayload = Omit<
   status?: string;
 };
 
-function toList(data: unknown): Job[] {
-  if (Array.isArray(data)) return data;
+function toPaginatedResult(data: unknown): { data: Job[]; total: number } {
+  if (data && typeof data === "object" && "data" in data && "total" in data) {
+    const obj = data as { data?: unknown; total?: unknown };
+    return {
+      data: Array.isArray(obj.data) ? obj.data : [],
+      total: typeof obj.total === "number" && obj.total >= 0 ? obj.total : 0,
+    };
+  }
   const wrapped = (data as { data?: Job[] })?.data;
-  return Array.isArray(wrapped) ? wrapped : [];
+  const arr = Array.isArray(wrapped) ? wrapped : [];
+  return { data: arr, total: arr.length };
 }
 
 export interface JobListParams {
   search?: string;
   status?: "OPEN" | "CLOSED" | "all";
+  page?: number;
+  limit?: number;
 }
 
 export const jobsService = {
   list: (params?: JobListParams) =>
     api
-      .get<{ data: Job[] }>(API_ROUTES.JOB.JOBS_LIST, {
+      .get<{ data: Job[]; total: number }>(API_ROUTES.JOB.JOBS_LIST, {
         params: {
           search: params?.search || undefined,
           status:
             params?.status && params.status !== "all"
               ? (params.status as "OPEN" | "CLOSED")
               : undefined,
+          page: params?.page,
+          limit: params?.limit,
         },
       })
-      .then((res) => ({
-        data: toList(res.data),
-      })),
+      .then((res) => toPaginatedResult(res.data)),
 
   create: (payload: JobCreatePayload) =>
     api.post<{ data: Job }>(API_ROUTES.JOB.JOB_CREATE, payload),

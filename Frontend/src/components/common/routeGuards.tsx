@@ -77,6 +77,9 @@ export function PublicRoute() {
       case "company":
         return <CompanyPublicRedirect />;
 
+      case "hr":
+        return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
+
       case "candidate":
       default:
         return <Navigate to="/candidate" replace />;

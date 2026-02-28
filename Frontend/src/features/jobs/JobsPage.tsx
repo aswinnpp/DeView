@@ -44,16 +44,18 @@ const JobsPage = () => {
   const isInitialLoading = isLoading && jobs.length === 0;
 
   return (
-    <div className="py-6 px-0">
-      <header className="flex flex-wrap justify-between items-start gap-4 mb-6">
+    <div className="py-4 md:py-6 px-0">
+
+      {/* ── Page header ── */}
+      <header className="flex flex-wrap justify-between items-start gap-3 mb-5 md:mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-slate-100 m-0 mb-1">Job Management</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-100 m-0 mb-1">Job Management</h2>
           <p className="text-slate-400 text-sm m-0">Manage open roles and view applications.</p>
         </div>
         {isActive && (
           <Button
             type="button"
-            className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:opacity-90 border-0 py-2.5 px-5 rounded-lg font-semibold text-sm"
+            className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:opacity-90 border-0 py-2.5 px-4 md:px-5 rounded-lg font-semibold text-sm whitespace-nowrap"
             onClick={openCreateModal}
           >
             + Add New Job
@@ -61,13 +63,14 @@ const JobsPage = () => {
         )}
       </header>
 
+      {/* ── Jobs error banner ── */}
       {jobsError && (
         <div className="mb-4 p-4 rounded-lg bg-slate-800/80 border border-red-500/50 text-red-300 text-sm">
           <strong>Error loading jobs:</strong> {jobsError}
         </div>
       )}
 
-      {/* Job creation error modal (e.g. plan limit reached) */}
+      {/* ── Plan-limit error modal ── */}
       {jobCreateError && (
         <div
           className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
@@ -77,18 +80,16 @@ const JobsPage = () => {
             className="bg-slate-900 rounded-2xl max-w-md w-full border border-red-500/40 shadow-2xl shadow-black/60 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 pt-6 pb-4 border-b border-slate-700 flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center text-red-400 text-xl font-bold shrink-0">
+            <div className="px-5 pt-5 pb-4 border-b border-slate-700 flex items-start gap-3">
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-red-500/15 flex items-center justify-center text-red-400 text-xl font-bold shrink-0">
                 !
               </div>
               <div>
-                <h3 className="m-0 text-lg font-semibold text-slate-50">Unable to create job</h3>
-                <p className="mt-2 mb-0 text-sm text-slate-300 whitespace-pre-line">
-                  {jobCreateError}
-                </p>
+                <h3 className="m-0 text-base md:text-lg font-semibold text-slate-50">Unable to create job</h3>
+                <p className="mt-2 mb-0 text-sm text-slate-300 whitespace-pre-line">{jobCreateError}</p>
               </div>
             </div>
-            <div className="px-6 py-4 flex justify-end gap-3 border-t border-slate-800 bg-slate-950/80">
+            <div className="px-5 py-4 flex justify-end gap-3 border-t border-slate-800 bg-slate-950/80">
               <Button
                 type="button"
                 variant="secondary"
@@ -102,24 +103,25 @@ const JobsPage = () => {
         </div>
       )}
 
-      {/* Create/Edit Modal */}
+      {/* ── Create / Edit modal ── */}
       {(isCreating || currentVariant === "edit") && (
         <div
-          className="fixed inset-0 bg-black/75 flex items-center justify-center z-[1000] p-5 overflow-y-auto"
+          className="fixed inset-0 bg-black/75 flex items-start justify-center z-[1000] p-3 md:p-5 overflow-y-auto"
           onClick={handleCloseModal}
         >
           <div
-            className="bg-slate-900 rounded-2xl max-w-[900px] w-full max-h-[90vh] overflow-auto border border-slate-600 p-8 my-5"
+            className="bg-slate-900 rounded-2xl max-w-[900px] w-full border border-slate-600 p-4 md:p-8 my-3 md:my-5"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-600">
-              <h3 className="m-0 text-2xl font-bold text-slate-50">
+            {/* Modal header */}
+            <div className="flex justify-between items-center mb-5 md:mb-6 pb-4 border-b border-slate-600">
+              <h3 className="m-0 text-lg md:text-2xl font-bold text-slate-50">
                 {currentVariant === "edit" ? "Edit Job" : "Create New Job"}
               </h3>
               <Button
                 type="button"
                 variant="secondary"
-                className="!w-10 !h-10 !min-w-0 flex items-center justify-center rounded-lg text-slate-400 hover:!bg-slate-700 hover:text-slate-50 text-2xl !p-0 !border-0"
+                className="!w-9 !h-9 md:!w-10 md:!h-10 !min-w-0 flex items-center justify-center rounded-lg text-slate-400 hover:!bg-slate-700 hover:text-slate-50 text-2xl !p-0 !border-0 shrink-0"
                 onClick={handleCloseModal}
               >
                 ×
@@ -127,9 +129,10 @@ const JobsPage = () => {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="mb-6">
-                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-4">Basic Information</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Basic Info */}
+              <div className="mb-5 md:mb-6">
+                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-3 md:mb-4">Basic Information</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                   <Input
                     label="Job Title *"
                     wrapperClassName="flex flex-col gap-1.5"
@@ -170,9 +173,10 @@ const JobsPage = () => {
                 </div>
               </div>
 
-              <div className="mb-6">
-                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-4">Employment Details</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Employment Details */}
+              <div className="mb-5 md:mb-6">
+                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-3 md:mb-4">Employment Details</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label className={labelClass}>Job Type *</label>
                     <select className={inputClass} {...register("jobType")}>
@@ -204,28 +208,17 @@ const JobsPage = () => {
                 </div>
               </div>
 
-              <div className="mb-6">
-                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-4">Experience & Compensation</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Experience & Compensation */}
+              <div className="mb-5 md:mb-6">
+                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-3 md:mb-4">Experience & Compensation</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label className={labelClass}>Min Experience (Years)</label>
-                    <input
-                      type="number"
-                      className={inputClass}
-                      placeholder="0"
-                      min={0}
-                      {...register("minExperience")}
-                    />
+                    <input type="number" className={inputClass} placeholder="0" min={0} {...register("minExperience")} />
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className={labelClass}>Max Experience (Years)</label>
-                    <input
-                      type="number"
-                      className={inputClass}
-                      placeholder="10"
-                      min={0}
-                      {...register("maxExperience")}
-                    />
+                    <input type="number" className={inputClass} placeholder="10" min={0} {...register("maxExperience")} />
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className={labelClass}>Salary Range {!salaryNonDisclosure && "*"}</label>
@@ -246,16 +239,18 @@ const JobsPage = () => {
                 </label>
               </div>
 
-              <div className="mb-6">
-                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-4">Application Deadline</h4>
-                <div className="max-w-[300px] flex flex-col gap-1.5">
+              {/* Deadline */}
+              <div className="mb-5 md:mb-6">
+                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-3 md:mb-4">Application Deadline</h4>
+                <div className="w-full sm:max-w-[300px] flex flex-col gap-1.5">
                   <label className={labelClass}>Deadline Date</label>
                   <input type="date" className={inputClass} {...register("applicationDeadline")} />
                 </div>
               </div>
 
-              <div className="mb-6">
-                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-4">Interview Rounds</h4>
+              {/* Interview Rounds */}
+              <div className="mb-5 md:mb-6">
+                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-3 md:mb-4">Interview Rounds</h4>
                 <div className="flex flex-col gap-3">
                   {fields.map((field, index) => (
                     <div key={field.id} className="flex items-center gap-2">
@@ -264,39 +259,33 @@ const JobsPage = () => {
                       </span>
                       <input
                         type="text"
-                        className={`${inputClass} flex-1`}
+                        className={`${inputClass} flex-1 min-w-0`}
                         placeholder={`Round ${index + 1}`}
                         {...register(`interviewRounds.${index}`)}
                       />
                       {index > 0 && (
                         <button
                           type="button"
-                          className="p-2 rounded border border-slate-500 text-slate-400 text-xs hover:bg-slate-700"
+                          className="p-2 rounded border border-slate-500 text-slate-400 text-xs hover:bg-slate-700 shrink-0"
                           onClick={() => swap(index, index - 1)}
                           title="Move Up"
-                        >
-                          ↑
-                        </button>
+                        >↑</button>
                       )}
                       {index < fields.length - 1 && (
                         <button
                           type="button"
-                          className="p-2 rounded border border-slate-500 text-slate-400 text-xs hover:bg-slate-700"
+                          className="p-2 rounded border border-slate-500 text-slate-400 text-xs hover:bg-slate-700 shrink-0"
                           onClick={() => swap(index, index + 1)}
                           title="Move Down"
-                        >
-                          ↓
-                        </button>
+                        >↓</button>
                       )}
                       {fields.length > 1 && (
                         <button
                           type="button"
-                          className="p-2 rounded border border-red-500/50 text-red-400 text-xs bg-red-500/10 hover:bg-red-500/20"
+                          className="p-2 rounded border border-red-500/50 text-red-400 text-xs bg-red-500/10 hover:bg-red-500/20 shrink-0"
                           onClick={() => remove(index)}
                           title="Remove"
-                        >
-                          ✕
-                        </button>
+                        >✕</button>
                       )}
                     </div>
                   ))}
@@ -314,13 +303,14 @@ const JobsPage = () => {
                 </Button>
               </div>
 
-              <div className="mb-6">
-                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-4">Job Details</h4>
+              {/* Job Details */}
+              <div className="mb-5 md:mb-6">
+                <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-3 md:mb-4">Job Details</h4>
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label className={labelClass}>Job Description *</label>
                     <textarea
-                      className={`${inputClass} resize-y min-h-[100px]`}
+                      className={`${inputClass} resize-y min-h-[90px]`}
                       rows={4}
                       placeholder="Detailed description..."
                       {...register("description")}
@@ -332,7 +322,7 @@ const JobsPage = () => {
                   <div className="flex flex-col gap-1.5">
                     <label className={labelClass}>Key Responsibilities *</label>
                     <textarea
-                      className={`${inputClass} resize-y min-h-[100px]`}
+                      className={`${inputClass} resize-y min-h-[90px]`}
                       rows={4}
                       placeholder="One per line..."
                       {...register("responsibilities")}
@@ -377,39 +367,36 @@ const JobsPage = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3 justify-end pt-4 border-t border-slate-600">
+              {/* Form actions */}
+              <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end pt-4 border-t border-slate-600">
                 <Button
                   type="button"
                   variant="secondary"
-                  className="!bg-slate-600 !text-slate-200 hover:!bg-slate-500 border-0 py-2.5 px-5 rounded-lg font-semibold text-sm"
+                  className="!bg-slate-600 !text-slate-200 hover:!bg-slate-500 border-0 py-2.5 px-5 rounded-lg font-semibold text-sm w-full sm:w-auto"
                   onClick={handleCloseModal}
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="!bg-emerald-600 hover:!bg-emerald-500 border-0 py-2.5 px-6 rounded-lg font-semibold text-sm disabled:opacity-50"
+                  className="!bg-emerald-600 hover:!bg-emerald-500 border-0 py-2.5 px-6 rounded-lg font-semibold text-sm disabled:opacity-50 w-full sm:w-auto"
                   disabled={!isActive}
                 >
                   {currentVariant === "edit" ? "Save Changes" : "Create Job"}
                 </Button>
               </div>
             </form>
-            
           </div>
         </div>
       )}
 
-      {/* Search and filters */}
-      <div className="flex flex-wrap gap-4 items-end mb-6">
-        <div className="flex-1 min-w-[250px]">
+      {/* ── Search & filter bar ── */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end mb-5 md:mb-6">
+        <div className="flex-1">
           <label className="block text-xs font-semibold text-slate-400 mb-1.5">Search by Job Title</label>
-          <SearchInput
-            placeholder="Search by job title..."
-            onSearch={setSearchQuery}
-          />
+          <SearchInput placeholder="Search by job title..." onSearch={setSearchQuery} />
         </div>
-        <div className="min-w-[180px]">
+        <div className="sm:w-[180px]">
           <label className="block text-xs font-semibold text-slate-400 mb-1.5">Filter by Status</label>
           <select
             className={inputClass}
@@ -423,26 +410,23 @@ const JobsPage = () => {
         </div>
       </div>
 
+      {/* ── Jobs list ── */}
       {isInitialLoading ? (
         <div className="text-center py-16 text-slate-400">Loading jobs...</div>
       ) : jobs.length === 0 ? (
-        <div className="text-center py-16 px-5 rounded-xl bg-slate-900 border border-dashed border-slate-600 text-slate-400 text-sm">
+        <div className="text-center py-14 px-5 rounded-xl bg-slate-900 border border-dashed border-slate-600 text-slate-400 text-sm">
           No jobs posted yet. Create a new job to get started.
         </div>
       ) : (
         <>
           <Table
             columns={[
-              { header: "Title", render: (job) => <span className="text-slate-200 font-semibold">{job.title}</span> },
+              { header: "Title",    render: (job) => <span className="text-slate-200 font-semibold">{job.title}</span> },
               { header: "Location", render: (job) => <span className="text-slate-300">{job.location}</span> },
               {
                 header: "Type",
                 render: (job) => (
-                  <span
-                    className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                      job.jobType === "Full-time" ? "bg-blue-500/20 text-blue-300" : "bg-violet-500/20 text-violet-300"
-                    }`}
-                  >
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${job.jobType === "Full-time" ? "bg-blue-500/20 text-blue-300" : "bg-violet-500/20 text-violet-300"}`}>
                     {job.jobType || "Full-time"}
                   </span>
                 ),
@@ -450,11 +434,7 @@ const JobsPage = () => {
               {
                 header: "Status",
                 render: (job) => (
-                  <span
-                    className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                      job.status === "OPEN" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
-                    }`}
-                  >
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${job.status === "OPEN" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
                     {job.status}
                   </span>
                 ),
@@ -500,39 +480,32 @@ const JobsPage = () => {
             emptySubMessage={myJobs.length === 0 ? "Try adjusting search or filters." : undefined}
           />
           {isLoading && (
-            <p className="mt-3 text-xs text-slate-500 text-right">
-              Updating results…
-            </p>
+            <p className="mt-3 text-xs text-slate-500 text-right">Updating results…</p>
           )}
           {totalPages > 1 && (
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-             
-            />
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
           )}
         </>
       )}
 
-      {/* View job modal */}
+      {/* ── View Job modal ── */}
       {viewingJob && (
         <div
-          className="fixed inset-0 bg-black/75 flex items-center justify-center z-[1000] p-5 overflow-y-auto"
+          className="fixed inset-0 bg-black/75 flex items-start justify-center z-[1000] p-3 md:p-5 overflow-y-auto"
           onClick={() => setViewingJob(null)}
         >
           <div
-            className="bg-slate-900 rounded-2xl max-w-[800px] w-full max-h-[90vh] overflow-auto border border-slate-600 p-8"
+            className="bg-slate-900 rounded-2xl max-w-[800px] w-full border border-slate-600 p-4 md:p-8 my-3 md:my-5"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-start mb-6 pb-4 border-b border-slate-600">
-              <div>
-                <h2 className="m-0 text-2xl font-bold text-slate-50 mb-2">{viewingJob.title}</h2>
-                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+            {/* Modal header */}
+            <div className="flex justify-between items-start mb-5 md:mb-6 pb-4 border-b border-slate-600 gap-3">
+              <div className="min-w-0">
+                <h2 className="m-0 text-lg md:text-2xl font-bold text-slate-50 mb-2 break-words">{viewingJob.title}</h2>
+                <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
                   <span>{viewingJob.department || "N/A"}</span>
-                  <span className="text-slate-500">•</span>
+                  <span className="text-slate-600">•</span>
                   <span>{viewingJob.location}</span>
-                  <span className="text-slate-500">•</span>
                   <span
                     className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
                       viewingJob.status === "OPEN" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
@@ -545,68 +518,65 @@ const JobsPage = () => {
               <Button
                 type="button"
                 variant="secondary"
-                className="!w-10 !h-10 !min-w-0 flex items-center justify-center rounded-lg text-slate-400 hover:!bg-slate-700 hover:text-slate-50 text-2xl !p-0 !border-0"
+                className="!w-9 !h-9 md:!w-10 md:!h-10 !min-w-0 flex items-center justify-center rounded-lg text-slate-400 hover:!bg-slate-700 hover:text-slate-50 text-2xl !p-0 !border-0 shrink-0"
                 onClick={() => setViewingJob(null)}
               >
                 ×
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-6">
+            {/* Meta grid – 1 col on mobile, 2 on sm+ */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 md:mb-6">
               <div>
                 <div className="text-slate-500 text-xs font-semibold uppercase mb-1">Job Type</div>
-                <div className="text-slate-200">{viewingJob.jobType || "Full-time"}</div>
+                <div className="text-slate-200 text-sm">{viewingJob.jobType || "Full-time"}</div>
               </div>
               <div>
                 <div className="text-slate-500 text-xs font-semibold uppercase mb-1">Work Mode</div>
-                <div className="text-slate-200">{viewingJob.workMode || "On-site"}</div>
+                <div className="text-slate-200 text-sm">{viewingJob.workMode || "On-site"}</div>
               </div>
               <div>
                 <div className="text-slate-500 text-xs font-semibold uppercase mb-1">Experience Level</div>
-                <div className="text-slate-200">{viewingJob.experienceLevel || "Mid-level"}</div>
+                <div className="text-slate-200 text-sm">{viewingJob.experienceLevel || "Mid-level"}</div>
               </div>
               <div>
                 <div className="text-slate-500 text-xs font-semibold uppercase mb-1">Positions</div>
-                <div className="text-slate-200">{viewingJob.numberOfPositions ?? 1}</div>
+                <div className="text-slate-200 text-sm">{viewingJob.numberOfPositions ?? 1}</div>
               </div>
               {(viewingJob.minExperience || viewingJob.maxExperience) && (
                 <div>
                   <div className="text-slate-500 text-xs font-semibold uppercase mb-1">Experience Range</div>
-                  <div className="text-slate-200">
-                    {viewingJob.minExperience}–{viewingJob.maxExperience || "10+"} years
-                  </div>
+                  <div className="text-slate-200 text-sm">{viewingJob.minExperience}–{viewingJob.maxExperience || "10+"} years</div>
                 </div>
               )}
               <div>
                 <div className="text-slate-500 text-xs font-semibold uppercase mb-1">Salary</div>
-                <div className="text-slate-200">
+                <div className="text-slate-200 text-sm">
                   {viewingJob.salaryNonDisclosure ? "Non-Disclosed" : (viewingJob.salary || "Not specified")}
                 </div>
               </div>
               {viewingJob.applicationDeadline && (
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <div className="text-slate-500 text-xs font-semibold uppercase mb-1">Application Deadline</div>
-                  <div className="text-slate-200">
-                    {new Date(viewingJob.applicationDeadline).toLocaleDateString()}
-                  </div>
+                  <div className="text-slate-200 text-sm">{new Date(viewingJob.applicationDeadline).toLocaleDateString()}</div>
                 </div>
               )}
             </div>
 
             {viewingJob.description && (
-              <div className="mb-6">
+              <div className="mb-5">
                 <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Description</h4>
                 <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap m-0">{viewingJob.description}</p>
               </div>
             )}
             {viewingJob.responsibilities && (
-              <div className="mb-6">
+              <div className="mb-5">
                 <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Key Responsibilities</h4>
                 <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap m-0">{viewingJob.responsibilities}</p>
               </div>
             )}
             {viewingJob.skills && (
-              <div className="mb-6">
+              <div className="mb-5">
                 <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Required Skills</h4>
                 <div className="flex flex-wrap gap-2">
                   {viewingJob.skills.split(",").map((skill, idx) => (
@@ -618,39 +588,37 @@ const JobsPage = () => {
               </div>
             )}
             {viewingJob.qualifications && (
-              <div className="mb-6">
+              <div className="mb-5">
                 <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Qualifications</h4>
                 <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap m-0">{viewingJob.qualifications}</p>
               </div>
             )}
             {viewingJob.benefits && (
-              <div className="mb-6">
+              <div className="mb-5">
                 <h4 className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Benefits</h4>
                 <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap m-0">{viewingJob.benefits}</p>
               </div>
             )}
 
-            <div className="flex gap-3 justify-end pt-4 border-t border-slate-600">
-              <Button
-                type="button"
-                className="!bg-gradient-to-r !from-indigo-500 !to-violet-500 text-white hover:!opacity-90 border-0 py-2.5 px-5 rounded-lg font-semibold text-sm"
-                onClick={() => handleJobClick(viewingJob.id)}
-              >
-                View App
-                lications
-              </Button>
+            {/* Modal footer */}
+            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end pt-4 border-t border-slate-600">
               <Button
                 type="button"
                 variant="secondary"
-                className="!bg-slate-600 !text-slate-200 hover:!bg-slate-500 border-0 py-2.5 px-5 rounded-lg font-semibold text-sm"
+                className="!bg-slate-600 !text-slate-200 hover:!bg-slate-500 border-0 py-2.5 px-5 rounded-lg font-semibold text-sm w-full sm:w-auto"
                 onClick={() => {
                   setViewingJob(null);
-                  if (viewingJob) {
-                    openEditModal(viewingJob);
-                  }
+                  if (viewingJob) openEditModal(viewingJob);
                 }}
               >
                 Edit Job
+              </Button>
+              <Button
+                type="button"
+                className="!bg-gradient-to-r !from-indigo-500 !to-violet-500 text-white hover:!opacity-90 border-0 py-2.5 px-5 rounded-lg font-semibold text-sm w-full sm:w-auto"
+                onClick={() => handleJobClick(viewingJob.id)}
+              >
+                View Applications
               </Button>
             </div>
           </div>

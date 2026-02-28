@@ -1,8 +1,11 @@
-import type { Collection } from 'mongodb';
+import type { Collection, Filter } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import { BaseMongoRepository } from './BaseMongoRepository.js';
 import { Job } from '../../../../domain/job/entities/Job.js';
-import type { IJobRepository } from '../../../../application/job/ports/repository/IJobRepository.js';
+import type {
+  IJobRepository,
+  IListJobsOptions,
+} from '../../../../application/job/ports/repository/IJobRepository.js';
 import type { IJobDocument } from '../schemas/JobDocument.js';
 
 export class MongoJobRepository
@@ -16,6 +19,40 @@ export class MongoJobRepository
     const cursor = this.collection.find({ companyId });
     const docs = await cursor.toArray();
     return docs.map((doc) => this.toDomain(doc));
+  }
+
+  async listByCompanyIdPaginated(
+    companyId: string,
+    options?: IListJobsOptions
+  ): Promise<{ data: Job[]; total: number }> {
+    const filter: Filter<IJobDocument> = { companyId };
+
+    if (options?.status) {
+      filter.status = options.status;
+    }
+
+    if (options?.search?.trim()) {
+      filter.title = { $regex: options.search.trim(), $options: 'i' };
+    }
+
+    const page = Math.max(1, options?.page ?? 1);
+    const limit = Math.min(100, Math.max(1, options?.limit ?? 10));
+    const skip = (page - 1) * limit;
+
+    const [total, docs] = await Promise.all([
+      this.collection.countDocuments(filter),
+      this.collection
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+    ]);
+
+    return {
+      data: docs.map((doc) => this.toDomain(doc)),
+      total,
+    };
   }
 
   protected toDomain(doc: IJobDocument): Job {

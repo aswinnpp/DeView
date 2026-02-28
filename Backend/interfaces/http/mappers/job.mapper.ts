@@ -8,6 +8,8 @@ import type { JobStatus } from '../../../domain/job/entities/Job.js';
 interface IJobListQuery {
   search?: string;
   status?: JobStatus;
+  page?: number;
+  limit?: number;
 }
 
 export const JobMapper = {
@@ -33,10 +35,14 @@ export const JobMapper = {
   },
 
   toListInput(query: IJobListQuery | undefined, user: IAuthenticatedUser): IListJobsInput {
+    const page = query?.page != null ? Number(query.page) : undefined;
+    const limit = query?.limit != null ? Number(query.limit) : undefined;
     return {
       companyId: user.companyId || '',
       search: query?.search,
       status: query?.status,
+      page: Number.isFinite(page) && page >= 1 ? page : undefined,
+      limit: Number.isFinite(limit) && limit >= 1 ? limit : undefined,
     };
   },
 
