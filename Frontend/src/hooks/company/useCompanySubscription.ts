@@ -136,7 +136,6 @@ export function useCompanySubscription(opts?: {
     startPaymentForPlan,
     refetchPlans: fetchPlans,
 
-    // subscription table (backend pagination)
     formatDate,
     activePlanId,
     subscriptionRowsPage,

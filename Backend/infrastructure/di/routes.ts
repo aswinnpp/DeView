@@ -12,6 +12,7 @@ import { subcribtionRoutes } from '../../interfaces/http/routes/admin-subscribti
 import { companySubcribtionRoutes } from '../../interfaces/http/routes/company-subscribtion.routes.js';
 import { companyPaymentRoutes } from '../../interfaces/http/routes/company-payment.routes.js';
 import { stripeWebhookRoutes } from '../../interfaces/http/routes/stripe-webhook.routes.js';
+import { jobRoutes } from '../../interfaces/http/routes/jobs.routes.js';
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     await fastify.register(
@@ -62,6 +63,14 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
             await candidateProfileRoutes(instance, controllers.candidateProfileController);
         },
         { prefix: '/candidate' }
+    );
+
+
+    await fastify.register(
+        async (instance) => {
+            await jobRoutes(instance, controllers.jobsControllers);
+        },
+        { prefix: '/jobs' }
     );
 }
 

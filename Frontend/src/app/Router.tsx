@@ -21,6 +21,7 @@ const CompanyDashboardPage = lazy(() => import("../features/company/CompanyDashb
 const CompanyLayout = lazy(() => import("../features/company/CompanyLayout"));
 const ManageHRPage = lazy(() => import("../features/company/ManageHRPage"));
 const CompanyProfilePage = lazy(() => import("../features/company/CompanyProfilePage"));
+const JobsPage = lazy(() => import("../features/jobs/JobsPage"));
 
 
 const Profile = lazy(() => import("../features/candidate/Profile"));
@@ -99,6 +100,7 @@ const AppRouter = () => {
           <Route path="/company" element={<CompanyLayout />}>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<CompanyDashboardPage />} />
+            <Route path="jobs" element={<JobsPage />} />
             <Route path="team" element={<ManageHRPage />} />
             <Route path="profile" element={<CompanyProfilePage />} />
           </Route>

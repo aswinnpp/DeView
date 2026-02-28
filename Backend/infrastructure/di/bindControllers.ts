@@ -10,7 +10,7 @@ import { CandidateProfileController } from '../../interfaces/http/controllers/ca
 import { CompanyProfileController } from '../../interfaces/http/controllers/company-profile.controller.js';
 import {AdminSubscribtionController}from"../../interfaces/http/controllers/admin-subscribtion.controller.js"
 import { CompanyPaymentController } from '../../interfaces/http/controllers/company-payment.controller.js';
-
+import { jobController } from '../../interfaces/http/controllers/jobs.controller.js';
 export function bindControllers(container: Container): void {
   container.bind(AuthController).toSelf();
   container.bind(GoogleAuthController).toSelf();
@@ -22,4 +22,5 @@ export function bindControllers(container: Container): void {
   container.bind(CompanyProfileController).toSelf();
   container.bind(AdminSubscribtionController).toSelf();
   container.bind(CompanyPaymentController).toSelf();
+  container.bind(jobController).toSelf();
 }

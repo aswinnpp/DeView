@@ -58,8 +58,13 @@ export const TYPES = {
   UpdateSubscribtionUsecasePort: Symbol("UpdateSubscribtionUsecasePort"),
   SubscribtionRepositoryPort: Symbol("SubscribtionRepositoryPort"),
   PaymentRepositoryPort: Symbol("PaymentRepositoryPort"),
+  JobRepositoryPort: Symbol('JobRepositoryPort'),
 
   CreatePaymentIntentUseCasePort: Symbol("CreatePaymentIntentUseCasePort"),
   HandlePaymentWebhookUseCasePort: Symbol("HandlePaymentWebhookUseCasePort"),
   ActivatePendingSubscriptionNowUseCasePort: Symbol("ActivatePendingSubscriptionNowUseCasePort"),
+  CreateJobUseCasePort: Symbol('CreateJobUseCasePort'),
+  UpdateJobUseCasePort: Symbol('UpdateJobUseCasePort'),
+  ListJobsUseCasePort: Symbol('ListJobsUseCasePort'),
+  ToggleJobStatusUseCasePort: Symbol('ToggleJobStatusUseCasePort'),
 } as const;

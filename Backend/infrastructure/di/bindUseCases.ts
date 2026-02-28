@@ -26,6 +26,12 @@ import { ToggleTeamMemberStatusUseCase } from '../../application/company/use-cas
 import { CreatePaymentIntentUseCase } from '../../application/company/use-cases/create-payment-intent.usecase.js';
 import { HandlePaymentWebhookUseCase } from '../../application/company/use-cases/handle-payment-webhook.usecase.js';
 
+// Job use cases
+import { CreateJobUseCase } from '../../application/job/use-cases/create-job.usecase.js';
+import { UpdateJobUseCase } from '../../application/job/use-cases/update-job.usecase.js';
+import { ListJobsUseCase } from '../../application/job/use-cases/list-jobs.usecase.js';
+import { ToggleJobStatusUseCase } from '../../application/job/use-cases/toggle-job-status.usecase.js';
+
 // Admin use cases
 import { GetPendingCompaniesUseCase } from '../../application/admin/use-cases/get-pending-companies.usecase.js';
 import { ApproveCompanyUseCase } from '../../application/admin/use-cases/approve-company.usecase.js';
@@ -77,6 +83,10 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ToggleTeamMemberStatusUseCasePort).to(ToggleTeamMemberStatusUseCase);
   container.bind(TYPES.CreatePaymentIntentUseCasePort).to(CreatePaymentIntentUseCase);
   container.bind(TYPES.HandlePaymentWebhookUseCasePort).to(HandlePaymentWebhookUseCase);
+  container.bind(TYPES.CreateJobUseCasePort).to(CreateJobUseCase);
+  container.bind(TYPES.UpdateJobUseCasePort).to(UpdateJobUseCase);
+  container.bind(TYPES.ListJobsUseCasePort).to(ListJobsUseCase);
+  container.bind(TYPES.ToggleJobStatusUseCasePort).to(ToggleJobStatusUseCase);
 
   // Admin use cases
   container.bind(TYPES.GetPendingCompaniesUseCasePort).to(GetPendingCompaniesUseCase);

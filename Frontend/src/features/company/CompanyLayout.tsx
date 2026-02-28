@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button } from '../../components/common';
 import { SystemDataProvider } from '../../context/SystemDataContext';
+import { APP_ROUTES } from '../../constants/routes';
 
 
 const CompanyLayout = () => {
@@ -105,7 +106,7 @@ const CompanyLayout = () => {
                             <NavLink to="/company/dashboard" className={({ isActive }) => navTabClass(isActive)}>
                                 Dashboard
                             </NavLink>
-                            <NavLink to="/company/jobs" className={({ isActive }) => navTabClass(isActive)}>
+                            <NavLink to={APP_ROUTES.JOBS_PATH('company')} className={({ isActive }) => navTabClass(isActive)}>
                                 Jobs
                             </NavLink>
                             <NavLink to="/company/applications" className={({ isActive }) => navTabClass(isActive)}>
@@ -157,7 +158,7 @@ const CompanyLayout = () => {
                             <NavLink to="/company/dashboard" className={({ isActive }) => navTabClass(isActive)}>
                                 Dashboard
                             </NavLink>
-                            <NavLink to="/company/jobs" className={({ isActive }) => navTabClass(isActive)}>
+                            <NavLink to={APP_ROUTES.JOBS_PATH('company')} className={({ isActive }) => navTabClass(isActive)}>
                                 Jobs
                             </NavLink>
                             <NavLink to="/company/applications" className={({ isActive }) => navTabClass(isActive)}>
