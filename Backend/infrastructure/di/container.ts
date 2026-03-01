@@ -20,7 +20,7 @@ import { CompanyTeamController } from '../../interfaces/http/controllers/company
 import { CandidateProfileController } from '../../interfaces/http/controllers/candidate-profile.controller.js';
 import { CandidateJobsController } from '../../interfaces/http/controllers/candidate-jobs.controller.js';
 import { CompanyProfileController } from '../../interfaces/http/controllers/company-profile.controller.js';
-import { AdminSubscribtionController } from '../../interfaces/http/controllers/admin-subscribtion.controller.js';
+import { AdminSubscriptionController } from '../../interfaces/http/controllers/admin-subscription.controller.js';
 import { CompanyPaymentController } from '../../interfaces/http/controllers/company-payment.controller.js';
 import { jobController } from '../../interfaces/http/controllers/jobs.controller.js';
 import { ApplicationsController } from '../../interfaces/http/controllers/applications.controller.js';
@@ -50,7 +50,7 @@ export function getControllers(container: ContainerType) {
     candidateProfileController: container.get(CandidateProfileController),
     candidateJobsController: container.get(CandidateJobsController),
     companyProfileController: container.get(CompanyProfileController),
-    adminsubscribtioncontroller: container.get(AdminSubscribtionController),
+    adminSubscriptionController: container.get(AdminSubscriptionController),
     companyPaymentController: container.get(CompanyPaymentController),
     jobsControllers: container.get(jobController),
     applicationsController: container.get(ApplicationsController),

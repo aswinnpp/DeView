@@ -1,4 +1,4 @@
-export class Subscribtion {
+export class Subscription {
   constructor(
     public id: string | null,
     public name: string,
@@ -14,4 +14,3 @@ export class Subscribtion {
     public updatedAt: Date = new Date()
   ) {}
 }
-

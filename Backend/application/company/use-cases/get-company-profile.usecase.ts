@@ -3,13 +3,13 @@ import { TYPES } from "../../../shared/di/types";
 import { ICompanyProfileRepository } from "../ports/repository/ICompanyProfileRepository";
 import { AppError } from "../../../shared/errors/AppError";
 import type { IGetCompanyProfileUseCase } from "../ports/usecase/IGetCompanyProfileUseCase";
-import type { ISubscribtionRepository } from "../../admin/ports/repository/ISubscribtionRepository.js";
+import type { ISubscriptionRepository } from "../../admin/ports/repository/ISubscriptionRepository.js";
 
 @injectable()
 export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
   constructor(
     @inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository,
-    @inject(TYPES.SubscribtionRepositoryPort) private subscriptionRepo: ISubscribtionRepository,
+    @inject(TYPES.SubscriptionRepositoryPort) private subscriptionRepo: ISubscriptionRepository,
   ) {}
 
   async execute(userId: string) {

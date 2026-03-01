@@ -7,7 +7,7 @@ import type { IUserRepository } from '../../application/shared/ports/repository/
 import type { ICompanyProfileRepository } from '../../application/company/ports/repository/ICompanyProfileRepository.js';
 import type { IOtpRepository } from '../../application/auth/ports/repository/IOtpRepository.js';
 import type { ICandidateProfileRepository } from '../../application/candidate/ports/repository/ICandidateProfileRepository.js';
-import type { ISubscribtionRepository } from '../../application/admin/ports/repository/ISubscribtionRepository.js';
+import type { ISubscriptionRepository } from '../../application/admin/ports/repository/ISubscriptionRepository.js';
 import type { IPaymentRepository } from '../../application/company/ports/repository/IPaymentRepository.js';
 import type { IJobRepository } from '../../application/job/ports/repository/IJobRepository.js';
 import type { IJobApplicationRepository } from '../../application/candidate/ports/repository/IJobApplicationRepository.js';
@@ -15,7 +15,7 @@ import type { IApplicationRepository } from '../../application/application/ports
 import { MongoUserRepository } from '../persistence/mongodb/repositories/MongoUserRepository.js';
 import { MongoCompanyProfileRepository } from '../persistence/mongodb/repositories/MongoCompanyProfileRepository.js';
 import { MongoCandidateProfileRepository } from '../persistence/mongodb/repositories/MongoCandidateProfileRepository.js';
-import { MongoSubscribtionRepository } from '../persistence/mongodb/repositories/MongoSubscribtionRepository.js';
+import { MongoSubscriptionRepository } from '../persistence/mongodb/repositories/MongoSubscriptionRepository.js';
 import { MongoPaymentRepository } from '../persistence/mongodb/repositories/MongoPaymentRepository.js';
 import { MongoJobRepository } from '../persistence/mongodb/repositories/MongoJobRepository.js';
 import { MongoJobApplicationRepository } from '../persistence/mongodb/repositories/MongoJobApplicationRepository.js';
@@ -25,7 +25,7 @@ import { RedisOAuthSessionRepository } from '../persistence/redis/RedisOAuthSess
 import { IUserDocument } from '../persistence/mongodb/schemas/UserDocument.js';
 import { ICompanyApprovalDocument } from '../persistence/mongodb/schemas/CompanyApprovalDocument.js';
 import { ICandidateProfileDocument } from '../persistence/mongodb/schemas/CandidateProfileDocument.js';
-import { ISubscribtion } from '../persistence/mongodb/schemas/subscribtion.js';
+import { ISubscription } from '../persistence/mongodb/schemas/subscription.js';
 import { IPaymentDocument } from '../persistence/mongodb/schemas/payment.js';
 import { IJobDocument } from '../persistence/mongodb/schemas/JobDocument.js';
 import { IApplicationDocument } from '../persistence/mongodb/schemas/ApplicationDocument.js';
@@ -42,8 +42,8 @@ const createCompanyProfileRepository = (db: Db) =>
 const createCandidateProfileRepository = (db: Db) => 
   new MongoCandidateProfileRepository(db.collection<ICandidateProfileDocument>('candidateProfiles'));
 
-const createSubscribtionRepository = (db: Db) =>
-  new MongoSubscribtionRepository(db.collection<ISubscribtion>('subscribtions'));
+const createSubscriptionRepository = (db: Db) =>
+  new MongoSubscriptionRepository(db.collection<ISubscription>('subscriptions'));
 
 const createPaymentRepository = (db: Db) =>
   new MongoPaymentRepository(db.collection<IPaymentDocument>('payments'));
@@ -77,8 +77,8 @@ export function bindRepositories(container: Container): void {
     createCandidateProfileRepository(container.get<Db>(TYPES.Db))
   );
 
-  container.bind<ISubscribtionRepository>(TYPES.SubscribtionRepositoryPort).toDynamicValue(() =>
-    createSubscribtionRepository(container.get<Db>(TYPES.Db))
+  container.bind<ISubscriptionRepository>(TYPES.SubscriptionRepositoryPort).toDynamicValue(() =>
+    createSubscriptionRepository(container.get<Db>(TYPES.Db))
   );
 
   container.bind<IPaymentRepository>(TYPES.PaymentRepositoryPort).toDynamicValue(() =>

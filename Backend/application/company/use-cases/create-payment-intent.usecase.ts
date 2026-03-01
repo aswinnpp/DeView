@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { ICreatePaymentIntentUseCase, ICreatePaymentIntentInput, ICreatePaymentIntentResult } from '../ports/usecase/ICreatePaymentIntentUseCase.js';
-import type { ISubscribtionRepository } from '../../admin/ports/repository/ISubscribtionRepository.js';
+import type { ISubscriptionRepository } from '../../admin/ports/repository/ISubscriptionRepository.js';
 import type { IPaymentRepository } from '../ports/repository/IPaymentRepository.js';
 import { stripe } from '../../../infrastructure/payments/stripeClient.js';
 import { env } from '../../../infrastructure/config/env.js';
@@ -11,7 +11,7 @@ import { AppError } from '../../../shared/errors/AppError.js';
 @injectable()
 export class CreatePaymentIntentUseCase implements ICreatePaymentIntentUseCase {
   constructor(
-    @inject(TYPES.SubscribtionRepositoryPort) private readonly subscriptionRepository: ISubscribtionRepository,
+    @inject(TYPES.SubscriptionRepositoryPort) private readonly subscriptionRepository: ISubscriptionRepository,
     @inject(TYPES.PaymentRepositoryPort) private readonly paymentRepository: IPaymentRepository,
   ) {}
 

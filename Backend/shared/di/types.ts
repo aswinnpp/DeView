@@ -52,11 +52,11 @@ export const TYPES = {
   ToggleCandidateStatusUseCasePort: Symbol('ToggleCandidateStatusUseCasePort'),
 
   GenerateUploadSignatureUseCasePort: Symbol('GenerateUploadSignatureUseCasePort'),
-  CreateSubscribtioUsecasePort : Symbol("CreateSubscribtioUsecasePort"),
-  ListSubscribtionsUsecasePort: Symbol("ListSubscribtionsUsecasePort"),
-  ToggleSubscribtionStatusUsecasePort: Symbol("ToggleSubscribtionStatusUsecasePort"),
-  UpdateSubscribtionUsecasePort: Symbol("UpdateSubscribtionUsecasePort"),
-  SubscribtionRepositoryPort: Symbol("SubscribtionRepositoryPort"),
+  CreateSubscriptionUsecasePort: Symbol("CreateSubscriptionUsecasePort"),
+  ListSubscriptionsUsecasePort: Symbol("ListSubscriptionsUsecasePort"),
+  ToggleSubscriptionStatusUsecasePort: Symbol("ToggleSubscriptionStatusUsecasePort"),
+  UpdateSubscriptionUsecasePort: Symbol("UpdateSubscriptionUsecasePort"),
+  SubscriptionRepositoryPort: Symbol("SubscriptionRepositoryPort"),
   PaymentRepositoryPort: Symbol("PaymentRepositoryPort"),
   JobRepositoryPort: Symbol('JobRepositoryPort'),
 

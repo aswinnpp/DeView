@@ -18,7 +18,7 @@ export const API_ROUTES = {
         SUBMIT_APPROVAL: '/company/submit',
         MY_APPROVAL: '/company/my-approval',
         PROFILE: '/company/profile',
-        SUBSCRIPTION_LIST: '/company/subscribtion',
+        SUBSCRIPTION_LIST: '/company/subscription',
         CREATE_PAYMENT_INTENT: '/company/payments/create-intent',
         ACTIVATE_PENDING_SUBSCRIPTION: (pendingId: string) =>
             `/company/subscriptions/pending/${pendingId}/activate-now`,
@@ -50,10 +50,10 @@ export const API_ROUTES = {
         COMPANY_DOCUMENT_MARK: (companyId: string, documentKey: string) =>
             `/admin/company-requests/${companyId}/documents/${documentKey}/mark`,
         COMPANYTOGGLE:(id:string)=>`/admin/company-requests/${id}/toggle-active`,
-        SUBSCRIPTION_CREATE: '/admin/company-requests/subscribtion',
-        SUBSCRIPTION_LIST: '/admin/company-requests/subscribtion',
-        SUBSCRIPTION_TOGGLE: (id: string) => `/admin/company-requests/subscribtion/${id}/toggle-active`,
-        SUBSCRIPTION_UPDATE: (id: string) => `/admin/company-requests/subscribtion/${id}`,
+        SUBSCRIPTION_CREATE: '/admin/company-requests/subscription',
+        SUBSCRIPTION_LIST: '/admin/company-requests/subscription',
+        SUBSCRIPTION_TOGGLE: (id: string) => `/admin/company-requests/subscription/${id}/toggle-active`,
+        SUBSCRIPTION_UPDATE: (id: string) => `/admin/company-requests/subscription/${id}`,
     },
     CANDIDATE: {
         PROFILE: '/candidate/profile',

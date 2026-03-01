@@ -1,4 +1,4 @@
-export interface ICreateSubscribtionInput {
+export interface ICreateSubscriptionInput {
   name: string;
   price: number;
   duration: "Monthly" | "Quarterly" | "Annual";
@@ -10,6 +10,6 @@ export interface ICreateSubscribtionInput {
   hasAI: boolean;
 }
 
-export interface IAdminCreateSubscribtion {
-  execute(input: ICreateSubscribtionInput): Promise<void>;
+export interface IAdminCreateSubscription {
+  execute(input: ICreateSubscriptionInput): Promise<void>;
 }

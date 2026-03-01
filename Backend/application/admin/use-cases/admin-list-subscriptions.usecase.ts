@@ -1,26 +1,26 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "../../../shared/di/types";
 import type {
-  IAdminListSubscribtionsUsecase,
-  IListSubscribtionsInput,
-  IListSubscribtionsOutput,
-} from "../ports/usecase/IAdmin-ListSubscribtionsUsecase";
+  IAdminListSubscriptionsUsecase,
+  IListSubscriptionsInput,
+  IListSubscriptionsOutput,
+} from "../ports/usecase/IAdmin-ListSubscriptionsUsecase";
 import type {
-  ISubscribtionListOptions,
-  ISubscribtionRepository,
-} from "../ports/repository/ISubscribtionRepository";
+  ISubscriptionListOptions,
+  ISubscriptionRepository,
+} from "../ports/repository/ISubscriptionRepository";
 import { AppError } from "../../../shared/errors/AppError";
 
 @injectable()
-export class AdminListSubscribtionsUsecase
-  implements IAdminListSubscribtionsUsecase
+export class AdminListSubscriptionsUsecase
+  implements IAdminListSubscriptionsUsecase
 {
   constructor(
-    @inject(TYPES.SubscribtionRepositoryPort)
-    private readonly subscribtionRepository: ISubscribtionRepository
+    @inject(TYPES.SubscriptionRepositoryPort)
+    private readonly subscriptionRepository: ISubscriptionRepository
   ) {}
 
-  async execute(input: IListSubscribtionsInput): Promise<IListSubscribtionsOutput> {
+  async execute(input: IListSubscriptionsInput): Promise<IListSubscriptionsOutput> {
     const page: number | undefined = input.page;
     const limit: number | undefined = input.limit;
 
@@ -36,7 +36,7 @@ export class AdminListSubscribtionsUsecase
       }
     }
 
-    const options: ISubscribtionListOptions = {
+    const options: ISubscriptionListOptions = {
       search: input.search,
       status: input.status,
       duration: input.duration,
@@ -45,8 +45,7 @@ export class AdminListSubscribtionsUsecase
       limit,
     };
 
-    const result = await this.subscribtionRepository.findAll(options);
+    const result = await this.subscriptionRepository.findAll(options);
     return result;
   }
 }
-

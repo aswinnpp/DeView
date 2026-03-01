@@ -1,5 +1,5 @@
 {
-  "name": "second_project",
+  "name": "deview-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -13,16 +13,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aswinnpp/intervu-app.git"
+    "url": "git+https://github.com/aswinnpp/DeView.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/aswinnpp/intervu-app/issues"
+    "url": "https://github.com/aswinnpp/DeView/issues"
   },
-  "homepage": "https://github.com/aswinnpp/intervu-app#readme",
+  "homepage": "https://github.com/aswinnpp/DeView#readme",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.997.0",
     "@aws-sdk/s3-request-presigner": "^3.997.0",

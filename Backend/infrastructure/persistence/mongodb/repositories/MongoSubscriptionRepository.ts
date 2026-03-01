@@ -1,22 +1,22 @@
 import { Collection, ObjectId, type Filter } from "mongodb";
 import { BaseMongoRepository } from "./BaseMongoRepository";
-import { ISubscribtion } from "../schemas/subscribtion";
-import { Subscribtion } from "../../../../domain/admin/entities/Subscribtion";
+import { ISubscription } from "../schemas/subscription";
+import { Subscription } from "../../../../domain/admin/entities/Subscription";
 import {
-  type ISubscribtionListOptions,
-  ISubscribtionRepository,
-} from "../../../../application/admin/ports/repository/ISubscribtionRepository";
+  type ISubscriptionListOptions,
+  ISubscriptionRepository,
+} from "../../../../application/admin/ports/repository/ISubscriptionRepository";
 
-export class MongoSubscribtionRepository
-  extends BaseMongoRepository<Subscribtion, ISubscribtion>
-  implements ISubscribtionRepository {
-  constructor(collection: Collection<ISubscribtion>) {
+export class MongoSubscriptionRepository
+  extends BaseMongoRepository<Subscription, ISubscription>
+  implements ISubscriptionRepository {
+  constructor(collection: Collection<ISubscription>) {
     super(collection);
   }
 
   async findAll(
-    options?: ISubscribtionListOptions
-  ): Promise<{ data: Subscribtion[]; total: number }> {
+    options?: ISubscriptionListOptions
+  ): Promise<{ data: Subscription[]; total: number }> {
     const {
       search,
       status,
@@ -26,7 +26,7 @@ export class MongoSubscribtionRepository
       limit,
     } = options ?? {};
 
-    const filter: Filter<ISubscribtion> = {};
+    const filter: Filter<ISubscription> = {};
 
     if (status === "Active") {
       filter.isActive = true;
@@ -40,7 +40,7 @@ export class MongoSubscribtionRepository
     }
 
     if (search && search.trim()) {
-      const f = filter as Filter<ISubscribtion> & {
+      const f = filter as Filter<ISubscription> & {
         $or?: Array<{ name: { $regex: string; $options: string } }>;
       };
       f.$or = [
@@ -68,13 +68,13 @@ export class MongoSubscribtionRepository
 
     const docs = await cursor.toArray();
     return {
-      data: docs.map((d) => this.toDomain(d as ISubscribtion)),
+      data: docs.map((d) => this.toDomain(d as ISubscription)),
       total,
     };
   }
 
-  protected toDomain(doc: ISubscribtion): Subscribtion {
-    return new Subscribtion(
+  protected toDomain(doc: ISubscription): Subscription {
+    return new Subscription(
       doc._id?.toString() || null,
       doc.name,
       doc.price,
@@ -90,7 +90,7 @@ export class MongoSubscribtionRepository
     );
   }
 
-  protected toDocument(entity: Subscribtion): ISubscribtion {
+  protected toDocument(entity: Subscription): ISubscription {
     return {
       ...(entity.id && { _id: new ObjectId(entity.id) }),
       name: entity.name,
@@ -107,4 +107,3 @@ export class MongoSubscribtionRepository
     };
   }
 }
-

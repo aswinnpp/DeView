@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 
-export interface ISubscribtion {
+export interface ISubscription {
     _id?: ObjectId;
     name: string
     price: number;
@@ -14,5 +14,3 @@ export interface ISubscribtion {
     createdAt: Date;
     updatedAt: Date;
 }
-
-

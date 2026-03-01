@@ -1,23 +1,23 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "../../../shared/di/types";
 import type {
-  IAdminUpdateSubscribtionUsecase,
-  IUpdateSubscribtionInput,
-} from "../ports/usecase/IAdmin-UpdateSubscribtionUsecase";
-import type { ISubscribtionRepository } from "../ports/repository/ISubscribtionRepository";
+  IAdminUpdateSubscriptionUsecase,
+  IUpdateSubscriptionInput,
+} from "../ports/usecase/IAdmin-UpdateSubscriptionUsecase";
+import type { ISubscriptionRepository } from "../ports/repository/ISubscriptionRepository";
 import { AppError } from "../../../shared/errors/AppError";
 
 @injectable()
-export class AdminUpdateSubscribtion
-  implements IAdminUpdateSubscribtionUsecase
+export class AdminUpdateSubscription
+  implements IAdminUpdateSubscriptionUsecase
 {
   constructor(
-    @inject(TYPES.SubscribtionRepositoryPort)
-    private readonly subscribtionRepository: ISubscribtionRepository
+    @inject(TYPES.SubscriptionRepositoryPort)
+    private readonly subscriptionRepository: ISubscriptionRepository
   ) {}
 
-  async execute(id: string, input: IUpdateSubscribtionInput): Promise<void> {
-    const existing = await this.subscribtionRepository.findById(id);
+  async execute(id: string, input: IUpdateSubscriptionInput): Promise<void> {
+    const existing = await this.subscriptionRepository.findById(id);
     if (!existing) {
       throw AppError.notFound("Subscription plan not found");
     }
@@ -69,7 +69,6 @@ export class AdminUpdateSubscribtion
     existing.isActive = input.isActive;
     existing.updatedAt = new Date();
 
-    await this.subscribtionRepository.save(existing);
+    await this.subscriptionRepository.save(existing);
   }
 }
-

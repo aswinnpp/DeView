@@ -39,10 +39,10 @@ import { RejectCompanyUseCase } from '../../application/admin/use-cases/reject-c
 import { MarkDocumentUseCase } from '../../application/admin/use-cases/mark-document.usecase.js';
 import { GetApprovedCompaniesUseCase } from '../../application/admin/use-cases/get-approved-companies.usecase.js';
 import { AdminToggleActivityUseCase } from '../../application/admin/use-cases/admin-toggle-activity.usecase.js';
-import {AdminCreateSubscribtion} from "../../application/admin/use-cases/admin-subscribtion.usecase.js"
-import { AdminListSubscribtionsUsecase } from "../../application/admin/use-cases/admin-list-subscribtions.usecase.js";
-import { AdminToggleSubscribtionStatusUsecase } from "../../application/admin/use-cases/admin-toggle-subscribtion-status.usecase.js";
-import { AdminUpdateSubscribtion } from "../../application/admin/use-cases/admin-update-subscribtion.usecase.js";
+import { AdminCreateSubscription } from "../../application/admin/use-cases/admin-subscription.usecase.js";
+import { AdminListSubscriptionsUsecase } from "../../application/admin/use-cases/admin-list-subscriptions.usecase.js";
+import { AdminToggleSubscriptionStatusUsecase } from "../../application/admin/use-cases/admin-toggle-subscription-status.usecase.js";
+import { AdminUpdateSubscription } from "../../application/admin/use-cases/admin-update-subscription.usecase.js";
 
 // Candidate use cases
 import { CreateCandidateProfileUseCase } from '../../application/candidate/use-cases/create-candidate-profile.usecase.js';
@@ -116,10 +116,10 @@ export function bindUseCases(container: Container): void {
 
   // Upload use cases
   container.bind(TYPES.GenerateUploadSignatureUseCasePort).to(GenerateUploadSignatureUseCase);
-  container.bind(TYPES.CreateSubscribtioUsecasePort).to(AdminCreateSubscribtion);
-  container.bind(TYPES.ListSubscribtionsUsecasePort).to(AdminListSubscribtionsUsecase);
-  container.bind(TYPES.ToggleSubscribtionStatusUsecasePort).to(AdminToggleSubscribtionStatusUsecase);
-  container.bind(TYPES.UpdateSubscribtionUsecasePort).to(AdminUpdateSubscribtion);
+  container.bind(TYPES.CreateSubscriptionUsecasePort).to(AdminCreateSubscription);
+  container.bind(TYPES.ListSubscriptionsUsecasePort).to(AdminListSubscriptionsUsecase);
+  container.bind(TYPES.ToggleSubscriptionStatusUsecasePort).to(AdminToggleSubscriptionStatusUsecase);
+  container.bind(TYPES.UpdateSubscriptionUsecasePort).to(AdminUpdateSubscription);
   container
     .bind(TYPES.ActivatePendingSubscriptionNowUseCasePort)
     .to(ActivatePendingSubscriptionNowUseCase);

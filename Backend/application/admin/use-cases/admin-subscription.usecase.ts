@@ -1,18 +1,18 @@
 import { injectable, inject } from 'inversify';
-import { IAdminCreateSubscribtion, ICreateSubscribtionInput } from "../ports/usecase/IAdmin-CreateSubscribtionUsecase";
+import { IAdminCreateSubscription, ICreateSubscriptionInput } from "../ports/usecase/IAdmin-CreateSubscriptionUsecase";
 import { TYPES } from "../../../shared/di/types";
-import { ISubscribtionRepository } from "../ports/repository/ISubscribtionRepository";
-import { Subscribtion } from "../../../domain/admin/entities/Subscribtion";
+import { ISubscriptionRepository } from "../ports/repository/ISubscriptionRepository";
+import { Subscription } from "../../../domain/admin/entities/Subscription";
 import { AppError } from "../../../shared/errors/AppError";
 
 @injectable()
-export class AdminCreateSubscribtion implements IAdminCreateSubscribtion {
+export class AdminCreateSubscription implements IAdminCreateSubscription {
     constructor(
-      @inject(TYPES.SubscribtionRepositoryPort)
-      private readonly subscribtionRepository: ISubscribtionRepository,
+      @inject(TYPES.SubscriptionRepositoryPort)
+      private readonly subscriptionRepository: ISubscriptionRepository,
     ) {}  
 
-    async execute(input: ICreateSubscribtionInput): Promise<void> {
+    async execute(input: ICreateSubscriptionInput): Promise<void> {
       if (typeof input.name !== "string" || !input.name.trim()) {
         throw AppError.badRequest("name is required");
       }
@@ -49,7 +49,7 @@ export class AdminCreateSubscribtion implements IAdminCreateSubscribtion {
         );
       }
 
-      const entity = new Subscribtion(
+      const entity = new Subscription(
         null,
         name,
         input.price,
@@ -62,7 +62,6 @@ export class AdminCreateSubscribtion implements IAdminCreateSubscribtion {
         input.isActive
       );
 
-      await this.subscribtionRepository.save(entity);
+      await this.subscriptionRepository.save(entity);
     }
 }
-

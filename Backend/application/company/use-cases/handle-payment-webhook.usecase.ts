@@ -6,7 +6,7 @@ import type {
 } from '../ports/usecase/IHandlePaymentWebhookUseCase.js';
 import type { IPaymentRepository } from '../ports/repository/IPaymentRepository.js';
 import type { ICompanyProfileRepository } from '../ports/repository/ICompanyProfileRepository.js';
-import type { ISubscribtionRepository } from '../../admin/ports/repository/ISubscribtionRepository.js';
+import type { ISubscriptionRepository } from '../../admin/ports/repository/ISubscriptionRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 @injectable()
@@ -16,8 +16,8 @@ export class HandlePaymentWebhookUseCase implements IHandlePaymentWebhookUseCase
     private readonly paymentRepository: IPaymentRepository,
     @inject(TYPES.CompanyProfileRepositoryPort)
     private readonly companyProfileRepository: ICompanyProfileRepository,
-    @inject(TYPES.SubscribtionRepositoryPort)
-    private readonly subscriptionRepository: ISubscribtionRepository,
+    @inject(TYPES.SubscriptionRepositoryPort)
+    private readonly subscriptionRepository: ISubscriptionRepository,
   ) {}
 
   async execute(input: IHandlePaymentWebhookInput): Promise<void> {

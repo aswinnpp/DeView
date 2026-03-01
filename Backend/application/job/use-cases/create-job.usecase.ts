@@ -4,7 +4,7 @@ import type { IJobRepository } from '../ports/repository/IJobRepository.js';
 import type { ICreateJobDTO } from '../dtos/CreateJobDTO.js';
 import type { ICreateJobUseCase } from '../ports/usecase/ICreateJobUseCase.js';
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
-import type { ISubscribtionRepository } from '../../admin/ports/repository/ISubscribtionRepository.js';
+import type { ISubscriptionRepository } from '../../admin/ports/repository/ISubscriptionRepository.js';
 import { Job } from '../../../domain/job/entities/Job.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
@@ -13,7 +13,7 @@ export class CreateJobUseCase implements ICreateJobUseCase {
   constructor(
     @inject(TYPES.JobRepositoryPort) private readonly repo: IJobRepository,
     @inject(TYPES.CompanyProfileRepositoryPort) private readonly companyRepo: ICompanyProfileRepository,
-    @inject(TYPES.SubscribtionRepositoryPort) private readonly subscriptionRepo: ISubscribtionRepository,
+    @inject(TYPES.SubscriptionRepositoryPort) private readonly subscriptionRepo: ISubscriptionRepository,
   ) {}
 
   async execute(dto: ICreateJobDTO) {

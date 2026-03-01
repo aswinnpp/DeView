@@ -1,16 +1,16 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "../../../shared/di/types";
 import { AppError } from "../../../shared/errors/AppError";
-import type { IAdminToggleSubscribtionStatusUsecase } from "../ports/usecase/IAdmin-ToggleSubscribtionStatusUsecase";
-import type { ISubscribtionRepository } from "../ports/repository/ISubscribtionRepository";
+import type { IAdminToggleSubscriptionStatusUsecase } from "../ports/usecase/IAdmin-ToggleSubscriptionStatusUsecase";
+import type { ISubscriptionRepository } from "../ports/repository/ISubscriptionRepository";
 
 @injectable()
-export class AdminToggleSubscribtionStatusUsecase
-  implements IAdminToggleSubscribtionStatusUsecase
+export class AdminToggleSubscriptionStatusUsecase
+  implements IAdminToggleSubscriptionStatusUsecase
 {
   constructor(
-    @inject(TYPES.SubscribtionRepositoryPort)
-    private readonly repo: ISubscribtionRepository
+    @inject(TYPES.SubscriptionRepositoryPort)
+    private readonly repo: ISubscriptionRepository
   ) {}
 
   async execute(id: string): Promise<{ isActive: boolean }> {
@@ -25,4 +25,3 @@ export class AdminToggleSubscribtionStatusUsecase
     return { isActive: plan.isActive };
   }
 }
-
