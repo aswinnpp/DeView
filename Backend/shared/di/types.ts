@@ -68,4 +68,10 @@ export const TYPES = {
   ListJobsUseCasePort: Symbol('ListJobsUseCasePort'),
   ListAllJobsForCandidatesUseCasePort: Symbol('ListAllJobsForCandidatesUseCasePort'),
   ToggleJobStatusUseCasePort: Symbol('ToggleJobStatusUseCasePort'),
+  ApplyForJobUseCasePort: Symbol('ApplyForJobUseCasePort'),
+  JobApplicationRepositoryPort: Symbol('JobApplicationRepositoryPort'),
+
+  // Application (company/HR) - independent entity like Job
+  ApplicationRepositoryPort: Symbol('ApplicationRepositoryPort'),
+  ListPendingApplicationsForJobUseCasePort: Symbol('ListPendingApplicationsForJobUseCasePort'),
 } as const;

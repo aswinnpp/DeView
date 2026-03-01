@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { CandidateJobsController } from '../controllers/candidate-jobs.controller.js';
 import { requireAuth, requireRoles } from '../middleware/authMiddleware.js';
+import { applyForJobSchema } from '../schemas/apply-for-job.schema.js';
 
 export async function candidateJobsRoutes(
   fastify: FastifyInstance,
@@ -11,6 +12,11 @@ export async function candidateJobsRoutes(
 
   fastify.get('/jobs', {
     handler: controller.getAllJobs,
+  });
+
+  fastify.post('/jobs/:jobId/apply', {
+    schema: applyForJobSchema,
+    handler: controller.applyForJob,
   });
 
   console.log('Candidate jobs routes registered');

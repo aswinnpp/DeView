@@ -51,6 +51,8 @@ import { UpdateCandidateProfileUseCase } from '../../application/candidate/use-c
 import { GetAllCandidatesUseCase } from '../../application/candidate/use-cases/get-all-candidates.usecase.js';
 import { ToggleCandidateStatusUseCase } from '../../application/candidate/use-cases/toggle-candidate-status.usecase.js';
 import { ListAllJobsForCandidatesUseCase } from '../../application/candidate/use-cases/list-all-jobs-for-candidates.usecase.js';
+import { ApplyForJobUseCase } from '../../application/candidate/use-cases/apply-for-job.usecase.js';
+import { ListPendingApplicationsForJobUseCase } from '../../application/application/use-cases/list-pending-applications-for-job.usecase.js';
 
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
@@ -104,8 +106,13 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.GetAllCandidatesUseCasePort).to(GetAllCandidatesUseCase);
   container.bind(TYPES.ToggleCandidateStatusUseCasePort).to(ToggleCandidateStatusUseCase);
   container
-    .bind(TYPES.ListAllJobsForCandidatesUseCasePort)
-    .to(ListAllJobsForCandidatesUseCase);
+  .bind(TYPES.ListAllJobsForCandidatesUseCasePort)
+  .to(ListAllJobsForCandidatesUseCase);
+
+  container.bind(TYPES.ApplyForJobUseCasePort).to(ApplyForJobUseCase);
+
+  // Application use cases (company/HR)
+  container.bind(TYPES.ListPendingApplicationsForJobUseCasePort).to(ListPendingApplicationsForJobUseCase);
 
   // Upload use cases
   container.bind(TYPES.GenerateUploadSignatureUseCasePort).to(GenerateUploadSignatureUseCase);

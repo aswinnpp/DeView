@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import { useForm, useFieldArray, type Resolver, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { jobsService, type Job, type JobCreatePayload } from "../../services/jobs.service";
 import { extractApiError } from "../../api/axios";
-import { APP_ROUTES, type EmployerBase } from "../../constants/routes";
 import { jobFormSchema, defaultJobFormValues, type JobFormValues } from "@shared/contracts/job/form";
 
 export type { Job, JobCreatePayload };
@@ -35,17 +33,13 @@ function jobToFormValues(job: Job): JobFormValues {
   };
 }
 
-function getEmployerBase(pathname: string): EmployerBase {
-  if (pathname.startsWith("/hr")) return "hr";
-  return "company";
-}
+
 
 const PAGE_SIZE = 2;
 
 export function useJobs() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const employerBase = getEmployerBase(location.pathname);
+
+  
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [total, setTotal] = useState(0);
@@ -188,13 +182,6 @@ export function useJobs() {
     [fetchJobs, isActive]
   );
 
-  const handleJobClick = useCallback(
-    (jobId: string) => {
-      const path = APP_ROUTES.JOBS_APPLICATIONS_PATH(employerBase, jobId);
-      navigate(path);
-    },
-    [employerBase, navigate]
-  );
 
   const {
     register,
@@ -248,7 +235,6 @@ export function useJobs() {
     openEditModal,
     handleCloseModal,
     handleStatusChange,
-    handleJobClick,
     setJobCreateError,
   };
 }

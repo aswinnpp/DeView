@@ -1,6 +1,15 @@
 import { api } from "../api/axios";
 import { API_ROUTES } from "../constants/routes";
 
+export interface JobApplicantDetail {
+  applicationId: string;
+  candidateUserId: string;
+  fullName: string;
+  email: string;
+  status: string;
+  appliedAt: string;
+}
+
 export interface CandidateJob {
   id: string;
   companyId: string;
@@ -26,7 +35,7 @@ export interface CandidateJob {
   numberOfPositions: number;
   interviewRounds: string[];
   status: string;
-  applicants: string[];
+  applicants: JobApplicantDetail[];
   createdAt: string;
   updatedAt: string;
 }
@@ -54,7 +63,16 @@ export interface CandidateJobListParams {
   sortOrder?: "asc" | "desc";
 }
 
+export interface ApplyForJobParams {
+  useResumeFromProfile: boolean;
+  coverLetter?: string;
+  resumeUrl?: string;
+}
+
 export const candidateJobsService = {
+  apply: (jobId: string, params: ApplyForJobParams) =>
+    api.post<{ applicationId: string }>(API_ROUTES.CANDIDATE.APPLY(jobId), params),
+
   listAll: (params?: CandidateJobListParams) =>
     api
       .get<{ data: CandidateJob[]; total: number }>(API_ROUTES.CANDIDATE.JOBS, {

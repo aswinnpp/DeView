@@ -1,6 +1,15 @@
 import { api } from "../api/axios";
 import { API_ROUTES } from "../constants/routes";
 
+export interface JobApplicantDetail {
+  applicationId: string;
+  candidateUserId: string;
+  fullName: string;
+  email: string;
+  status: string;
+  appliedAt: string;
+}
+
 export interface Job {
   id: string;
   companyId: string;
@@ -23,7 +32,7 @@ export interface Job {
   numberOfPositions: number;
   interviewRounds: string[];
   status: string;
-  applicants: string[];
+  applicants: JobApplicantDetail[];
   createdAt: string;
   updatedAt: string;
 }

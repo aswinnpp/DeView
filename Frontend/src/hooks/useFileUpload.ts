@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { uploadService, type UploadCategory } from '../services/upload.service';
 
 interface IFileUploadResponse {
@@ -18,11 +18,11 @@ export function useFileUpload(): IUseFileUploadReturn {
     const [error, setError] = useState<string | null>(null);
     const [uploadedFile, setUploadedFile] = useState<IFileUploadResponse | null>(null);
 
-    const reset = () => {
+    const reset = useCallback(() => {
         setError(null);
         setUploadedFile(null);
         setIsUploading(false);
-    };
+    }, []);
 
     const upload = async (file: File, category: UploadCategory): Promise<void> => {
         try {

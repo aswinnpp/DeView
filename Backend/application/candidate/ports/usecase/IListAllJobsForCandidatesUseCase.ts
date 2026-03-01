@@ -1,4 +1,5 @@
 import type { JobStatus } from '../../../../domain/job/entities/Job.js';
+import type { IJobApplicantDetail } from '../../../../domain/job/entities/JobApplicant.js';
 
 export interface IListAllJobsForCandidatesInput {
   search?: string;
@@ -33,7 +34,7 @@ export interface CandidateJobForList {
   numberOfPositions: number;
   interviewRounds: string[];
   status: JobStatus;
-  applicants: string[];
+  applicants: IJobApplicantDetail[];
   createdAt: Date;
   updatedAt: Date;
   companyName?: string;

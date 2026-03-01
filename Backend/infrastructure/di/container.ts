@@ -23,6 +23,7 @@ import { CompanyProfileController } from '../../interfaces/http/controllers/comp
 import { AdminSubscribtionController } from '../../interfaces/http/controllers/admin-subscribtion.controller.js';
 import { CompanyPaymentController } from '../../interfaces/http/controllers/company-payment.controller.js';
 import { jobController } from '../../interfaces/http/controllers/jobs.controller.js';
+import { ApplicationsController } from '../../interfaces/http/controllers/applications.controller.js';
 
 export function createContainer(db: Db) {
   const container = new Container();
@@ -52,6 +53,7 @@ export function getControllers(container: ContainerType) {
     adminsubscribtioncontroller: container.get(AdminSubscribtionController),
     companyPaymentController: container.get(CompanyPaymentController),
     jobsControllers: container.get(jobController),
+    applicationsController: container.get(ApplicationsController),
   };
 }
 

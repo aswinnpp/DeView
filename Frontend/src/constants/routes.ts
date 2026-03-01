@@ -36,6 +36,13 @@ export const API_ROUTES = {
         JOB_UPDATE: (id: string) => `/jobs/${id}`,
         JOB_TOGGLE_STATUS: (id: string) => `/jobs/${id}/status`,
     },
+    /** Applications API – company/HR only, independent prefix like jobs */
+    APPLICATIONS: {
+        JOBS_LIST: '/applications/jobs',
+        PENDING_APPLICATIONS: (jobId: string) => `/applications/jobs/${jobId}/applications`,
+        RESUME_VIEW_URL: (jobId: string, applicationId: string) =>
+            `/applications/jobs/${jobId}/applications/${applicationId}/resume-view-url`,
+    },
     ADMIN: {
         COMPANY_PENDING: '/admin/company-requests/pending',
         COMPANY_APPROVE: (id: string) => `/admin/company-requests/${id}/approve`,
@@ -52,6 +59,7 @@ export const API_ROUTES = {
         PROFILE: '/candidate/profile',
         GETALL: '/candidate/list',
         JOBS: '/candidate/jobs',
+        APPLY: (jobId: string) => `/candidate/jobs/${jobId}/apply`,
     },
 } as const;
 
@@ -67,6 +75,8 @@ export const APP_ROUTES = {
     JOBS_PATH: (base: EmployerBase) => `/${base}/jobs`,
     JOBS_EDIT_PATH: (base: EmployerBase, jobId: string) => `/${base}/jobs/${jobId}/edit`,
     JOBS_APPLICATIONS_PATH: (base: EmployerBase, jobId: string) => `/${base}/jobs/${jobId}/applications`,
+    /** Applications management – common to company and HR */
+    APPLICATIONS_PATH: (base: EmployerBase) => `/${base}/applications`,
     COMPANY_APPROVAL_PENDING: '/company/approval-pending',
     COMPANY_APPROVAL_FORM: '/company/approval-form',
     CANDIDATE_INTERVIEWS:"/candidate/interviews",

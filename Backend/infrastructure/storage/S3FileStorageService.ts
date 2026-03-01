@@ -54,6 +54,28 @@ export class S3FileStorageService implements IFileStorage {
     };
   }
 
+  /**
+   * Generate a fresh pre-signed GET URL for viewing a file.
+   * @param s3KeyOrFullUrl - S3 object key (e.g. "resumes/userId/uuid") or existing full URL (key is parsed from pathname).
+   */
+  async getSignedViewUrl(s3KeyOrFullUrl: string, expiresInSeconds = 3600): Promise<string> {
+    let key = s3KeyOrFullUrl;
+    if (s3KeyOrFullUrl.startsWith('http://') || s3KeyOrFullUrl.startsWith('https://')) {
+      try {
+        const u = new URL(s3KeyOrFullUrl);
+        key = u.pathname.replace(/^\//, '');
+      } catch {
+        throw new Error('Invalid resume URL');
+      }
+    }
+    if (!key.trim()) throw new Error('Missing S3 key');
+    const command = new GetObjectCommand({
+      Bucket: env.AWS_S3_BUCKET,
+      Key: key,
+    });
+    return getSignedUrl(this.s3, command, { expiresIn: expiresInSeconds });
+  }
+
   getPublicUrl(storedName: string): string {
     if (!env.AWS_S3_BUCKET || !env.AWS_REGION) {
       throw new Error('AWS_S3_BUCKET or AWS_REGION is not configured');

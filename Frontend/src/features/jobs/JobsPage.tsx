@@ -33,7 +33,6 @@ const JobsPage = () => {
     openEditModal,
     handleCloseModal,
     handleStatusChange,
-    handleJobClick,
     setJobCreateError,
   } = useJobs();
 
@@ -613,13 +612,7 @@ const JobsPage = () => {
               >
                 Edit Job
               </Button>
-              <Button
-                type="button"
-                className="!bg-gradient-to-r !from-indigo-500 !to-violet-500 text-white hover:!opacity-90 border-0 py-2.5 px-5 rounded-lg font-semibold text-sm w-full sm:w-auto"
-                onClick={() => handleJobClick(viewingJob.id)}
-              >
-                View Applications
-              </Button>
+            
             </div>
           </div>
         </div>

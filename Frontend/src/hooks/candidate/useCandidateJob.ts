@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { candidateJobsService, type CandidateJob } from "../../services/candidateJobs.service";
+import { candidateService } from "../../services/candidate.service";
+import { useFileUpload } from "../useFileUpload";
 import { extractApiError } from "../../api/axios";
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 2 ;
 
 function formatPostedTime(createdAt: string): string {
   const posted = new Date(createdAt);
@@ -26,6 +28,9 @@ export function useCandidateJob() {
   const [selectedJob, setSelectedJob] = useState<CandidateJob | null>(null);
   const [showApplicationConfirm, setShowApplicationConfirm] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
+  const [profileResumeUrl, setProfileResumeUrl] = useState<string | null>(null);
+  const [useResumeFromProfile, setUseResumeFromProfile] = useState(true);
+  const { upload, isUploading, uploadedFile, reset: resetFileUpload } = useFileUpload();
   const [searchQuery, setSearchQuery] = useState("");
   const [jobTypeFilter, setJobTypeFilter] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -35,6 +40,8 @@ export function useCandidateJob() {
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchJobs = useCallback(async () => {
     setIsLoading(true);
@@ -64,7 +71,45 @@ export function useCandidateJob() {
     fetchJobs();
   }, [fetchJobs]);
 
+  // Fetch profile resume when entering confirm application screen
+  useEffect(() => {
+    if (showApplicationConfirm) {
+      candidateService
+        .getProfile()
+        .then((res) => {
+          const url = res?.data?.profile?.resumeUrl ?? null;
+          setProfileResumeUrl(url ?? null);
+          setUseResumeFromProfile(!!url);
+        })
+        .catch(() => {
+          setProfileResumeUrl(null);
+          setUseResumeFromProfile(false);
+        });
+    } else {
+      setProfileResumeUrl(null);
+      setUseResumeFromProfile(true);
+      resetFileUpload();
+    }
+  }, [showApplicationConfirm, resetFileUpload]);
+
   const jobs = rawJobs;
+
+  // Checkbox checked = use profile only. Unchecked = add new resume only.
+  const applicationResumeUrl = useResumeFromProfile ? profileResumeUrl : uploadedFile?.url ?? null;
+
+  // When user checks "use profile", clear any uploaded file
+  useEffect(() => {
+    if (useResumeFromProfile) {
+      resetFileUpload();
+    }
+  }, [useResumeFromProfile, resetFileUpload]);
+
+  const handleResumeFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    upload(file, "resume");
+  }, [upload]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const hasActiveFilters = searchQuery || jobTypeFilter !== "all" || sortOrder !== "desc";
@@ -80,15 +125,43 @@ export function useCandidateJob() {
 
   const handleCancelApplication = useCallback(() => {
     setShowApplicationConfirm(false);
-  }, []);
+    setSubmitError(null);
+    resetFileUpload();
+  }, [resetFileUpload]);
 
-  const handleSubmitApplication = useCallback(() => {
+  const handleSubmitApplication = useCallback(async () => {
     if (!selectedJob) return;
-    alert("Application submitted (demo only, no API call).");
-    setShowApplicationConfirm(false);
-    setSelectedJob(null);
-    setCoverLetter("");
-  }, [selectedJob]);
+    setSubmitError(null);
+
+    // Validate: checkbox checked but no profile resume
+    if (useResumeFromProfile && !profileResumeUrl?.trim()) {
+      setSubmitError("Resume not in profile. Please upload a resume to your profile or add a new resume below.");
+      return;
+    }
+
+    // Validate: checkbox unchecked but no new resume
+    if (!useResumeFromProfile && !uploadedFile?.url?.trim()) {
+      setSubmitError("Please upload a resume.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await candidateJobsService.apply(selectedJob.id, {
+        useResumeFromProfile,
+        coverLetter: coverLetter.trim() || undefined,
+        resumeUrl: useResumeFromProfile ? undefined : uploadedFile?.url ?? undefined,
+      });
+      setShowApplicationConfirm(false);
+      setSelectedJob(null);
+      setCoverLetter("");
+      resetFileUpload();
+    } catch (err) {
+      setSubmitError(extractApiError(err));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [selectedJob, useResumeFromProfile, profileResumeUrl, uploadedFile?.url, coverLetter, resetFileUpload]);
 
   const handleClearFilters = useCallback(() => {
     setSearchQuery("");
@@ -114,6 +187,18 @@ export function useCandidateJob() {
     showApplicationConfirm,
     coverLetter,
     setCoverLetter,
+
+    // resume
+    profileResumeUrl,
+    useResumeFromProfile,
+    setUseResumeFromProfile,
+    applicationResumeUrl,
+    isUploadingResume: isUploading,
+    handleResumeFileSelect,
+
+    submitError,
+    setSubmitError,
+    isSubmitting,
 
     // list state
     jobs,

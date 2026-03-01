@@ -12,6 +12,8 @@ import { CompanyProfileController } from '../../interfaces/http/controllers/comp
 import {AdminSubscribtionController}from"../../interfaces/http/controllers/admin-subscribtion.controller.js"
 import { CompanyPaymentController } from '../../interfaces/http/controllers/company-payment.controller.js';
 import { jobController } from '../../interfaces/http/controllers/jobs.controller.js';
+import { ApplicationsController } from '../../interfaces/http/controllers/applications.controller.js';
+
 export function bindControllers(container: Container): void {
   container.bind(AuthController).toSelf();
   container.bind(GoogleAuthController).toSelf();
@@ -25,4 +27,5 @@ export function bindControllers(container: Container): void {
   container.bind(AdminSubscribtionController).toSelf();
   container.bind(CompanyPaymentController).toSelf();
   container.bind(jobController).toSelf();
+  container.bind(ApplicationsController).toSelf();
 }

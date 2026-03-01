@@ -1,5 +1,14 @@
 import { ObjectId } from 'mongodb';
 
+export interface IJobApplicantDoc {
+  applicationId: string;
+  candidateUserId: string;
+  fullName: string;
+  email: string;
+  status: 'PENDING' | 'SHORTLISTED' | 'REJECTED';
+  appliedAt: Date;
+}
+
 export interface IJobDocument {
   _id?: ObjectId;
   companyId: string;
@@ -22,7 +31,7 @@ export interface IJobDocument {
   numberOfPositions: number;
   interviewRounds: string[];
   status: 'OPEN' | 'CLOSED';
-  applicants: string[];
+  applicants: IJobApplicantDoc[];
   createdAt: Date;
   updatedAt: Date;
 }

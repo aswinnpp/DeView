@@ -1,4 +1,5 @@
 import { DomainError } from '../../../shared/errors/DomainError.js';
+import type { IJobApplicantDetail } from './JobApplicant.js';
 
 export type JobStatus = 'OPEN' | 'CLOSED';
 
@@ -25,7 +26,7 @@ export class Job {
     public numberOfPositions: number = 1,
     public interviewRounds: string[] = [],
     public status: JobStatus = 'OPEN',
-    public applicants: string[] = [],
+    public applicants: IJobApplicantDetail[] = [],
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) {}

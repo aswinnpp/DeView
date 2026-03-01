@@ -14,6 +14,7 @@ import { companySubcribtionRoutes } from '../../interfaces/http/routes/company-s
 import { companyPaymentRoutes } from '../../interfaces/http/routes/company-payment.routes.js';
 import { stripeWebhookRoutes } from '../../interfaces/http/routes/stripe-webhook.routes.js';
 import { jobRoutes } from '../../interfaces/http/routes/jobs.routes.js';
+import { applicationsRoutes } from '../../interfaces/http/routes/applications.routes.js';
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     await fastify.register(
@@ -73,6 +74,14 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
             await jobRoutes(instance, controllers.jobsControllers);
         },
         { prefix: '/jobs' }
+    );
+
+    // Applications - company/HR only, independent prefix like jobs
+    await fastify.register(
+        async (instance) => {
+            await applicationsRoutes(instance, controllers.applicationsController);
+        },
+        { prefix: '/applications' }
     );
 }
 

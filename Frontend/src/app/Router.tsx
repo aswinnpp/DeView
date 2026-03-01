@@ -38,6 +38,7 @@ const AdminSubscriptionsPage = lazy(() => import("../features/admin/AdminSubscri
 
 const HRLayout = lazy(() => import("../features/hr/HRLayout"));
 const HRDashboard = lazy(() => import("../features/hr/HRDashboard"));
+const ApplicationsManagementPage = lazy(() => import("../features/application/ApplicationsManagement"));
 
 
 
@@ -102,6 +103,7 @@ const AppRouter = () => {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<CompanyDashboardPage />} />
             <Route path="jobs" element={<JobsPage />} />
+            <Route path="applications" element={<ApplicationsManagementPage />} />
             <Route path="team" element={<ManageHRPage />} />
             <Route path="profile" element={<CompanyProfilePage />} />
           </Route>
@@ -110,6 +112,7 @@ const AppRouter = () => {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<HRDashboard />} />
             <Route path="jobs" element={<JobsPage />} />
+            <Route path="applications" element={<ApplicationsManagementPage />} />
           </Route>
         </Route>
 

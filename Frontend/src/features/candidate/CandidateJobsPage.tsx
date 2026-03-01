@@ -9,6 +9,14 @@ const CandidateJobsPage: React.FC = () => {
         showApplicationConfirm,
         coverLetter,
         setCoverLetter,
+        profileResumeUrl,
+        useResumeFromProfile,
+        setUseResumeFromProfile,
+        applicationResumeUrl,
+        isUploadingResume,
+        handleResumeFileSelect,
+        submitError,
+        isSubmitting,
         jobs,
         total,
         totalPages,
@@ -57,9 +65,95 @@ const CandidateJobsPage: React.FC = () => {
                                     Your profile information will be used
                                 </h3>
                                 <p className="m-0 text-[13px] sm:text-sm text-[rgba(148,163,184,0.95)] leading-relaxed">
-                                    Your application will automatically include your profile data: name, email, phone,
-                                    experience, education, skills, expected salary, and resume.
+                                    Your application will include your profile data: name, email, phone,
+                                    experience, education, skills, and expected salary. Choose your resume below.
                                 </p>
+                            </div>
+
+                            {submitError && (
+                                <div className="mb-5 rounded-lg border border-red-500/50 bg-[rgba(248,113,113,0.08)] px-4 py-3 text-sm text-red-200">
+                                    {submitError}
+                                </div>
+                            )}
+
+                            <div className="mb-5">
+                                <label className="block text-sm font-semibold text-[rgba(226,232,240,0.95)] mb-2">
+                                    Resume
+                                </label>
+                                {profileResumeUrl ? (
+                                    <>
+                                        <label className="flex items-center gap-2.5 cursor-pointer mb-3 select-none">
+                                            <input
+                                                type="checkbox"
+                                                checked={useResumeFromProfile}
+                                                onChange={(e) => setUseResumeFromProfile(e.target.checked)}
+                                                className="w-5 h-5 shrink-0 rounded border-2 border-slate-400 bg-slate-800 accent-indigo-500 cursor-pointer focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+                                            />
+                                            <span className="text-sm text-[rgba(226,232,240,0.95)]">
+                                                Use resume from profile
+                                            </span>
+                                        </label>
+                                        {useResumeFromProfile ? (
+                                            <div className="flex items-center gap-2 p-3 rounded-lg border border-[rgba(148,163,184,0.35)] bg-[rgba(15,23,42,0.6)]">
+                                                <a
+                                                    href={profileResumeUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-brand-primary no-underline font-medium text-sm hover:underline"
+                                                >
+                                                    View profile resume
+                                                </a>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col gap-2 p-4 rounded-lg border border-dashed border-[rgba(148,163,184,0.4)] bg-[rgba(15,23,42,0.5)]">
+                                                <label className="inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-[rgba(102,126,234,0.2)] border border-[rgba(102,126,234,0.4)] text-sm font-medium text-indigo-200 cursor-pointer hover:bg-[rgba(102,126,234,0.3)] transition-colors">
+                                                    {isUploadingResume ? "Uploading…" : "↑ Add new resume (PDF)"}
+                                                    <input
+                                                        type="file"
+                                                        accept=".pdf"
+                                                        onChange={handleResumeFileSelect}
+                                                        disabled={isUploadingResume}
+                                                        className="hidden"
+                                                    />
+                                                </label>
+                                                {applicationResumeUrl && (
+                                                    <a
+                                                        href={applicationResumeUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-emerald-400 hover:underline"
+                                                    >
+                                                        View uploaded resume
+                                                    </a>
+                                                )}
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="flex flex-col gap-2 p-4 rounded-lg border border-dashed border-[rgba(148,163,184,0.4)] bg-[rgba(15,23,42,0.5)]">
+                                        <p className="text-sm text-[rgba(148,163,184,0.9)] m-0">No resume in your profile. Upload one for this application.</p>
+                                        <label className="inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-[rgba(102,126,234,0.2)] border border-[rgba(102,126,234,0.4)] text-sm font-medium text-indigo-200 cursor-pointer hover:bg-[rgba(102,126,234,0.3)] transition-colors w-fit">
+                                            {isUploadingResume ? "Uploading…" : "↑ Add resume (PDF)"}
+                                            <input
+                                                type="file"
+                                                accept=".pdf"
+                                                onChange={handleResumeFileSelect}
+                                                disabled={isUploadingResume}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                        {applicationResumeUrl && (
+                                            <a
+                                                href={applicationResumeUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-sm text-emerald-400 hover:underline"
+                                            >
+                                                View uploaded resume
+                                            </a>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="mb-5">
@@ -87,9 +181,10 @@ const CandidateJobsPage: React.FC = () => {
                                 <Button
                                     type="button"
                                     onClick={handleSubmitApplication}
-                                    className="inline-flex flex-1 items-center justify-center rounded-lg bg-linear-to-br from-brand-primary to-brand-secondary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(79,70,229,0.45)] hover:shadow-[0_14px_35px_rgba(79,70,229,0.6)] transition-all duration-150"
+                                    disabled={!applicationResumeUrl || isSubmitting}
+                                    className="inline-flex flex-1 items-center justify-center rounded-lg bg-linear-to-br from-brand-primary to-brand-secondary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(79,70,229,0.45)] hover:shadow-[0_14px_35px_rgba(79,70,229,0.6)] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Submit Application
+                                    {isSubmitting ? "Submitting…" : "Submit Application"}
                                 </Button>
                             </div>
 

@@ -6,7 +6,7 @@ import type {
   IJobRepository,
   IListJobsOptions,
 } from '../../../../application/job/ports/repository/IJobRepository.js';
-import type { IJobDocument } from '../schemas/JobDocument.js';
+import type { IJobDocument, IJobApplicantDoc } from '../schemas/JobDocument.js';
 
 export class MongoJobRepository
   extends BaseMongoRepository<Job, IJobDocument>
@@ -123,7 +123,19 @@ export class MongoJobRepository
       doc.numberOfPositions,
       doc.interviewRounds,
       doc.status,
-      doc.applicants,
+      (doc.applicants ?? []).map((a: IJobApplicantDoc | string) => {
+        if (typeof a === 'string') {
+          return { applicationId: '', candidateUserId: a, fullName: '', email: '', status: 'PENDING' as const, appliedAt: new Date() };
+        }
+        return {
+          applicationId: a.applicationId,
+          candidateUserId: a.candidateUserId,
+          fullName: a.fullName,
+          email: a.email,
+          status: a.status,
+          appliedAt: a.appliedAt instanceof Date ? a.appliedAt : new Date(a.appliedAt),
+        };
+      }),
       doc.createdAt,
       doc.updatedAt,
     );
