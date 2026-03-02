@@ -29,6 +29,7 @@ export interface IEnvConfig {
     STRIPE_SECRET_KEY?: string;
     STRIPE_WEBHOOK_SECRET?: string;
     STRIPE_CURRENCY?: string;
+    GOOGLE_AI_API_KEY?: string;
 }
 function validateEnv(): IEnvConfig {
     const requiredVars = ['PORT', 'MONGO_URI', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
@@ -61,6 +62,7 @@ function validateEnv(): IEnvConfig {
         STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
         STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
         STRIPE_CURRENCY: process.env.STRIPE_CURRENCY || 'inr',
+        GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
     };
 }
 export const env = validateEnv();

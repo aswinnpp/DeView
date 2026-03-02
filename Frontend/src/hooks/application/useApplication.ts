@@ -54,6 +54,7 @@ export interface Candidate {
   linkedinUrl?: string;
   githubUrl?: string;
   resumeUrl?: string;
+  aiScore?: number;
 }
 
 // ============================================================

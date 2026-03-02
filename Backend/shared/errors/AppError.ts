@@ -28,6 +28,10 @@ export class AppError extends Error {
     return new AppError(message, HttpStatus.NOT_FOUND);
   }
 
+  static tooManyRequests(message = "Rate limit exceeded. Please try again later.") {
+    return new AppError(message, HttpStatus.TOO_MANY_REQUESTS);
+  }
+
   static internal(message = "Internal server error") {
     return new AppError(message, HttpStatus.INTERNAL_SERVER_ERROR);
   }

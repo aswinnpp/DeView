@@ -23,4 +23,9 @@ export async function applicationsRoutes(
   fastify.get('/jobs/:jobId/applications/:applicationId/resume-view-url', {
     handler: controller.getResumeViewUrl,
   });
+
+  /** Score candidates against job using AI */
+  fastify.post('/jobs/:jobId/score-candidates', {
+    handler: controller.scoreCandidates,
+  });
 }

@@ -105,4 +105,59 @@ export const applicationsService = {
     if (!url) throw new Error("No resume URL returned");
     return url;
   },
+
+  /** Score candidates against job using AI. Returns scores per applicationId. */
+  scoreCandidates: async (
+    jobId: string,
+    candidates: Array<{
+      id: string;
+      name: string;
+      email?: string;
+      phone?: string;
+      location?: string;
+      experience?: string;
+      education?: string;
+      skills?: string;
+      coverLetter?: string | null;
+      bio?: string;
+      title?: string;
+      currentCompany?: string;
+      expectedSalary?: string;
+      noticePeriod?: string;
+      preferredWorkMode?: string;
+      preferredJobType?: string;
+      university?: string;
+      graduationYear?: string;
+      linkedinUrl?: string;
+      githubUrl?: string;
+    }>
+  ): Promise<{ scores: Array<{ applicationId: string; matchScore: number }> }> => {
+    const payload = candidates.map((c) => ({
+      applicationId: c.id,
+      name: c.name,
+      email: c.email,
+      phone: c.phone,
+      location: c.location,
+      experience: c.experience,
+      education: c.education,
+      skills: c.skills,
+      coverLetter: c.coverLetter ?? undefined,
+      bio: c.bio,
+      title: c.title,
+      currentCompany: c.currentCompany,
+      expectedSalary: c.expectedSalary,
+      noticePeriod: c.noticePeriod,
+      preferredWorkMode: c.preferredWorkMode,
+      preferredJobType: c.preferredJobType,
+      university: c.university,
+      graduationYear: c.graduationYear,
+      linkedinUrl: c.linkedinUrl,
+      githubUrl: c.githubUrl,
+    }));
+    const res = await api.post<{ scores: Array<{ applicationId: string; matchScore: number }> }>(
+      API_ROUTES.APPLICATIONS.SCORE_CANDIDATES(jobId),
+      { candidates: payload }
+    );
+    return res.data as { scores: Array<{ applicationId: string; matchScore: number }> };
+  },
 };

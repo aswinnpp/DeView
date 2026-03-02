@@ -7,6 +7,7 @@ import Table from "../../components/common/Table";
 import SearchInput from "../../components/common/SearchInput";
 import Input from "../../components/common/Input";
 import { useApplication, COMPANY_PLACEHOLDER } from "../../hooks/application/useApplication";
+import { applicationsService } from "../../services/applications.service";
 
 // ==================== TYPE DEFINITIONS ====================
 interface Job {
@@ -112,52 +113,12 @@ interface Candidate {
     resumeUrl?: string;
 }
 
-interface InterviewerWithSlots {
-    interviewerId: string;
-    name: string;
-    email: string;
-    totalSlots: number;
-    slots: AvailableSlot[];
-}
+
 
 type WorkflowTab = 'PENDING' | 'SHORTLISTED' | 'INTERVIEW_ATTENDEES' | 'INTERVIEW_COMPLETE' | 'HIRED' | 'REJECTED' | 'RESCHEDULE_REQUESTS';
 
 // ==================== DUMMY DATA ====================
-const dummyJobs: Job[] = [
-    {
-        id: 'job-001',
-        title: 'Senior Frontend Developer',
-        location: 'Bangalore, Karnataka',
-        type: 'Full-time',
-        status: 'OPEN',
-        department: 'Engineering',
-        salary: '₹18-25 LPA',
-        jobType: 'Full-time',
-        applicantCount: 9
-    },
-    {
-        id: 'job-002',
-        title: 'Backend Engineer',
-        location: 'Hyderabad, Telangana',
-        type: 'Full-time',
-        status: 'OPEN',
-        department: 'Engineering',
-        salary: '₹12-18 LPA',
-        jobType: 'Full-time',
-        applicantCount: 6
-    },
-    {
-        id: 'job-003',
-        title: 'DevOps Engineer',
-        location: 'Pune, Maharashtra',
-        type: 'Contract',
-        status: 'OPEN',
-        department: 'Infrastructure',
-        salary: '₹20-28 LPA',
-        jobType: 'Contract',
-        applicantCount: 3
-    }
-];
+
 
 const dummyInterviewers: Interviewer[] = [
     {
@@ -208,235 +169,13 @@ const dummyInterviewers: Interviewer[] = [
     },
 ];
 
-const dummyCandidates: Candidate[] = [
-    // PENDING (3) - with full profile details
-    {
-        id: 'cand-001', applicationId: 'app-001', jobId: 'job-001', candidateId: 'c-001',
-        name: 'Priya Sharma', email: 'priya.sharma@email.com', phone: '+91-9876543210', location: 'Bangalore',
-        experience: '5 years', education: 'B.Tech Computer Science', skills: 'React, TypeScript, Node.js',
-        status: 'PENDING', appliedDate: '2026-01-20', resume: 'resume.pdf', coverLetter: 'Cover letter content', aiScore: 85,
-        // Extended profile
-        title: 'Senior Frontend Developer',
-        currentCompany: 'TCS Digital',
-        currentSalary: '₹18 LPA',
-        bio: 'Passionate frontend developer with 5 years of experience in building scalable web applications. Expertise in React ecosystem and modern JavaScript frameworks.',
-        expectedSalary: '₹25 LPA',
-        noticePeriod: '2 months',
-        preferredWorkMode: 'Hybrid',
-        preferredJobType: 'Full-time',
-        willingToRelocate: true,
-        skillsArray: ['React', 'TypeScript', 'Node.js', 'Next.js', 'GraphQL', 'TailwindCSS'],
-        languages: ['English', 'Hindi', 'Kannada'],
-        university: 'IIT Delhi',
-        graduationYear: '2019',
-        linkedinUrl: 'https://linkedin.com/in/priyasharma',
-        githubUrl: 'https://github.com/priyasharma',
-        dateOfBirth: '1997-05-15',
-        resumeUrl: '/uploads/resumes/priya-sharma-resume.pdf'
-    },
-    {
-        id: 'cand-002', applicationId: 'app-002', jobId: 'job-001', candidateId: 'c-002',
-        name: 'Rahul Verma', email: 'rahul.verma@email.com', phone: '+91-9123456789', location: 'Mumbai',
-        experience: '3 years', education: 'MCA', skills: 'Node.js, Python, MongoDB',
-        status: 'PENDING', appliedDate: '2026-01-21', resume: null, coverLetter: null, aiScore: 72,
-        title: 'Backend Developer',
-        currentCompany: 'Infosys',
-        currentSalary: '₹12 LPA',
-        bio: 'Backend developer specializing in Node.js and Python. Experience with microservices architecture and NoSQL databases.',
-        expectedSalary: '₹18 LPA',
-        noticePeriod: '1 month',
-        preferredWorkMode: 'Remote',
-        preferredJobType: 'Full-time',
-        willingToRelocate: false,
-        skillsArray: ['Node.js', 'Python', 'MongoDB', 'Express.js', 'PostgreSQL'],
-        languages: ['English', 'Hindi', 'Marathi'],
-        university: 'Mumbai University',
-        graduationYear: '2021'
-    },
-    {
-        id: 'cand-003', applicationId: 'app-003', jobId: 'job-002', candidateId: 'c-003',
-        name: 'Sneha Patel', email: 'sneha.patel@email.com', phone: '+91-8765432109', location: 'Pune',
-        experience: '4 years', education: 'B.E. Information Technology', skills: 'AWS, Kubernetes, Terraform',
-        status: 'PENDING', appliedDate: '2026-01-22', resume: 'resume.pdf', coverLetter: null, aiScore: 91,
-        title: 'DevOps Engineer',
-        currentCompany: 'Wipro',
-        currentSalary: '₹15 LPA',
-        bio: 'DevOps engineer with strong expertise in cloud infrastructure and container orchestration. AWS certified professional.',
-        expectedSalary: '₹22 LPA',
-        noticePeriod: '3 months',
-        preferredWorkMode: 'On-site',
-        preferredJobType: 'Full-time',
-        willingToRelocate: true,
-        skillsArray: ['AWS', 'Kubernetes', 'Terraform', 'Docker', 'Jenkins', 'Ansible'],
-        languages: ['English', 'Hindi', 'Gujarati'],
-        university: 'Pune University',
-        graduationYear: '2020',
-        linkedinUrl: 'https://linkedin.com/in/snehapatel',
-        githubUrl: 'https://github.com/snehapatel',
-        dateOfBirth: '1998-09-22',
-        resumeUrl: '/uploads/resumes/sneha-patel-resume.pdf'
-    },
 
-    // SHORTLISTED (3)
-    { id: 'cand-004', applicationId: 'app-004', jobId: 'job-001', candidateId: 'c-004', name: 'Amit Kumar', email: 'amit.kumar@email.com', phone: '+91-9988776655', location: 'Hyderabad', experience: '6 years', education: 'M.Tech Software Engineering', skills: 'React, Vue.js, GraphQL', status: 'SHORTLISTED', appliedDate: '2026-01-18', resume: 'resume.pdf', coverLetter: 'Cover letter', aiScore: 88 },
-    { id: 'cand-005', applicationId: 'app-005', jobId: 'job-002', candidateId: 'c-005', name: 'Kavitha Menon', email: 'kavitha.menon@email.com', phone: '+91-8877665544', location: 'Chennai', experience: '5 years', education: 'B.Tech CS', skills: 'Java, Spring Boot, PostgreSQL', status: 'SHORTLISTED', appliedDate: '2026-01-17', resume: 'resume.pdf', coverLetter: null, aiScore: 82 },
-    { id: 'cand-006', applicationId: 'app-006', jobId: 'job-003', candidateId: 'c-006', name: 'Vikram Singh', email: 'vikram.singh@email.com', phone: '+91-7766554433', location: 'Delhi NCR', experience: '7 years', education: 'B.Tech + MBA', skills: 'Docker, Kubernetes, CI/CD', status: 'SHORTLISTED', appliedDate: '2026-01-16', resume: 'resume.pdf', coverLetter: 'Cover letter', aiScore: 94 },
-
-    // INTERVIEW_SCHEDULED (3) - Interview Attendees
-    {
-        id: 'cand-007', applicationId: 'app-007', jobId: 'job-001', candidateId: 'c-007', name: 'Ananya Reddy', email: 'ananya.reddy@email.com', phone: '+91-6655443322', location: 'Bangalore', experience: '5 years', education: 'B.Tech CS', skills: 'React, Next.js, TypeScript', status: 'INTERVIEW_SCHEDULED', appliedDate: '2026-01-10', resume: 'resume.pdf', coverLetter: null, aiScore: 89,
-        currentRound: 'Technical Round 2',
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2026-01-15', score: 4.2, result: 'PASSED', feedback: 'Excellent communication skills.' },
-            { roundName: 'Technical Round 1', interviewer: 'John Smith', date: '2026-01-18', score: 4.5, result: 'PASSED', feedback: 'Strong React fundamentals.' }
-        ],
-        interviewDetails: { interviewer: 'Mike Johnson', interviewerEmail: 'mike.johnson@company.com', scheduledDate: '2026-01-27', scheduledTime: '11:00 AM', round: 'Technical Round 2', meetingLink: 'https://meet.google.com/abc-def' }
-    },
-    {
-        id: 'cand-008', applicationId: 'app-008', jobId: 'job-002', candidateId: 'c-008', name: 'Rohan Gupta', email: 'rohan.gupta@email.com', phone: '+91-5544332211', location: 'Noida', experience: '4 years', education: 'MCA', skills: 'Python, Django, AWS', status: 'INTERVIEW_SCHEDULED', appliedDate: '2026-01-08', resume: 'resume.pdf', coverLetter: 'Cover letter', aiScore: 78,
-        currentRound: 'System Design Round',
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2026-01-12', score: 4.0, result: 'PASSED', feedback: 'Good attitude.' },
-            { roundName: 'Coding Test', interviewer: 'David Wilson', date: '2026-01-16', score: 4.3, result: 'PASSED', feedback: 'Solved 3/4 problems.' }
-        ],
-        interviewDetails: { interviewer: 'Sarah Thompson', interviewerEmail: 'sarah.thompson@company.com', scheduledDate: '2026-01-27', scheduledTime: '2:30 PM', round: 'System Design Round', meetingLink: 'https://meet.google.com/xyz-uvw' }
-    },
-    {
-        id: 'cand-009', applicationId: 'app-009', jobId: 'job-003', candidateId: 'c-009', name: 'Meera Nair', email: 'meera.nair@email.com', phone: '+91-4433221100', location: 'Kochi', experience: '6 years', education: 'B.E. Electronics', skills: 'GCP, Docker, GitLab CI', status: 'INTERVIEW_SCHEDULED', appliedDate: '2026-01-05', resume: 'resume.pdf', coverLetter: null, aiScore: 92,
-        currentRound: 'Final Round',
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2026-01-08', score: 4.5, result: 'PASSED', feedback: 'Excellent communication.' },
-            { roundName: 'Technical Assessment', interviewer: 'David Wilson', date: '2026-01-12', score: 4.7, result: 'PASSED', feedback: 'Outstanding DevOps knowledge.' }
-        ],
-        interviewDetails: { interviewer: 'Director James', interviewerEmail: 'james@company.com', scheduledDate: '2026-01-27', scheduledTime: '4:00 PM', round: 'Final Round', meetingLink: 'https://zoom.us/j/123456789' }
-    },
-
-    // INTERVIEW_COMPLETE (3)
-    {
-        id: 'cand-010', applicationId: 'app-010', jobId: 'job-001', candidateId: 'c-010', name: 'Arjun Malhotra', email: 'arjun.malhotra@email.com', phone: '+91-9876123456', location: 'Gurgaon', experience: '7 years', education: 'B.Tech NIT', skills: 'React, Angular, TypeScript', status: 'INTERVIEW_COMPLETE', appliedDate: '2026-01-02', resume: 'resume.pdf', coverLetter: 'Cover letter', aiScore: 95,
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2026-01-05', score: 4.3, result: 'PASSED', feedback: 'Professional demeanor.' },
-            { roundName: 'Technical Round 1', interviewer: 'John Smith', date: '2026-01-08', score: 4.6, result: 'PASSED', feedback: 'Excellent coding skills.' },
-            { roundName: 'System Design', interviewer: 'Sarah Thompson', date: '2026-01-12', score: 4.4, result: 'PASSED', feedback: 'Good system design approach.' },
-            { roundName: 'Final Round', interviewer: 'VP Engineering', date: '2026-01-15', score: 4.7, result: 'PASSED', feedback: 'Strong candidate. Recommended for offer.' }
-        ]
-    },
-    {
-        id: 'cand-011', applicationId: 'app-011', jobId: 'job-002', candidateId: 'c-011', name: 'Deepika Iyer', email: 'deepika.iyer@email.com', phone: '+91-8765987654', location: 'Bangalore', experience: '5 years', education: 'M.Tech', skills: 'Java, Kotlin, Spring Boot', status: 'INTERVIEW_COMPLETE', appliedDate: '2026-01-03', resume: 'resume.pdf', coverLetter: null, aiScore: 88,
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2026-01-06', score: 4.1, result: 'PASSED', feedback: 'Good communication.' },
-            { roundName: 'Coding Test', interviewer: 'David Wilson', date: '2026-01-09', score: 4.8, result: 'PASSED', feedback: 'Perfect score!' },
-            { roundName: 'Technical Round', interviewer: 'Mike Johnson', date: '2026-01-13', score: 4.5, result: 'PASSED', feedback: 'Strong technical fundamentals.' }
-        ]
-    },
-    {
-        id: 'cand-012', applicationId: 'app-012', jobId: 'job-003', candidateId: 'c-012', name: 'Karthik Rajan', email: 'karthik.rajan@email.com', phone: '+91-7654876543', location: 'Chennai', experience: '8 years', education: 'B.E. + Cloud Certs', skills: 'AWS, Azure, Terraform', status: 'INTERVIEW_COMPLETE', appliedDate: '2026-01-01', resume: 'resume.pdf', coverLetter: 'Cover letter', aiScore: 84,
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2026-01-04', score: 4.0, result: 'PASSED', feedback: 'Mature candidate.' },
-            { roundName: 'Technical Assessment', interviewer: 'David Wilson', date: '2026-01-07', score: 4.2, result: 'PASSED', feedback: 'Solid DevOps knowledge.' }
-        ]
-    },
-
-    // HIRED (3)
-    {
-        id: 'cand-013', applicationId: 'app-013', jobId: 'job-001', candidateId: 'c-013', name: 'Neha Saxena', email: 'neha.saxena@email.com', phone: '+91-9999888877', location: 'Bangalore', experience: '6 years', education: 'B.Tech CS', skills: 'React, TypeScript, Redux', status: 'HIRED', appliedDate: '2025-12-15', resume: 'resume.pdf', coverLetter: null, aiScore: 96,
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2025-12-18', score: 4.5, result: 'PASSED', feedback: 'Excellent candidate.' },
-            { roundName: 'Technical Round', interviewer: 'John Smith', date: '2025-12-21', score: 4.8, result: 'PASSED', feedback: 'Outstanding skills.' },
-            { roundName: 'Final Round', interviewer: 'VP Engineering', date: '2025-12-24', score: 4.9, result: 'PASSED', feedback: 'Highly recommended.' }
-        ]
-    },
-    {
-        id: 'cand-014', applicationId: 'app-014', jobId: 'job-002', candidateId: 'c-014', name: 'Sanjay Mehta', email: 'sanjay.mehta@email.com', phone: '+91-8888777766', location: 'Delhi NCR', experience: '4 years', education: 'MCA Delhi University', skills: 'Node.js, Python, PostgreSQL', status: 'HIRED', appliedDate: '2025-12-10', resume: 'resume.pdf', coverLetter: 'Cover letter', aiScore: 86,
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2025-12-13', score: 4.3, result: 'PASSED', feedback: 'Good fit.' },
-            { roundName: 'Coding Test', interviewer: 'David Wilson', date: '2025-12-16', score: 4.5, result: 'PASSED', feedback: 'Solid coding.' },
-            { roundName: 'Final Round', interviewer: 'CTO', date: '2025-12-20', score: 4.6, result: 'PASSED', feedback: 'Selected for hire.' }
-        ]
-    },
-    {
-        id: 'cand-015', applicationId: 'app-015', jobId: 'job-003', candidateId: 'c-015', name: 'Pooja Agarwal', email: 'pooja.agarwal@email.com', phone: '+91-7777666655', location: 'Pune', experience: '5 years', education: 'B.Tech IT', skills: 'AWS, Docker, Kubernetes', status: 'HIRED', appliedDate: '2025-12-05', resume: 'resume.pdf', coverLetter: null, aiScore: 90,
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2025-12-08', score: 4.4, result: 'PASSED', feedback: 'Great attitude.' },
-            { roundName: 'Technical Assessment', interviewer: 'David Wilson', date: '2025-12-12', score: 4.7, result: 'PASSED', feedback: 'Excellent DevOps skills.' }
-        ]
-    },
-
-    // REJECTED (3)
-    {
-        id: 'cand-016', applicationId: 'app-016', jobId: 'job-001', candidateId: 'c-016', name: 'Ravi Shankar', email: 'ravi.shankar@email.com', phone: '+91-6666555544', location: 'Lucknow', experience: '3 years', education: 'BCA', skills: 'React, JavaScript', status: 'REJECTED', appliedDate: '2025-12-20', resume: 'resume.pdf', coverLetter: null, aiScore: 55,
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2025-12-23', score: 3.5, result: 'PASSED', feedback: 'Communication needs improvement.' },
-            { roundName: 'Technical Round', interviewer: 'John Smith', date: '2025-12-27', score: 2.5, result: 'FAILED', feedback: 'Lacks depth in React.' }
-        ]
-    },
-    {
-        id: 'cand-017', applicationId: 'app-017', jobId: 'job-002', candidateId: 'c-017', name: 'Sunita Devi', email: 'sunita.devi@email.com', phone: '+91-5555444433', location: 'Patna', experience: '2 years', education: 'B.Sc CS', skills: 'Python, Basic SQL', status: 'REJECTED', appliedDate: '2025-12-18', resume: null, coverLetter: null, aiScore: 48,
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2025-12-21', score: 3.8, result: 'PASSED', feedback: 'Enthusiastic but inexperienced.' },
-            { roundName: 'Coding Test', interviewer: 'David Wilson', date: '2025-12-25', score: 2.2, result: 'FAILED', feedback: 'Could only solve 1/4 problems.' }
-        ]
-    },
-    {
-        id: 'cand-018', applicationId: 'app-018', jobId: 'job-003', candidateId: 'c-018', name: 'Manoj Kumar', email: 'manoj.kumar@email.com', phone: '+91-4444333322', location: 'Indore', experience: '1 year', education: 'Diploma IT', skills: 'Linux, Basic AWS', status: 'REJECTED', appliedDate: '2025-12-12', resume: 'resume.pdf', coverLetter: null, aiScore: 42,
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2025-12-15', score: 2.8, result: 'FAILED', feedback: 'Salary expectations too high for experience.' }
-        ]
-    },
-
-    // RESCHEDULE REQUESTS (2)
-    {
-        id: 'cand-019', applicationId: 'app-019', jobId: 'job-001', candidateId: 'c-019', name: 'Deepak Sharma', email: 'deepak.sharma@email.com', phone: '+91-7777888899', location: 'Delhi', experience: '5 years', education: 'B.Tech', skills: 'React, Node.js, AWS', status: 'RESCHEDULE_REQUESTED', appliedDate: '2025-12-20', resume: 'resume.pdf', coverLetter: null, aiScore: 82,
-        interviewDetails: {
-            interviewer: 'John Smith',
-            interviewerEmail: 'john.smith@company.com',
-            scheduledDate: '2026-01-30',
-            scheduledTime: '10:00',
-            round: 'Technical Round',
-            meetingLink: 'https://meet.google.com/abc-defg-hij'
-        },
-        rescheduleRequest: {
-            originalDate: '2026-01-30',
-            originalTime: '10:00',
-            requestedDate: '2026-02-03',
-            requestedTime: '14:00',
-            reason: 'Personal Emergency',
-            requestedAt: '2026-01-28T09:30:00'
-        },
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2025-12-25', score: 4.2, result: 'PASSED', feedback: 'Excellent communication skills.' }
-        ]
-    },
-    {
-        id: 'cand-020', applicationId: 'app-020', jobId: 'job-002', candidateId: 'c-020', name: 'Priya Patel', email: 'priya.patel@email.com', phone: '+91-6666777700', location: 'Mumbai', experience: '3 years', education: 'MCA', skills: 'Python, Django, PostgreSQL', status: 'RESCHEDULE_REQUESTED', appliedDate: '2025-12-18', resume: 'resume.pdf', coverLetter: 'cover.pdf', aiScore: 76,
-        interviewDetails: {
-            interviewer: 'Sarah Thompson',
-            interviewerEmail: 'sarah.thompson@company.com',
-            scheduledDate: '2026-01-29',
-            scheduledTime: '11:00',
-            round: 'System Design',
-            meetingLink: 'https://meet.google.com/xyz-uvwx-stu'
-        },
-        rescheduleRequest: {
-            originalDate: '2026-01-29',
-            originalTime: '11:00',
-            requestedDate: '2026-02-01',
-            requestedTime: '15:00',
-            reason: 'Health Issues',
-            requestedAt: '2026-01-27T14:15:00'
-        },
-        completedRounds: [
-            { roundName: 'HR Screening', interviewer: 'Emily Davis', date: '2025-12-22', score: 4.0, result: 'PASSED', feedback: 'Good technical background.' },
-            { roundName: 'Coding Test', interviewer: 'David Wilson', date: '2025-12-28', score: 4.5, result: 'PASSED', feedback: 'Solved all problems efficiently.' }
-        ]
-    }
-];
 
 // ==================== MAIN COMPONENT ====================
 const HRApplicationsPage = () => {
     const {
         jobs,
-        candidatePipelineTab,
+        
         setCandidatePipelineTab,
         pendingApplications,
         paginatedCandidates,
@@ -478,6 +217,7 @@ const HRApplicationsPage = () => {
     // AI Scoring for pending candidates
     const [isScoringPendingCandidates, setIsScoringPendingCandidates] = useState(false);
     const [scoredCandidateIds, setScoredCandidateIds] = useState<Set<string>>(new Set());
+    const [candidateScores, setCandidateScores] = useState<Record<string, number>>({});
 
     // Map workflow tab to underlying pipeline tab in useApplication()
     const workflowToPipelineMap: Record<WorkflowTab, "pending" | "shortlist" | "interview" | "complete"> = {
@@ -502,33 +242,29 @@ const HRApplicationsPage = () => {
 
     // Handlers
     const handleAIScorePendingCandidates = async () => {
+        if (!selectedJob) return;
         setIsScoringPendingCandidates(true);
-        // Simulate AI scoring delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        // Add all pending candidates to scored set
         const pendingCandidates = pendingApplications.filter(c => c.status === 'PENDING');
-        const newScoredIds = new Set(scoredCandidateIds);
-        pendingCandidates.forEach(c => newScoredIds.add(c.id));
-        setScoredCandidateIds(newScoredIds);
+        try {
+            const { scores } = await applicationsService.scoreCandidates(selectedJob.id, pendingCandidates);
+            setCandidateScores(prev => {
+                const next = { ...prev };
+                scores.forEach(s => { next[s.applicationId] = s.matchScore; });
+                return next;
+            });
+            setScoredCandidateIds(prev => {
+                const next = new Set(prev);
+                scores.forEach(s => next.add(s.applicationId));
+                return next;
+            });
+        } catch {
+            setIsScoringPendingCandidates(false);
+            return;
+        }
         setIsScoringPendingCandidates(false);
     };
 
-    const handleViewApplicationsClick = (job: Job) => {
-        handleViewApplications(job);
-        setActiveTab('PENDING');
-        setCandidatePipelineTab(workflowToPipelineMap.PENDING);
-    };
-
-    const handleBackToJobs = () => {
-        setSelectedJob(null);
-        setSelectedCandidate(null);
-        setShowCandidateDetail(false);
-    };
-
-    const handleViewCandidate = (candidate: Candidate) => {
-        setSelectedCandidate(candidate);
-        setShowCandidateDetail(true);
-    };
+  
 
     const handleSendOffer = (candidate: Candidate) => {
         setSelectedCandidate(candidate);
@@ -560,33 +296,10 @@ const HRApplicationsPage = () => {
         }, 1500);
     };
 
-    const handleConfirmSchedule = () => {
-        if (!selectedInterviewerWithSlots || !selectedSlot || !selectedRound) {
-            alert('Please select interviewer, round and time slot');
-            return;
-        }
-        console.log('Scheduling interview:', {
-            candidate: selectedCandidate?.name,
-            interviewer: selectedInterviewerWithSlots.name,
-            slot: selectedSlot,
-            round: selectedRound
-        });
-        alert(`Interview scheduled with ${selectedInterviewerWithSlots.name} on ${formatSlotDate(selectedSlot.date)} at ${selectedSlot.startTime}`);
-        setShowInterviewerModal(false);
-        setSelectedInterviewerWithSlots(null);
-        setSelectedSlot(null);
-    };
+   
 
     // Helper function to format slot date
-    const formatSlotDate = (dateStr: string) => {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        });
-    };
+ 
 
     const handleConfirmOffer = async (data: any) => {
         console.log('Sending offer:', data);
@@ -618,18 +331,7 @@ const HRApplicationsPage = () => {
         );
     };
 
-    const renderScoreBar = (score: number) => {
-        const percentage = (score / 5) * 100;
-        const color = score >= 4 ? '#10b981' : score >= 3 ? '#f59e0b' : '#ef4444';
-        return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 80, height: 8, backgroundColor: '#1e293b', borderRadius: 4, overflow: 'hidden' }}>
-                    <div style={{ width: `${percentage}%`, height: '100%', backgroundColor: color, borderRadius: 4 }} />
-                </div>
-                <span style={{ color: '#94a3b8', fontSize: 12 }}>{score.toFixed(1)}/5</span>
-            </div>
-        );
-    };
+   
 
     // ==================== TABLE COLUMN CONFIG ====================
     const jobColumns = [
@@ -893,7 +595,7 @@ const HRApplicationsPage = () => {
                         {/* Candidates Table */}
                         <Table<Candidate>
                             columns={buildCandidateColumns(activeTab)}
-                            data={selectedJob ? paginatedCandidates : []}
+                            data={selectedJob ? paginatedCandidates.map(c => ({ ...c, aiScore: candidateScores[c.id] ?? 0 })) : []}
                             rowKey={(candidate) => candidate.id}
                             emptyMessage="No candidates in this stage"
                         />

@@ -53,6 +53,7 @@ import { ToggleCandidateStatusUseCase } from '../../application/candidate/use-ca
 import { ListAllJobsForCandidatesUseCase } from '../../application/candidate/use-cases/list-all-jobs-for-candidates.usecase.js';
 import { ApplyForJobUseCase } from '../../application/candidate/use-cases/apply-for-job.usecase.js';
 import { ListPendingApplicationsForJobUseCase } from '../../application/application/use-cases/list-pending-applications-for-job.usecase.js';
+import { ScoreCandidatesUseCase } from '../../application/application/use-cases/score-candidates.usecase.js';
 
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
@@ -113,6 +114,7 @@ export function bindUseCases(container: Container): void {
 
   // Application use cases (company/HR)
   container.bind(TYPES.ListPendingApplicationsForJobUseCasePort).to(ListPendingApplicationsForJobUseCase);
+  container.bind(TYPES.ScoreCandidatesUseCasePort).to(ScoreCandidatesUseCase);
 
   // Upload use cases
   container.bind(TYPES.GenerateUploadSignatureUseCasePort).to(GenerateUploadSignatureUseCase);
