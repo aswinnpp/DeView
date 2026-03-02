@@ -8,6 +8,7 @@ import SearchInput from "../../components/common/SearchInput";
 import Input from "../../components/common/Input";
 import { useApplication, COMPANY_PLACEHOLDER } from "../../hooks/application/useApplication";
 import Pagination from "../../components/common/Pagination";
+import { ToastContainer } from "../../components/common/Toast";
 
 // ==================== TYPE DEFINITIONS ====================
 interface Job {
@@ -1539,6 +1540,8 @@ const HRApplicationsPage = () => {
                     </div>
                 </div>
             )}
+
+      <ToastContainer />
 
         </>
 

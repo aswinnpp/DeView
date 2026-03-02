@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { applicationsService, type ApplicationItem } from "../../services/applications.service";
+import { showToast } from "../../components/common/toastService";
 
 // ============================================================
 // SIMPLE TYPES - just the fields we need for the UI
@@ -300,8 +301,7 @@ export function useApplication() {
           c.id === selectedCandidate.id ? { ...c, status: "REJECTED" as ApplicantStatus } : c
         )
       );
-
-      alert(`Rejection email sent to ${selectedCandidate.name}`);
+      showToast(`Rejection email sent to ${selectedCandidate.name}`, "success");
     } catch {
       alert("Could not update application status. Please try again.");
     } finally {
