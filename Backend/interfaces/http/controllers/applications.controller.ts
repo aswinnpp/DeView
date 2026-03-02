@@ -5,6 +5,7 @@ import { TYPES } from '../../../infrastructure/di/types.js';
 import type { IListJobsUseCase } from '../../../application/job/ports/usecase/IListJobsUseCase.js';
 import type { IListPendingApplicationsForJobUseCase } from '../../../application/application/ports/usecase/IListPendingApplicationsForJobUseCase.js';
 import type { IScoreCandidatesUseCase } from '../../../application/application/ports/usecase/IScoreCandidatesUseCase.js';
+import type { IUpdateApplicationStatusUseCase } from '../../../application/application/ports/usecase/IUpdateApplicationStatusUseCase.js';
 import type { IApplicationRepository } from '../../../application/application/ports/repository/IApplicationRepository.js';
 import type { IFileStorage } from '../../../application/upload/ports/services/IFileStorage.js';
 import { JobMapper } from '../mappers/index.js';
@@ -19,7 +20,9 @@ export class ApplicationsController {
     @inject(TYPES.ScoreCandidatesUseCasePort)
     private readonly scoreCandidatesUseCase: IScoreCandidatesUseCase,
     @inject(TYPES.ApplicationRepositoryPort) private readonly applicationRepository: IApplicationRepository,
-    @inject(TYPES.FileStoragePort) private readonly fileStorage: IFileStorage
+    @inject(TYPES.FileStoragePort) private readonly fileStorage: IFileStorage,
+    @inject(TYPES.UpdateApplicationStatusUseCasePort)
+    private readonly updateApplicationStatusUseCase: IUpdateApplicationStatusUseCase
   ) {}
 
   /** List company jobs - reuse ListJobsUseCase */
@@ -94,5 +97,23 @@ export class ApplicationsController {
     );
     const result = await this.scoreCandidatesUseCase.execute(input);
     reply.send(success(result));
+  };
+
+  /** Update application status (e.g. shortlist or reject) for a single application */
+  updateStatus = async (
+    request: FastifyRequest<{
+      Params: { jobId: string; applicationId: string };
+      Body: { status: 'PENDING' | 'SHORTLISTED' | 'REJECTED'; rejectionEmailContent?: string };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const input = ApplicationMapper.toUpdateStatusInput(
+      request.params,
+      request.body,
+      request.currentUser
+    );
+    const result = await this.updateApplicationStatusUseCase.execute(input);
+    const application = ApplicationMapper.toView(result.application);
+    reply.send(success({ application }));
   };
 }

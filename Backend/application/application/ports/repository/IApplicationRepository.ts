@@ -15,4 +15,13 @@ export interface IApplicationRepository {
     companyId: string,
     updates: Array<{ applicationId: string; aiScore: number }>
   ): Promise<void>;
+
+  /** Update status (and optional rejection details) for a single application. */
+  updateStatus(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    status: ApplicationStatus;
+    rejectionEmailContent?: string;
+  }): Promise<Application | null>;
 }

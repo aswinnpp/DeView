@@ -2,6 +2,7 @@ import type { AnyBulkWriteOperation, Filter } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import type { Collection } from 'mongodb';
 import { Application } from '../../../../domain/application/entities/Application.js';
+import type { ApplicationStatus } from '../../../../domain/application/entities/Application.js';
 import type { IApplicationRepository } from '../../../../application/application/ports/repository/IApplicationRepository.js';
 import type { IApplicationDocument } from '../schemas/ApplicationDocument.js';
 
@@ -33,6 +34,8 @@ function toDomain(doc: IApplicationDocument): Application {
     doc.coverLetter,
     doc.status,
     doc.aiScore,
+    doc.rejectionEmailContent,
+    doc.rejectionSentAt,
     doc.createdAt,
     doc.updatedAt
   );
@@ -103,5 +106,49 @@ export class MongoApplicationRepository implements IApplicationRepository {
     if (bulkOps.length > 0) {
       await this.collection.bulkWrite(bulkOps);
     }
+  }
+
+  async updateStatus(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    status: ApplicationStatus;
+    rejectionEmailContent?: string;
+  }): Promise<Application | null> {
+    const { applicationId, jobId, status, rejectionEmailContent } = input;
+
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(applicationId);
+    } catch {
+      return null;
+    }
+
+    const setUpdate: Partial<IApplicationDocument> = {
+      status,
+      updatedAt: new Date(),
+    };
+
+    if (status === 'REJECTED' && rejectionEmailContent && rejectionEmailContent.trim().length > 0) {
+      setUpdate.rejectionEmailContent = rejectionEmailContent;
+      setUpdate.rejectionSentAt = new Date();
+    }
+
+    // First perform the update
+    const updateResult = await this.collection.updateOne(
+      { _id, jobId },
+      { $set: setUpdate }
+    );
+
+    // If nothing was matched, treat as not found
+    if (!updateResult.matchedCount) {
+      return null;
+    }
+
+    // Then fetch the updated document in a second query so we don't depend
+    // on driver-specific return shapes for findOneAndUpdate
+    const doc = await this.collection.findOne({ _id, jobId });
+    if (!doc) return null;
+    return toDomain(doc);
   }
 }

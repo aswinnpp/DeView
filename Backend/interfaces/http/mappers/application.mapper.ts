@@ -6,6 +6,9 @@ import type {
   IScoreCandidatesInput,
   IScoreCandidateInput,
 } from '../../../application/application/ports/usecase/IScoreCandidatesUseCase.js';
+import type {
+  IUpdateApplicationStatusInput,
+} from '../../../application/application/ports/usecase/IUpdateApplicationStatusUseCase.js';
 
 export interface ApplicationView {
   id: string | null;
@@ -121,6 +124,20 @@ export const ApplicationMapper = {
       jobId: params.jobId,
       companyId: user.companyId || '',
       candidates,
+    };
+  },
+
+  toUpdateStatusInput(
+    params: { jobId: string; applicationId: string },
+    body: { status: 'PENDING' | 'SHORTLISTED' | 'REJECTED'; rejectionEmailContent?: string },
+    user: IAuthenticatedUser
+  ): IUpdateApplicationStatusInput {
+    return {
+      applicationId: params.applicationId,
+      jobId: params.jobId,
+      companyId: user.companyId || '',
+      status: body.status as ApplicationStatus,
+      rejectionEmailContent: body.rejectionEmailContent,
     };
   },
 };

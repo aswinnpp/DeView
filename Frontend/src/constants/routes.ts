@@ -29,7 +29,6 @@ export const API_ROUTES = {
         INTERVIEWER_CREATE: '/company/interviewer/create',
         INTERVIEWER_TOGGLE_STATUS: (id: string) => `/company/interviewer/${id}/toggle-status`,
     },
-    /** Jobs API – shared by company and HR (privilege-based) */
     JOB: {
         JOBS_LIST: '/jobs',
         JOB_CREATE: '/jobs',
@@ -43,6 +42,8 @@ export const API_ROUTES = {
         RESUME_VIEW_URL: (jobId: string, applicationId: string) =>
             `/applications/jobs/${jobId}/applications/${applicationId}/resume-view-url`,
         SCORE_CANDIDATES: (jobId: string) => `/applications/jobs/${jobId}/score-candidates`,
+        UPDATE_STATUS: (jobId: string, applicationId: string) =>
+            `/applications/jobs/${jobId}/applications/${applicationId}/status`,
     },
     ADMIN: {
         COMPANY_PENDING: '/admin/company-requests/pending',
@@ -64,7 +65,6 @@ export const API_ROUTES = {
     },
 } as const;
 
-/** Base path for employer-side routes (company and HR share the same route names) */
 export type EmployerBase = "company" | "hr";
 
 export const APP_ROUTES = {
@@ -72,11 +72,9 @@ export const APP_ROUTES = {
     LOGIN: '/login',
     RESET_PASSWORD: '/reset-password',
     COMPANY_DASHBOARD: '/company/dashboard',
-    /** Jobs list – common to company and HR: use JOBS_PATH('company') or JOBS_PATH('hr') */
     JOBS_PATH: (base: EmployerBase) => `/${base}/jobs`,
     JOBS_EDIT_PATH: (base: EmployerBase, jobId: string) => `/${base}/jobs/${jobId}/edit`,
     JOBS_APPLICATIONS_PATH: (base: EmployerBase, jobId: string) => `/${base}/jobs/${jobId}/applications`,
-    /** Applications management – common to company and HR */
     APPLICATIONS_PATH: (base: EmployerBase) => `/${base}/applications`,
     COMPANY_APPROVAL_PENDING: '/company/approval-pending',
     COMPANY_APPROVAL_FORM: '/company/approval-form',

@@ -287,10 +287,46 @@ export function useApplication() {
   }
 
   async function handleConfirmRejection(content: string) {
-    console.log("Sending rejection:", content);
-    alert(`Rejection email sent to ${selectedCandidate?.name}`);
-    setShowRejectionModal(false);
-    setSelectedCandidate(null);
+    if (!selectedJob || !selectedCandidate) return;
+    try {
+      await applicationsService.updateApplicationStatus(
+        selectedJob.id,
+        selectedCandidate.applicationId,
+        { status: "REJECTED", rejectionEmailContent: content }
+      );
+
+      setPendingApplications((prev) =>
+        prev.map((c) =>
+          c.id === selectedCandidate.id ? { ...c, status: "REJECTED" as ApplicantStatus } : c
+        )
+      );
+
+      alert(`Rejection email sent to ${selectedCandidate.name}`);
+    } catch {
+      alert("Could not update application status. Please try again.");
+    } finally {
+      setShowRejectionModal(false);
+      setSelectedCandidate(null);
+    }
+  }
+
+  async function handleShortlist(candidate: Candidate) {
+    if (!selectedJob) return;
+    try {
+      await applicationsService.updateApplicationStatus(
+        selectedJob.id,
+        candidate.applicationId,
+        { status: "SHORTLISTED" }
+      );
+
+      setPendingApplications((prev) =>
+        prev.map((c) =>
+          c.id === candidate.id ? { ...c, status: "SHORTLISTED" as ApplicantStatus } : c
+        )
+      );
+    } catch {
+      alert("Could not update application status. Please try again.");
+    }
   }
 
   function handleCloseRejectionModal() {
@@ -299,8 +335,8 @@ export function useApplication() {
   }
 
   function handleCloseCandidateDetail() {
+    // Only hide the detail modal; keep selectedCandidate so rejection modal can use it
     setShowCandidateDetail(false);
-    setSelectedCandidate(null);
   }
 
   function handleSelectCandidate(candidate: Candidate) {
@@ -383,6 +419,7 @@ export function useApplication() {
     handleViewResume,
     handleReject,
     handleConfirmRejection,
+    handleShortlist,
     handleCloseRejectionModal,
     handleCloseCandidateDetail,
     handleSelectCandidate,

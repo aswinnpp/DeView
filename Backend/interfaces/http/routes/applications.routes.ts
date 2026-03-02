@@ -28,4 +28,9 @@ export async function applicationsRoutes(
   fastify.post('/jobs/:jobId/score-candidates', {
     handler: controller.scoreCandidates,
   });
+
+  /** Update status for a single application (e.g. shortlist or reject) */
+  fastify.put('/jobs/:jobId/applications/:applicationId/status', {
+    handler: controller.updateStatus,
+  });
 }

@@ -161,4 +161,16 @@ export const applicationsService = {
     );
     return res.data as { scores: Array<{ applicationId: string; matchScore: number }> };
   },
+
+  /** Update status (and optional rejection email content) for a single application. */
+  updateApplicationStatus: async (
+    jobId: string,
+    applicationId: string,
+    payload: { status: "PENDING" | "SHORTLISTED" | "REJECTED"; rejectionEmailContent?: string }
+  ): Promise<void> => {
+    await api.put(
+      API_ROUTES.APPLICATIONS.UPDATE_STATUS(jobId, applicationId),
+      payload
+    );
+  },
 };
