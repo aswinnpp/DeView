@@ -9,4 +9,10 @@ export interface IApplicationRepository {
   listPendingByJobId(jobId: string, companyId: string): Promise<Application[]>;
   /** Get one application by id, jobId and companyId (for resume view URL). */
   findByIdAndJobId(applicationId: string, jobId: string, companyId: string): Promise<Application | null>;
+  /** Update aiScore for multiple applications. */
+  updateAiScores(
+    jobId: string,
+    companyId: string,
+    updates: Array<{ applicationId: string; aiScore: number }>
+  ): Promise<void>;
 }

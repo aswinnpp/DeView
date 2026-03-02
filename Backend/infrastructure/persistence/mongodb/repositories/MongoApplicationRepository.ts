@@ -1,4 +1,4 @@
-import type { Filter } from 'mongodb';
+import type { AnyBulkWriteOperation, Filter } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import type { Collection } from 'mongodb';
 import { Application } from '../../../../domain/application/entities/Application.js';
@@ -32,6 +32,7 @@ function toDomain(doc: IApplicationDocument): Application {
     doc.resumeUrl,
     doc.coverLetter,
     doc.status,
+    doc.aiScore,
     doc.createdAt,
     doc.updatedAt
   );
@@ -77,5 +78,30 @@ export class MongoApplicationRepository implements IApplicationRepository {
       companyId,
     });
     return doc ? toDomain(doc) : null;
+  }
+
+  async updateAiScores(
+    jobId: string,
+    companyId: string,
+    updates: Array<{ applicationId: string; aiScore: number }>
+  ): Promise<void> {
+    if (updates.length === 0) return;
+    const bulkOps: AnyBulkWriteOperation<IApplicationDocument>[] = [];
+    for (const { applicationId, aiScore } of updates) {
+      try {
+        const _id = new ObjectId(applicationId);
+        bulkOps.push({
+          updateOne: {
+            filter: { _id, jobId, companyId },
+            update: { $set: { aiScore, updatedAt: new Date() } },
+          },
+        });
+      } catch {
+        // skip invalid ObjectId
+      }
+    }
+    if (bulkOps.length > 0) {
+      await this.collection.bulkWrite(bulkOps);
+    }
   }
 }

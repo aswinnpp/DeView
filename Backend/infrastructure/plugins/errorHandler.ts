@@ -43,6 +43,14 @@ export function registerErrorHandler(app: FastifyInstance) {
       });
     }
 
+    const apiErr = error as { name?: string; status?: number };
+    if (apiErr?.name === 'ApiError' && apiErr?.status === 429) {
+      return reply.status(HttpStatus.TOO_MANY_REQUESTS).send({
+        success: false,
+        message: 'AI scoring quota exceeded. Please try again in a few minutes or check your Gemini API quota.',
+      });
+    }
+
     const validation = (error as { validation?: { message?: string }[] }).validation;
     if (Array.isArray(validation) && validation.length > 0) {
       const first = validation[0];

@@ -27,6 +27,7 @@ export class Application {
     public resumeUrl: string = '',
     public coverLetter?: string,
     public status: ApplicationStatus = 'PENDING',
+    public aiScore?: number,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) {}

@@ -7,7 +7,7 @@ import Table from "../../components/common/Table";
 import SearchInput from "../../components/common/SearchInput";
 import Input from "../../components/common/Input";
 import { useApplication, COMPANY_PLACEHOLDER } from "../../hooks/application/useApplication";
-import { applicationsService } from "../../services/applications.service";
+import Pagination from "../../components/common/Pagination";
 
 // ==================== TYPE DEFINITIONS ====================
 interface Job {
@@ -175,7 +175,10 @@ const dummyInterviewers: Interviewer[] = [
 const HRApplicationsPage = () => {
     const {
         jobs,
-        
+        jobsPage,
+        jobsTotalPages,
+        candidatesPage,
+        candidatesTotalPages,
         setCandidatePipelineTab,
         pendingApplications,
         paginatedCandidates,
@@ -187,9 +190,14 @@ const HRApplicationsPage = () => {
         handleViewApplications,
         handleReject,
         handleConfirmRejection,
-        handleCloseRejectionModal,
-        handleCloseCandidateDetail,
         handleSelectCandidate,
+        handleAIScorePendingCandidates,
+        getStatusBadge,
+        isScoringPendingCandidates,
+        scoredCandidateIds,
+        candidateScores,
+        setJobsPage,
+        setCandidatesPage,
     } = useApplication();
 
     // View states
@@ -214,11 +222,6 @@ const HRApplicationsPage = () => {
     const [isAIScoring, setIsAIScoring] = useState(false);
     const [hasAIScoredInterviewers, setHasAIScoredInterviewers] = useState(false);
 
-    // AI Scoring for pending candidates
-    const [isScoringPendingCandidates, setIsScoringPendingCandidates] = useState(false);
-    const [scoredCandidateIds, setScoredCandidateIds] = useState<Set<string>>(new Set());
-    const [candidateScores, setCandidateScores] = useState<Record<string, number>>({});
-
     // Map workflow tab to underlying pipeline tab in useApplication()
     const workflowToPipelineMap: Record<WorkflowTab, "pending" | "shortlist" | "interview" | "complete"> = {
         PENDING: "pending",
@@ -239,32 +242,6 @@ const HRApplicationsPage = () => {
         { key: 'HIRED' as WorkflowTab, label: 'Hired', color: '#10b981' },
         { key: 'REJECTED' as WorkflowTab, label: 'Rejected', color: '#ef4444' },
     ];
-
-    // Handlers
-    const handleAIScorePendingCandidates = async () => {
-        if (!selectedJob) return;
-        setIsScoringPendingCandidates(true);
-        const pendingCandidates = pendingApplications.filter(c => c.status === 'PENDING');
-        try {
-            const { scores } = await applicationsService.scoreCandidates(selectedJob.id, pendingCandidates);
-            setCandidateScores(prev => {
-                const next = { ...prev };
-                scores.forEach(s => { next[s.applicationId] = s.matchScore; });
-                return next;
-            });
-            setScoredCandidateIds(prev => {
-                const next = new Set(prev);
-                scores.forEach(s => next.add(s.applicationId));
-                return next;
-            });
-        } catch {
-            setIsScoringPendingCandidates(false);
-            return;
-        }
-        setIsScoringPendingCandidates(false);
-    };
-
-  
 
     const handleSendOffer = (candidate: Candidate) => {
         setSelectedCandidate(candidate);
@@ -301,7 +278,7 @@ const HRApplicationsPage = () => {
     // Helper function to format slot date
  
 
-    const handleConfirmOffer = async (data: any) => {
+    const handleConfirmOffer = async (data: unknown) => {
         console.log('Sending offer:', data);
         alert(`Offer letter sent to ${selectedCandidate?.name}!`);
         setShowOfferModal(false);
@@ -314,23 +291,7 @@ const HRApplicationsPage = () => {
         setShowInterviewerModal(true);
     };
 
-    const getStatusBadge = (status: string) => {
-        const colors: Record<string, { bg: string; text: string }> = {
-            'PENDING': { bg: '#fef3c7', text: '#92400e' },
-            'SHORTLISTED': { bg: '#dbeafe', text: '#1e40af' },
-            'INTERVIEW_SCHEDULED': { bg: '#ede9fe', text: '#5b21b6' },
-            'INTERVIEW_COMPLETE': { bg: '#cffafe', text: '#0e7490' },
-            'HIRED': { bg: '#d1fae5', text: '#065f46' },
-            'REJECTED': { bg: '#fee2e2', text: '#991b1b' },
-        };
-        const style = colors[status] || { bg: '#f3f4f6', text: '#374151' };
-        return (
-            <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, backgroundColor: style.bg, color: style.text }}>
-                {status.replace('_', ' ')}
-            </span>
-        );
-    };
-
+    
    
 
     // ==================== TABLE COLUMN CONFIG ====================
@@ -434,21 +395,26 @@ const HRApplicationsPage = () => {
             },
             {
                 header: "AI Score",
+                headerClassName: " text-center",
                 cellClassName: "text-center",
                 render: (candidate: Candidate) => {
+                    const effectiveScore = candidate.aiScore ?? candidateScores[candidate.id];
                     const showScore =
                         status !== "PENDING" ||
-                        scoredCandidateIds.has(candidate.id);
+                        scoredCandidateIds.has(candidate.id) ||
+                        effectiveScore != null;
 
                     if (!showScore) {
                         return (
-                            <span className="inline-flex items-center justify-center px-3 py-1 rounded-lg text-xs font-semibold bg-slate-700/40 text-slate-500">
-                                --
-                            </span>
+                            <div className="flex justify-center">
+                                <span className="inline-flex items-center justify-center px-3 py-1 rounded-lg text-xs font-semibold bg-slate-700/40 text-slate-500">
+                                    --
+                                </span>
+                            </div>
                         );
                     }
 
-                    const score = candidate.aiScore;
+                    const score = effectiveScore ?? 0;
                     const colorClasses =
                         score >= 80
                             ? "bg-emerald-500/10 text-emerald-400"
@@ -457,11 +423,13 @@ const HRApplicationsPage = () => {
                                 : "bg-red-500/10 text-red-400";
 
                     return (
-                        <span
-                            className={`inline-flex items-center justify-center px-3 py-1 rounded-lg text-xs font-semibold ${colorClasses}`}
-                        >
-                            {score}%
-                        </span>
+                        <div className="flex justify-center">
+                            <span
+                                className={`inline-flex items-center justify-center px-3 py-1 rounded-lg text-xs font-semibold ${colorClasses}`}
+                            >
+                                {score}%
+                            </span>
+                        </div>
                     );
                 },
             },
@@ -491,7 +459,7 @@ const HRApplicationsPage = () => {
 
         baseColumns.push({
             header: "Actions",
-            cellClassName: "text-right",
+            
             render: (candidate: Candidate) => (
                             <Button
                                 variant="secondary"
@@ -522,6 +490,11 @@ const HRApplicationsPage = () => {
                         data={jobs}
                         rowKey={(job) => job.id}
                         emptyMessage="No jobs available."
+                    />
+                    <Pagination
+                        page={jobsPage}
+                        totalPages={jobsTotalPages}
+                        onPageChange={setJobsPage}
                     />
                 </>
             )}
@@ -576,8 +549,8 @@ const HRApplicationsPage = () => {
                     {/* Main Content Area */}
                     <div>
 
-                        {/* AI Score Button for Pending Applications */}
-                        {activeTab === 'PENDING' && pendingApplications.some(c => c.status === 'PENDING') && (
+                        {/* AI Score Button - show only when there are unscored pending candidates */}
+                        {activeTab === 'PENDING' && pendingApplications.some(c => c.status === 'PENDING' && (c.aiScore == null || c.aiScore === undefined)) && (
                             <div className="mb-4 flex justify-end">
                                 <Button
                                     onClick={handleAIScorePendingCandidates}
@@ -595,9 +568,14 @@ const HRApplicationsPage = () => {
                         {/* Candidates Table */}
                         <Table<Candidate>
                             columns={buildCandidateColumns(activeTab)}
-                            data={selectedJob ? paginatedCandidates.map(c => ({ ...c, aiScore: candidateScores[c.id] ?? 0 })) : []}
+                            data={selectedJob ? paginatedCandidates.map(c => ({ ...c, aiScore: c.aiScore ?? candidateScores[c.id] })) : []}
                             rowKey={(candidate) => candidate.id}
                             emptyMessage="No candidates in this stage"
+                        />
+                        <Pagination
+                            page={candidatesPage}
+                            totalPages={candidatesTotalPages}
+                            onPageChange={setCandidatesPage}
                         />
                     </div>
                 </>

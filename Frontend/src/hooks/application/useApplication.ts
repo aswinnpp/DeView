@@ -117,6 +117,7 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     linkedinUrl: apiApp.linkedinUrl,
     githubUrl: apiApp.githubUrl,
     resumeUrl: apiApp.resumeUrl,
+    aiScore: apiApp.aiScore,
   };
 }
 
@@ -146,6 +147,11 @@ export function useApplication() {
   const [searchQuery, setSearchQuery] = useState("");
   const [candidatesPage, setCandidatesPage] = useState(1);
   const [resumeLinkLoading, setResumeLinkLoading] = useState(false);
+
+  // --- AI SCORING for pending candidates ---
+  const [isScoringPendingCandidates, setIsScoringPendingCandidates] = useState(false);
+  const [scoredCandidateIds, setScoredCandidateIds] = useState<Set<string>>(new Set());
+  const [candidateScores, setCandidateScores] = useState<Record<string, number>>({});
 
   // --- FETCH JOBS when page changes ---
   useEffect(() => {
@@ -302,6 +308,38 @@ export function useApplication() {
     setShowCandidateDetail(true);
   }
 
+  async function handleAIScorePendingCandidates() {
+    if (!selectedJob) return;
+    const unscoredCandidates = pendingApplications.filter(
+      (c) => c.status === "PENDING" && (c.aiScore == null || c.aiScore === undefined)
+    );
+    if (unscoredCandidates.length === 0) return;
+    setIsScoringPendingCandidates(true);
+    try {
+      const { scores } = await applicationsService.scoreCandidates(selectedJob.id, unscoredCandidates);
+      setCandidateScores((prev) => {
+        const next = { ...prev };
+        scores.forEach((s) => {
+          next[s.applicationId] = s.matchScore;
+        });
+        return next;
+      });
+      setScoredCandidateIds((prev) => {
+        const next = new Set(prev);
+        scores.forEach((s) => next.add(s.applicationId));
+        return next;
+      });
+      await applicationsService.listApplications(selectedJob.id).then((apps) => {
+        const candidates = apps.map((a) => mapApiApplicationToCandidate(a, selectedJob.id));
+        setPendingApplications(candidates);
+      });
+    } catch {
+      // Error propagates - caller can show toast/alert if needed
+    } finally {
+      setIsScoringPendingCandidates(false);
+    }
+  }
+
   function getStatusBadge(status: string) {
     const label = status.replace("_", " ");
     const classMap: Record<string, string> = {
@@ -314,6 +352,9 @@ export function useApplication() {
       className: classMap[status] ?? "py-1 px-3 rounded-full text-xs font-semibold bg-slate-500/20 text-slate-400",
     };
   }
+
+
+  
 
   // --- RETURN everything the component needs ---
   return {
@@ -345,6 +386,10 @@ export function useApplication() {
     handleCloseRejectionModal,
     handleCloseCandidateDetail,
     handleSelectCandidate,
+    handleAIScorePendingCandidates,
     getStatusBadge,
+    isScoringPendingCandidates,
+    scoredCandidateIds,
+    candidateScores,
   };
 }

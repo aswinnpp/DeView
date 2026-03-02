@@ -26,6 +26,7 @@ export interface IApplicationDocument {
   resumeUrl: string;
   coverLetter?: string;
   status: 'PENDING' | 'SHORTLISTED' | 'REJECTED';
+  aiScore?: number;
   createdAt: Date;
   updatedAt: Date;
 }

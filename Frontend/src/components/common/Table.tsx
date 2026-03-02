@@ -5,6 +5,7 @@ interface IColumn<T> {
     header: string;
     render: (item: T, index: number) => ReactNode;
     cellClassName?: string;
+    headerClassName?: string;
 }
 
 // ── What the Table component needs ─────────────────────────────
@@ -35,7 +36,7 @@ function Table<T>({
                             {columns.map((col) => (
                                 <th
                                     key={col.header}
-                                    className="py-3.5 px-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-[0.5px] whitespace-nowrap border-b border-slate-700"
+                                    className={`py-3.5 px-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-[0.5px] whitespace-nowrap border-b border-slate-700 ${col.headerClassName ?? ""}`}
                                 >
                                     {col.header}
                                 </th>

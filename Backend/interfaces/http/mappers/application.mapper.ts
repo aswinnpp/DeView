@@ -33,6 +33,7 @@ export interface ApplicationView {
   resumeUrl: string;
   coverLetter?: string;
   status: string;
+  aiScore?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -65,6 +66,7 @@ export const ApplicationMapper = {
       resumeUrl: app.resumeUrl,
       coverLetter: app.coverLetter,
       status: app.status,
+      aiScore: app.aiScore,
       createdAt: app.createdAt instanceof Date ? app.createdAt.toISOString() : String(app.createdAt),
       updatedAt: app.updatedAt instanceof Date ? app.updatedAt.toISOString() : String(app.updatedAt),
     };

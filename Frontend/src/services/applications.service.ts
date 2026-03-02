@@ -27,6 +27,7 @@ export interface ApplicationItem {
   resumeUrl: string;
   coverLetter?: string;
   status: "PENDING" | "SHORTLISTED" | "REJECTED";
+  aiScore?: number;
   createdAt: string;
   updatedAt: string;
 }
