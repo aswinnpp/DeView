@@ -32,9 +32,12 @@ export class ApplicationsController {
     reply.send(success(result));
   };
 
-  /** List pending applications for a job - company/HR only */
+  /** List applications for a job - company/HR only. Optional ?status=PENDING|SHORTLISTED|REJECTED */
   listPendingApplications = async (
-    request: FastifyRequest<{ Params: { jobId: string } }>,
+    request: FastifyRequest<{
+      Params: { jobId: string };
+      Querystring: { status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED' };
+    }>,
     reply: FastifyReply
   ) => {
     const user = request.currentUser;
@@ -43,6 +46,7 @@ export class ApplicationsController {
     const result = await this.listPendingApplicationsUseCase.execute({
       jobId: request.params.jobId,
       companyId,
+      status: request.query.status,
     });
 
     const data = ApplicationMapper.toListView(result.data);

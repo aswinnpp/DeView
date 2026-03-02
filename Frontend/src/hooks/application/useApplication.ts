@@ -5,6 +5,9 @@ import { applicationsService, type ApplicationItem } from "../../services/applic
 // SIMPLE TYPES - just the fields we need for the UI
 // ============================================================
 
+/** Applicant status from API */
+export type ApplicantStatus = "PENDING" | "SHORTLISTED" | "REJECTED";
+
 /** A job from the API - used in the jobs table */
 export interface Job {
   id: string;
@@ -17,6 +20,9 @@ export interface Job {
   jobType?: string;
   applicantCount?: number;
 }
+
+/** Pipeline tab to filter candidates by application status */
+export type CandidatePipelineTab = "pending" | "shortlist" | "interview" | "complete";
 
 /** A candidate/application - used in the candidates table and detail modal */
 export interface Candidate {
@@ -31,7 +37,7 @@ export interface Candidate {
   experience: string;
   education: string;
   skills: string;
-  status: "PENDING";
+  status: ApplicantStatus;
   appliedDate: string;
   resume: string | null;
   coverLetter: string | null;
@@ -93,7 +99,7 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     experience: apiApp.experience ?? "-",
     education: apiApp.education ?? "-",
     skills: skillsStr,
-    status: "PENDING",
+    status: (apiApp.status ?? "PENDING") as ApplicantStatus,
     appliedDate,
     resume: apiApp.resumeUrl ? "resume" : null,
     coverLetter: apiApp.coverLetter ?? null,
@@ -130,6 +136,7 @@ export function useApplication() {
 
   // --- UI STATE ---
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [candidatePipelineTab, setCandidatePipelineTab] = useState<CandidatePipelineTab>("pending");
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [showCandidateDetail, setShowCandidateDetail] = useState(false);
@@ -186,7 +193,7 @@ export function useApplication() {
     setApplicationsLoading(true);
 
     applicationsService
-      .listPendingApplications(selectedJob.id)
+      .listApplications(selectedJob.id)
       .then((apps) => {
         if (isCancelled) return;
         const candidates = apps.map((a) => mapApiApplicationToCandidate(a, selectedJob.id));
@@ -204,8 +211,20 @@ export function useApplication() {
     };
   }, [selectedJob]);
 
-  // --- FILTER candidates by search (name or email) ---
+  // --- CANDIDATE COUNTS by status ---
+  const pendingCount = pendingApplications.filter((c) => c.status === "PENDING").length;
+  const shortlistCount = pendingApplications.filter((c) => c.status === "SHORTLISTED").length;
+  const completeCount = pendingApplications.filter((c) => c.status === "REJECTED").length;
+
+  // --- FILTER candidates by pipeline tab and search ---
   const filteredCandidates = pendingApplications.filter((c) => {
+    const matchesTab =
+      candidatePipelineTab === "pending"
+        ? c.status === "PENDING"
+        : candidatePipelineTab === "shortlist" || candidatePipelineTab === "interview"
+          ? c.status === "SHORTLISTED"
+          : c.status === "REJECTED";
+    if (!matchesTab) return false;
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q);
@@ -215,10 +234,19 @@ export function useApplication() {
   const jobsTotalPages = Math.max(1, Math.ceil(jobsTotal / JOBS_PER_PAGE));
   const candidatesTotalPages = Math.max(1, Math.ceil(filteredCandidates.length / CANDIDATES_PER_PAGE));
 
-  // --- SLICE for current page of candidates ---
+  // --- SLICE for current page ---
+  const jobsStart = (jobsPage - 1) * JOBS_PER_PAGE;
+  const jobsEnd = jobsPage * JOBS_PER_PAGE;
+  const paginatedJobs = jobs.slice(jobsStart, jobsEnd);
+
   const start = (candidatesPage - 1) * CANDIDATES_PER_PAGE;
   const end = candidatesPage * CANDIDATES_PER_PAGE;
   const paginatedCandidates = filteredCandidates.slice(start, end);
+
+  const handleSetCandidatePipelineTab = (tab: CandidatePipelineTab) => {
+    setCandidatePipelineTab(tab);
+    setCandidatesPage(1);
+  };
 
   // --- HANDLERS (simple functions that update state) ---
 
@@ -229,6 +257,7 @@ export function useApplication() {
 
   function handleViewApplications(job: Job) {
     setSelectedJob(job);
+    setCandidatePipelineTab("pending");
     setCandidatesPage(1);
   }
 
@@ -273,15 +302,24 @@ export function useApplication() {
   }
 
   function getStatusBadge(status: string) {
+    const label = status.replace("_", " ");
+    const classMap: Record<string, string> = {
+      PENDING: "py-1 px-3 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400",
+      SHORTLISTED: "py-1 px-3 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400",
+      REJECTED: "py-1 px-3 rounded-full text-xs font-semibold bg-red-500/20 text-red-400",
+    };
     return {
-      label: status.replace("_", " "),
-      className: "py-1 px-3 rounded-full text-xs font-semibold bg-amber-100 text-amber-800",
+      label,
+      className: classMap[status] ?? "py-1 px-3 rounded-full text-xs font-semibold bg-slate-500/20 text-slate-400",
     };
   }
 
   // --- RETURN everything the component needs ---
   return {
-    jobs,
+    jobs: paginatedJobs,
+    candidatePipelineTab,
+    setCandidatePipelineTab: handleSetCandidatePipelineTab,
+    candidateCounts: { pending: pendingCount, shortlist: shortlistCount, complete: completeCount },
     jobsLoading,
     jobsPage,
     jobsTotalPages,

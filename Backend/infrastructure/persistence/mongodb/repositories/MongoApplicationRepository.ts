@@ -40,12 +40,13 @@ function toDomain(doc: IApplicationDocument): Application {
 export class MongoApplicationRepository implements IApplicationRepository {
   constructor(private collection: Collection<IApplicationDocument>) {}
 
-  async listPendingByJobId(jobId: string, companyId: string): Promise<Application[]> {
-    const filter: Filter<IApplicationDocument> = {
-      jobId,
-      companyId,
-      status: 'PENDING',
-    };
+  async listByJobId(
+    jobId: string,
+    companyId: string,
+    status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED'
+  ): Promise<Application[]> {
+    const filter: Filter<IApplicationDocument> = { jobId, companyId };
+    if (status) filter.status = status;
 
     const docs = await this.collection
       .find(filter)
@@ -53,6 +54,10 @@ export class MongoApplicationRepository implements IApplicationRepository {
       .toArray();
 
     return docs.map((doc) => toDomain(doc));
+  }
+
+  async listPendingByJobId(jobId: string, companyId: string): Promise<Application[]> {
+    return this.listByJobId(jobId, companyId, 'PENDING');
   }
 
   async findByIdAndJobId(

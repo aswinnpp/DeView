@@ -88,9 +88,12 @@ export const applicationsService = {
       })
       .then((res) => toJobsResult(res.data)),
 
-  listPendingApplications: (jobId: string) =>
+  /** List applications for a job. Optional status filter. Omit for all. */
+  listApplications: (jobId: string, status?: "PENDING" | "SHORTLISTED" | "REJECTED") =>
     api
-      .get<{ data: ApplicationItem[] }>(API_ROUTES.APPLICATIONS.PENDING_APPLICATIONS(jobId))
+      .get<{ data: ApplicationItem[] }>(API_ROUTES.APPLICATIONS.PENDING_APPLICATIONS(jobId), {
+        params: status ? { status } : undefined,
+      })
       .then((res) => toApplicationsResult(res.data)),
 
   /** Get a fresh pre-signed URL to view resume (avoids expired S3 link). */

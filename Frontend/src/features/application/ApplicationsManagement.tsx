@@ -7,7 +7,7 @@ import {
   type Candidate,
 } from "../../hooks/application/useApplication";
 
-const CANDIDATES_PAGE_SIZE = 10;
+const CANDIDATES_PAGE_SIZE = 2;
 
 const HRApplicationsPage = () => {
   const app = useApplication();
@@ -17,6 +17,9 @@ const HRApplicationsPage = () => {
     jobsPage,
     jobsTotalPages,
     selectedJob,
+    candidatePipelineTab,
+    setCandidatePipelineTab,
+    candidateCounts,
     selectedCandidate,
     paginatedCandidates,
     filteredCandidates,
@@ -47,6 +50,7 @@ const HRApplicationsPage = () => {
           <h1 className="text-[#f1f5f9] text-[28px] font-bold mb-6">
             Job Applications
           </h1>
+
           {jobsLoading ? (
             <div className="py-16 text-center text-slate-400">
               Loading jobs...
@@ -130,7 +134,6 @@ const HRApplicationsPage = () => {
                   page={jobsPage}
                   totalPages={jobsTotalPages}
                   onPageChange={setJobsPage}
-                 
                 />
               )}
             </>
@@ -138,7 +141,7 @@ const HRApplicationsPage = () => {
         </>
       )}
 
-      {/* PENDING APPLICATIONS VIEW (when job is selected) */}
+      {/* CANDIDATES VIEW (when job is selected) */}
       {selectedJob && (
         <>
           <div className="mb-6">
@@ -148,6 +151,31 @@ const HRApplicationsPage = () => {
             <p className="text-[#94a3b8] my-1">
               {selectedJob.location} • {selectedJob.type}
             </p>
+          </div>
+
+          {/* Candidate pipeline tabs with counts */}
+          <div className="flex gap-2 mb-5 flex-wrap">
+            {(
+              [
+                { id: "pending" as const, label: "Pending", count: candidateCounts.pending },
+                { id: "shortlist" as const, label: "Shortlist", count: candidateCounts.shortlist },
+                { id: "interview" as const, label: "Interview", count: candidateCounts.shortlist },
+                { id: "complete" as const, label: "Complete", count: candidateCounts.complete },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setCandidatePipelineTab(tab.id)}
+                className={`py-2 px-4 rounded-lg text-sm font-semibold border transition-colors ${
+                  candidatePipelineTab === tab.id
+                    ? "bg-blue-500/20 text-blue-400 border-blue-500/50"
+                    : "bg-slate-800/50 text-slate-400 border-slate-600 hover:text-slate-200 hover:border-slate-500"
+                }`}
+              >
+                {tab.label} ({tab.count})
+              </button>
+            ))}
           </div>
 
           <div className="mb-5 max-w-[450px]">
@@ -167,7 +195,7 @@ const HRApplicationsPage = () => {
                 <Table<Candidate>
                   rowKey={(c) => c.id}
                   data={paginatedCandidates}
-                  emptyMessage="No pending applications"
+                  emptyMessage={`No candidates in ${candidatePipelineTab}.`}
                   columns={[
                     {
                       header: "Candidate",
@@ -197,6 +225,15 @@ const HRApplicationsPage = () => {
                           {c.location}
                         </span>
                       ),
+                    },
+                    {
+                      header: "Status",
+                      render: (c) => {
+                        const badge = getStatusBadge(c.status);
+                        return (
+                          <span className={badge.className}>{badge.label}</span>
+                        );
+                      },
                     },
                     {
                       header: "Applied",

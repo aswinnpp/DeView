@@ -15,7 +15,7 @@ export class ListPendingApplicationsForJobUseCase
   ) {}
 
   async execute(input: IListPendingApplicationsInput) {
-    const data = await this.repo.listPendingByJobId(input.jobId, input.companyId);
+    const data = await this.repo.listByJobId(input.jobId, input.companyId, input.status);
     return { data };
   }
 }
