@@ -1,0 +1,393 @@
+/* Admin Theme - distinct from candidate/HR, flat and clean */
+
+.hr-theme .candidate-container {
+  min-height: 100vh;
+  width: 100vw;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #111827 0%, #0b1220 100%);
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.hr-theme .candidate-card {
+  background: rgba(8, 10, 20, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  width: 100%;
+  min-height: 100vh;
+}
+
+.hr-theme .candidate-header {
+  padding: 20px 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.hr-theme .logo h2 {
+  color: #e5e7eb;
+}
+
+/* Sidebar and content */
+.hr-theme .candidate-content {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 80px);
+}
+
+.hr-theme .dashboard-side {
+  background: rgba(255, 255, 255, 0.03);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 24px 16px;
+}
+
+.hr-theme .settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hr-theme .nav-tab {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 10px;
+  padding: 12px 16px;
+  text-decoration: none;
+  transition: background .2s, color .2s;
+}
+
+.hr-theme .nav-tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.hr-theme .nav-tab.active {
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  color: #fff;
+}
+
+.hr-theme .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Notification styles (scoped) */
+.hr-theme .notification-container {
+  position: relative;
+}
+
+.hr-theme .notification-bell {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.hr-theme .notification-bell:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.hr-theme .notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 9999px;
+}
+
+.hr-theme .notification-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  z-index: 1000;
+  background: rgba(12, 16, 28, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  margin-top: 8px;
+}
+
+.hr-theme .notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hr-theme .notification-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.hr-theme .notification-item {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.hr-theme .notification-icon {
+  width: 20px;
+  text-align: center;
+}
+
+.hr-theme .notification-text {
+  color: #e5e7eb;
+  font-size: 14px;
+  margin: 0;
+}
+
+.hr-theme .notification-time {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+.hr-theme .close-notifications {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+/* Main area with internal scroll only */
+.hr-theme .dashboard-main {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.hr-theme .dashboard-main>div {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.hr-theme .dashboard-main>div>div {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Tables inside admin */
+.hr-theme table th,
+.hr-theme table td {
+  padding: 10px 8px;
+}
+
+.hr-theme table thead th {
+  color: #e5e7eb;
+  font-weight: 600;
+}
+
+.hr-theme table tbody td {
+  color: #d1d5db;
+}
+
+/* Admin-only replacements for common utility classes used in admin pages */
+.hr-theme .section-title {
+  color: #e5e7eb;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.hr-theme .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.hr-theme .stat-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hr-theme .stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hr-theme .stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.hr-theme .stat-number {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.hr-theme .stat-label {
+  color: rgba(229, 231, 235, 0.75);
+  font-size: 12px;
+}
+
+.hr-theme .profile-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.hr-theme .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.hr-theme .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hr-theme .form-label {
+  color: rgba(229, 231, 235, 0.9);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hr-theme .form-input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #e5e7eb;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.hr-theme .form-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.hr-theme .upload-btn,
+.hr-theme .view-resume-btn,
+.hr-theme .save-btn {
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.hr-theme .view-resume-btn {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hr-theme .view-resume-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .hr-theme .candidate-content {
+    grid-template-columns: 1fr;
+  }
+
+  .hr-theme .dashboard-side {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* HR Interviewers Table - consistent alignment */
+.hr-interviewers-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.hr-interviewers-table thead th {
+  text-align: left;
+  padding: 12px 16px;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+}
+
+.hr-interviewers-table tbody td {
+  padding: 14px 16px;
+  color: #e2e8f0;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+
+.hr-interviewers-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.hr-interviewers-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* HR Interviewers Wrapper */
+.hr-interviewers-wrapper {
+  padding: 24px 32px;
+}
+
+.hr-interviewers-header {
+  margin-bottom: 24px;
+}
+
+.hr-interviewers-header .section-title {
+  color: #f8fafc;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.hr-interviewers-header .section-subtitle {
+  color: #94a3b8;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Approve button style */
+.approve-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.approve-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
