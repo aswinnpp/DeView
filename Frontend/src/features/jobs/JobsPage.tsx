@@ -244,6 +244,11 @@ const JobsPage = () => {
                 <div className="w-full sm:max-w-[300px] flex flex-col gap-1.5">
                   <label className={labelClass}>Deadline Date</label>
                   <input type="date" className={inputClass} {...register("applicationDeadline")} />
+                  {errors.applicationDeadline?.message && (
+                    <span className="text-xs text-red-400">
+                      {errors.applicationDeadline.message}
+                    </span>
+                  )}
                 </div>
               </div>
 

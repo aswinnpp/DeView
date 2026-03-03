@@ -133,6 +133,7 @@ export function useJobs() {
         if (editingJob) {
           await jobsService.update(editingJob.id, payload);
           setEditingJob(null);
+          setIsCreating(false);
         } else {
           await jobsService.create(payload);
           setIsCreating(false);

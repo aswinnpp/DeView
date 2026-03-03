@@ -46,18 +46,45 @@ const jobBaseSchema = z.object({
   status: jobStatusEnum,
 });
 
+const isFutureOrTodayDate = (value?: string | null) => {
+  if (!value || !value.trim()) return true;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+
+  return date >= today;
+};
+
 export const jobFormSchema = jobBaseSchema
   .refine(
     (data) =>
       data.salaryNonDisclosure ||
       (typeof data.salary === "string" && data.salary.trim().length > 0),
     { message: "Salary range is required when not non-disclosure", path: ["salary"] }
+  )
+  .refine(
+    (data) => isFutureOrTodayDate(data.applicationDeadline),
+    {
+      message: "Application deadline cannot be in the past",
+      path: ["applicationDeadline"],
+    }
   );
 
 export type JobFormValues = z.infer<typeof jobFormSchema>;
 
-// Partial schema for updates (all fields optional, no refinements)
-export const jobUpdateSchema = jobBaseSchema.partial();
+// Partial schema for updates (all fields optional, with deadline validation if provided)
+export const jobUpdateSchema = jobBaseSchema
+  .partial()
+  .refine(
+    (data) => isFutureOrTodayDate(data.applicationDeadline),
+    {
+      message: "Application deadline cannot be in the past",
+      path: ["applicationDeadline"],
+    }
+  );
 
 export const defaultJobFormValues: JobFormValues = {
   title: "",
