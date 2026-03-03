@@ -54,14 +54,14 @@ export function registerErrorHandler(app: FastifyInstance) {
       }
 
       if (apiErr.status === 404) {
-        return reply.status(HttpStatus.BAD_GATEWAY).send({
+        return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
           success: false,
           message:
             'AI scoring service model not found or not available. Please verify GOOGLE_AI_MODEL_ID and your Gemini model configuration.',
         });
       }
 
-      return reply.status(HttpStatus.BAD_GATEWAY).send({
+      return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         success: false,
         message: 'AI scoring service is currently unavailable. Please try again later.',
       });

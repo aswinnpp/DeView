@@ -399,8 +399,8 @@ const HRApplicationsPage = () => {
             },
             {
                 header: "AI Score",
-                headerClassName: " text-center",
-                cellClassName: "text-center",
+                headerClassName: "text-center w-[120px]",
+                cellClassName: "text-center w-[120px]",
                 render: (candidate: Candidate) => {
                     const effectiveScore = candidate.aiScore ?? candidateScores[candidate.id];
                     const showScore =
