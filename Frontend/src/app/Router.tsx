@@ -27,6 +27,7 @@ const JobsPage = lazy(() => import("../features/jobs/JobsPage"));
 const Profile = lazy(() => import("../features/candidate/Profile"));
 const CandidateInterviews = lazy(() => import("../features/candidate/CandidateInterviews"));
 const CandidateJobsPage = lazy(() => import("../features/candidate/CandidateJobsPage"));
+const CandidateAppliedJobsPage = lazy(() => import("../features/candidate/CandidateAppliedJobsPage"));
 
 
 const AdminDashboard = lazy(() => import("../features/admin/AdminDashboard"));
@@ -88,6 +89,7 @@ const AppRouter = () => {
             <Route path="profile" element={<Profile />} />
             <Route path="jobs" element={<CandidateJobsPage />} />
             <Route path="interviews" element={<CandidateInterviews />} />
+            <Route path="applied" element={<CandidateAppliedJobsPage />} />
           </Route>
 
           <Route path="/admin" element={<AdminLayout />}>

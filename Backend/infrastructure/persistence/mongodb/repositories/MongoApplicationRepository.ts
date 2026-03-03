@@ -5,6 +5,7 @@ import { Application } from '../../../../domain/application/entities/Application
 import type { ApplicationStatus } from '../../../../domain/application/entities/Application.js';
 import type { IApplicationRepository } from '../../../../application/application/ports/repository/IApplicationRepository.js';
 import type { IApplicationDocument } from '../schemas/ApplicationDocument.js';
+import type { IJobDocument } from '../schemas/JobDocument.js';
 
 function toDomain(doc: IApplicationDocument): Application {
   return new Application(
@@ -42,7 +43,10 @@ function toDomain(doc: IApplicationDocument): Application {
 }
 
 export class MongoApplicationRepository implements IApplicationRepository {
-  constructor(private collection: Collection<IApplicationDocument>) {}
+  constructor(
+    private collection: Collection<IApplicationDocument>,
+    private jobsCollection: Collection<IJobDocument>
+  ) {}
 
   async listByJobId(
     jobId: string,
@@ -62,6 +66,87 @@ export class MongoApplicationRepository implements IApplicationRepository {
 
   async listPendingByJobId(jobId: string, companyId: string): Promise<Application[]> {
     return this.listByJobId(jobId, companyId, 'PENDING');
+  }
+
+  async listByCandidateUserId(
+    candidateUserId: string,
+    options?: {
+      status?: ApplicationStatus;
+      search?: string;
+      page?: number;
+      limit?: number;
+      sortOrder?: 'asc' | 'desc';
+    }
+  ): Promise<{ data: Application[]; total: number }> {
+    const {
+      status,
+      search,
+      page = 1,
+      limit = 20,
+      sortOrder = 'desc',
+    } = options || {};
+
+    const filter: Filter<IApplicationDocument> = { candidateUserId };
+
+    if (status) {
+      filter.status = status;
+    }
+
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.max(1, Math.min(100, limit));
+    const skip = (safePage - 1) * safeLimit;
+    const sort = { createdAt: sortOrder === 'asc' ? 1 : -1 };
+
+    if (search && search.trim()) {
+      const q = search.trim();
+      const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const pipeline: object[] = [
+        { $match: filter },
+        {
+          $lookup: {
+            from: this.jobsCollection.collectionName,
+            let: {
+              jid: { $convert: { input: '$jobId', to: 'objectId', onError: null, onNull: null } },
+            },
+            pipeline: [{ $match: { $expr: { $and: [{ $ne: ['$$jid', null] }, { $eq: ['$_id', '$$jid'] }] } } }],
+            as: 'jobDoc',
+          },
+        },
+        { $unwind: { path: '$jobDoc', preserveNullAndEmptyArrays: false } },
+        { $match: { 'jobDoc.title': { $regex: escaped, $options: 'i' } } },
+        { $project: { jobDoc: 0 } },
+      ];
+
+      const countPipeline = [...pipeline, { $count: 'total' }];
+      const countResult = await this.collection.aggregate<{ total: number }>(countPipeline).toArray();
+      const total = countResult[0]?.total ?? 0;
+
+      const dataPipeline = [
+        ...pipeline,
+        { $sort: sort },
+        { $skip: skip },
+        { $limit: safeLimit },
+      ];
+      const docs = await this.collection.aggregate<IApplicationDocument>(dataPipeline).toArray();
+
+      return {
+        data: docs.map((doc) => toDomain(doc)),
+        total,
+      };
+    }
+
+    const total = await this.collection.countDocuments(filter);
+    const docs = await this.collection
+      .find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(safeLimit)
+      .toArray();
+
+    return {
+      data: docs.map((doc) => toDomain(doc)),
+      total,
+    };
   }
 
   async findByIdAndJobId(

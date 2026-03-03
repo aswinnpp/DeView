@@ -19,5 +19,9 @@ export async function candidateJobsRoutes(
     handler: controller.applyForJob,
   });
 
+  fastify.get('/applications/my', {
+    handler: controller.listMyApplications,
+  });
+
   console.log('Candidate jobs routes registered');
 }

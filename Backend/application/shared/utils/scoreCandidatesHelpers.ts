@@ -69,14 +69,3 @@ export function buildJobDescriptionText(job: {
   return parts.filter(Boolean).join('\n');
 }
 
-export function parseMatchScore(text: string): number {
-  const trimmed = text.trim();
-  const jsonMatch = trimmed.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('No JSON found in response');
-  const parsed = JSON.parse(jsonMatch[0]) as { matchScore?: unknown };
-  const score = Number(parsed?.matchScore);
-  if (!Number.isInteger(score) || score < 0 || score > 100) {
-    throw new Error(`Invalid matchScore: ${parsed?.matchScore}`);
-  }
-  return score;
-}

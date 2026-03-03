@@ -52,6 +52,7 @@ import { GetAllCandidatesUseCase } from '../../application/candidate/use-cases/g
 import { ToggleCandidateStatusUseCase } from '../../application/candidate/use-cases/toggle-candidate-status.usecase.js';
 import { ListAllJobsForCandidatesUseCase } from '../../application/candidate/use-cases/list-all-jobs-for-candidates.usecase.js';
 import { ApplyForJobUseCase } from '../../application/candidate/use-cases/apply-for-job.usecase.js';
+import { ListMyApplicationsUseCase } from '../../application/candidate/use-cases/list-my-applications.usecase.js';
 import { ListPendingApplicationsForJobUseCase } from '../../application/application/use-cases/list-pending-applications-for-job.usecase.js';
 import { ScoreCandidatesUseCase } from '../../application/application/use-cases/score-candidates.usecase.js';
 import { UpdateApplicationStatusUseCase } from '../../application/application/use-cases/update-application-status.usecase.js';
@@ -112,6 +113,7 @@ export function bindUseCases(container: Container): void {
   .to(ListAllJobsForCandidatesUseCase);
 
   container.bind(TYPES.ApplyForJobUseCasePort).to(ApplyForJobUseCase);
+  container.bind(TYPES.ListMyApplicationsUseCasePort).to(ListMyApplicationsUseCase);
 
   // Application use cases (company/HR)
   container.bind(TYPES.ListPendingApplicationsForJobUseCasePort).to(ListPendingApplicationsForJobUseCase);

@@ -25,7 +25,6 @@ export class ApplicationsController {
     private readonly updateApplicationStatusUseCase: IUpdateApplicationStatusUseCase
   ) {}
 
-  /** List company jobs - reuse ListJobsUseCase */
   listJobs = async (
     request: FastifyRequest<{
       Querystring: { search?: string; status?: 'OPEN' | 'CLOSED'; page?: number; limit?: number };
@@ -38,7 +37,6 @@ export class ApplicationsController {
     reply.send(success(result));
   };
 
-  /** List applications for a job - company/HR only. Optional ?status=PENDING|SHORTLISTED|REJECTED */
   listPendingApplications = async (
     request: FastifyRequest<{
       Params: { jobId: string };
@@ -56,7 +54,6 @@ export class ApplicationsController {
     reply.send(success({ data }));
   };
 
-  /** Get a fresh pre-signed URL to view an application's resume (company/HR only). Avoids expired S3 links. */
   getResumeViewUrl = async (
     request: FastifyRequest<{ Params: { jobId: string; applicationId: string } }>,
     reply: FastifyReply
@@ -78,7 +75,6 @@ export class ApplicationsController {
     reply.send(success({ url }));
   };
 
-  /** Score pending candidates against job using AI (company/HR only) */
   scoreCandidates = async (
     request: FastifyRequest<{
       Params: { jobId: string };
@@ -86,10 +82,7 @@ export class ApplicationsController {
     }>,
     reply: FastifyReply
   ) => {
-    const { candidates } = request.body ?? {};
-    if (!Array.isArray(candidates) || candidates.length === 0) {
-      return reply.status(400).send({ ok: false, error: 'candidates array is required and must not be empty' });
-    }
+   
     const input = ApplicationMapper.toScoreCandidatesInput(
       request.params,
       request.body as { candidates: unknown[] },
@@ -99,7 +92,6 @@ export class ApplicationsController {
     reply.send(success(result));
   };
 
-  /** Update application status (e.g. shortlist or reject) for a single application */
   updateStatus = async (
     request: FastifyRequest<{
       Params: { jobId: string; applicationId: string };

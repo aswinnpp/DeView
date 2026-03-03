@@ -58,7 +58,10 @@ const createJobApplicationRepository = (db: Db) =>
   new MongoJobApplicationRepository(db.collection<IApplicationDocument>('jobApplications'));
 
 const createApplicationRepository = (db: Db) =>
-  new MongoApplicationRepository(db.collection<IApplicationDocument>('jobApplications'));
+  new MongoApplicationRepository(
+    db.collection<IApplicationDocument>('jobApplications'),
+    db.collection<IJobDocument>('jobs')
+  );
 
 const createRejectionMailRepository = (db: Db) =>
   new MongoRejectionMailRepository(db.collection<IRejectionMailDocument>('rejectionMails'));

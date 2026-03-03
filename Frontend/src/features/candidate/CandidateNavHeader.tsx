@@ -111,7 +111,7 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
                     )}
                     {currentPage !== 'interviews' && currentPage !== 'dashboard' && (
                         <Link to="/candidate/interviews" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
-                            Scheduled Interviews
+                             Interviews
                         </Link>
                     )}
                     {currentPage !== 'history' && (
@@ -236,7 +236,7 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
                     )}
                     {currentPage !== 'interviews' && currentPage !== 'dashboard' && (
                         <Link to="/candidate/interviews" className="text-[rgba(255,255,255,0.78)] no-underline py-2.5 px-3 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white transition-colors">
-                            Scheduled Interviews
+                             Interviews
                         </Link>
                     )}
                     {currentPage !== 'history' && (

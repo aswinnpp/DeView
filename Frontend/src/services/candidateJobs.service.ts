@@ -1,5 +1,6 @@
 import { api } from "../api/axios";
 import { API_ROUTES } from "../constants/routes";
+import type { ApplicationItem } from "./applications.service";
 
 export interface JobApplicantDetail {
   applicationId: string;
@@ -69,6 +70,24 @@ export interface ApplyForJobParams {
   resumeUrl?: string;
 }
 
+export interface MyApplicationsParams {
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortOrder?: "asc" | "desc";
+}
+
+function toMyApplicationsResult(data: unknown): { data: ApplicationItem[]; total: number } {
+  if (!data || typeof data !== "object" || !("data" in data)) {
+    return { data: [], total: 0 };
+  }
+  const obj = data as { data?: unknown; total?: unknown };
+  const items = Array.isArray(obj.data) ? (obj.data as ApplicationItem[]) : [];
+  const total = typeof obj.total === "number" && obj.total >= 0 ? obj.total : items.length;
+  return { data: items, total };
+}
+
 export const candidateJobsService = {
   apply: (jobId: string, params: ApplyForJobParams) =>
     api.post<{ applicationId: string }>(API_ROUTES.CANDIDATE.APPLY(jobId), params),
@@ -90,4 +109,17 @@ export const candidateJobsService = {
         },
       })
       .then((res) => toPaginatedResult(res.data)),
+
+  listMyApplications: (params?: MyApplicationsParams) =>
+    api
+      .get(API_ROUTES.CANDIDATE.MY_APPLICATIONS, {
+        params: {
+          status: params?.status && params.status !== "all" ? params.status : undefined,
+          search: params?.search?.trim() || undefined,
+          page: params?.page,
+          limit: params?.limit,
+          sortOrder: params?.sortOrder,
+        },
+      })
+      .then((res) => toMyApplicationsResult(res.data)),
 };

@@ -2,7 +2,6 @@ import { injectable } from 'inversify';
 import { GoogleGenAI } from '@google/genai';
 
 import { IAiScoringService } from '../../application/shared/ports/services/IAiScoringService.js';
-import { parseMatchScore } from '../../application/shared/utils/scoreCandidatesHelpers.js';
 import { AppError } from '../../shared/errors/AppError.js';
 
 const SYSTEM_PROMPT = `You are a strict candidate evaluation system.
@@ -23,6 +22,8 @@ Rules:
 Return format example:
 {"matchScore": 75}`;
 
+const DEFAULT_MODEL_ID = 'gemini-1.5-flash';
+
 @injectable()
 export class GoogleGenAiScoringService implements IAiScoringService {
   private readonly ai: GoogleGenAI;
@@ -38,19 +39,51 @@ export class GoogleGenAiScoringService implements IAiScoringService {
   }
 
   async getMatchScore(jobText: string, candidateText: string): Promise<number> {
-    const userPrompt = `${SYSTEM_PROMPT}\n\nJob Description:\n${jobText}\n\nCandidate Profile:\n${candidateText}\n\nReturn ONLY a valid JSON object with key "matchScore" (0-100).`;
+    const userPrompt = `Job Description:\n${jobText}\n\nCandidate Profile:\n${candidateText}\n\nReturn ONLY a valid JSON object with key "matchScore" (0-100).`;
 
-    const response = await this.ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: userPrompt,
-    });
+    const request = {
+      model: process.env.GOOGLE_AI_MODEL_ID || DEFAULT_MODEL_ID,
+      systemInstruction: SYSTEM_PROMPT,
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: userPrompt }],
+        },
+      ],
+      config: {
+        response_mime_type: 'application/json',
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            matchScore: {
+              type: 'integer',
+              minimum: 0,
+              maximum: 100,
+            },
+          },
+          required: ['matchScore'],
+          additionalProperties: false,
+        },
+      },
+    };
+
+    const response = await this.ai.models.generateContent(
+      request as Parameters<(typeof this.ai.models.generateContent)>[0],
+    );
 
     const text =
       typeof (response as { text?: string }).text === 'string'
         ? (response as { text: string }).text
         : '';
 
-    return parseMatchScore(text);
+    const parsed = JSON.parse(text) as { matchScore?: unknown };
+    const score = Number(parsed?.matchScore);
+
+    if (!Number.isInteger(score) || score < 0 || score > 100) {
+      throw new Error(`Invalid matchScore from AI: ${parsed?.matchScore}`);
+    }
+
+    return score;
   }
 }
 

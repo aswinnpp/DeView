@@ -29,7 +29,25 @@ export class Job {
     public applicants: IJobApplicantDetail[] = [],
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
-  ) {}
+  ) {
+    this.syncStatusWithDeadline();
+  }
+
+  /**
+   * Ensure status is consistent with application deadline.
+   * If a past deadline is set, the job is treated as CLOSED.
+   */
+  private syncStatusWithDeadline() {
+    if (!this.applicationDeadline) return;
+
+    const deadline = new Date(this.applicationDeadline);
+    if (Number.isNaN(deadline.getTime())) return;
+
+    const now = new Date();
+    if (deadline < now) {
+      this.status = 'CLOSED';
+    }
+  }
 
   updateFields(fields: Partial<Omit<Job, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>>) {
     if (fields.title !== undefined) this.title = fields.title;
@@ -52,6 +70,7 @@ export class Job {
     if (fields.interviewRounds !== undefined) this.interviewRounds = fields.interviewRounds;
     if (fields.status !== undefined) this.status = fields.status as JobStatus;
 
+    this.syncStatusWithDeadline();
     this.updatedAt = new Date();
   }
 

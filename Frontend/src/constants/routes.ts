@@ -62,6 +62,7 @@ export const API_ROUTES = {
         GETALL: '/candidate/list',
         JOBS: '/candidate/jobs',
         APPLY: (jobId: string) => `/candidate/jobs/${jobId}/apply`,
+        MY_APPLICATIONS: '/candidate/applications/my',
     },
 } as const;
 
