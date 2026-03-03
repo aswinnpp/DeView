@@ -36,5 +36,4 @@ export async function companyTeamRoutes(
         handler: controller.toggleInterviewerStatus,
     });
 
-    console.log(' Company team routes registered');
 }

@@ -2,11 +2,12 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
 import type { IApplicationRepository } from '../ports/repository/IApplicationRepository.js';
+import type { IScoreCandidatesUseCase } from '../ports/usecase/IScoreCandidatesUseCase.js';
 import type {
-  IScoreCandidatesUseCase,
-  IScoreCandidatesInput,
-  IScoreResult,
-} from '../ports/usecase/IScoreCandidatesUseCase.js';
+  IScoreCandidatesInputDTO,
+  IScoreResultDTO,
+  IScoreCandidatesResultDTO,
+} from '../dtos/ScoreCandidatesDTO.js';
 import {
   buildCandidateProfileText,
   buildJobDescriptionText,
@@ -22,7 +23,7 @@ export class ScoreCandidatesUseCase implements IScoreCandidatesUseCase {
     @inject(TYPES.AiScoringServicePort) private readonly aiScoringService: IAiScoringService
   ) {}
 
-  async execute(input: IScoreCandidatesInput): Promise<{ scores: IScoreResult[] }> {
+  async execute(input: IScoreCandidatesInputDTO): Promise<IScoreCandidatesResultDTO> {
     const job = await this.jobRepo.findById(input.jobId);
     if (!job) {
       throw AppError.notFound('Job not found.');
@@ -41,7 +42,7 @@ export class ScoreCandidatesUseCase implements IScoreCandidatesUseCase {
       department: job.department,
     });
 
-    const scores: IScoreResult[] = [];
+    const scores: IScoreResultDTO[] = [];
 
     for (const candidate of input.candidates) {
       const candidateText = buildCandidateProfileText(candidate);

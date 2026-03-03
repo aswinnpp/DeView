@@ -3,18 +3,19 @@ import { injectable, inject } from 'inversify';
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { TYPES } from "../../../infrastructure/di/types";
-import type { IAdminCreateSubscription, ICreateSubscriptionInput } from "../../../application/admin/ports/usecase/IAdmin-CreateSubscriptionUsecase";
+import type { IAdminCreateSubscription } from "../../../application/admin/ports/usecase/IAdmin-CreateSubscriptionUsecase";
+import type { ICreateSubscriptionInputDTO } from "../../../application/admin/dtos/CreateSubscriptionDTO.js";
 import type {
   IAdminListSubscriptionsUsecase,
-  IListSubscriptionsInput,
 } from "../../../application/admin/ports/usecase/IAdmin-ListSubscriptionsUsecase";
+import type { IListSubscriptionsInputDTO } from "../../../application/admin/dtos/ListSubscriptionsDTO.js";
 import type { IAdminToggleSubscriptionStatusUsecase } from "../../../application/admin/ports/usecase/IAdmin-ToggleSubscriptionStatusUsecase";
 import type {
   IAdminUpdateSubscriptionUsecase,
   IUpdateSubscriptionInput,
 } from "../../../application/admin/ports/usecase/IAdmin-UpdateSubscriptionUsecase";
 
-type CreateSubscriptionBody = ICreateSubscriptionInput;
+type CreateSubscriptionBody = ICreateSubscriptionInputDTO;
 type UpdateSubscriptionBody = IUpdateSubscriptionInput;
 type ListSubscriptionsQuery = {
   search?: string;
@@ -74,7 +75,7 @@ export class AdminSubscriptionController {
       limit,
     } = request.query;
 
-    const input: IListSubscriptionsInput = {
+    const input: IListSubscriptionsInputDTO = {
       search,
       status,
       duration,

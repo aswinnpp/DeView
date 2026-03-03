@@ -53,8 +53,8 @@ export class CandidateJobsController {
       Querystring: {
         search?: string;
         status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED';
-        page?: number;
-        limit?: number;
+        page?: number | string;
+        limit?: number | string;
         sortOrder?: 'asc' | 'desc';
       };
     }>,
@@ -62,27 +62,16 @@ export class CandidateJobsController {
   ) => {
     const userId = request.currentUser.userId;
 
-    const page =
-      typeof request.query.page === 'number'
-        ? request.query.page
-        : request.query.page != null
-        ? Number(request.query.page)
-        : undefined;
-    const limit =
-      typeof request.query.limit === 'number'
-        ? request.query.limit
-        : request.query.limit != null
-        ? Number(request.query.limit)
-        : undefined;
-
-    const result = await this.listMyApplicationsUseCase.execute({
-      candidateUserId: userId,
-      search: request.query.search,
-      status: request.query.status,
-      page,
-      limit,
-      sortOrder: request.query.sortOrder,
-    });
+    const result = await this.listMyApplicationsUseCase.execute(
+      ApplicationMapper.toListMyApplicationsInput({
+        candidateUserId: userId,
+        search: request.query.search,
+        status: request.query.status,
+        page: request.query.page,
+        limit: request.query.limit,
+        sortOrder: request.query.sortOrder,
+      }),
+    );
 
     const data = ApplicationMapper.toListView(result.data);
     reply.send(success({ data, total: result.total }));

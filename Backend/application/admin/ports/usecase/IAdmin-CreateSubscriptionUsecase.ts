@@ -1,15 +1,5 @@
-export interface ICreateSubscriptionInput {
-  name: string;
-  price: number;
-  duration: "Monthly" | "Quarterly" | "Annual";
-  isActive: boolean;
-  interviewLimit: number;
-  interviewUnlimited: boolean;
-  jobPostLimit: number;
-  jobUnlimited: boolean;
-  hasAI: boolean;
-}
+import type { ICreateSubscriptionInputDTO } from '../../dtos/CreateSubscriptionDTO.js';
 
 export interface IAdminCreateSubscription {
-  execute(input: ICreateSubscriptionInput): Promise<void>;
+  execute(input: ICreateSubscriptionInputDTO): Promise<void>;
 }

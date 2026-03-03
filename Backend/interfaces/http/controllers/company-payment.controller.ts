@@ -11,6 +11,7 @@ import { HttpStatus } from '../../../shared/http/HttpStatus.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { env } from '../../../infrastructure/config/env.js';
 import type Stripe from 'stripe';
+import { PaymentMapper } from '../mappers/index.js';
 
 type CreatePaymentIntentBody = {
   planId: string;
@@ -68,58 +69,16 @@ export class CompanyPaymentController {
   };
 
   handleWebhook = async (request: FastifyRequest, reply: FastifyReply) => {
-    const signature = request.headers['stripe-signature'];
+    const signature = request.headers['stripe-signature'] as string;
+    const rawBody = (request as { rawBody?: Buffer | string })?.rawBody as Buffer | string;
 
-    if (!signature) {
-      request.log.error('Stripe webhook missing signature header');
-      return reply.status(400).send('Missing Stripe signature');
-    }
-
-    if (!env.STRIPE_WEBHOOK_SECRET) {
-      request.log.error('STRIPE_WEBHOOK_SECRET is not configured');
-      throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
-    }
-
-    const rawBody = (request as { rawBody?: Buffer | string })?.rawBody;
-
-    if (!rawBody) {
-      request.log.error('Stripe webhook received without raw body');
-      return reply.status(400).send('Raw body is required');
-    }
-
-    let event: Stripe.Event;
-
-    try {
-      event = stripe.webhooks.constructEvent(
-        rawBody as Buffer | string,
-        signature as string,
-        env.STRIPE_WEBHOOK_SECRET,
-      );
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      request.log.error({ err, signature }, 'Stripe webhook signature verification failed');
-      return reply.status(400).send(`Webhook Error: ${message}`);
-    }
+    const event = stripe.webhooks.constructEvent(rawBody, signature, env.STRIPE_WEBHOOK_SECRET as string);
 
     if (event.type === 'payment_intent.succeeded' || event.type === 'payment_intent.payment_failed') {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      const planId = paymentIntent.metadata?.planId ?? '';
-      const companyId = paymentIntent.metadata?.companyId ?? '';
 
-      try {
-        await this.handlePaymentWebhookUseCase.execute({
-          eventType: event.type,
-          paymentIntentId: paymentIntent.id,
-          planId,
-          companyId,
-        });
-      } catch (err) {
-        request.log.error({ err, paymentIntentId: paymentIntent.id }, 'Handle payment webhook failed');
-        if (err instanceof AppError && err.statusCode === 404) {
-          return reply.status(200).send({ received: true });
-        }
-        throw err;
-      }
+      const input = PaymentMapper.toHandlePaymentWebhookInput(paymentIntent, event.type);
+      await this.handlePaymentWebhookUseCase.execute(input);
     }
 
     return reply.status(200).send({ received: true });

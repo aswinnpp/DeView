@@ -23,5 +23,4 @@ export async function candidateJobsRoutes(
     handler: controller.listMyApplications,
   });
 
-  console.log('Candidate jobs routes registered');
 }

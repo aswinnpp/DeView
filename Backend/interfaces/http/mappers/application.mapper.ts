@@ -1,14 +1,11 @@
 import type { Application } from '../../../domain/application/entities/Application.js';
 import type { ApplicationStatus } from '../../../domain/application/entities/Application.js';
 import type { IAuthenticatedUser } from '../middleware/authMiddleware.js';
-import type { IListPendingApplicationsInput } from '../../../application/application/ports/usecase/IListPendingApplicationsForJobUseCase.js';
 import type {
-  IScoreCandidatesInput,
-  IScoreCandidateInput,
-} from '../../../application/application/ports/usecase/IScoreCandidatesUseCase.js';
-import type {
-  IUpdateApplicationStatusInput,
-} from '../../../application/application/ports/usecase/IUpdateApplicationStatusUseCase.js';
+  IListPendingApplicationsForJobInput,
+} from '../../../application/application/dtos/ListPendingApplicationsForJobDTO.js';
+import type { IScoreCandidatesInputDTO, IScoreCandidateInputDTO } from '../../../application/application/dtos/ScoreCandidatesDTO.js';
+import type { IUpdateApplicationStatusInputDTO } from '../../../application/application/dtos/UpdateApplicationStatusDTO.js';
 
 export interface ApplicationView {
   id: string | null;
@@ -83,7 +80,7 @@ export const ApplicationMapper = {
     params: { jobId: string },
     query: { status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED' },
     user: IAuthenticatedUser
-  ): IListPendingApplicationsInput {
+  ): IListPendingApplicationsForJobInput {
     return {
       jobId: params.jobId,
       companyId: user.companyId || '',
@@ -95,9 +92,9 @@ export const ApplicationMapper = {
     params: { jobId: string },
     body: { candidates: unknown[] },
     user: IAuthenticatedUser
-  ): IScoreCandidatesInput {
+  ): IScoreCandidatesInputDTO {
     const candidates = (Array.isArray(body?.candidates) ? body.candidates : []).map(
-      (c): IScoreCandidateInput => ({
+      (c): IScoreCandidateInputDTO => ({
         applicationId: String((c as Record<string, unknown>)?.applicationId ?? ''),
         name: String((c as Record<string, unknown>)?.name ?? ''),
         email: (c as Record<string, unknown>)?.email != null ? String((c as Record<string, unknown>).email) : undefined,
@@ -131,13 +128,45 @@ export const ApplicationMapper = {
     params: { jobId: string; applicationId: string },
     body: { status: 'PENDING' | 'SHORTLISTED' | 'REJECTED'; rejectionEmailContent?: string },
     user: IAuthenticatedUser
-  ): IUpdateApplicationStatusInput {
+  ): IUpdateApplicationStatusInputDTO {
     return {
       applicationId: params.applicationId,
       jobId: params.jobId,
       companyId: user.companyId || '',
       status: body.status as ApplicationStatus,
       rejectionEmailContent: body.rejectionEmailContent,
+    };
+  },
+
+  toListMyApplicationsInput(input: {
+    candidateUserId: string;
+    status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED';
+    search?: string;
+    page?: number | string;
+    limit?: number | string;
+    sortOrder?: 'asc' | 'desc';
+  }) {
+    const page =
+      typeof input.page === 'number'
+        ? input.page
+        : input.page != null
+        ? Number(input.page)
+        : undefined;
+
+    const limit =
+      typeof input.limit === 'number'
+        ? input.limit
+        : input.limit != null
+        ? Number(input.limit)
+        : undefined;
+
+    return {
+      candidateUserId: input.candidateUserId,
+      search: input.search,
+      status: input.status as ApplicationStatus | undefined,
+      page,
+      limit,
+      sortOrder: input.sortOrder,
     };
   },
 };

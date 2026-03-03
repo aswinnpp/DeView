@@ -47,7 +47,6 @@ const OfferLetterModal: React.FC<OfferLetterModalProps> = ({
     const [startDate, setStartDate] = useState('');
     const [benefits, setBenefits] = useState('');
 
-    // Initialize values when modal opens (dummy data)
     useEffect(() => {
         if (isOpen && candidate && job) {
             setContent(`We are delighted to extend an offer of employment for the position of ${job.title} at ${company?.name || 'our company'}. After careful consideration of your qualifications and interview performance, we believe you will be an excellent addition to our team.

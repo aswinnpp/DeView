@@ -29,10 +29,8 @@ export function useFileUpload(): IUseFileUploadReturn {
             setIsUploading(true);
             setError(null);
 
-            // Step 1: Get pre-signed upload URL from backend
             const { data: sig } = await uploadService.generateSignature(category);
 
-            // Step 2: Upload directly to S3 using the pre-signed URL
             const res = await fetch(sig.uploadUrl, {
                 method: 'PUT',
                 body: file,
@@ -40,7 +38,6 @@ export function useFileUpload(): IUseFileUploadReturn {
 
             if (!res.ok) throw new Error('Failed to upload to S3');
 
-            // We already know the final public URL from the backend
             setUploadedFile({ url: sig.fileUrl });
         } catch (err) {
             const msg = err instanceof Error ? err.message : 'Failed to upload file';

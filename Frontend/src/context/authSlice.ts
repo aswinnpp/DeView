@@ -14,7 +14,6 @@ interface IAuthState {
   isAuthenticated: boolean;
 }
 
-// Get stored user from localStorage
 const getStoredUser = (): IUser | null => {
   try {
     const userStr = localStorage.getItem("user");
@@ -38,14 +37,12 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // Set user after login (tokens are in HTTP-only cookies, not stored here)
     setUser: (state, action: PayloadAction<IUser>) => {
       state.user = action.payload;
       state.isAuthenticated = true;
       localStorage.setItem("user", JSON.stringify(action.payload));
     },
 
-    // Logout - clear user info (cookies cleared by backend)
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;

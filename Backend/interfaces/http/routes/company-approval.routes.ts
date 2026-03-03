@@ -19,7 +19,6 @@ export async function companyApprovalRoutes(
         handler: controller.getMyApproval,
     });
 
-    // Submit company approval request (requires auth)
     fastify.post('/submit', {
         schema: submitCompanyApprovalSchema,
         handler: controller.submit,

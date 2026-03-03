@@ -50,7 +50,6 @@ export function useCandidateApplications(options: FilterOptions = {}): HookResul
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Step 1: Load all jobs once (we use these to add job details to each application)
   useEffect(() => {
     let cancelled = false;
 
@@ -82,7 +81,6 @@ export function useCandidateApplications(options: FilterOptions = {}): HookResul
     };
   }, []);
 
-  // Step 2: Load applications when filters or page change (backend does search/filter)
   useEffect(() => {
     let cancelled = false;
 
@@ -123,7 +121,6 @@ export function useCandidateApplications(options: FilterOptions = {}): HookResul
     };
   }, [status, search, page, itemsPerPage, sortOrder]);
 
-  // Step 3: Attach job details to each application (for display)
   const applications = useMemo(() => {
     return rawApplications.map((app) => {
       const job = jobs.find((j) => j.id === app.jobId);

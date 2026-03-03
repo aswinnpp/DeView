@@ -2,14 +2,9 @@ import { useState, useEffect } from "react";
 import { applicationsService, type ApplicationItem } from "../../services/applications.service";
 import { showToast } from "../../components/common/toastService";
 
-// ============================================================
-// SIMPLE TYPES - just the fields we need for the UI
-// ============================================================
 
-/** Applicant status from API */
 export type ApplicantStatus = "PENDING" | "SHORTLISTED" | "REJECTED";
 
-/** A job from the API - used in the jobs table */
 export interface Job {
   id: string;
   title: string;
@@ -22,10 +17,8 @@ export interface Job {
   applicantCount?: number;
 }
 
-/** Pipeline tab to filter candidates by application status */
 export type CandidatePipelineTab = "pending" | "shortlist" | "interview" | "complete";
 
-/** A candidate/application - used in the candidates table and detail modal */
 export interface Candidate {
   id: string;
   applicationId: string;
@@ -58,9 +51,6 @@ export interface Candidate {
   aiScore?: number;
 }
 
-// ============================================================
-// CONSTANTS
-// ============================================================
 
 export const COMPANY_PLACEHOLDER = {
   name: "Company",
@@ -72,11 +62,7 @@ export const COMPANY_PLACEHOLDER = {
 const JOBS_PER_PAGE = 10;
 const CANDIDATES_PER_PAGE = 10;
 
-// ============================================================
-// HELPER - convert API response to our simple Candidate shape
-// ============================================================
 
-/** Converts API application data into our simple Candidate shape for the UI */
 function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): Candidate {
   const appliedDate = apiApp.createdAt
     ? new Date(apiApp.createdAt).toLocaleDateString("en-IN", {
@@ -122,39 +108,28 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
   };
 }
 
-// ============================================================
-// MAIN HOOK - manages jobs list, applications, and modals
-// ============================================================
 
 export function useApplication() {
-  // --- JOBS STATE ---
   const [jobs, setJobs] = useState<Job[]>([]);
   const [jobsLoading, setJobsLoading] = useState(true);
   const [jobsPage, setJobsPage] = useState(1);
   const [jobsTotal, setJobsTotal] = useState(0);
 
-  // --- APPLICATIONS STATE (when a job is selected) ---
   const [pendingApplications, setPendingApplications] = useState<Candidate[]>([]);
   const [applicationsLoading, setApplicationsLoading] = useState(false);
 
-  // --- UI STATE ---
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [candidatePipelineTab, setCandidatePipelineTab] = useState<CandidatePipelineTab>("pending");
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
-  const [showRejectionModal, setShowRejectionModal] = useState(false);
-  const [showCandidateDetail, setShowCandidateDetail] = useState(false);
 
-  // --- SEARCH & PAGINATION ---
   const [searchQuery, setSearchQuery] = useState("");
   const [candidatesPage, setCandidatesPage] = useState(1);
   const [resumeLinkLoading, setResumeLinkLoading] = useState(false);
 
-  // --- AI SCORING for pending candidates ---
   const [isScoringPendingCandidates, setIsScoringPendingCandidates] = useState(false);
   const [scoredCandidateIds, setScoredCandidateIds] = useState<Set<string>>(new Set());
   const [candidateScores, setCandidateScores] = useState<Record<string, number>>({});
 
-  // --- FETCH JOBS when page changes ---
   useEffect(() => {
     let isCancelled = false;
     setJobsLoading(true);
@@ -190,7 +165,6 @@ export function useApplication() {
     };
   }, [jobsPage]);
 
-  // --- FETCH APPLICATIONS when user selects a job ---
   useEffect(() => {
     if (!selectedJob) {
       setPendingApplications([]);
@@ -219,12 +193,10 @@ export function useApplication() {
     };
   }, [selectedJob]);
 
-  // --- CANDIDATE COUNTS by status ---
   const pendingCount = pendingApplications.filter((c) => c.status === "PENDING").length;
   const shortlistCount = pendingApplications.filter((c) => c.status === "SHORTLISTED").length;
   const completeCount = pendingApplications.filter((c) => c.status === "REJECTED").length;
 
-  // --- FILTER candidates by pipeline tab and search ---
   const filteredCandidates = pendingApplications.filter((c) => {
     const matchesTab =
       candidatePipelineTab === "pending"
@@ -284,7 +256,6 @@ export function useApplication() {
 
   function handleReject(candidate: Candidate) {
     setSelectedCandidate(candidate);
-    setShowRejectionModal(true);
   }
 
   async function handleConfirmRejection(content: string) {
@@ -304,9 +275,6 @@ export function useApplication() {
       showToast(`Rejection email sent to ${selectedCandidate.name}`, "success");
     } catch {
       alert("Could not update application status. Please try again.");
-    } finally {
-      setShowRejectionModal(false);
-      setSelectedCandidate(null);
     }
   }
 
@@ -329,19 +297,8 @@ export function useApplication() {
     }
   }
 
-  function handleCloseRejectionModal() {
-    setShowRejectionModal(false);
-    setSelectedCandidate(null);
-  }
-
-  function handleCloseCandidateDetail() {
-    // Only hide the detail modal; keep selectedCandidate so rejection modal can use it
-    setShowCandidateDetail(false);
-  }
-
   function handleSelectCandidate(candidate: Candidate) {
     setSelectedCandidate(candidate);
-    setShowCandidateDetail(true);
   }
 
   async function handleAIScorePendingCandidates() {
@@ -392,7 +349,6 @@ export function useApplication() {
 
   
 
-  // --- RETURN everything the component needs ---
   return {
     jobs: paginatedJobs,
     candidatePipelineTab,
@@ -409,8 +365,6 @@ export function useApplication() {
     paginatedCandidates,
     candidatesPage,
     candidatesTotalPages,
-    showRejectionModal,
-    showCandidateDetail,
     resumeLinkLoading,
     setJobsPage,
     setCandidatesPage,
@@ -420,8 +374,6 @@ export function useApplication() {
     handleReject,
     handleConfirmRejection,
     handleShortlist,
-    handleCloseRejectionModal,
-    handleCloseCandidateDetail,
     handleSelectCandidate,
     handleAIScorePendingCandidates,
     getStatusBadge,

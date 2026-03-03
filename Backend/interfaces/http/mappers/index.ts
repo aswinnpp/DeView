@@ -8,3 +8,4 @@ export { CompanyApprovalMapper } from "./company-approval.mapper.js";
 export { CompanyTeamMapper } from "./company-team.mapper.js";
 export { JobMapper } from "./job.mapper.js";
 export { ApplicationMapper } from "./application.mapper.js";
+export { PaymentMapper } from "./payment.mapper.js";

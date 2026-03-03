@@ -36,5 +36,4 @@ export async function adminCompanyApprovalRoutes(
         handler: controller.markDocument,
     });
 
-    console.log('Admin company approval routes registered');
 }

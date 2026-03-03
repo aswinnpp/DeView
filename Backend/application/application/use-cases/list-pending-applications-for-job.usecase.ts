@@ -3,8 +3,8 @@ import { TYPES } from '../../../shared/di/types.js';
 import type { IApplicationRepository } from '../ports/repository/IApplicationRepository.js';
 import type {
   IListPendingApplicationsForJobUseCase,
-  IListPendingApplicationsInput,
 } from '../ports/usecase/IListPendingApplicationsForJobUseCase.js';
+import type { IListPendingApplicationsForJobInput } from '../dtos/ListPendingApplicationsForJobDTO.js';
 
 @injectable()
 export class ListPendingApplicationsForJobUseCase
@@ -14,7 +14,7 @@ export class ListPendingApplicationsForJobUseCase
     @inject(TYPES.ApplicationRepositoryPort) private readonly repo: IApplicationRepository
   ) {}
 
-  async execute(input: IListPendingApplicationsInput) {
+  async execute(input: IListPendingApplicationsForJobInput) {
     const data = await this.repo.listByJobId(input.jobId, input.companyId, input.status);
     return { data };
   }

@@ -11,7 +11,6 @@ export async function jobRoutes(
   fastify: FastifyInstance,
   controller: jobController
 ) {
-  // Only company and HR users can manage jobs
   fastify.addHook('preHandler', requireRoles('company', 'hr'));
 
   fastify.get('/', {

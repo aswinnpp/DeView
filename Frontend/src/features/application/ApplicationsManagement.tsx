@@ -185,8 +185,6 @@ const HRApplicationsPage = () => {
         paginatedCandidates,
         selectedJob,
         selectedCandidate,
-        showRejectionModal,
-        showCandidateDetail,
         handleSearch,
         handleViewApplications,
         handleReject,
@@ -200,17 +198,17 @@ const HRApplicationsPage = () => {
         candidateScores,
         setJobsPage,
         setCandidatesPage,
-        handleCloseCandidateDetail,
-        handleCloseRejectionModal,
     } = useApplication();
 
     // View states
     const [activeTab, setActiveTab] = useState<WorkflowTab>('PENDING');
 
-    // Modal states
+    // Modal states (pure UI)
     const [showOfferModal, setShowOfferModal] = useState(false);
     const [showInterviewerModal, setShowInterviewerModal] = useState(false);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [showCandidateDetail, setShowCandidateDetail] = useState(false);
+    const [showRejectionModal, setShowRejectionModal] = useState(false);
 
     // Schedule interview step state
     const [scheduleStep, setScheduleStep] = useState(1); // 1 = select interviewer, 2 = select date/time/round
@@ -468,7 +466,10 @@ const HRApplicationsPage = () => {
                             <Button
                                 variant="secondary"
                                 className="bg-slate-700 hover:bg-slate-600 text-xs font-semibold px-3 py-1.5 rounded-md"
-                                onClick={() => handleSelectCandidate(candidate)}
+                                onClick={() => {
+                                    handleSelectCandidate(candidate as any);
+                                    setShowCandidateDetail(true);
+                                }}
                             >
                                 View
                             </Button>
@@ -593,7 +594,7 @@ const HRApplicationsPage = () => {
                             <div>
                                 <h3 style={{ color: '#e2e8f0', margin: 0 }}>Candidate Details</h3>
                             </div>
-                            <button onClick={handleCloseCandidateDetail} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 24 }}>×</button>
+                            <button onClick={() => setShowCandidateDetail(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 24 }}>×</button>
                         </div>
 
                         {/* Header with Avatar */}
@@ -968,7 +969,7 @@ const HRApplicationsPage = () => {
                                     <button
                                         onClick={() => {
                                             handleShortlist(selectedCandidate as any);
-                                            handleCloseCandidateDetail();
+                                            setShowCandidateDetail(false);
                                         }}
                                         style={{ flex: 1, padding: 14, backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
                                     >
@@ -977,7 +978,8 @@ const HRApplicationsPage = () => {
                                     <button
                                         onClick={() => {
                                             handleReject(selectedCandidate as any);
-                                            handleCloseCandidateDetail();
+                                            setShowCandidateDetail(false);
+                                            setShowRejectionModal(true);
                                         }}
                                         style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
                                     >
@@ -989,7 +991,7 @@ const HRApplicationsPage = () => {
                                 <button
                                     onClick={() => {
                                         handleScheduleInterview(selectedCandidate as any);
-                                        handleCloseCandidateDetail();
+                                        setShowCandidateDetail(false);
                                     }}
                                     style={{ flex: 1, padding: 14, backgroundColor: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
                                 >
@@ -1019,7 +1021,7 @@ const HRApplicationsPage = () => {
                                     <button
                                         onClick={() => {
                                             alert('Reschedule declined. Candidate will be notified to attend the original schedule.');
-                                            handleCloseCandidateDetail();
+                                            setShowCandidateDetail(false);
                                         }}
                                         style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
                                     >
@@ -1028,7 +1030,7 @@ const HRApplicationsPage = () => {
                                     <button
                                         onClick={() => {
                                             handleScheduleInterview(selectedCandidate as any);
-                                            handleCloseCandidateDetail();
+                                            setShowCandidateDetail(false);
                                         }}
                                         style={{ flex: 1, padding: 14, backgroundColor: '#f97316', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
                                     >
@@ -1036,7 +1038,7 @@ const HRApplicationsPage = () => {
                                     </button>
                                 </>
                             )}
-                            <button onClick={handleCloseCandidateDetail} style={{ flex: 1, padding: 14, backgroundColor: '#334155', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Close</button>
+                            <button onClick={() => setShowCandidateDetail(false)} style={{ flex: 1, padding: 14, backgroundColor: '#334155', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Close</button>
                         </div>
                     </div>
                 </div>
@@ -1399,8 +1401,11 @@ const HRApplicationsPage = () => {
             {/* EXISTING REJECTION EMAIL MODAL */}
             <RejectionEmailModal
                 isOpen={showRejectionModal}
-                onClose={handleCloseRejectionModal}
-                onConfirm={handleConfirmRejection}
+                onClose={() => setShowRejectionModal(false)}
+                onConfirm={async (content) => {
+                    await handleConfirmRejection(content);
+                    setShowRejectionModal(false);
+                }}
                 candidate={selectedCandidate ? { name: selectedCandidate.name, email: selectedCandidate.email } : null}
                 job={selectedJob ? { title: selectedJob.title } : null}
                 company={COMPANY_PLACEHOLDER}

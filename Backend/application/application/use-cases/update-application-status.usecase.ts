@@ -4,9 +4,11 @@ import type { IApplicationRepository } from '../ports/repository/IApplicationRep
 import type { IRejectionMailRepository } from '../ports/repository/IRejectionMailRepository.js';
 import type {
   IUpdateApplicationStatusUseCase,
-  IUpdateApplicationStatusInput,
-  IUpdateApplicationStatusResult,
 } from '../ports/usecase/IUpdateApplicationStatusUseCase.js';
+import type {
+  IUpdateApplicationStatusInputDTO,
+  IUpdateApplicationStatusResultDTO,
+} from '../dtos/UpdateApplicationStatusDTO.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 @injectable()
@@ -18,7 +20,7 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
     private readonly rejectionMailRepository: IRejectionMailRepository
   ) {}
 
-  async execute(input: IUpdateApplicationStatusInput): Promise<IUpdateApplicationStatusResult> {
+  async execute(input: IUpdateApplicationStatusInputDTO): Promise<IUpdateApplicationStatusResultDTO> {
     const updated = await this.applicationRepository.updateStatus(input);
 
     if (!updated) {

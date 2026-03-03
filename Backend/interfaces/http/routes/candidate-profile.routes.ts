@@ -32,5 +32,4 @@ export async function candidateProfileRoutes(
     });
 
  
-    console.log(" Candidate profile routes registered");
 }

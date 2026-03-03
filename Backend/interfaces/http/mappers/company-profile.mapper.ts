@@ -1,5 +1,6 @@
 import type { IUpdateCompanyProfileDTO } from "../../../application/company/dtos/UpdateCompanyProfileDTO.js";
 import type { IAuthenticatedUser } from "../middleware/authMiddleware.js";
+import type { CompanyApproval } from "../../../domain/company/entities/CompanyApprovalEntitie.js";
 
 /** Body shape from Zod-validated request (flat fields after schema transform) */
 interface IUpdateProfileBody {
@@ -14,12 +15,47 @@ interface IUpdateProfileBody {
   numberOfEmployees?: string;
 }
 
-
 export const CompanyProfileMapper = {
   toUpdateDTO(body: IUpdateProfileBody, user: IAuthenticatedUser): IUpdateCompanyProfileDTO {
     return {
       userId: user.userId,
       ...body,
+    };
+  },
+
+  toProfileResponse(profile: CompanyApproval, opts: { page: number; limit: number }) {
+    const page = Math.max(1, opts.page || 1);
+    const limit = Math.max(1, Math.min(50, opts.limit || 8));
+
+    const pending = [...(profile.pendingSubscriptions ?? [])].sort((a, b) => {
+      const diff = new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+      if (diff !== 0) return diff;
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
+
+    const history = [...(profile.subscriptionHistory ?? [])].sort(
+      (a, b) => new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime(),
+    );
+
+    const merged = [...pending, ...history];
+    const total = merged.length;
+    const start = (page - 1) * limit;
+    const items = merged.slice(start, start + limit);
+
+    return {
+      ...(profile as unknown as Record<string, unknown>),
+      subscriptionPlanId: undefined,
+      subscriptionEndsAt: undefined,
+      pendingSubscriptions: undefined,
+      subscriptionHistory: undefined,
+      subscriptions: {
+        items,
+        total,
+        page,
+        limit,
+        pendingTotal: pending.length,
+        historyTotal: history.length,
+      },
     };
   },
 };

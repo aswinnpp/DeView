@@ -1,5 +1,6 @@
 import { injectable, inject } from 'inversify';
-import { IAdminCreateSubscription, ICreateSubscriptionInput } from "../ports/usecase/IAdmin-CreateSubscriptionUsecase";
+import { IAdminCreateSubscription } from "../ports/usecase/IAdmin-CreateSubscriptionUsecase";
+import type { ICreateSubscriptionInputDTO } from "../dtos/CreateSubscriptionDTO.js";
 import { TYPES } from "../../../shared/di/types";
 import { ISubscriptionRepository } from "../ports/repository/ISubscriptionRepository";
 import { Subscription } from "../../../domain/admin/entities/Subscription";
@@ -12,7 +13,7 @@ export class AdminCreateSubscription implements IAdminCreateSubscription {
       private readonly subscriptionRepository: ISubscriptionRepository,
     ) {}  
 
-    async execute(input: ICreateSubscriptionInput): Promise<void> {
+    async execute(input: ICreateSubscriptionInputDTO): Promise<void> {
       if (typeof input.name !== "string" || !input.name.trim()) {
         throw AppError.badRequest("name is required");
       }

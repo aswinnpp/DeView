@@ -5,7 +5,6 @@ export async function stripeWebhookRoutes(
   fastify: FastifyInstance,
   controller: CompanyPaymentController,
 ): Promise<void> {
-  // Public Stripe webhook endpoint (no auth). Requires rawBody for signature verification.
   fastify.post(
     '/stripe',
     {

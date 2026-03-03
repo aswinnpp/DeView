@@ -6,3 +6,4 @@ export const applicationFormSchema = z.object({
 });
 
 export type ApplicationFormData = z.infer<typeof applicationFormSchema>;
+

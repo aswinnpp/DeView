@@ -35,44 +35,11 @@ export class CompanyProfileController {
     reply: FastifyReply,
   ) => {
     const user = request.currentUser;
-
-    const profile = await this.getProfileUseCase.execute(user.userId);
-
     const page = Math.max(1, Number(request.query.page ?? 1) || 1);
     const limit = Math.max(1, Math.min(50, Number(request.query.limit ?? 8) || 8));
 
-    const pending = [...(profile.pendingSubscriptions ?? [])].sort((a, b) => {
-      const diff = new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
-      if (diff !== 0) return diff;
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    });
-
-    const history = [...(profile.subscriptionHistory ?? [])].sort(
-      (a, b) => new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime(),
-    );
-
-    const merged = [...pending, ...history];
-    const total = merged.length;
-    const start = (page - 1) * limit;
-    const items = merged.slice(start, start + limit);
-
-    const data = {
-      ...(profile as unknown as Record<string, unknown>),
-      // Hide legacy fields from API response (not needed by UI)
-      subscriptionPlanId: undefined,
-      subscriptionEndsAt: undefined,
-      // Avoid sending large arrays; UI uses paginated merged list
-      pendingSubscriptions: undefined,
-      subscriptionHistory: undefined,
-      subscriptions: {
-        items,
-        total,
-        page,
-        limit,
-        pendingTotal: pending.length,
-        historyTotal: history.length,
-      },
-    };
+    const profile = await this.getProfileUseCase.execute(user.userId);
+    const data = CompanyProfileMapper.toProfileResponse(profile, { page, limit });
 
     reply.send(success({ data }));
   };

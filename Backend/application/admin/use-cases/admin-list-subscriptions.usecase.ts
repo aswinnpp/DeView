@@ -2,9 +2,8 @@ import { injectable, inject } from "inversify";
 import { TYPES } from "../../../shared/di/types";
 import type {
   IAdminListSubscriptionsUsecase,
-  IListSubscriptionsInput,
-  IListSubscriptionsOutput,
 } from "../ports/usecase/IAdmin-ListSubscriptionsUsecase";
+import type { IListSubscriptionsInputDTO, IListSubscriptionsOutputDTO } from "../dtos/ListSubscriptionsDTO.js";
 import type {
   ISubscriptionListOptions,
   ISubscriptionRepository,
@@ -20,7 +19,7 @@ export class AdminListSubscriptionsUsecase
     private readonly subscriptionRepository: ISubscriptionRepository
   ) {}
 
-  async execute(input: IListSubscriptionsInput): Promise<IListSubscriptionsOutput> {
+  async execute(input: IListSubscriptionsInputDTO): Promise<IListSubscriptionsOutputDTO> {
     const page: number | undefined = input.page;
     const limit: number | undefined = input.limit;
 

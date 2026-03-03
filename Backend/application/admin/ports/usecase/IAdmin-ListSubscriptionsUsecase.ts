@@ -1,19 +1,8 @@
-import type { Subscription } from "../../../../domain/admin/entities/Subscription";
-
-export interface IListSubscriptionsInput {
-  search?: string;
-  status?: "Active" | "Inactive";
-  duration?: "Monthly" | "Quarterly" | "Annual";
-  sortOrder?: "asc" | "desc";
-  page?: number;
-  limit?: number;
-}
-
-export interface IListSubscriptionsOutput {
-  data: Subscription[];
-  total: number;
-}
+import type {
+  IListSubscriptionsInputDTO,
+  IListSubscriptionsOutputDTO,
+} from '../../dtos/ListSubscriptionsDTO.js';
 
 export interface IAdminListSubscriptionsUsecase {
-  execute(input: IListSubscriptionsInput): Promise<IListSubscriptionsOutput>;
+  execute(input: IListSubscriptionsInputDTO): Promise<IListSubscriptionsOutputDTO>;
 }
