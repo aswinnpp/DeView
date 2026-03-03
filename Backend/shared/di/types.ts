@@ -16,6 +16,7 @@ export const TYPES = {
   GoogleAuthPort: Symbol('GoogleAuthPort'),
   FileStoragePort: Symbol('FileStoragePort'),
   CryptoRandomPort: Symbol('CryptoRandomPort'),
+  AiScoringServicePort: Symbol('AiScoringServicePort'),
 
   // Use case ports (controllers depend on these, not concrete use cases)
   RegisterUserUseCasePort: Symbol('RegisterUserUseCasePort'),

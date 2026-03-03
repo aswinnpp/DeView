@@ -11,6 +11,7 @@ import { NodeCryptoRandomService } from '../security/NodeCryptoRandomService.js'
 import { RedisAccessTokenRepository } from '../persistence/redis/RedisAccessTokenRepository.js';
 import { RedisRefreshTokenRepository } from '../persistence/redis/RedisRefreshTokenRepository.js';
 import { env } from '../config/env.js';
+import { GoogleGenAiScoringService } from '../ai/GoogleGenAiScoringService.js';
 
 
 export function bindServices(container: Container): void {
@@ -19,6 +20,7 @@ export function bindServices(container: Container): void {
   container.bind(TYPES.EmailServicePort).to(NodemailerEmailService);
   container.bind(TYPES.FileStoragePort).to(S3FileStorageService);
   container.bind(TYPES.CryptoRandomPort).to(NodeCryptoRandomService);
+  container.bind(TYPES.AiScoringServicePort).to(GoogleGenAiScoringService);
 
   container.bind(TYPES.GoogleAuthPort).toConstantValue(
     new GoogleAuthService(
