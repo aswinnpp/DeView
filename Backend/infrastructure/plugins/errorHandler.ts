@@ -43,11 +43,27 @@ export function registerErrorHandler(app: FastifyInstance) {
       });
     }
 
-    const apiErr = error as { name?: string; status?: number };
-    if (apiErr?.name === 'ApiError' && apiErr?.status === 429) {
-      return reply.status(HttpStatus.TOO_MANY_REQUESTS).send({
+    const apiErr = error as { name?: string; status?: number; message?: string };
+    if (apiErr?.name === 'ApiError') {
+      if (apiErr.status === 429) {
+        return reply.status(HttpStatus.TOO_MANY_REQUESTS).send({
+          success: false,
+          message:
+            'AI scoring quota exceeded. Please try again in a few minutes or check your Gemini API quota.',
+        });
+      }
+
+      if (apiErr.status === 404) {
+        return reply.status(HttpStatus.BAD_GATEWAY).send({
+          success: false,
+          message:
+            'AI scoring service model not found or not available. Please verify GOOGLE_AI_MODEL_ID and your Gemini model configuration.',
+        });
+      }
+
+      return reply.status(HttpStatus.BAD_GATEWAY).send({
         success: false,
-        message: 'AI scoring quota exceeded. Please try again in a few minutes or check your Gemini API quota.',
+        message: 'AI scoring service is currently unavailable. Please try again later.',
       });
     }
 

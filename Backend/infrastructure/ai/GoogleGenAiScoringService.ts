@@ -22,8 +22,6 @@ Rules:
 Return format example:
 {"matchScore": 75}`;
 
-const DEFAULT_MODEL_ID = 'gemini-1.5-flash';
-
 @injectable()
 export class GoogleGenAiScoringService implements IAiScoringService {
   private readonly ai: GoogleGenAI;
@@ -42,7 +40,7 @@ export class GoogleGenAiScoringService implements IAiScoringService {
     const userPrompt = `Job Description:\n${jobText}\n\nCandidate Profile:\n${candidateText}\n\nReturn ONLY a valid JSON object with key "matchScore" (0-100).`;
 
     const request = {
-      model: process.env.GOOGLE_AI_MODEL_ID || DEFAULT_MODEL_ID,
+      model: 'gemini-2.5-flash',
       systemInstruction: SYSTEM_PROMPT,
       contents: [
         {
@@ -71,12 +69,32 @@ export class GoogleGenAiScoringService implements IAiScoringService {
       request as Parameters<(typeof this.ai.models.generateContent)>[0],
     );
 
-    const text =
+    const rawText =
       typeof (response as { text?: string }).text === 'string'
         ? (response as { text: string }).text
         : '';
 
-    const parsed = JSON.parse(text) as { matchScore?: unknown };
+    let text = rawText.trim();
+
+    // Handle models that wrap JSON in Markdown code fences (``` or ```json)
+    if (text.startsWith('```')) {
+      const firstNewline = text.indexOf('\n');
+      if (firstNewline !== -1) {
+        text = text.slice(firstNewline + 1);
+      }
+      const lastFence = text.lastIndexOf('```');
+      if (lastFence !== -1) {
+        text = text.slice(0, lastFence);
+      }
+      text = text.trim();
+    }
+
+    let parsed: { matchScore?: unknown };
+    try {
+      parsed = JSON.parse(text) as { matchScore?: unknown };
+    } catch {
+      throw AppError.internal('Failed to parse AI scoring response.');
+    }
     const score = Number(parsed?.matchScore);
 
     if (!Number.isInteger(score) || score < 0 || score > 100) {
