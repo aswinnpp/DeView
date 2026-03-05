@@ -6,6 +6,7 @@ export interface IInterviewDocument {
   companyName: string;
   jobId: string;
   jobTitle: string;
+  roomName: string;
   applicationId: string;
   candidateUserId: string;
   candidateName: string;

@@ -162,6 +162,8 @@ export class ApplicationsController {
 
     const companyId = ctx.companyId || '';
 
+    const roomName = `deview-interview-${applicationId}-${Date.now()}`;
+
     const updated = await this.applicationRepository.scheduleInterview({
       applicationId,
       jobId,
@@ -192,6 +194,7 @@ export class ApplicationsController {
         companyName,
         jobId,
         jobTitle,
+        roomName,
         applicationId,
         updated.candidateUserId,
         updated.fullName,

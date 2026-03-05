@@ -16,6 +16,7 @@ import { companyPaymentRoutes } from '../../interfaces/http/routes/company-payme
 import { stripeWebhookRoutes } from '../../interfaces/http/routes/stripe-webhook.routes.js';
 import { jobRoutes } from '../../interfaces/http/routes/jobs.routes.js';
 import { applicationsRoutes } from '../../interfaces/http/routes/applications.routes.js';
+import { interviewRoomRoutes } from '../../interfaces/http/routes/interview-room.routes.js';
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     await fastify.register(
@@ -84,6 +85,14 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
             await applicationsRoutes(instance, controllers.applicationsController);
         },
         { prefix: '/applications' }
+    );
+
+    // Interview room - shared route for authorized participants
+    await fastify.register(
+        async (instance) => {
+            await interviewRoomRoutes(instance, controllers.interviewRoomController);
+        },
+        { prefix: '/interviews' }
     );
 }
 

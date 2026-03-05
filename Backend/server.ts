@@ -14,6 +14,9 @@ import { createContainer, getControllers } from './infrastructure/di/container.j
 import { registerRoutes } from './infrastructure/di/routes.js';
 import { redisClient } from './infrastructure/cache/RedisClient.js';
 import { getFileLogStream } from './infrastructure/logging/fileLogger.js';
+import { TYPES } from './shared/di/types.js';
+import type { IInterviewRepository } from './application/interview/ports/repository/IInterviewRepository.js';
+import { createInterviewSocketServer } from './infrastructure/socket/interviewSocket.js';
 
 const useFileLogging = env.LOG_TO_FILE === 'true' ;
 
@@ -77,6 +80,9 @@ async function bootstrap() {
   const ioc = createContainer(db);
   const controllers = getControllers(ioc);
   await registerRoutes(fastify, controllers);
+
+  const interviewRepository = ioc.get<IInterviewRepository>(TYPES.InterviewRepositoryPort);
+  createInterviewSocketServer(fastify, interviewRepository, corsOrigin);
 
   const gracefulShutdown = async () => {
     await redisClient.disconnect();

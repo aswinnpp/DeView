@@ -83,4 +83,5 @@ export const TYPES = {
   // Interview
   InterviewRepositoryPort: Symbol('InterviewRepositoryPort'),
   ListMyInterviewsUseCasePort: Symbol('ListMyInterviewsUseCasePort'),
+  GetInterviewRoomDetailsUseCasePort: Symbol('GetInterviewRoomDetailsUseCasePort'),
 } as const;

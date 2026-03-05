@@ -7,6 +7,7 @@ export class Interview {
     public companyName: string,
     public jobId: string,
     public jobTitle: string,
+    public roomName: string,
     public applicationId: string,
     public candidateUserId: string,
     public candidateName: string,

@@ -37,6 +37,18 @@ export class MongoInterviewRepository
     return docs.map((d) => this.toDomain(d));
   }
 
+  async findById(id: string): Promise<Interview | null> {
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(id);
+    } catch {
+      return null;
+    }
+
+    const doc = await this.collection.findOne({ _id });
+    return doc ? this.toDomain(doc) : null;
+  }
+
   protected toDomain(doc: IInterviewDocument): Interview {
     return new Interview(
       doc._id?.toString() ?? null,
@@ -44,6 +56,7 @@ export class MongoInterviewRepository
       doc.companyName,
       doc.jobId,
       doc.jobTitle,
+      doc.roomName,
       doc.applicationId,
       doc.candidateUserId,
       doc.candidateName,
@@ -65,6 +78,7 @@ export class MongoInterviewRepository
       companyName: entity.companyName,
       jobId: entity.jobId,
       jobTitle: entity.jobTitle,
+      roomName: entity.roomName,
       applicationId: entity.applicationId,
       candidateUserId: entity.candidateUserId,
       candidateName: entity.candidateName,

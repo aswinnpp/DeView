@@ -4,5 +4,6 @@ export interface IInterviewRepository {
   create(interview: Interview): Promise<Interview>;
   listByCandidateUserId(candidateUserId: string): Promise<Interview[]>;
   listByCompanyId(companyId: string): Promise<Interview[]>;
+  findById(id: string): Promise<Interview | null>;
 }
 
