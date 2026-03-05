@@ -42,9 +42,10 @@ export function createInterviewSocketServer(
           const roomKey = getRoomKey(roomName);
           await socket.join(roomKey);
 
-          socket.to(roomKey).emit('user-joined', {
+          namespace.to(roomKey).emit('user-joined', {
             displayName: displayName ?? 'Guest',
             at: new Date().toISOString(),
+            socketId: socket.id,
           });
         } catch {
           socket.emit('error', 'Failed to join room');
@@ -73,6 +74,88 @@ export function createInterviewSocketServer(
           });
         } catch {
           // swallow to avoid crashing socket
+        }
+      }
+    );
+
+    socket.on(
+      'webrtc-offer',
+      async (payload: {
+        interviewId: string;
+        roomName: string;
+        sdp: unknown;
+        to: string;
+      }) => {
+        try {
+          const { interviewId, roomName, sdp, to } = payload;
+
+          const interview = await interviewRepository.findById(interviewId);
+          if (!interview || !matchesRoom(interview, roomName)) {
+            return;
+          }
+
+          namespace.to(to).emit('webrtc-offer', {
+            interviewId,
+            roomName,
+            sdp,
+            from: socket.id,
+          });
+        } catch {
+          // ignore signaling errors
+        }
+      }
+    );
+
+    socket.on(
+      'webrtc-answer',
+      async (payload: {
+        interviewId: string;
+        roomName: string;
+        sdp: unknown;
+        to: string;
+      }) => {
+        try {
+          const { interviewId, roomName, sdp, to } = payload;
+
+          const interview = await interviewRepository.findById(interviewId);
+          if (!interview || !matchesRoom(interview, roomName)) {
+            return;
+          }
+
+          namespace.to(to).emit('webrtc-answer', {
+            interviewId,
+            roomName,
+            sdp,
+          });
+        } catch {
+          // ignore signaling errors
+        }
+      }
+    );
+
+    socket.on(
+      'webrtc-ice-candidate',
+      async (payload: {
+        interviewId: string;
+        roomName: string;
+        candidate: unknown;
+        to: string;
+      }) => {
+        try {
+          const { interviewId, roomName, candidate, to } = payload;
+
+          const interview = await interviewRepository.findById(interviewId);
+          if (!interview || !matchesRoom(interview, roomName)) {
+            return;
+          }
+
+          namespace.to(to).emit('webrtc-ice-candidate', {
+            interviewId,
+            roomName,
+            candidate,
+          });
+        } catch {
+          // ignore signaling errors
         }
       }
     );

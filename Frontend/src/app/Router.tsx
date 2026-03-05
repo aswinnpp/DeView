@@ -40,12 +40,7 @@ const AdminSubscriptionsPage = lazy(() => import("../features/admin/AdminSubscri
 const HRLayout = lazy(() => import("../features/hr/HRLayout"));
 const HRDashboard = lazy(() => import("../features/hr/HRDashboard"));
 const ApplicationsManagementPage = lazy(() => import("../features/application/ApplicationsManagement"));
-
-
-
-
-
-
+const InterviewRoomPage = lazy(() => import("../features/interview/InterviewRoomPage"));
 
 const LoadingFallback = () => (
   <div className="p-5 text-center">
@@ -116,6 +111,9 @@ const AppRouter = () => {
             <Route path="jobs" element={<JobsPage />} />
             <Route path="applications" element={<ApplicationsManagementPage />} />
           </Route>
+
+          {/* Shared interview room route for authorized participants */}
+          <Route path="/interviews/:interviewId/room" element={<InterviewRoomPage />} />
         </Route>
 
         

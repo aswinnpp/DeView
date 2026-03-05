@@ -78,6 +78,25 @@ export interface MyApplicationsParams {
   sortOrder?: "asc" | "desc";
 }
 
+export interface InterviewItem {
+  id: string;
+  companyId: string;
+  companyName: string;
+  jobId: string;
+  jobTitle: string;
+  applicationId: string;
+  candidateUserId: string;
+  candidateName: string;
+  interviewerUserId: string;
+  interviewerName: string;
+  round: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 function toMyApplicationsResult(data: unknown): { data: ApplicationItem[]; total: number } {
   if (!data || typeof data !== "object" || !("data" in data)) {
     return { data: [], total: 0 };
@@ -122,4 +141,23 @@ export const candidateJobsService = {
         },
       })
       .then((res) => toMyApplicationsResult(res.data)),
+
+  listMyInterviews: () =>
+    api
+      .get<InterviewItem[] | { data?: InterviewItem[] }>(API_ROUTES.CANDIDATE.MY_INTERVIEWS)
+      .then((res) => {
+        const body = res.data as unknown;
+        // Debug: inspect raw interviews payload
+        console.log("MY_INTERVIEWS raw response", body);
+        if (Array.isArray(body)) {
+          return body as InterviewItem[];
+        }
+        if (body && typeof body === "object" && "data" in body) {
+          const obj = body as { data?: unknown };
+          if (Array.isArray(obj.data)) {
+            return obj.data as InterviewItem[];
+          }
+        }
+        return [] as InterviewItem[];
+      }),
 };

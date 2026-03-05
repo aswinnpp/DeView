@@ -38,7 +38,7 @@ export class GetInterviewRoomDetailsUseCase {
     }
 
     this.ensureAuthorized(interview, userId, role, companyId);
-    this.ensureScheduleTimeReached(interview);
+    //this.ensureScheduleTimeReached(interview);
 
     return {
       interviewId: interview.id ?? interviewId,

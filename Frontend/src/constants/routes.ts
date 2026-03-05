@@ -59,12 +59,16 @@ export const API_ROUTES = {
         SUBSCRIPTION_TOGGLE: (id: string) => `/admin/company-requests/subscription/${id}/toggle-active`,
         SUBSCRIPTION_UPDATE: (id: string) => `/admin/company-requests/subscription/${id}`,
     },
+    INTERVIEWS: {
+        ROOM: (interviewId: string) => `/interviews/${interviewId}/room`,
+    },
     CANDIDATE: {
         PROFILE: '/candidate/profile',
         GETALL: '/candidate/list',
         JOBS: '/candidate/jobs',
         APPLY: (jobId: string) => `/candidate/jobs/${jobId}/apply`,
         MY_APPLICATIONS: '/candidate/applications/my',
+        MY_INTERVIEWS: '/candidate/interviews/my',
     },
 } as const;
 
@@ -82,6 +86,7 @@ export const APP_ROUTES = {
     COMPANY_APPROVAL_PENDING: '/company/approval-pending',
     COMPANY_APPROVAL_FORM: '/company/approval-form',
     CANDIDATE_INTERVIEWS:"/candidate/interviews",
+    INTERVIEW_ROOM: (interviewId: string) => `/interviews/${interviewId}/room`,
     CANDIDATE_PROFILE: '/candidate/profile',
     HR_DASHBOARD: '/hr/dashboard',
     ADMIN_DASHBOARD: '/admin',
