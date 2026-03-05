@@ -15,8 +15,7 @@ import { registerRoutes } from './infrastructure/di/routes.js';
 import { redisClient } from './infrastructure/cache/RedisClient.js';
 import { getFileLogStream } from './infrastructure/logging/fileLogger.js';
 
-const useFileLogging =
-  env.NODE_ENV === 'production' || env.LOG_TO_FILE === 'true' || env.LOG_TO_FILE === '1';
+const useFileLogging = env.LOG_TO_FILE === 'true' ;
 
 const loggerConfig = useFileLogging
   ? { level: 'info' as const, stream: getFileLogStream() }

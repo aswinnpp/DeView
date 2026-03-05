@@ -39,4 +39,18 @@ export interface IApplicationRepository {
     status: ApplicationStatus;
     rejectionEmailContent?: string;
   }): Promise<Application | null>;
+
+  /** Schedule (or reschedule) an interview for an application. */
+  scheduleInterview(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    interviewDetails: {
+      round: string;
+      interviewer: string;
+      interviewerEmail?: string;
+      scheduledDate: string;
+      scheduledTime: string;
+    };
+  }): Promise<Application | null>;
 }

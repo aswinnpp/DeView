@@ -44,6 +44,8 @@ export const API_ROUTES = {
         SCORE_CANDIDATES: (jobId: string) => `/applications/jobs/${jobId}/score-candidates`,
         UPDATE_STATUS: (jobId: string, applicationId: string) =>
             `/applications/jobs/${jobId}/applications/${applicationId}/status`,
+        SCHEDULE_INTERVIEW: (jobId: string, applicationId: string) =>
+            `/applications/jobs/${jobId}/applications/${applicationId}/interview`,
     },
     ADMIN: {
         COMPANY_PENDING: '/admin/company-requests/pending',

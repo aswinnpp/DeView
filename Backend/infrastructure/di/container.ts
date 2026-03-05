@@ -19,6 +19,7 @@ import { UploadController } from '../../interfaces/http/controllers/upload.contr
 import { CompanyTeamController } from '../../interfaces/http/controllers/company-team.controller.js';
 import { CandidateProfileController } from '../../interfaces/http/controllers/candidate-profile.controller.js';
 import { CandidateJobsController } from '../../interfaces/http/controllers/candidate-jobs.controller.js';
+import { CandidateInterviewsController } from '../../interfaces/http/controllers/candidate-interviews.controller.js';
 import { CompanyProfileController } from '../../interfaces/http/controllers/company-profile.controller.js';
 import { AdminSubscriptionController } from '../../interfaces/http/controllers/admin-subscription.controller.js';
 import { CompanyPaymentController } from '../../interfaces/http/controllers/company-payment.controller.js';
@@ -49,6 +50,7 @@ export function getControllers(container: ContainerType) {
     companyTeamController: container.get(CompanyTeamController),
     candidateProfileController: container.get(CandidateProfileController),
     candidateJobsController: container.get(CandidateJobsController),
+    candidateInterviewsController: container.get(CandidateInterviewsController),
     companyProfileController: container.get(CompanyProfileController),
     adminSubscriptionController: container.get(AdminSubscriptionController),
     companyPaymentController: container.get(CompanyPaymentController),

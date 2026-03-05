@@ -27,4 +27,8 @@ export async function applicationsRoutes(
   fastify.put('/jobs/:jobId/applications/:applicationId/status', {
     handler: controller.updateStatus,
   });
+
+  fastify.post('/jobs/:jobId/applications/:applicationId/interview', {
+    handler: controller.scheduleInterview,
+  });
 }

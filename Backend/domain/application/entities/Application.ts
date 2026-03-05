@@ -1,4 +1,19 @@
-export type ApplicationStatus = 'PENDING' | 'SHORTLISTED' | 'REJECTED';
+export type ApplicationStatus =
+  | 'PENDING'
+  | 'SHORTLISTED'
+  | 'INTERVIEW_SCHEDULED'
+  | 'INTERVIEW_COMPLETE'
+  | 'HIRED'
+  | 'REJECTED'
+  | 'RESCHEDULE_REQUESTED';
+
+export type InterviewDetails = {
+  round: string;
+  interviewer: string;
+  interviewerEmail?: string;
+  scheduledDate: string; // YYYY-MM-DD
+  scheduledTime: string; // HH:mm
+};
 
 export class Application {
   constructor(
@@ -28,6 +43,7 @@ export class Application {
     public coverLetter?: string,
     public status: ApplicationStatus = 'PENDING',
     public aiScore?: number,
+    public interviewDetails?: InterviewDetails,
     public rejectionEmailContent?: string,
     public rejectionSentAt?: Date,
     public createdAt: Date = new Date(),

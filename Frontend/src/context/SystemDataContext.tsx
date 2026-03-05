@@ -49,6 +49,7 @@ type ICompanyDocuments = Record<string, ICompanyDocumentUpload>;
 
 interface ICompany {
     id: string;
+    name?: string;
     status: string;
     subscription: string;
     address: string;
@@ -61,6 +62,7 @@ interface ICompany {
     documents: ICompanyDocuments;
     rejectionReason: string;
     owner: ICompanyOwner | null;
+    createdAt?: string;
     debugOtp?: string;
     generatedOtp?: string;
 }
@@ -74,6 +76,8 @@ interface ICompanyOwner {
 
 interface IJob {
     id: string;
+    companyId?: string;
+    title?: string;
     createdAt: string;
     applicants: IJobApplicant[];
     status: string;
@@ -82,6 +86,7 @@ interface IJob {
 interface IJobApplicant {
     candidateId: string;
     status: string;
+    appliedDate?: string;
     updatedAt: string;
 }
 

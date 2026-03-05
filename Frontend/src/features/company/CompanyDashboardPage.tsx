@@ -130,10 +130,13 @@ const CompanyDashboardPage = () => {
 
     // Applications by job (for bar chart)
     const applicationsByJob = useMemo(() => {
-        const data = myJobs.slice(0, 5).map(job => ({
-            name: job.title?.substring(0, 15) + (job.title?.length > 15 ? '...' : '') || 'Untitled',
-            applications: job.applicants?.length || 0,
-        }));
+        const data = myJobs.slice(0, 5).map(job => {
+            const title = job.title ?? "Untitled";
+            return {
+                name: title.substring(0, 15) + (title.length > 15 ? '...' : ''),
+                applications: job.applicants?.length || 0,
+            };
+        });
 
         // If no data, show sample
         if (data.length === 0 || data.every(d => d.applications === 0)) {

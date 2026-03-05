@@ -8,18 +8,22 @@ export async function candidateJobsRoutes(
   controller: CandidateJobsController
 ): Promise<void> {
   fastify.addHook('preHandler', requireAuth);
-  fastify.addHook('preHandler', requireRoles('candidate'));
 
+  
+  
   fastify.get('/jobs', {
+    preHandler: requireRoles('candidate'),
     handler: controller.getAllJobs,
   });
-
+  
   fastify.post('/jobs/:jobId/apply', {
+    preHandler: requireRoles('candidate'),
     schema: applyForJobSchema,
     handler: controller.applyForJob,
   });
-
+  
   fastify.get('/applications/my', {
+    preHandler: requireRoles('candidate'),
     handler: controller.listMyApplications,
   });
 

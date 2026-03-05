@@ -79,4 +79,8 @@ export const TYPES = {
   ListPendingApplicationsForJobUseCasePort: Symbol('ListPendingApplicationsForJobUseCasePort'),
   ScoreCandidatesUseCasePort: Symbol('ScoreCandidatesUseCasePort'),
   UpdateApplicationStatusUseCasePort: Symbol('UpdateApplicationStatusUseCasePort'),
+
+  // Interview
+  InterviewRepositoryPort: Symbol('InterviewRepositoryPort'),
+  ListMyInterviewsUseCasePort: Symbol('ListMyInterviewsUseCasePort'),
 } as const;

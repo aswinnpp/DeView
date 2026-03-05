@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import OfferLetterModal from "../../components/applications/OfferLetterModal";
 import RejectionEmailModal from "../../components/applications/RejectionEmailModal";
@@ -9,6 +9,8 @@ import Input from "../../components/common/Input";
 import { useApplication, COMPANY_PLACEHOLDER } from "../../hooks/application/useApplication";
 import Pagination from "../../components/common/Pagination";
 import { ToastContainer } from "../../components/common/Toast";
+import { applicationsService } from "../../services/applications.service";
+import { companyTeamService, type TeamMember } from "../../services/companyTeam.service";
 
 // ==================== TYPE DEFINITIONS ====================
 interface Job {
@@ -25,28 +27,10 @@ interface Job {
     jobType?: string;
 }
 
-interface AvailableSlot {
-    id: string;
-    interviewerId: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    duration: number;
-    status: string;
-    interviewerName?: string;
-    interviewerEmail?: string;
-}
-
 interface Interviewer {
     id: string;
     name: string;
     email: string;
-    specialization: string;
-    rating: number;
-    availability: string;
-    completedInterviews: number;
-    aiScore?: number;
-    slots?: AvailableSlot[];
 }
 
 interface CompletedRound {
@@ -79,11 +63,10 @@ interface Candidate {
     completedRounds?: CompletedRound[];
     interviewDetails?: {
         interviewer: string;
-        interviewerEmail: string;
+        interviewerEmail?: string;
         scheduledDate: string;
         scheduledTime: string;
         round: string;
-        meetingLink: string;
     };
     // Reschedule request fields
     rescheduleRequest?: {
@@ -121,57 +104,6 @@ type WorkflowTab = 'PENDING' | 'SHORTLISTED' | 'INTERVIEW_ATTENDEES' | 'INTERVIE
 // ==================== DUMMY DATA ====================
 
 
-const dummyInterviewers: Interviewer[] = [
-    {
-        id: 'int-001', name: 'John Smith', email: 'john.smith@company.com', specialization: 'Frontend Development', rating: 4.8, availability: 'Available', completedInterviews: 45, aiScore: 95,
-        slots: [
-            { id: 'slot-001', date: '2026-01-28', startTime: '09:00', endTime: '10:00', duration: 60, status: 'available', interviewerId: 'int-001', interviewerName: 'John Smith', interviewerEmail: 'john.smith@company.com' },
-            { id: 'slot-002', date: '2026-01-28', startTime: '11:00', endTime: '12:00', duration: 60, status: 'available', interviewerId: 'int-001', interviewerName: 'John Smith', interviewerEmail: 'john.smith@company.com' },
-            { id: 'slot-003', date: '2026-01-28', startTime: '14:00', endTime: '15:00', duration: 60, status: 'available', interviewerId: 'int-001', interviewerName: 'John Smith', interviewerEmail: 'john.smith@company.com' },
-            { id: 'slot-004', date: '2026-01-29', startTime: '10:00', endTime: '11:00', duration: 60, status: 'available', interviewerId: 'int-001', interviewerName: 'John Smith', interviewerEmail: 'john.smith@company.com' },
-            { id: 'slot-005', date: '2026-01-29', startTime: '15:00', endTime: '16:00', duration: 60, status: 'available', interviewerId: 'int-001', interviewerName: 'John Smith', interviewerEmail: 'john.smith@company.com' },
-        ]
-    },
-    {
-        id: 'int-002', name: 'Sarah Thompson', email: 'sarah.thompson@company.com', specialization: 'System Design', rating: 4.7, availability: 'Available', completedInterviews: 38, aiScore: 88,
-        slots: [
-            { id: 'slot-006', date: '2026-01-28', startTime: '10:00', endTime: '11:00', duration: 60, status: 'available', interviewerId: 'int-002', interviewerName: 'Sarah Thompson', interviewerEmail: 'sarah.thompson@company.com' },
-            { id: 'slot-007', date: '2026-01-28', startTime: '14:00', endTime: '15:00', duration: 60, status: 'available', interviewerId: 'int-002', interviewerName: 'Sarah Thompson', interviewerEmail: 'sarah.thompson@company.com' },
-            { id: 'slot-008', date: '2026-01-30', startTime: '09:00', endTime: '10:00', duration: 60, status: 'available', interviewerId: 'int-002', interviewerName: 'Sarah Thompson', interviewerEmail: 'sarah.thompson@company.com' },
-            { id: 'slot-009', date: '2026-01-30', startTime: '11:00', endTime: '12:00', duration: 60, status: 'available', interviewerId: 'int-002', interviewerName: 'Sarah Thompson', interviewerEmail: 'sarah.thompson@company.com' },
-        ]
-    },
-    {
-        id: 'int-003', name: 'Mike Johnson', email: 'mike.johnson@company.com', specialization: 'Backend Development', rating: 4.9, availability: 'Busy', completedInterviews: 62, aiScore: 92,
-        slots: [
-            { id: 'slot-010', date: '2026-01-29', startTime: '09:00', endTime: '10:00', duration: 60, status: 'available', interviewerId: 'int-003', interviewerName: 'Mike Johnson', interviewerEmail: 'mike.johnson@company.com' },
-            { id: 'slot-011', date: '2026-01-29', startTime: '16:00', endTime: '17:00', duration: 60, status: 'available', interviewerId: 'int-003', interviewerName: 'Mike Johnson', interviewerEmail: 'mike.johnson@company.com' },
-        ]
-    },
-    {
-        id: 'int-004', name: 'Emily Davis', email: 'emily.davis@company.com', specialization: 'HR Screening', rating: 4.6, availability: 'Available', completedInterviews: 120, aiScore: 78,
-        slots: [
-            { id: 'slot-012', date: '2026-01-28', startTime: '09:00', endTime: '09:30', duration: 30, status: 'available', interviewerId: 'int-004', interviewerName: 'Emily Davis', interviewerEmail: 'emily.davis@company.com' },
-            { id: 'slot-013', date: '2026-01-28', startTime: '10:00', endTime: '10:30', duration: 30, status: 'available', interviewerId: 'int-004', interviewerName: 'Emily Davis', interviewerEmail: 'emily.davis@company.com' },
-            { id: 'slot-014', date: '2026-01-28', startTime: '11:00', endTime: '11:30', duration: 30, status: 'available', interviewerId: 'int-004', interviewerName: 'Emily Davis', interviewerEmail: 'emily.davis@company.com' },
-            { id: 'slot-015', date: '2026-01-29', startTime: '14:00', endTime: '14:30', duration: 30, status: 'available', interviewerId: 'int-004', interviewerName: 'Emily Davis', interviewerEmail: 'emily.davis@company.com' },
-            { id: 'slot-016', date: '2026-01-29', startTime: '15:00', endTime: '15:30', duration: 30, status: 'available', interviewerId: 'int-004', interviewerName: 'Emily Davis', interviewerEmail: 'emily.davis@company.com' },
-            { id: 'slot-017', date: '2026-01-30', startTime: '10:00', endTime: '10:30', duration: 30, status: 'available', interviewerId: 'int-004', interviewerName: 'Emily Davis', interviewerEmail: 'emily.davis@company.com' },
-        ]
-    },
-    {
-        id: 'int-005', name: 'David Wilson', email: 'david.wilson@company.com', specialization: 'Technical Assessment', rating: 4.5, availability: 'Available', completedInterviews: 28, aiScore: 85,
-        slots: [
-            { id: 'slot-018', date: '2026-01-28', startTime: '13:00', endTime: '14:00', duration: 60, status: 'available', interviewerId: 'int-005', interviewerName: 'David Wilson', interviewerEmail: 'david.wilson@company.com' },
-            { id: 'slot-019', date: '2026-01-28', startTime: '15:00', endTime: '16:00', duration: 60, status: 'available', interviewerId: 'int-005', interviewerName: 'David Wilson', interviewerEmail: 'david.wilson@company.com' },
-            { id: 'slot-020', date: '2026-01-31', startTime: '09:00', endTime: '10:00', duration: 60, status: 'available', interviewerId: 'int-005', interviewerName: 'David Wilson', interviewerEmail: 'david.wilson@company.com' },
-            { id: 'slot-021', date: '2026-01-31', startTime: '11:00', endTime: '12:00', duration: 60, status: 'available', interviewerId: 'int-005', interviewerName: 'David Wilson', interviewerEmail: 'david.wilson@company.com' },
-        ]
-    },
-];
-
-
-
 // ==================== MAIN COMPONENT ====================
 const HRApplicationsPage = () => {
     const {
@@ -198,6 +130,7 @@ const HRApplicationsPage = () => {
         candidateScores,
         setJobsPage,
         setCandidatesPage,
+        refreshSelectedJobApplications,
     } = useApplication();
 
     // View states
@@ -219,10 +152,9 @@ const HRApplicationsPage = () => {
     const [selectedTime, setSelectedTime] = useState('');
 
     // Legacy states (kept for compatibility)
-    const [interviewers, setInterviewers] = useState<Interviewer[]>(dummyInterviewers);
+    const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
     const [selectedInterviewer, setSelectedInterviewer] = useState<Interviewer | null>(null);
-    const [isAIScoring, setIsAIScoring] = useState(false);
-    const [hasAIScoredInterviewers, setHasAIScoredInterviewers] = useState(false);
+    const [isLoadingInterviewers, setIsLoadingInterviewers] = useState(false);
 
     // Map workflow tab to underlying pipeline tab in useApplication()
     const workflowToPipelineMap: Record<WorkflowTab, "pending" | "shortlist" | "interview" | "complete"> = {
@@ -246,36 +178,51 @@ const HRApplicationsPage = () => {
     ];
 
     const handleSendOffer = (candidate: Candidate) => {
-        setSelectedCandidate(candidate);
+        handleSelectCandidate(candidate);
         setShowOfferModal(true);
     };
 
     const handleScheduleInterview = (candidate: Candidate) => {
-        setSelectedCandidate(candidate);
+        handleSelectCandidate(candidate);
         setSelectedInterviewer(null);
-        setSelectedSlot(null);
         setSelectedDate('');
         setSelectedTime('');
-        setSelectedRound('HR Screening');
+        setSelectedRound(selectedJob?.interviewRounds?.[0] ?? 'HR Screening');
         setScheduleStep(1);
         setShowInterviewerModal(true);
     };
 
-    const handleAIMatchInterviewers = async () => {
-        setIsAIScoring(true);
-        // Simulate AI scoring
-        setTimeout(() => {
-            const scored = [...interviewers].map(i => ({
-                ...i,
-                aiScore: Math.floor(Math.random() * 30) + 70
-            })).sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));
-            setInterviewers(scored);
-            setIsAIScoring(false);
-            setHasAIScoredInterviewers(true);
-        }, 1500);
+    const loadInterviewers = async () => {
+        setIsLoadingInterviewers(true);
+        try {
+            const res = await companyTeamService.listInterviewers();
+            const list = (res.data as { data?: TeamMember[] })?.data ?? [];
+            setInterviewers(
+                list.map((m) => ({
+                    id: m.id,
+                    name: m.fullName,
+                    email: m.email,
+                }))
+            );
+        } catch {
+            setInterviewers([]);
+        } finally {
+            setIsLoadingInterviewers(false);
+        }
     };
 
-   
+  
+    
+
+    useEffect(() => {
+        if (!showInterviewerModal) return;
+        if (scheduleStep !== 2) return;
+        if (interviewers.length > 0) return;
+         loadInterviewers();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showInterviewerModal, scheduleStep]);
+
+     console.log("interviewers", interviewers);
 
     // Helper function to format slot date
  
@@ -289,7 +236,7 @@ const HRApplicationsPage = () => {
 
 
     const handleAssignNextRound = (candidate: Candidate) => {
-        setSelectedCandidate(candidate);
+        handleSelectCandidate(candidate);
         setShowInterviewerModal(true);
     };
 
@@ -573,7 +520,14 @@ const HRApplicationsPage = () => {
                         {/* Candidates Table */}
                         <Table<Candidate>
                             columns={buildCandidateColumns(activeTab)}
-                            data={selectedJob ? paginatedCandidates.map(c => ({ ...c, aiScore: c.aiScore ?? candidateScores[c.id] })) : []}
+                            data={
+                                selectedJob
+                                    ? paginatedCandidates.map((c) => ({
+                                        ...c,
+                                        aiScore: c.aiScore ?? candidateScores[c.id] ?? 0,
+                                    }))
+                                    : []
+                            }
                             rowKey={(candidate) => candidate.id}
                             emptyMessage="No candidates in this stage"
                         />
@@ -1070,7 +1024,7 @@ const HRApplicationsPage = () => {
                                     <h4 style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600, margin: '0 0 12px', textTransform: 'uppercase' }}>Select Interview Round</h4>
                                     <p style={{ color: '#94a3b8', fontSize: 12, marginBottom: 16 }}>Choose the type of interview round for this candidate:</p>
                                     <div style={{ display: 'grid', gap: 10 }}>
-                                        {['HR Screening', 'Technical Round 1', 'Technical Round 2', 'Coding Test', 'Final Round'].map(round => (
+                                        {(selectedJob?.interviewRounds?.length ? selectedJob.interviewRounds : ['HR Screening']).map(round => (
                                             <div
                                                 key={round}
                                                 onClick={() => setSelectedRound(round)}
@@ -1134,24 +1088,24 @@ const HRApplicationsPage = () => {
                                             <p style={{ color: '#3b82f6', fontWeight: 600, fontSize: 16, margin: '4px 0 0' }}>{selectedRound}</p>
                                         </div>
                                         <button
-                                            onClick={handleAIMatchInterviewers}
-                                            disabled={isAIScoring}
+                                            onClick={loadInterviewers}
+                                            disabled={isLoadingInterviewers}
                                             style={{
                                                 padding: '10px 20px',
                                                 background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
                                                 color: '#fff',
                                                 border: 'none',
                                                 borderRadius: 8,
-                                                cursor: isAIScoring ? 'wait' : 'pointer',
+                                                cursor: isLoadingInterviewers ? 'wait' : 'pointer',
                                                 fontWeight: 600,
                                                 fontSize: 13,
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 gap: 8,
-                                                opacity: isAIScoring ? 0.7 : 1
+                                                opacity: isLoadingInterviewers ? 0.7 : 1
                                             }}
                                         >
-                                            {isAIScoring ? 'Scoring...' : 'AI Match'}
+                                            {isLoadingInterviewers ? 'Loading...' : 'Refresh'}
                                         </button>
                                     </div>
                                 </div>
@@ -1160,6 +1114,11 @@ const HRApplicationsPage = () => {
                                 <div style={{ marginBottom: 20 }}>
                                     <h4 style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600, margin: '0 0 12px', textTransform: 'uppercase' }}>Select Interviewer</h4>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 350, overflowY: 'auto' }}>
+                                        {!isLoadingInterviewers && interviewers.length === 0 && (
+                                            <div style={{ padding: 16, color: '#94a3b8', backgroundColor: '#0f172a', borderRadius: 8, border: '1px solid #334155' }}>
+                                                No interviewers found. Please add interviewers in Company → Interviewers.
+                                            </div>
+                                        )}
                                         {interviewers.map(interviewer => (
                                             <div
                                                 key={interviewer.id}
@@ -1177,21 +1136,9 @@ const HRApplicationsPage = () => {
                                             >
                                                 <div>
                                                     <span style={{ color: '#f1f5f9', fontWeight: 600, fontSize: 14 }}>{interviewer.name}</span>
-                                                    <span style={{ color: '#64748b', fontSize: 13, marginLeft: 12 }}>{interviewer.specialization}</span>
+                                                    <span style={{ color: '#64748b', fontSize: 13, marginLeft: 12 }}>{interviewer.email}</span>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                    {hasAIScoredInterviewers && interviewer.aiScore && (
-                                                        <span style={{
-                                                            padding: '4px 10px',
-                                                            borderRadius: 6,
-                                                            fontSize: 11,
-                                                            fontWeight: 600,
-                                                            background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
-                                                            color: '#fff'
-                                                        }}>
-                                                            AI {interviewer.aiScore}%
-                                                        </span>
-                                                    )}
                                                     {selectedInterviewer?.id === interviewer.id && (
                                                         <span style={{ color: '#8b5cf6', fontSize: 16, fontWeight: 700 }}>✓</span>
                                                     )}
@@ -1346,24 +1293,47 @@ const HRApplicationsPage = () => {
                                         ← Back
                                     </button>
                                     <button
-                                        onClick={() => {
+                                        onClick={async () => {
                                             if (!selectedDate || !selectedTime) {
                                                 alert('Please select a date and time');
                                                 return;
                                             }
-                                            console.log('Scheduling interview:', {
-                                                candidate: selectedCandidate?.name,
-                                                interviewer: selectedInterviewer.name,
-                                                date: selectedDate,
-                                                time: selectedTime,
-                                                round: selectedRound
-                                            });
-                                            alert(`Interview scheduled with ${selectedInterviewer.name} on ${new Date(selectedDate).toLocaleDateString()} at ${selectedTime}`);
-                                            setShowInterviewerModal(false);
-                                            setSelectedInterviewer(null);
-                                            setSelectedDate('');
-                                            setSelectedTime('');
-                                            setScheduleStep(1);
+                                            try {
+                                                if (!selectedJob) {
+                                                    alert("No job selected");
+                                                    return;
+                                                }
+
+                                                await applicationsService.scheduleInterview(
+                                                    selectedJob.id,
+                                                    selectedCandidate.applicationId,
+                                                    {
+                                                        round: selectedRound,
+                                                        interviewerUserId: selectedInterviewer.id,
+                                                        interviewerName: selectedInterviewer.name,
+                                                        interviewerEmail: selectedInterviewer.email,
+                                                        scheduledDate: selectedDate,
+                                                        scheduledTime: selectedTime,
+                                                    }
+                                                );
+
+                                                await refreshSelectedJobApplications();
+
+                                                alert(
+                                                    `Interview scheduled with ${selectedInterviewer.name} on ${new Date(
+                                                        selectedDate
+                                                    ).toLocaleDateString()} at ${selectedTime}`
+                                                );
+
+                                                setShowInterviewerModal(false);
+                                                setSelectedInterviewer(null);
+                                                setSelectedDate('');
+                                                setSelectedTime('');
+                                                setScheduleStep(1);
+                                            } catch (e) {
+                                                const msg = e instanceof Error ? e.message : "Failed to schedule interview";
+                                                alert(msg);
+                                            }
                                         }}
                                         disabled={!selectedDate || !selectedTime}
                                         style={{

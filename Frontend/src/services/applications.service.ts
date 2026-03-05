@@ -26,8 +26,22 @@ export interface ApplicationItem {
   githubUrl?: string;
   resumeUrl: string;
   coverLetter?: string;
-  status: "PENDING" | "SHORTLISTED" | "REJECTED";
+  status:
+    | "PENDING"
+    | "SHORTLISTED"
+    | "INTERVIEW_SCHEDULED"
+    | "INTERVIEW_COMPLETE"
+    | "HIRED"
+    | "REJECTED"
+    | "RESCHEDULE_REQUESTED";
   aiScore?: number;
+  interviewDetails?: {
+    round: string;
+    interviewer: string;
+    interviewerEmail?: string;
+    scheduledDate: string;
+    scheduledTime: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -89,7 +103,17 @@ export const applicationsService = {
       })
       .then((res) => toJobsResult(res.data)),
 
-  listApplications: (jobId: string, status?: "PENDING" | "SHORTLISTED" | "REJECTED") =>
+  listApplications: (
+    jobId: string,
+    status?:
+      | "PENDING"
+      | "SHORTLISTED"
+      | "INTERVIEW_SCHEDULED"
+      | "INTERVIEW_COMPLETE"
+      | "HIRED"
+      | "REJECTED"
+      | "RESCHEDULE_REQUESTED"
+  ) =>
     api
       .get<{ data: ApplicationItem[] }>(API_ROUTES.APPLICATIONS.PENDING_APPLICATIONS(jobId), {
         params: status ? { status } : undefined,
@@ -164,11 +188,43 @@ export const applicationsService = {
   updateApplicationStatus: async (
     jobId: string,
     applicationId: string,
-    payload: { status: "PENDING" | "SHORTLISTED" | "REJECTED"; rejectionEmailContent?: string }
+    payload: {
+      status:
+        | "PENDING"
+        | "SHORTLISTED"
+        | "INTERVIEW_SCHEDULED"
+        | "INTERVIEW_COMPLETE"
+        | "HIRED"
+        | "REJECTED"
+        | "RESCHEDULE_REQUESTED";
+      rejectionEmailContent?: string;
+    }
   ): Promise<void> => {
     await api.put(
       API_ROUTES.APPLICATIONS.UPDATE_STATUS(jobId, applicationId),
       payload
     );
+  },
+
+  /** Schedule an interview for a single application. */
+  scheduleInterview: async (
+    jobId: string,
+    applicationId: string,
+    payload: {
+      round: string;
+      interviewerUserId: string;
+      interviewerName: string;
+      interviewerEmail?: string;
+      scheduledDate: string;
+      scheduledTime: string;
+    }
+  ): Promise<ApplicationItem> => {
+    const res = await api.post<{ application?: ApplicationItem }>(
+      API_ROUTES.APPLICATIONS.SCHEDULE_INTERVIEW(jobId, applicationId),
+      payload
+    );
+    const app = (res.data as { application?: ApplicationItem })?.application;
+    if (!app) throw new Error("No application returned");
+    return app;
   },
 };

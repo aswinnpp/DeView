@@ -52,7 +52,14 @@ export class CandidateJobsController {
     request: FastifyRequest<{
       Querystring: {
         search?: string;
-        status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED';
+        status?:
+          | 'PENDING'
+          | 'SHORTLISTED'
+          | 'INTERVIEW_SCHEDULED'
+          | 'INTERVIEW_COMPLETE'
+          | 'HIRED'
+          | 'REJECTED'
+          | 'RESCHEDULE_REQUESTED';
         page?: number | string;
         limit?: number | string;
         sortOrder?: 'asc' | 'desc';

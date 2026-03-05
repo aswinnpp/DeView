@@ -24,6 +24,7 @@ export class ListTeamMembersUseCase implements IListTeamMembersUseCase {
         const { page: parsedPage, limit: parsedLimit } = parseSearchParams({ page, limit });
         const companyId = await this.resolveCompany.execute(userId, companyIdFromToken);
         const { data: users, total } = await this.userRepository.findByCompanyIdAndRole(companyId, role, { search, status, page: parsedPage, limit: parsedLimit });
+        console.log('users', users);
         const data: ITeamMemberResponse[] = users.map((user) => ({
             id: user.id || '',
             fullName: user.fullName,

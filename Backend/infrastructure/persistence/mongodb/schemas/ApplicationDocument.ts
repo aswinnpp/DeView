@@ -25,8 +25,22 @@ export interface IApplicationDocument {
   githubUrl?: string;
   resumeUrl: string;
   coverLetter?: string;
-  status: 'PENDING' | 'SHORTLISTED' | 'REJECTED';
+  status:
+    | 'PENDING'
+    | 'SHORTLISTED'
+    | 'INTERVIEW_SCHEDULED'
+    | 'INTERVIEW_COMPLETE'
+    | 'HIRED'
+    | 'REJECTED'
+    | 'RESCHEDULE_REQUESTED';
   aiScore?: number;
+  interviewDetails?: {
+    round: string;
+    interviewer: string;
+    interviewerEmail?: string;
+    scheduledDate: string;
+    scheduledTime: string;
+  };
   /** Optional rejection email content saved when application is rejected */
   rejectionEmailContent?: string;
   /** When the rejection email was sent */

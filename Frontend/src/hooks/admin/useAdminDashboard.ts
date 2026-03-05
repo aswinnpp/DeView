@@ -91,6 +91,7 @@ export function useAdminDashboard() {
       }
 
       const companiesCount = companies.filter(c => {
+        if (!c.createdAt) return false;
         const createdDate = new Date(c.createdAt);
         return createdDate >= periodStart && createdDate <= periodEnd && c.status === 'approved';
       }).length;

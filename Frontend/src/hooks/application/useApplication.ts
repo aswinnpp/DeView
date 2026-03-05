@@ -4,6 +4,12 @@ import { showToast } from "../../components/common/toastService";
 
 
 export type ApplicantStatus = "PENDING" | "SHORTLISTED" | "REJECTED";
+export type ExtendedApplicantStatus =
+  | ApplicantStatus
+  | "INTERVIEW_SCHEDULED"
+  | "INTERVIEW_COMPLETE"
+  | "HIRED"
+  | "RESCHEDULE_REQUESTED";
 
 export interface Job {
   id: string;
@@ -15,6 +21,7 @@ export interface Job {
   salary?: string;
   jobType?: string;
   applicantCount?: number;
+  interviewRounds?: string[];
 }
 
 export type CandidatePipelineTab = "pending" | "shortlist" | "interview" | "complete";
@@ -31,24 +38,46 @@ export interface Candidate {
   experience: string;
   education: string;
   skills: string;
-  status: ApplicantStatus;
+  status: ExtendedApplicantStatus;
   appliedDate: string;
   resume: string | null;
   coverLetter: string | null;
   title?: string;
   currentCompany?: string;
+  currentSalary?: string;
   bio?: string;
   expectedSalary?: string;
   noticePeriod?: string;
   preferredWorkMode?: string;
   preferredJobType?: string;
+  willingToRelocate?: boolean;
   skillsArray?: string[];
+  languages?: string[];
   university?: string;
   graduationYear?: string;
   linkedinUrl?: string;
   githubUrl?: string;
+  dateOfBirth?: string;
   resumeUrl?: string;
-  aiScore?: number;
+  aiScore: number;
+  currentRound?: string;
+  completedRounds?: Array<{
+    roundName: string;
+    interviewer: string;
+    date: string;
+    score: number;
+    result: "PASSED" | "FAILED";
+    feedback: string;
+  }>;
+  rescheduleRequest?: {
+    originalDate: string;
+    originalTime: string;
+    requestedDate: string;
+    requestedTime: string;
+    reason: string;
+    requestedAt: string;
+  };
+  interviewDetails?: ApplicationItem["interviewDetails"];
 }
 
 
@@ -87,7 +116,7 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     experience: apiApp.experience ?? "-",
     education: apiApp.education ?? "-",
     skills: skillsStr,
-    status: (apiApp.status ?? "PENDING") as ApplicantStatus,
+    status: (apiApp.status ?? "PENDING") as ExtendedApplicantStatus,
     appliedDate,
     resume: apiApp.resumeUrl ? "resume" : null,
     coverLetter: apiApp.coverLetter ?? null,
@@ -104,7 +133,8 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     linkedinUrl: apiApp.linkedinUrl,
     githubUrl: apiApp.githubUrl,
     resumeUrl: apiApp.resumeUrl,
-    aiScore: apiApp.aiScore,
+    aiScore: apiApp.aiScore ?? 0,
+    interviewDetails: apiApp.interviewDetails,
   };
 }
 
@@ -149,6 +179,7 @@ export function useApplication() {
             salary: j.salary,
             jobType: j.jobType,
             applicantCount: j.applicants?.length ?? 0,
+            interviewRounds: (j as unknown as { interviewRounds?: string[] })?.interviewRounds ?? [],
           }))
         );
         setJobsTotal(res.total);
@@ -174,19 +205,20 @@ export function useApplication() {
     let isCancelled = false;
     setApplicationsLoading(true);
 
-    applicationsService
-      .listApplications(selectedJob.id)
-      .then((apps) => {
+    const load = async () => {
+      try {
+        const apps = await applicationsService.listApplications(selectedJob.id);
         if (isCancelled) return;
         const candidates = apps.map((a) => mapApiApplicationToCandidate(a, selectedJob.id));
         setPendingApplications(candidates);
-      })
-      .catch(() => {
+      } catch {
         if (!isCancelled) setPendingApplications([]);
-      })
-      .finally(() => {
+      } finally {
         if (!isCancelled) setApplicationsLoading(false);
-      });
+      }
+    };
+
+    load();
 
     return () => {
       isCancelled = true;
@@ -201,9 +233,14 @@ export function useApplication() {
     const matchesTab =
       candidatePipelineTab === "pending"
         ? c.status === "PENDING"
-        : candidatePipelineTab === "shortlist" || candidatePipelineTab === "interview"
+        : candidatePipelineTab === "shortlist"
           ? c.status === "SHORTLISTED"
-          : c.status === "REJECTED";
+          : candidatePipelineTab === "interview"
+            ? (c.status === "INTERVIEW_SCHEDULED" ||
+                c.status === "RESCHEDULE_REQUESTED" ||
+                c.status === "INTERVIEW_COMPLETE" ||
+                c.status === "HIRED")
+            : c.status === "REJECTED";
     if (!matchesTab) return false;
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
@@ -269,7 +306,7 @@ export function useApplication() {
 
       setPendingApplications((prev) =>
         prev.map((c) =>
-          c.id === selectedCandidate.id ? { ...c, status: "REJECTED" as ApplicantStatus } : c
+          c.id === selectedCandidate.id ? { ...c, status: "REJECTED" as ExtendedApplicantStatus } : c
         )
       );
       showToast(`Rejection email sent to ${selectedCandidate.name}`, "success");
@@ -289,7 +326,7 @@ export function useApplication() {
 
       setPendingApplications((prev) =>
         prev.map((c) =>
-          c.id === candidate.id ? { ...c, status: "SHORTLISTED" as ApplicantStatus } : c
+          c.id === candidate.id ? { ...c, status: "SHORTLISTED" as ExtendedApplicantStatus } : c
         )
       );
     } catch {
@@ -338,12 +375,27 @@ export function useApplication() {
     const classMap: Record<string, string> = {
       PENDING: "py-1 px-3 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400",
       SHORTLISTED: "py-1 px-3 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400",
+      INTERVIEW_SCHEDULED: "py-1 px-3 rounded-full text-xs font-semibold bg-violet-500/20 text-violet-300",
+      RESCHEDULE_REQUESTED: "py-1 px-3 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300",
+      INTERVIEW_COMPLETE: "py-1 px-3 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300",
+      HIRED: "py-1 px-3 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300",
       REJECTED: "py-1 px-3 rounded-full text-xs font-semibold bg-red-500/20 text-red-400",
     };
     return {
       label,
       className: classMap[status] ?? "py-1 px-3 rounded-full text-xs font-semibold bg-slate-500/20 text-slate-400",
     };
+  }
+
+  async function refreshSelectedJobApplications() {
+    if (!selectedJob) return;
+    try {
+      const apps = await applicationsService.listApplications(selectedJob.id);
+      const candidates = apps.map((a) => mapApiApplicationToCandidate(a, selectedJob.id));
+      setPendingApplications(candidates);
+    } catch {
+      // ignore; keep last state
+    }
   }
 
 
@@ -377,6 +429,7 @@ export function useApplication() {
     handleSelectCandidate,
     handleAIScorePendingCandidates,
     getStatusBadge,
+    refreshSelectedJobApplications,
     isScoringPendingCandidates,
     scoredCandidateIds,
     candidateScores,

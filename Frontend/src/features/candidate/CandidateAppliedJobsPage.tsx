@@ -184,6 +184,53 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                 </div>
                             )}
 
+                            {/* Interview Details */}
+                            {(selectedApplication.status === "INTERVIEW_SCHEDULED" ||
+                                selectedApplication.status === "RESCHEDULE_REQUESTED" ||
+                                selectedApplication.status === "INTERVIEW_COMPLETE") &&
+                                selectedApplication.interviewDetails && (
+                                    <div className="mt-6 rounded-xl border border-violet-500/30 bg-violet-500/10 p-4">
+                                        <h4 className="mb-3 text-sm font-semibold text-violet-200">Interview Scheduled</h4>
+                                        <div className="grid gap-3 text-sm text-slate-100 sm:grid-cols-2">
+                                            <div>
+                                                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                    Round
+                                                </div>
+                                                <div className="mt-1 text-slate-100">
+                                                    {selectedApplication.interviewDetails.round}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                    Interviewer
+                                                </div>
+                                                <div className="mt-1 text-slate-100">
+                                                    {selectedApplication.interviewDetails.interviewer}
+                                                    {selectedApplication.interviewDetails.interviewerEmail
+                                                        ? ` (${selectedApplication.interviewDetails.interviewerEmail})`
+                                                        : ""}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                    Date
+                                                </div>
+                                                <div className="mt-1 text-slate-100">
+                                                    {formatDate(selectedApplication.interviewDetails.scheduledDate)}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                    Time
+                                                </div>
+                                                <div className="mt-1 text-slate-100">
+                                                    {selectedApplication.interviewDetails.scheduledTime}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                             {/* Timeline */}
                             <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
                                 <h4 className="mb-3 text-sm font-semibold text-slate-100">Application Timeline</h4>

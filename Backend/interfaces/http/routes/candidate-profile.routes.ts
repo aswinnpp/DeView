@@ -11,7 +11,8 @@ export async function candidateProfileRoutes(
     controller: CandidateProfileController
 ): Promise<void> {
     fastify.addHook("preHandler", requireAuth);
-
+    console.log("candidateJobsRoutes");
+    
     fastify.get("/profile", {
         handler: controller.getProfile,
     });
@@ -32,4 +33,4 @@ export async function candidateProfileRoutes(
     });
 
  
-}
+} 

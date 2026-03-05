@@ -6,7 +6,7 @@ export async function companyTeamRoutes(
     fastify: FastifyInstance,
     controller: CompanyTeamController
 ): Promise<void> {
-    fastify.addHook("preHandler", requireRoles('company'));
+    fastify.addHook("preHandler", requireRoles('company', 'hr'));
 
     // ── HR routes ───────────────────────────────────────────────
 

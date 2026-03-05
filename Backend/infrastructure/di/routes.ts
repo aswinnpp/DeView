@@ -9,6 +9,7 @@ import { uploadRoutes } from '../../interfaces/http/routes/upload.routes.js';
 import { companyTeamRoutes } from '../../interfaces/http/routes/company-team.routes.js';
 import { candidateProfileRoutes } from '../../interfaces/http/routes/candidate-profile.routes.js';
 import { candidateJobsRoutes } from '../../interfaces/http/routes/candidate-jobs.routes.js';
+import { candidateInterviewsRoutes } from '../../interfaces/http/routes/candidate-interviews.routes.js';
 import { subscriptionRoutes } from '../../interfaces/http/routes/admin-subscription.routes.js';
 import { companySubscriptionRoutes } from '../../interfaces/http/routes/company-subscription.routes.js';
 import { companyPaymentRoutes } from '../../interfaces/http/routes/company-payment.routes.js';
@@ -64,6 +65,7 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
         async (instance) => {
             await candidateProfileRoutes(instance, controllers.candidateProfileController);
             await candidateJobsRoutes(instance, controllers.candidateJobsController);
+            await candidateInterviewsRoutes(instance, controllers.candidateInterviewsController);
         },
         { prefix: '/candidate' }
     );

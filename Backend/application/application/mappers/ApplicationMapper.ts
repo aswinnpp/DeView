@@ -35,6 +35,7 @@ export const ApplicationMapper = {
       coverLetter: app.coverLetter,
       status: app.status,
       aiScore: app.aiScore,
+      interviewDetails: app.interviewDetails,
       createdAt: app.createdAt instanceof Date ? app.createdAt.toISOString() : String(app.createdAt),
       updatedAt: app.updatedAt instanceof Date ? app.updatedAt.toISOString() : String(app.updatedAt),
     };
@@ -46,7 +47,16 @@ export const ApplicationMapper = {
 
   toListPendingInput(
     params: { jobId: string },
-    query: { status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED' },
+    query: {
+      status?:
+        | 'PENDING'
+        | 'SHORTLISTED'
+        | 'INTERVIEW_SCHEDULED'
+        | 'INTERVIEW_COMPLETE'
+        | 'HIRED'
+        | 'REJECTED'
+        | 'RESCHEDULE_REQUESTED';
+    },
     context: CallerContext
   ): IListPendingApplicationsForJobInput {
     return {
@@ -94,7 +104,17 @@ export const ApplicationMapper = {
 
   toUpdateStatusInput(
     params: { jobId: string; applicationId: string },
-    body: { status: 'PENDING' | 'SHORTLISTED' | 'REJECTED'; rejectionEmailContent?: string },
+    body: {
+      status:
+        | 'PENDING'
+        | 'SHORTLISTED'
+        | 'INTERVIEW_SCHEDULED'
+        | 'INTERVIEW_COMPLETE'
+        | 'HIRED'
+        | 'REJECTED'
+        | 'RESCHEDULE_REQUESTED';
+      rejectionEmailContent?: string;
+    },
     context: CallerContext
   ): IUpdateApplicationStatusInputDTO {
     return {
@@ -108,7 +128,14 @@ export const ApplicationMapper = {
 
   toListMyApplicationsInput(input: {
     candidateUserId: string;
-    status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED';
+    status?:
+      | 'PENDING'
+      | 'SHORTLISTED'
+      | 'INTERVIEW_SCHEDULED'
+      | 'INTERVIEW_COMPLETE'
+      | 'HIRED'
+      | 'REJECTED'
+      | 'RESCHEDULE_REQUESTED';
     search?: string;
     page?: number | string;
     limit?: number | string;

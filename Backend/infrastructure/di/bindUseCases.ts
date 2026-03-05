@@ -56,6 +56,7 @@ import { ListMyApplicationsUseCase } from '../../application/candidate/use-cases
 import { ListPendingApplicationsForJobUseCase } from '../../application/application/use-cases/list-pending-applications-for-job.usecase.js';
 import { ScoreCandidatesUseCase } from '../../application/application/use-cases/score-candidates.usecase.js';
 import { UpdateApplicationStatusUseCase } from '../../application/application/use-cases/update-application-status.usecase.js';
+import { ListMyInterviewsUseCase } from '../../application/interview/use-cases/list-my-interviews.usecase.js';
 
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
@@ -119,6 +120,9 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ListPendingApplicationsForJobUseCasePort).to(ListPendingApplicationsForJobUseCase);
   container.bind(TYPES.ScoreCandidatesUseCasePort).to(ScoreCandidatesUseCase);
   container.bind(TYPES.UpdateApplicationStatusUseCasePort).to(UpdateApplicationStatusUseCase);
+
+  // Interview use cases
+  container.bind(TYPES.ListMyInterviewsUseCasePort).to(ListMyInterviewsUseCase);
 
   // Upload use cases
   container.bind(TYPES.GenerateUploadSignatureUseCasePort).to(GenerateUploadSignatureUseCase);

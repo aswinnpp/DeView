@@ -28,6 +28,13 @@ export interface ApplicationView {
   coverLetter?: string;
   status: string;
   aiScore?: number;
+  interviewDetails?: {
+    round: string;
+    interviewer: string;
+    interviewerEmail?: string;
+    scheduledDate: string;
+    scheduledTime: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

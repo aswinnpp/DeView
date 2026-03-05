@@ -35,6 +35,7 @@ function toDomain(doc: IApplicationDocument): Application {
     doc.coverLetter,
     doc.status,
     doc.aiScore,
+    doc.interviewDetails,
     doc.rejectionEmailContent,
     doc.rejectionSentAt,
     doc.createdAt,
@@ -95,7 +96,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
     const safePage = Math.max(1, page);
     const safeLimit = Math.max(1, Math.min(100, limit));
     const skip = (safePage - 1) * safeLimit;
-    const sort = { createdAt: sortOrder === 'asc' ? 1 : -1 };
+    const sort = { createdAt: (sortOrder === 'asc' ? 1 : -1) as 1 | -1 };
 
     if (search && search.trim()) {
       const q = search.trim();
@@ -230,10 +231,40 @@ export class MongoApplicationRepository implements IApplicationRepository {
       return null;
     }
 
-    // Then fetch the updated document in a second query so we don't depend
-    // on driver-specific return shapes for findOneAndUpdate
+  
     const doc = await this.collection.findOne({ _id, jobId });
     if (!doc) return null;
     return toDomain(doc);
+  }
+
+  async scheduleInterview(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    interviewDetails: NonNullable<IApplicationDocument['interviewDetails']>;
+  }): Promise<Application | null> {
+    const { applicationId, jobId, companyId, interviewDetails } = input;
+
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(applicationId);
+    } catch {
+      return null;
+    }
+
+    const updateResult = await this.collection.updateOne(
+      { _id, jobId, companyId },
+      {
+        $set: {
+          status: 'INTERVIEW_SCHEDULED',
+          interviewDetails,
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    if (!updateResult.matchedCount) return null;
+    const doc = await this.collection.findOne({ _id, jobId, companyId });
+    return doc ? toDomain(doc) : null;
   }
 }

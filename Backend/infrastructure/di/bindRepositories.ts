@@ -13,6 +13,7 @@ import type { IJobRepository } from '../../application/job/ports/repository/IJob
 import type { IJobApplicationRepository } from '../../application/candidate/ports/repository/IJobApplicationRepository.js';
 import type { IApplicationRepository } from '../../application/application/ports/repository/IApplicationRepository.js';
 import type { IRejectionMailRepository } from '../../application/application/ports/repository/IRejectionMailRepository.js';
+import type { IInterviewRepository } from '../../application/interview/ports/repository/IInterviewRepository.js';
 import { MongoUserRepository } from '../persistence/mongodb/repositories/MongoUserRepository.js';
 import { MongoCompanyProfileRepository } from '../persistence/mongodb/repositories/MongoCompanyProfileRepository.js';
 import { MongoCandidateProfileRepository } from '../persistence/mongodb/repositories/MongoCandidateProfileRepository.js';
@@ -32,6 +33,8 @@ import { IJobDocument } from '../persistence/mongodb/schemas/JobDocument.js';
 import { IApplicationDocument } from '../persistence/mongodb/schemas/ApplicationDocument.js';
 import { IRejectionMailDocument } from '../persistence/mongodb/schemas/RejectionMailDocument.js';
 import { MongoRejectionMailRepository } from '../persistence/mongodb/repositories/MongoRejectionMailRepository.js';
+import { IInterviewDocument } from '../persistence/mongodb/schemas/InterviewDocument.js';
+import { MongoInterviewRepository } from '../persistence/mongodb/repositories/MongoInterviewRepository.js';
 
 /**
  * Helper functions to create repository instances
@@ -65,6 +68,9 @@ const createApplicationRepository = (db: Db) =>
 
 const createRejectionMailRepository = (db: Db) =>
   new MongoRejectionMailRepository(db.collection<IRejectionMailDocument>('rejectionMails'));
+
+const createInterviewRepository = (db: Db) =>
+  new MongoInterviewRepository(db.collection<IInterviewDocument>('interviews'));
 
 const createOTPRepository = (redis: RedisClientType) => 
   new RedisOTPRepository(redis);
@@ -108,6 +114,10 @@ export function bindRepositories(container: Container): void {
 
   container.bind<IRejectionMailRepository>(TYPES.RejectionMailRepositoryPort).toDynamicValue(() =>
     createRejectionMailRepository(container.get<Db>(TYPES.Db))
+  );
+
+  container.bind<IInterviewRepository>(TYPES.InterviewRepositoryPort).toDynamicValue(() =>
+    createInterviewRepository(container.get<Db>(TYPES.Db))
   );
 
   container.bind<IOtpRepository>(TYPES.OTPRepositoryPort).toDynamicValue(() =>

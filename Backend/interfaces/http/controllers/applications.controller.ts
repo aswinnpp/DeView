@@ -8,8 +8,12 @@ import type { IScoreCandidatesUseCase } from '../../../application/application/p
 import type { IUpdateApplicationStatusUseCase } from '../../../application/application/ports/usecase/IUpdateApplicationStatusUseCase.js';
 import type { IApplicationRepository } from '../../../application/application/ports/repository/IApplicationRepository.js';
 import type { IFileStorage } from '../../../application/upload/ports/services/IFileStorage.js';
+import type { IInterviewRepository } from '../../../application/interview/ports/repository/IInterviewRepository.js';
+import type { ICompanyProfileRepository } from '../../../application/company/ports/repository/ICompanyProfileRepository.js';
+import type { IJobRepository } from '../../../application/job/ports/repository/IJobRepository.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ApplicationMapper } from '../../../application/application/mappers/ApplicationMapper.js';
+import { Interview } from '../../../domain/interview/entities/Interview.js';
 
 function toContext(user: { userId: string; companyId?: string }) {
   return { userId: user.userId, companyId: user.companyId };
@@ -26,7 +30,11 @@ export class ApplicationsController {
     @inject(TYPES.ApplicationRepositoryPort) private readonly applicationRepository: IApplicationRepository,
     @inject(TYPES.FileStoragePort) private readonly fileStorage: IFileStorage,
     @inject(TYPES.UpdateApplicationStatusUseCasePort)
-    private readonly updateApplicationStatusUseCase: IUpdateApplicationStatusUseCase
+    private readonly updateApplicationStatusUseCase: IUpdateApplicationStatusUseCase,
+    @inject(TYPES.InterviewRepositoryPort) private readonly interviewRepository: IInterviewRepository,
+    @inject(TYPES.CompanyProfileRepositoryPort)
+    private readonly companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.JobRepositoryPort) private readonly jobRepository: IJobRepository
   ) {}
 
   listJobs = async (
@@ -44,7 +52,16 @@ export class ApplicationsController {
   listPendingApplications = async (
     request: FastifyRequest<{
       Params: { jobId: string };
-      Querystring: { status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED' };
+      Querystring: {
+        status?:
+          | 'PENDING'
+          | 'SHORTLISTED'
+          | 'INTERVIEW_SCHEDULED'
+          | 'INTERVIEW_COMPLETE'
+          | 'HIRED'
+          | 'REJECTED'
+          | 'RESCHEDULE_REQUESTED';
+      };
     }>,
     reply: FastifyReply
   ) => {
@@ -100,7 +117,17 @@ export class ApplicationsController {
   updateStatus = async (
     request: FastifyRequest<{
       Params: { jobId: string; applicationId: string };
-      Body: { status: 'PENDING' | 'SHORTLISTED' | 'REJECTED'; rejectionEmailContent?: string };
+      Body: {
+        status:
+          | 'PENDING'
+          | 'SHORTLISTED'
+          | 'INTERVIEW_SCHEDULED'
+          | 'INTERVIEW_COMPLETE'
+          | 'HIRED'
+          | 'REJECTED'
+          | 'RESCHEDULE_REQUESTED';
+        rejectionEmailContent?: string;
+      };
     }>,
     reply: FastifyReply
   ) => {
@@ -113,5 +140,70 @@ export class ApplicationsController {
     const result = await this.updateApplicationStatusUseCase.execute(input);
     const application = ApplicationMapper.toView(result.application);
     reply.send(success({ application }));
+  };
+
+  scheduleInterview = async (
+    request: FastifyRequest<{
+      Params: { jobId: string; applicationId: string };
+      Body: {
+        round: string;
+        interviewerUserId: string;
+        interviewerName: string;
+        interviewerEmail?: string;
+        scheduledDate: string;
+        scheduledTime: string;
+      };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const ctx = toContext(request.currentUser);
+    const { jobId, applicationId } = request.params;
+    const body = request.body;
+
+    const companyId = ctx.companyId || '';
+
+    const updated = await this.applicationRepository.scheduleInterview({
+      applicationId,
+      jobId,
+      companyId,
+      interviewDetails: {
+        round: String(body.round ?? '').trim(),
+        interviewer: String(body.interviewerName ?? '').trim(),
+        interviewerEmail: body.interviewerEmail ? String(body.interviewerEmail).trim() : undefined,
+        scheduledDate: String(body.scheduledDate ?? '').trim(),
+        scheduledTime: String(body.scheduledTime ?? '').trim(),
+      },
+    });
+
+    if (!updated) {
+      return reply.status(404).send({ ok: false, error: 'Application not found' });
+    }
+
+    // Create an interview record in interviews collection
+    const companyProfile = companyId ? await this.companyProfileRepository.findById(companyId) : null;
+    const companyName = companyProfile?.companyName ?? '';
+    const job = await this.jobRepository.findById(jobId);
+    const jobTitle = job?.title ?? '';
+
+    await this.interviewRepository.create(
+      new Interview(
+        null,
+        companyId,
+        companyName,
+        jobId,
+        jobTitle,
+        applicationId,
+        updated.candidateUserId,
+        updated.fullName,
+        String(body.interviewerUserId ?? '').trim(),
+        String(body.interviewerName ?? '').trim(),
+        String(body.round ?? '').trim(),
+        String(body.scheduledDate ?? '').trim(),
+        String(body.scheduledTime ?? '').trim(),
+        'SCHEDULED'
+      )
+    );
+
+    reply.send(success({ application: ApplicationMapper.toView(updated) }));
   };
 }
