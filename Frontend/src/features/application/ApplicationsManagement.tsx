@@ -461,18 +461,18 @@ const HRApplicationsPage = () => {
 
         baseColumns.push({
             header: "Actions",
-            
+
             render: (candidate: Candidate) => (
-                            <Button
-                                variant="secondary"
-                                className="bg-slate-700 hover:bg-slate-600 text-xs font-semibold px-3 py-1.5 rounded-md"
-                                onClick={() => {
-                                    handleSelectCandidate(candidate as any);
-                                    setShowCandidateDetail(true);
-                                }}
-                            >
-                                View
-                            </Button>
+                <Button
+                    variant="secondary"
+                    className="bg-slate-700 hover:bg-slate-600 text-xs font-semibold px-3 py-1.5 rounded-md"
+                    onClick={() => {
+                        handleSelectCandidate(candidate);
+                        setShowCandidateDetail(true);
+                    }}
+                >
+                    View
+                </Button>
             ),
         });
 
@@ -968,7 +968,7 @@ const HRApplicationsPage = () => {
                                 <>
                                     <button
                                         onClick={() => {
-                                            handleShortlist(selectedCandidate as any);
+                                            handleShortlist(selectedCandidate);
                                             setShowCandidateDetail(false);
                                         }}
                                         style={{ flex: 1, padding: 14, backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
@@ -977,7 +977,7 @@ const HRApplicationsPage = () => {
                                     </button>
                                     <button
                                         onClick={() => {
-                                            handleReject(selectedCandidate as any);
+                                            handleReject(selectedCandidate);
                                             setShowCandidateDetail(false);
                                             setShowRejectionModal(true);
                                         }}
@@ -990,7 +990,7 @@ const HRApplicationsPage = () => {
                             {selectedCandidate.status === 'SHORTLISTED' && (
                                 <button
                                     onClick={() => {
-                                        handleScheduleInterview(selectedCandidate as any);
+                                        handleScheduleInterview(selectedCandidate);
                                         setShowCandidateDetail(false);
                                     }}
                                     style={{ flex: 1, padding: 14, backgroundColor: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
@@ -1029,7 +1029,7 @@ const HRApplicationsPage = () => {
                                     </button>
                                     <button
                                         onClick={() => {
-                                            handleScheduleInterview(selectedCandidate as any);
+                                            handleScheduleInterview(selectedCandidate);
                                             setShowCandidateDetail(false);
                                         }}
                                         style={{ flex: 1, padding: 14, backgroundColor: '#f97316', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}

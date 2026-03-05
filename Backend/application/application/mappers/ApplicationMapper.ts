@@ -1,42 +1,10 @@
-import type { Application } from '../../../domain/application/entities/Application.js';
-import type { ApplicationStatus } from '../../../domain/application/entities/Application.js';
-import type { IAuthenticatedUser } from '../middleware/authMiddleware.js';
-import type {
-  IListPendingApplicationsForJobInput,
-} from '../../../application/application/dtos/ListPendingApplicationsForJobDTO.js';
-import type { IScoreCandidatesInputDTO, IScoreCandidateInputDTO } from '../../../application/application/dtos/ScoreCandidatesDTO.js';
-import type { IUpdateApplicationStatusInputDTO } from '../../../application/application/dtos/UpdateApplicationStatusDTO.js';
-
-export interface ApplicationView {
-  id: string | null;
-  jobId: string;
-  companyId: string;
-  candidateUserId: string;
-  fullName: string;
-  email: string;
-  phone?: string;
-  location?: string;
-  title?: string;
-  currentCompany?: string;
-  experience?: string;
-  bio?: string;
-  expectedSalary?: string;
-  noticePeriod?: string;
-  preferredWorkMode?: string;
-  preferredJobType?: string;
-  skills: string[];
-  education?: string;
-  university?: string;
-  graduationYear?: string;
-  linkedinUrl?: string;
-  githubUrl?: string;
-  resumeUrl: string;
-  coverLetter?: string;
-  status: string;
-  aiScore?: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Application, ApplicationStatus } from '../../../domain/application/entities/Application.js';
+import type { ApplicationView } from '../dtos/ApplicationView.js';
+import type { IListPendingApplicationsForJobInput } from '../dtos/ListPendingApplicationsForJobDTO.js';
+import type { IScoreCandidatesInputDTO, IScoreCandidateInputDTO } from '../dtos/ScoreCandidatesDTO.js';
+import type { IUpdateApplicationStatusInputDTO } from '../dtos/UpdateApplicationStatusDTO.js';
+import type { IListMyApplicationsInput } from '../../candidate/ports/usecase/IListMyApplicationsUseCase.js';
+import type { CallerContext } from '../../shared/types/CallerContext.js';
 
 export const ApplicationMapper = {
   toView(app: Application): ApplicationView {
@@ -79,11 +47,11 @@ export const ApplicationMapper = {
   toListPendingInput(
     params: { jobId: string },
     query: { status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED' },
-    user: IAuthenticatedUser
+    context: CallerContext
   ): IListPendingApplicationsForJobInput {
     return {
       jobId: params.jobId,
-      companyId: user.companyId || '',
+      companyId: context.companyId || '',
       status: query?.status as ApplicationStatus | undefined,
     };
   },
@@ -91,7 +59,7 @@ export const ApplicationMapper = {
   toScoreCandidatesInput(
     params: { jobId: string },
     body: { candidates: unknown[] },
-    user: IAuthenticatedUser
+    context: CallerContext
   ): IScoreCandidatesInputDTO {
     const candidates = (Array.isArray(body?.candidates) ? body.candidates : []).map(
       (c): IScoreCandidateInputDTO => ({
@@ -119,7 +87,7 @@ export const ApplicationMapper = {
     );
     return {
       jobId: params.jobId,
-      companyId: user.companyId || '',
+      companyId: context.companyId || '',
       candidates,
     };
   },
@@ -127,12 +95,12 @@ export const ApplicationMapper = {
   toUpdateStatusInput(
     params: { jobId: string; applicationId: string },
     body: { status: 'PENDING' | 'SHORTLISTED' | 'REJECTED'; rejectionEmailContent?: string },
-    user: IAuthenticatedUser
+    context: CallerContext
   ): IUpdateApplicationStatusInputDTO {
     return {
       applicationId: params.applicationId,
       jobId: params.jobId,
-      companyId: user.companyId || '',
+      companyId: context.companyId || '',
       status: body.status as ApplicationStatus,
       rejectionEmailContent: body.rejectionEmailContent,
     };
@@ -145,20 +113,20 @@ export const ApplicationMapper = {
     page?: number | string;
     limit?: number | string;
     sortOrder?: 'asc' | 'desc';
-  }) {
+  }): IListMyApplicationsInput {
     const page =
       typeof input.page === 'number'
         ? input.page
         : input.page != null
-        ? Number(input.page)
-        : undefined;
+          ? Number(input.page)
+          : undefined;
 
     const limit =
       typeof input.limit === 'number'
         ? input.limit
         : input.limit != null
-        ? Number(input.limit)
-        : undefined;
+          ? Number(input.limit)
+          : undefined;
 
     return {
       candidateUserId: input.candidateUserId,

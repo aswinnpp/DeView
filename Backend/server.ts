@@ -13,11 +13,15 @@ import jwtPlugin from './infrastructure/plugins/fastifyJwt.js';
 import { createContainer, getControllers } from './infrastructure/di/container.js';
 import { registerRoutes } from './infrastructure/di/routes.js';
 import { redisClient } from './infrastructure/cache/RedisClient.js';
+import { getFileLogStream } from './infrastructure/logging/fileLogger.js';
 
-async function bootstrap() {
-  const fastify = Fastify({
-    logger: {
-      level: 'info',
+const useFileLogging =
+  env.NODE_ENV === 'production' || env.LOG_TO_FILE === 'true' || env.LOG_TO_FILE === '1';
+
+const loggerConfig = useFileLogging
+  ? { level: 'info' as const, stream: getFileLogStream() }
+  : {
+      level: 'info' as const,
       transport: {
         target: 'pino-pretty',
         options: {
@@ -26,7 +30,11 @@ async function bootstrap() {
           ignore: 'pid,hostname',
         },
       },
-    },
+    };
+
+async function bootstrap() {
+  const fastify = Fastify({
+    logger: loggerConfig,
   });
 
   await fastify.register(fastifyRawBody, {
@@ -39,10 +47,8 @@ async function bootstrap() {
   await registerHelmet(fastify);
   registerErrorHandler(fastify);
 
-  const corsOrigin =
-    env.NODE_ENV === 'production'
-      ? env.FRONTEND_URL
-      : [env.FRONTEND_URL, 'http://localhost:5174'];
+  
+  const corsOrigin = env.NODE_ENV === 'production' ? env.FRONTEND_URL : true;
 
   await fastify.register(cors, {
     origin: corsOrigin,

@@ -28,9 +28,7 @@ export class Application {
     public coverLetter?: string,
     public status: ApplicationStatus = 'PENDING',
     public aiScore?: number,
-    /** Optional rejection email content saved when application is rejected */
     public rejectionEmailContent?: string,
-    /** When the rejection email was sent */
     public rejectionSentAt?: Date,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()

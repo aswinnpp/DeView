@@ -99,7 +99,8 @@ export class MongoJobRepository
       total,
     };
   }
-
+   
+  
   protected toDomain(doc: IJobDocument): Job {
     return new Job(
       doc._id?.toString() ?? null,

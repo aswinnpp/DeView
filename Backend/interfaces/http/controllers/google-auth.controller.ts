@@ -18,10 +18,11 @@ export class GoogleAuthController {
   ) {}
 
   initiateAuth = async (
-    _request: FastifyRequest,
+    request: FastifyRequest<{ Querystring: { role?: string; mode?: string } }>,
     reply: FastifyReply
   ) => {
-    const authUrl = this.googleAuthService.getAuthUrl();
+    const { role, mode } = request.query ?? {};
+    const authUrl = this.googleAuthService.getAuthUrl(role, mode);
     reply.redirect(authUrl);
   };
 
@@ -44,8 +45,8 @@ export class GoogleAuthController {
       request.query.sessionId
     );
 
-    setAccessTokenCookie(reply, result.accessToken);
-    setRefreshTokenCookie(reply, result.refreshToken);
+    setAccessTokenCookie(request, reply, result.accessToken);
+    setRefreshTokenCookie(request, reply, result.refreshToken);
 
     reply.send(success({ user: result.user }));
   };

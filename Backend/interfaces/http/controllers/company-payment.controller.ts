@@ -11,7 +11,7 @@ import { HttpStatus } from '../../../shared/http/HttpStatus.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { env } from '../../../infrastructure/config/env.js';
 import type Stripe from 'stripe';
-import { PaymentMapper } from '../mappers/index.js';
+import { PaymentMapper } from '../../../application/company/mappers/PaymentMapper.js';
 
 type CreatePaymentIntentBody = {
   planId: string;
@@ -76,8 +76,10 @@ export class CompanyPaymentController {
 
     if (event.type === 'payment_intent.succeeded' || event.type === 'payment_intent.payment_failed') {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-
-      const input = PaymentMapper.toHandlePaymentWebhookInput(paymentIntent, event.type);
+      const input = PaymentMapper.toHandlePaymentWebhookInput(
+        { id: paymentIntent.id, metadata: paymentIntent.metadata as { planId?: string; companyId?: string } | null },
+        event.type
+      );
       await this.handlePaymentWebhookUseCase.execute(input);
     }
 

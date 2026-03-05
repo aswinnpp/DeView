@@ -89,8 +89,8 @@ export class AuthController {
     const { email, password } = request.body;
     const result = await this.loginUseCase.execute(email, password);
 
-    setAccessTokenCookie(reply, result.accessToken);
-    setRefreshTokenCookie(reply, result.refreshToken);
+    setAccessTokenCookie(request, reply, result.accessToken);
+    setRefreshTokenCookie(request, reply, result.refreshToken);
 
     reply.send(success({ user: result.user }));
   };
@@ -101,8 +101,8 @@ export class AuthController {
     const refreshToken = getCookie(request, "refreshToken");
     const result = await this.refreshTokenUseCase.execute(refreshToken);
 
-    setAccessTokenCookie(reply, result.accessToken);
-    setRefreshTokenCookie(reply, result.newRefreshToken);
+    setAccessTokenCookie(request, reply, result.accessToken);
+    setRefreshTokenCookie(request, reply, result.newRefreshToken);
 
     reply.send(success({ success: true }));
   };
@@ -113,8 +113,8 @@ export class AuthController {
 
     const result = await this.logoutUseCase.execute(refreshToken, accessToken);
 
-    clearCookie(reply, "accessToken");
-    clearCookie(reply, "refreshToken");
+    clearCookie(request, reply, "accessToken");
+    clearCookie(request, reply, "refreshToken");
 
     reply.send(success(result));
   };

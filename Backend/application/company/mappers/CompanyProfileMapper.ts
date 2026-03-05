@@ -1,9 +1,8 @@
-import type { IUpdateCompanyProfileDTO } from "../../../application/company/dtos/UpdateCompanyProfileDTO.js";
-import type { IAuthenticatedUser } from "../middleware/authMiddleware.js";
-import type { CompanyApproval } from "../../../domain/company/entities/CompanyApprovalEntitie.js";
+import type { IUpdateCompanyProfileDTO } from '../dtos/UpdateCompanyProfileDTO.js';
+import type { CompanyApproval } from '../../../domain/company/entities/CompanyApprovalEntitie.js';
+import type { CallerContext } from '../../shared/types/CallerContext.js';
 
-/** Body shape from Zod-validated request (flat fields after schema transform) */
-interface IUpdateProfileBody {
+export interface IUpdateProfileBody {
   companyName?: string;
   location?: string;
   address?: string;
@@ -16,9 +15,9 @@ interface IUpdateProfileBody {
 }
 
 export const CompanyProfileMapper = {
-  toUpdateDTO(body: IUpdateProfileBody, user: IAuthenticatedUser): IUpdateCompanyProfileDTO {
+  toUpdateDTO(body: IUpdateProfileBody, context: CallerContext): IUpdateCompanyProfileDTO {
     return {
-      userId: user.userId,
+      userId: context.userId,
       ...body,
     };
   },
@@ -34,7 +33,7 @@ export const CompanyProfileMapper = {
     });
 
     const history = [...(profile.subscriptionHistory ?? [])].sort(
-      (a, b) => new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime(),
+      (a, b) => new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime()
     );
 
     const merged = [...pending, ...history];

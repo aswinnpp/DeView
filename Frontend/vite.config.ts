@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -14,13 +13,13 @@ export default defineConfig({
     },
   },
 
-
-  server: {
-    port: 5174,
-    strictPort: true,
-    fs: {
-      // allow importing shared contracts outside Frontend/
-      allow: [path.resolve(__dirname, '..')],
-    },
-  }
+server: {
+  host: true,
+  port: 5174,
+  strictPort: true,
+  allowedHosts: true,
+  fs: {
+    allow: [path.resolve(__dirname, '..')],
+  },
+}
 })

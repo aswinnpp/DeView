@@ -5,8 +5,8 @@ import { TYPES } from '../../../infrastructure/di/types.js';
 import type { IListAllJobsForCandidatesUseCase } from '../../../application/candidate/ports/usecase/IListAllJobsForCandidatesUseCase.js';
 import type { IApplyForJobUseCase } from '../../../application/candidate/ports/usecase/IApplyForJobUseCase.js';
 import type { IListMyApplicationsUseCase } from '../../../application/candidate/ports/usecase/IListMyApplicationsUseCase.js';
-import { JobMapper } from '../mappers/index.js';
-import { ApplicationMapper } from '../mappers/index.js';
+import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
+import { ApplicationMapper } from '../../../application/application/mappers/ApplicationMapper.js';
 
 interface ApplyBody {
   useResumeFromProfile: boolean;

@@ -6,7 +6,7 @@ import { TYPES } from '../../../infrastructure/di/types.js';
 import type { ICreateTeamMemberUseCase } from '../../../application/company/ports/usecase/ICreateTeamMemberUseCase.js';
 import type { IListTeamMembersUseCase } from '../../../application/company/ports/usecase/IListTeamMembersUseCase.js';
 import type { IToggleTeamMemberStatusUseCase } from '../../../application/company/ports/usecase/IToggleTeamMemberStatusUseCase.js';
-import { CompanyTeamMapper } from '../mappers/company-team.mapper.js';
+import { CompanyTeamMapper } from '../../../application/company/mappers/CompanyTeamMapper.js';
 
 interface ICreateBody {
     fullName: string;
@@ -46,7 +46,8 @@ export class CompanyTeamController {
         request: FastifyRequest<{ Body: ICreateBody }>,
         reply: FastifyReply
     ) => {
-        const dto = CompanyTeamMapper.toCreateHRDTO(request.body, request.currentUser);
+        const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
+        const dto = CompanyTeamMapper.toCreateHRDTO(request.body, ctx);
         const result = await this.createTeamMemberUseCase.execute(dto);
         reply.code(HttpStatus.CREATED).send(success(result));
     };
@@ -80,7 +81,8 @@ export class CompanyTeamController {
         request: FastifyRequest<{ Body: ICreateBody }>,
         reply: FastifyReply
     ) => {
-        const dto = CompanyTeamMapper.toCreateInterviewerDTO(request.body, request.currentUser);
+        const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
+        const dto = CompanyTeamMapper.toCreateInterviewerDTO(request.body, ctx);
         const result = await this.createTeamMemberUseCase.execute(dto);
         reply.code(HttpStatus.CREATED).send(success(result));
     };

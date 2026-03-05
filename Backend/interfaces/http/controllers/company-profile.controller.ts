@@ -4,7 +4,7 @@ import { success } from "../../../shared/http/apiResponse";
 import { TYPES } from "../../../infrastructure/di/types";
 import type { IGetCompanyProfileUseCase } from "../../../application/company/ports/usecase/IGetCompanyProfileUseCase";
 import type { IUpdateCompanyProfileUseCase } from "../../../application/company/ports/usecase/IUpdateCompanyProfileUseCase";
-import { CompanyProfileMapper } from "../mappers/company-profile.mapper.js";
+import { CompanyProfileMapper } from "../../../application/company/mappers/CompanyProfileMapper.js";
 
 interface IUpdateProfileBody {
   companyName?: string;
@@ -48,7 +48,8 @@ export class CompanyProfileController {
     request: FastifyRequest<{ Body: IUpdateProfileBody }>,
     reply: FastifyReply,
   ) => {
-    const dto = CompanyProfileMapper.toUpdateDTO(request.body, request.currentUser);
+    const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
+    const dto = CompanyProfileMapper.toUpdateDTO(request.body, ctx);
     const result = await this.updateProfileUseCase.execute(dto);
     reply.send(success(result));
   };

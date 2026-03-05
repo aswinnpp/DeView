@@ -9,7 +9,11 @@ import type { IListJobsUseCase } from '../../../application/job/ports/usecase/IL
 import type { IToggleJobStatusUseCase } from '../../../application/job/ports/usecase/IToggleJobStatusUseCase.js';
 import type { JobFormValues } from '../../../../Shared/contracts/job/form.js';
 import type { JobStatus } from '../../../domain/job/entities/Job.js';
-import { JobMapper } from '../mappers/index.js';
+import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
+
+function toContext(user: { userId: string; companyId?: string }) {
+  return { userId: user.userId, companyId: user.companyId };
+}
 
 @injectable()
 export class jobController {
@@ -24,8 +28,8 @@ export class jobController {
     request: FastifyRequest<{ Body: JobFormValues }>,
     reply: FastifyReply
   ) => {
-    const user = request.currentUser;
-    const dto = JobMapper.toCreateDTO(request.body, user);
+    const ctx = toContext(request.currentUser);
+    const dto = JobMapper.toCreateDTO(request.body, ctx);
     const result = await this.createJobUseCase.execute(dto);
 
     reply.code(HttpStatus.CREATED).send(success(result.job));
@@ -35,8 +39,8 @@ export class jobController {
     request: FastifyRequest<{ Params: { id: string }; Body: Partial<JobFormValues> }>,
     reply: FastifyReply
   ) => {
-    const user = request.currentUser;
-    const dto = JobMapper.toUpdateDTO(request.params, request.body, user);
+    const ctx = toContext(request.currentUser);
+    const dto = JobMapper.toUpdateDTO(request.params, request.body, ctx);
     const result = await this.updateJobUseCase.execute(dto);
 
     reply.send(success(result.job));
@@ -46,8 +50,8 @@ export class jobController {
     request: FastifyRequest<{ Params: { id: string }; Body: { status: JobStatus } }>,
     reply: FastifyReply
   ) => {
-    const user = request.currentUser;
-    const input = JobMapper.toToggleStatusInput(request.params, request.body, user);
+    const ctx = toContext(request.currentUser);
+    const input = JobMapper.toToggleStatusInput(request.params, request.body, ctx);
     const result = await this.toggleJobStatusUseCase.execute(input);
 
     reply.send(success(result.job));
@@ -59,8 +63,8 @@ export class jobController {
     }>,
     reply: FastifyReply
   ) => {
-    const user = request.currentUser;
-    const input = JobMapper.toListInput(request.query, user);
+    const ctx = toContext(request.currentUser);
+    const input = JobMapper.toListInput(request.query, ctx);
     const result = await this.listJobsUseCase.execute(input);
 
 

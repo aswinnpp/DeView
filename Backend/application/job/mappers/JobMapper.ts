@@ -1,11 +1,11 @@
 import type { JobFormValues } from '../../../../Shared/contracts/job/form.js';
-import type { IAuthenticatedUser } from '../middleware/authMiddleware.js';
-import type { ICreateJobDTO } from '../../../application/job/dtos/CreateJobDTO.js';
-import type { IUpdateJobDTO } from '../../../application/job/dtos/UpdateJobDTO.js';
-import type { IListJobsInput } from '../../../application/job/ports/usecase/IListJobsUseCase.js';
+import type { ICreateJobDTO } from '../dtos/CreateJobDTO.js';
+import type { IUpdateJobDTO } from '../dtos/UpdateJobDTO.js';
+import type { IListJobsInput } from '../ports/usecase/IListJobsUseCase.js';
 import type { JobStatus } from '../../../domain/job/entities/Job.js';
+import type { CallerContext } from '../../shared/types/CallerContext.js';
 
-interface IJobListQuery {
+export interface IJobListQuery {
   search?: string;
   status?: JobStatus;
   jobType?: string;
@@ -16,32 +16,32 @@ interface IJobListQuery {
 }
 
 export const JobMapper = {
-  toCreateDTO(body: JobFormValues, user: IAuthenticatedUser): ICreateJobDTO {
+  toCreateDTO(body: JobFormValues, context: CallerContext): ICreateJobDTO {
     return {
       ...body,
-      companyId: user.companyId || '',
-      userId: user.userId,
+      companyId: context.companyId || '',
+      userId: context.userId,
     };
   },
 
   toUpdateDTO(
     params: { id: string },
     body: Partial<JobFormValues>,
-    user: IAuthenticatedUser
+    context: CallerContext
   ): IUpdateJobDTO {
     return {
       jobId: params.id,
-      companyId: user.companyId || '',
-      userId: user.userId,
+      companyId: context.companyId || '',
+      userId: context.userId,
       data: body,
     };
   },
 
-  toListInput(query: IJobListQuery | undefined, user: IAuthenticatedUser): IListJobsInput {
+  toListInput(query: IJobListQuery | undefined, context: CallerContext): IListJobsInput {
     const page = query?.page != null ? Number(query.page) : Number.NaN;
     const limit = query?.limit != null ? Number(query.limit) : Number.NaN;
     return {
-      companyId: user.companyId || '',
+      companyId: context.companyId || '',
       search: query?.search,
       status: query?.status,
       page: Number.isFinite(page) && page >= 1 ? page : undefined,
@@ -52,11 +52,11 @@ export const JobMapper = {
   toToggleStatusInput(
     params: { id: string },
     body: { status: JobStatus },
-    user: IAuthenticatedUser
+    context: CallerContext
   ) {
     return {
       jobId: params.id,
-      companyId: user.companyId || '',
+      companyId: context.companyId || '',
       status: body.status,
     };
   },
@@ -75,4 +75,3 @@ export const JobMapper = {
     };
   },
 };
-

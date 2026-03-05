@@ -6,7 +6,7 @@ import { TYPES } from "../../../infrastructure/di/types";
 import type { ICheckCompanyStatusUseCase } from "../../../application/company/ports/usecase/ICheckCompanyStatusUseCase";
 import type { ISubmitCompanyApprovalUseCase } from "../../../application/company/ports/usecase/ISubmitCompanyApprovalUseCase";
 import type { IGetMyCompanyApprovalUseCase } from "../../../application/company/ports/usecase/IGetMyCompanyApprovalUseCase";
-import { CompanyApprovalMapper } from "../mappers/company-approval.mapper.js";
+import { CompanyApprovalMapper } from "../../../application/company/mappers/CompanyApprovalMapper.js";
 
 /** Body shape from Zod-validated request */
 interface ISubmitApprovalBody {
@@ -29,7 +29,8 @@ export class CompanyApprovalController {
   ) {}
 
   checkStatus = async (request: FastifyRequest, reply: FastifyReply) => {
-    const dto = CompanyApprovalMapper.toCheckStatusDTO(request.currentUser);
+    const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
+    const dto = CompanyApprovalMapper.toCheckStatusDTO(ctx);
     const result = await this.checkStatusUseCase.execute(dto);
     reply.send(success(result));
   };
@@ -46,7 +47,8 @@ export class CompanyApprovalController {
     request: FastifyRequest<{ Body: ISubmitApprovalBody }>,
     reply: FastifyReply,
   ) => {
-    const dto = CompanyApprovalMapper.toSubmitDTO(request.body, request.currentUser);
+    const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
+    const dto = CompanyApprovalMapper.toSubmitDTO(request.body, ctx);
     const result = await this.submitApprovalUseCase.execute(dto);
     reply.code(HttpStatus.CREATED).send(success({
       message: "Approval submitted",

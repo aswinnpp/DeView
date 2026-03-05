@@ -8,8 +8,12 @@ import type { IScoreCandidatesUseCase } from '../../../application/application/p
 import type { IUpdateApplicationStatusUseCase } from '../../../application/application/ports/usecase/IUpdateApplicationStatusUseCase.js';
 import type { IApplicationRepository } from '../../../application/application/ports/repository/IApplicationRepository.js';
 import type { IFileStorage } from '../../../application/upload/ports/services/IFileStorage.js';
-import { JobMapper } from '../mappers/index.js';
-import { ApplicationMapper } from '../mappers/index.js';
+import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
+import { ApplicationMapper } from '../../../application/application/mappers/ApplicationMapper.js';
+
+function toContext(user: { userId: string; companyId?: string }) {
+  return { userId: user.userId, companyId: user.companyId };
+}
 
 @injectable()
 export class ApplicationsController {
@@ -31,8 +35,8 @@ export class ApplicationsController {
     }>,
     reply: FastifyReply
   ) => {
-    const user = request.currentUser;
-    const input = JobMapper.toListInput(request.query, user);
+    const ctx = toContext(request.currentUser);
+    const input = JobMapper.toListInput(request.query, ctx);
     const result = await this.listJobsUseCase.execute(input);
     reply.send(success(result));
   };
@@ -44,10 +48,11 @@ export class ApplicationsController {
     }>,
     reply: FastifyReply
   ) => {
+    const ctx = toContext(request.currentUser);
     const input = ApplicationMapper.toListPendingInput(
       request.params,
       request.query,
-      request.currentUser
+      ctx
     );
     const result = await this.listPendingApplicationsUseCase.execute(input);
     const data = ApplicationMapper.toListView(result.data);
@@ -82,11 +87,11 @@ export class ApplicationsController {
     }>,
     reply: FastifyReply
   ) => {
-   
+    const ctx = toContext(request.currentUser);
     const input = ApplicationMapper.toScoreCandidatesInput(
       request.params,
       request.body as { candidates: unknown[] },
-      request.currentUser
+      ctx
     );
     const result = await this.scoreCandidatesUseCase.execute(input);
     reply.send(success(result));
@@ -99,10 +104,11 @@ export class ApplicationsController {
     }>,
     reply: FastifyReply
   ) => {
+    const ctx = toContext(request.currentUser);
     const input = ApplicationMapper.toUpdateStatusInput(
       request.params,
       request.body,
-      request.currentUser
+      ctx
     );
     const result = await this.updateApplicationStatusUseCase.execute(input);
     const application = ApplicationMapper.toView(result.application);

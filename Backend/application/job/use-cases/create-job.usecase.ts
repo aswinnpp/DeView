@@ -8,6 +8,7 @@ import type { ISubscriptionRepository } from '../../admin/ports/repository/ISubs
 import { Job } from '../../../domain/job/entities/Job.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
+
 @injectable()
 export class CreateJobUseCase implements ICreateJobUseCase {
   constructor(
@@ -36,8 +37,12 @@ export class CreateJobUseCase implements ICreateJobUseCase {
       throw AppError.forbidden('Your subscription has expired or is missing. Please upgrade your plan to post jobs.');
     }
 
+
+
     // Load full plan details to inspect job posting limits
     const plan = await this.subscriptionRepo.findById(activeSub.planId);
+
+   
 
     if (!plan) {
       throw AppError.forbidden('Unable to resolve your subscription plan. Please contact support or upgrade your plan.');

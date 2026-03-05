@@ -8,7 +8,7 @@ import type { IGetCandidateProfileUseCase } from "../../../application/candidate
 import type { IUpdateCandidateProfileUseCase } from "../../../application/candidate/ports/usecase/IUpdateCandidateProfileUseCase";
 import type { IGetAllCandidatesUseCase } from "../../../application/candidate/ports/usecase/IGetAllCandidatesUseCase";
 import type { IToggleCandidateStatusUseCase } from "../../../application/candidate/ports/usecase/IToggleCandidateStatusUseCase";
-import { CandidateProfileMapper } from "../mappers/candidate-profile.mapper.js";
+import { CandidateProfileMapper } from "../../../application/candidate/mappers/CandidateProfileMapper.js";
 
 /** Body shape from Zod-validated request */
 interface IProfileBody {
@@ -57,7 +57,8 @@ export class CandidateProfileController {
         request: FastifyRequest<{ Body: IProfileBody }>,
         reply: FastifyReply
     ) => {
-        const dto = CandidateProfileMapper.toCreateDTO(request.body, request.currentUser);
+        const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
+        const dto = CandidateProfileMapper.toCreateDTO(request.body, ctx);
         const result = await this.createProfileUseCase.execute(dto);
         reply.code(HttpStatus.CREATED).send(success(result));
     };
@@ -66,7 +67,8 @@ export class CandidateProfileController {
         request: FastifyRequest<{ Body: Partial<IProfileBody> }>,
         reply: FastifyReply
     ) => {
-        const dto = CandidateProfileMapper.toUpdateDTO(request.body, request.currentUser);
+        const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
+        const dto = CandidateProfileMapper.toUpdateDTO(request.body, ctx);
         const result = await this.updateProfileUseCase.execute(dto);
         reply.send(success(result));
     };

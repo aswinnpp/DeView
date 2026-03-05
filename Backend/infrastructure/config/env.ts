@@ -30,6 +30,10 @@ export interface IEnvConfig {
     STRIPE_WEBHOOK_SECRET?: string;
     STRIPE_CURRENCY?: string;
     GOOGLE_AI_API_KEY?: string;
+    /** Enable file logging with rotation (e.g. 'true' in production). When false, logs go to stdout only. */
+    LOG_TO_FILE?: string;
+    /** How many days of rotated log files to keep (retention period). Default 30. */
+    LOG_RETENTION_DAYS?: string;
 }
 function validateEnv(): IEnvConfig {
     const requiredVars = ['PORT', 'MONGO_URI', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
@@ -63,6 +67,8 @@ function validateEnv(): IEnvConfig {
         STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
         STRIPE_CURRENCY: process.env.STRIPE_CURRENCY || 'inr',
         GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
+        LOG_TO_FILE: process.env.LOG_TO_FILE,
+        LOG_RETENTION_DAYS: process.env.LOG_RETENTION_DAYS,
     };
 }
 export const env = validateEnv();
