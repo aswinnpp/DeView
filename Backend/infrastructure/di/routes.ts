@@ -17,6 +17,7 @@ import { stripeWebhookRoutes } from '../../interfaces/http/routes/stripe-webhook
 import { jobRoutes } from '../../interfaces/http/routes/jobs.routes.js';
 import { applicationsRoutes } from '../../interfaces/http/routes/applications.routes.js';
 import { interviewRoomRoutes } from '../../interfaces/http/routes/interview-room.routes.js';
+import { interviewerAssignmentsRoutes } from '../../interfaces/http/routes/interviewer-assignments.routes.js';
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     await fastify.register(
@@ -69,6 +70,14 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
             await candidateInterviewsRoutes(instance, controllers.candidateInterviewsController);
         },
         { prefix: '/candidate' }
+    );
+
+    // Interviewer routes (assignments)
+    await fastify.register(
+        async (instance) => {
+            await interviewerAssignmentsRoutes(instance, controllers.interviewerAssignmentsController);
+        },
+        { prefix: '/interviewer' }
     );
 
 

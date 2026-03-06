@@ -58,7 +58,7 @@ interface Candidate {
     appliedDate: string;
     resume: string | null;
     coverLetter: string | null;
-    aiScore: number;
+    aiScore?: number;
     currentRound?: string;
     completedRounds?: CompletedRound[];
     interviewDetails?: {
@@ -524,7 +524,7 @@ const HRApplicationsPage = () => {
                                 selectedJob
                                     ? paginatedCandidates.map((c) => ({
                                         ...c,
-                                        aiScore: c.aiScore ?? candidateScores[c.id] ?? 0,
+                                        aiScore: c.aiScore ?? candidateScores[c.id],
                                     }))
                                     : []
                             }
@@ -820,7 +820,7 @@ const HRApplicationsPage = () => {
                                 </div>
                                 <div>
                                     <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>AI Score</span>
-                                    <p style={{ color: selectedCandidate.aiScore >= 80 ? '#10b981' : selectedCandidate.aiScore >= 60 ? '#f59e0b' : '#ef4444', margin: '4px 0 0', fontSize: 14, fontWeight: 600 }}>{selectedCandidate.aiScore}%</p>
+                                    <p style={{ color: selectedCandidate.aiScore == null ? '#64748b' : selectedCandidate.aiScore >= 80 ? '#10b981' : selectedCandidate.aiScore >= 60 ? '#f59e0b' : '#ef4444', margin: '4px 0 0', fontSize: 14, fontWeight: 600 }}>{selectedCandidate.aiScore == null ? '--' : `${selectedCandidate.aiScore}%`}</p>
                                 </div>
                             </div>
                         </div>
@@ -1411,7 +1411,7 @@ const HRApplicationsPage = () => {
                                 </div>
                                 <div>
                                     <span style={{ color: '#64748b', fontSize: 12 }}>AI Score</span>
-                                    <p style={{ color: selectedCandidate.aiScore >= 80 ? '#10b981' : '#f59e0b', margin: '4px 0 0', fontSize: 14, fontWeight: 600 }}>{selectedCandidate.aiScore}%</p>
+                                    <p style={{ color: selectedCandidate.aiScore == null ? '#64748b' : selectedCandidate.aiScore >= 80 ? '#10b981' : '#f59e0b', margin: '4px 0 0', fontSize: 14, fontWeight: 600 }}>{selectedCandidate.aiScore == null ? '--' : `${selectedCandidate.aiScore}%`}</p>
                                 </div>
                             </div>
                         </div>

@@ -203,7 +203,9 @@ export class ApplicationsController {
         String(body.round ?? '').trim(),
         String(body.scheduledDate ?? '').trim(),
         String(body.scheduledTime ?? '').trim(),
-        'SCHEDULED'
+        'SCHEDULED',
+        false, // interviewerAccepted - interviewer must accept before candidate sees it
+        undefined
       )
     );
 

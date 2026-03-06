@@ -17,6 +17,8 @@ export class Interview {
     public scheduledDate: string, // YYYY-MM-DD
     public scheduledTime: string, // HH:mm
     public status: InterviewStatus = 'SCHEDULED',
+    public interviewerAccepted: boolean = false,
+    public interviewerRejectReason?: string,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) {}

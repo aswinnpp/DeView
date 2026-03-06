@@ -16,6 +16,8 @@ export interface IInterviewDocument {
   scheduledDate: string;
   scheduledTime: string;
   status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
+  interviewerAccepted?: boolean;
+  interviewerRejectReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }

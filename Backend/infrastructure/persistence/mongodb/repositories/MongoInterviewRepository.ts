@@ -20,12 +20,41 @@ export class MongoInterviewRepository
   }
 
   async listByCandidateUserId(candidateUserId: string): Promise<Interview[]> {
-    const filter: Filter<IInterviewDocument> = { candidateUserId };
+    const filter: Filter<IInterviewDocument> = { candidateUserId, interviewerAccepted: true };
     const docs = await this.collection
       .find(filter)
       .sort({ createdAt: -1 })
       .toArray();
     return docs.map((d) => this.toDomain(d));
+  }
+
+  async listByInterviewerUserId(interviewerUserId: string): Promise<Interview[]> {
+    const filter: Filter<IInterviewDocument> = { interviewerUserId };
+    const docs = await this.collection
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .toArray();
+    return docs.map((d) => this.toDomain(d));
+  }
+
+  async setInterviewerAccepted(id: string, accepted: boolean, rejectReason?: string): Promise<Interview | null> {
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(id);
+    } catch {
+      return null;
+    }
+    const update: Partial<IInterviewDocument> = {
+      interviewerAccepted: accepted,
+      interviewerRejectReason: rejectReason,
+      updatedAt: new Date(),
+    };
+    const result = await this.collection.findOneAndUpdate(
+      { _id },
+      { $set: update },
+      { returnDocument: 'after' }
+    );
+    return result ? this.toDomain(result) : null;
   }
 
   async listByCompanyId(companyId: string): Promise<Interview[]> {
@@ -66,6 +95,8 @@ export class MongoInterviewRepository
       doc.scheduledDate,
       doc.scheduledTime,
       doc.status,
+      doc.interviewerAccepted ?? false,
+      doc.interviewerRejectReason,
       doc.createdAt,
       doc.updatedAt
     );
@@ -88,6 +119,8 @@ export class MongoInterviewRepository
       scheduledDate: entity.scheduledDate,
       scheduledTime: entity.scheduledTime,
       status: entity.status,
+      interviewerAccepted: entity.interviewerAccepted,
+      interviewerRejectReason: entity.interviewerRejectReason,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

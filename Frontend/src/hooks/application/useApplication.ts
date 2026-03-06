@@ -59,7 +59,7 @@ export interface Candidate {
   githubUrl?: string;
   dateOfBirth?: string;
   resumeUrl?: string;
-  aiScore: number;
+  aiScore?: number;
   currentRound?: string;
   completedRounds?: Array<{
     roundName: string;
@@ -133,7 +133,7 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     linkedinUrl: apiApp.linkedinUrl,
     githubUrl: apiApp.githubUrl,
     resumeUrl: apiApp.resumeUrl,
-    aiScore: apiApp.aiScore ?? 0,
+    aiScore: apiApp.aiScore,
     interviewDetails: apiApp.interviewDetails,
   };
 }

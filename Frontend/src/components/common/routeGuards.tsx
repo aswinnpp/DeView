@@ -70,7 +70,8 @@ export function PublicRoute() {
   const user = useSelector((state: RootState) => state.auth.user);
 
   if (user) {
-    switch (user.role) {
+    const role = (user.role || "").toLowerCase();
+    switch (role) {
       case "admin":
         return <Navigate to={APP_ROUTES.ADMIN_DASHBOARD} replace />;
 
@@ -79,6 +80,9 @@ export function PublicRoute() {
 
       case "hr":
         return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
+
+      case "interviewer":
+        return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
 
       case "candidate":
       default:

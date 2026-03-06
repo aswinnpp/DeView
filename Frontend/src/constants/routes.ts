@@ -62,6 +62,11 @@ export const API_ROUTES = {
     INTERVIEWS: {
         ROOM: (interviewId: string) => `/interviews/${interviewId}/room`,
     },
+    INTERVIEWER: {
+        ASSIGNMENTS: '/interviewer/assignments',
+        ACCEPT: (interviewId: string) => `/interviewer/assignments/${interviewId}/accept`,
+        REJECT: (interviewId: string) => `/interviewer/assignments/${interviewId}/reject`,
+    },
     CANDIDATE: {
         PROFILE: '/candidate/profile',
         GETALL: '/candidate/list',
@@ -90,5 +95,6 @@ export const APP_ROUTES = {
     CANDIDATE_PROFILE: '/candidate/profile',
     HR_DASHBOARD: '/hr/dashboard',
     ADMIN_DASHBOARD: '/admin',
+    INTERVIEWER_ASSIGNMENTS: '/interviewer/assignments',
 } as const;
 

@@ -75,16 +75,18 @@ export function useGoogleAuth() {
       };
 
       dispatch(setUser(user));
-      const { role } = user;
+      const role = (user.role ?? "").toLowerCase();
 
-      if (role === 'candidate') {
+      if (role === "candidate") {
         navigate(APP_ROUTES.CANDIDATE_PROFILE);
-      } else if (role === 'company') {
+      } else if (role === "company") {
         await navigateCompanyUser();
-      } else if (role === 'hr') {
+      } else if (role === "hr") {
         navigate(APP_ROUTES.HR_DASHBOARD);
-      } else if (role === 'admin') {
+      } else if (role === "admin") {
         navigate(APP_ROUTES.ADMIN_DASHBOARD);
+      } else if (role === "interviewer") {
+        navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS);
       } else {
         navigate(APP_ROUTES.ROOT);
       }

@@ -14,8 +14,6 @@ import { createContainer, getControllers } from './infrastructure/di/container.j
 import { registerRoutes } from './infrastructure/di/routes.js';
 import { redisClient } from './infrastructure/cache/RedisClient.js';
 import { getFileLogStream } from './infrastructure/logging/fileLogger.js';
-import { TYPES } from './shared/di/types.js';
-import type { IInterviewRepository } from './application/interview/ports/repository/IInterviewRepository.js';
 import { createInterviewSocketServer } from './infrastructure/socket/interviewSocket.js';
 
 const useFileLogging = env.LOG_TO_FILE === 'true' ;
@@ -51,9 +49,12 @@ async function bootstrap() {
 
   
   const corsOrigin = env.NODE_ENV === 'production' ? env.FRONTEND_URL : true;
-
   await fastify.register(cors, {
-    origin: corsOrigin,
+    origin: [
+      'http://localhost:5174',
+      'https://elizebeth-ungreeted-noncapitalistically.ngrok-free.dev',
+      env.FRONTEND_URL
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -81,8 +82,7 @@ async function bootstrap() {
   const controllers = getControllers(ioc);
   await registerRoutes(fastify, controllers);
 
-  const interviewRepository = ioc.get<IInterviewRepository>(TYPES.InterviewRepositoryPort);
-  createInterviewSocketServer(fastify, interviewRepository, corsOrigin);
+  createInterviewSocketServer(fastify, env.FRONTEND_URL);
 
   const gracefulShutdown = async () => {
     await redisClient.disconnect();

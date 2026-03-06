@@ -40,7 +40,12 @@ const AdminSubscriptionsPage = lazy(() => import("../features/admin/AdminSubscri
 const HRLayout = lazy(() => import("../features/hr/HRLayout"));
 const HRDashboard = lazy(() => import("../features/hr/HRDashboard"));
 const ApplicationsManagementPage = lazy(() => import("../features/application/ApplicationsManagement"));
-const InterviewRoomPage = lazy(() => import("../features/interview/InterviewRoomPage"));
+const InterviewRoomPage = lazy(() => import("../features/interviewRoom/InterviewRoomPage"));
+
+const InterviewerLayout = lazy(() => import("../features/interviewer/InterviewerLayout"));
+const InterviewerDashboard = lazy(() => import("../features/interviewer/InterviewerDashboard"));
+const InterviewerAssignments = lazy(() => import("../features/interviewer/InterviewerAssignments"));
+const InterviewerManageInterviews = lazy(() => import("../features/interviewer/InterviewerManageInterviews"));
 
 const LoadingFallback = () => (
   <div className="p-5 text-center">
@@ -110,6 +115,14 @@ const AppRouter = () => {
             <Route path="dashboard" element={<HRDashboard />} />
             <Route path="jobs" element={<JobsPage />} />
             <Route path="applications" element={<ApplicationsManagementPage />} />
+          </Route>
+
+          {/* Interviewer routes */}
+          <Route path="/interviewer" element={<InterviewerLayout />}>
+            <Route index element={<Navigate to="/interviewer/dashboard" replace />} />
+            <Route path="dashboard" element={<InterviewerDashboard />} />
+            <Route path="assignments" element={<InterviewerAssignments />} />
+            <Route path="manage" element={<InterviewerManageInterviews />} />
           </Route>
 
           {/* Shared interview room route for authorized participants */}

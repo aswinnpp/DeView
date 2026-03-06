@@ -41,8 +41,7 @@ const CandidateInterviews = () => {
     return () => clearInterval(timer);
   }, []);
 
-  console.log("interviews", interviews);
-
+  
   const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString("en-US", {
       weekday: "short",
