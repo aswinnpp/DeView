@@ -247,18 +247,26 @@ const CandidateInterviews = () => {
 
                       <div className="mt-4 space-y-2 text-xs md:text-sm text-slate-100">
                         <div className="inline-flex items-center gap-2 rounded-full bg-slate-900/70 px-3 py-1.5">
-                          <span className="text-sm">📅</span>
                           <span className="font-medium">
                             {formatDate(interview.scheduledDate)}
                           </span>
                         </div>
                         <div className="inline-flex items-center gap-2 rounded-full bg-slate-900/70 px-3 py-1.5">
-                          <span className="text-sm">⏰</span>
                           <span className="font-medium">
                             {formatTime(interview.scheduledTime)}
                           </span>
                         </div>
                       </div>
+                    </div>
+
+                    <div className="rounded-xl bg-slate-900/70 px-4 py-2.5 text-xs md:text-sm text-slate-200">
+                      <span className="text-slate-400">Starts in:</span>{" "}
+                      <span className="font-semibold text-emerald-300">
+                        {formatCountdown(interview.scheduledDate, interview.scheduledTime)}
+                      </span>
+                  </div>
+
+                  <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     </div>
 
                     <button
@@ -268,15 +276,6 @@ const CandidateInterviews = () => {
                     >
                       Reschedule
                     </button>
-                  </div>
-
-                  <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="rounded-xl bg-slate-900/70 px-4 py-2.5 text-xs md:text-sm text-slate-200">
-                      <span className="text-slate-400">Starts in:</span>{" "}
-                      <span className="font-semibold text-emerald-300">
-                        {formatCountdown(interview.scheduledDate, interview.scheduledTime)}
-                      </span>
-                    </div>
 
                     <button
                       type="button"

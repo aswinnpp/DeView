@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { interviewsService, type InterviewRoomDetails } from "../../services/interviews.service";
 import { selectUser } from "../../context/authSlice";
 import { APP_ROUTES } from "../../constants/routes";
-import { useInterviewRoom } from "./useInterviewRoom";
+import { useInterviewRoom } from "../../hooks/useInterviewRoom";
 
 const InterviewRoom = () => {
   const { interviewId } = useParams<{ interviewId: string }>();
@@ -25,9 +25,15 @@ const InterviewRoom = () => {
     isAudioEnabled,
     isVideoEnabled,
     isSpeakerEnabled,
+    isScreenSharing,
+    isRemoteVideoActive,
+    messages,
     toggleAudio,
     toggleVideo,
     toggleSpeaker,
+    sendMessage,
+    startScreenShare,
+    stopScreenShare,
     leaveRoom,
   } = useInterviewRoom(roomId, displayName);
 
@@ -41,6 +47,9 @@ function solution() {
   );
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState("");
+  const [isLocalPrimary, setIsLocalPrimary] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(true);
+  const [chatMessage, setChatMessage] = useState("");
 
   useEffect(() => {
     if (!interviewId) {
@@ -96,6 +105,25 @@ function solution() {
     }, 500);
   };
 
+  const handleTogglePrimary = () => {
+    if (typeof window === "undefined") return;
+    if (window.innerWidth < 768) return;
+    setIsLocalPrimary((prev) => !prev);
+  };
+
+  const handleLeave = () => {
+    leaveRoom();
+    const role = user?.role?.toLowerCase();
+
+    if (role === "candidate") {
+      navigate(APP_ROUTES.CANDIDATE_INTERVIEWS);
+    } else if (role === "interviewer") {
+      navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS);
+    } else {
+      navigate(APP_ROUTES.ROOT);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
@@ -119,10 +147,7 @@ function solution() {
           </p>
           <button
             type="button"
-            onClick={() => {
-              leaveRoom();
-              navigate(APP_ROUTES.CANDIDATE_INTERVIEWS);
-            }}
+            onClick={handleLeave}
             className="inline-flex items-center justify-center rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-violet-500/40 transition hover:bg-violet-500"
           >
             Back to my interviews
@@ -133,10 +158,12 @@ function solution() {
   }
 
   return (
-    <div className="min-h-screen w-screen bg-gradient-to-br from-[#050816] via-[#020617] to-[#020617] text-slate-100">
-      {isEditorMaximized && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/80 px-3 py-4">
-          <div className="flex h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-950 shadow-2xl shadow-black/60">
+
+    <>
+
+{isEditorMaximized && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/80">
+          <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-950 shadow-2xl shadow-black/60">
             <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
               <div>
                 <h3 className="text-sm font-semibold text-white">Code Editor</h3>
@@ -184,13 +211,8 @@ function solution() {
         </div>
       )}
 
-      <div className="flex min-h-screen items-center justify-center px-2 py-4 sm:px-4">
-        <div className="flex h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-950/95 via-slate-950 to-slate-950/95 shadow-[0_22px_80px_rgba(15,23,42,0.95)]">
-          <header className="flex items-center justify-between border-b border-slate-800/80 bg-slate-950/90 px-4 py-3">
+<div className="flex h-screen w-full flex-col overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-950/95 via-slate-950 to-slate-950/95 shadow-[0_22px_80px_rgba(15,23,42,0.95)]">        <header className="flex items-center justify-between border-b border-slate-800/80 bg-slate-950/90 px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/10 text-lg">
-                <span className="text-violet-400">📹</span>
-              </div>
               <div>
                 <h1 className="text-sm font-semibold text-white md:text-base">
                   {details.jobTitle} • {details.companyName}
@@ -207,10 +229,7 @@ function solution() {
               </span>
               <button
                 type="button"
-                onClick={() => {
-                  leaveRoom();
-                  navigate(APP_ROUTES.CANDIDATE_INTERVIEWS);
-                }}
+                onClick={handleLeave}
                 className="inline-flex items-center gap-1 rounded-full bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-rose-500/40 transition hover:bg-rose-500"
               >
                 <span>Leave</span>
@@ -219,40 +238,65 @@ function solution() {
           </header>
 
           <div className="flex flex-1 flex-col border-t border-slate-900/60 md:flex-row">
-            <div className="flex flex-1 flex-col border-b border-slate-900/60 md:border-b-0 md:border-r">
-              <div className="flex flex-1 flex-col bg-slate-950/50 p-3 md:p-4">
-                <div className="flex h-full w-full flex-col gap-3 md:flex-row">
-                  <div className="flex-1 rounded-2xl border border-slate-800 bg-black">
-                    <div className="relative h-full w-full overflow-hidden rounded-2xl">
-                      <video
-                        ref={remoteVideoRef}
-                        autoPlay
-                        playsInline
-                        className="h-full w-full object-cover"
-                      />
-                      <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-slate-100">
-                        Interviewer
-                      </div>
-                    </div>
+            <div
+              className={`flex-1 flex-col border-b border-slate-900/60 md:border-b-0 md:border-r ${
+                !isChatOpen ? "hidden md:flex" : "flex"
+              }`}
+            >
+              <div className="relative flex flex-1 flex-col bg-slate-950/50 p-3 md:p-4">
+                <div
+                  className="relative h-full w-full overflow-hidden rounded-2xl border border-slate-800 bg-black"
+                  onClick={handleTogglePrimary}
+                >
+                  {/* Remote video */}
+                  <video
+                    ref={remoteVideoRef}
+                    autoPlay
+                    playsInline
+                    className={`absolute inset-0 h-full w-full object-cover transition-all duration-200 ${
+                      !isRemoteVideoActive ? "opacity-0" : ""
+                    } ${
+                      isLocalPrimary
+                        ? "bottom-3 right-3 h-24 w-32 rounded-xl border border-slate-800 bg-black/90 p-0.5 shadow-lg shadow-black/70 sm:h-32 sm:w-40 sm:inset-auto"
+                        : "rounded-2xl"
+                    }`}
+                  />
+                  <div
+                    className={`pointer-events-none absolute text-xs font-medium text-slate-100 transition-all duration-200 ${
+                      isLocalPrimary
+                        ? "left-3 top-3 rounded-full bg-black/60 px-3 py-1"
+                        : "left-3 top-3 rounded-full bg-black/60 px-3 py-1"
+                    }`}
+                  >
+                    Interviewer
                   </div>
 
-                  <div className="flex-1 rounded-2xl border border-slate-800 bg-black">
-                    <div className="relative h-full w-full overflow-hidden rounded-2xl">
-                      <video
-                        ref={localVideoRef}
-                        autoPlay
-                        muted
-                        playsInline
-                        className="h-full w-full object-cover"
-                      />
-                      <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-slate-100">
-                        You ({displayName})
-                      </div>
-                    </div>
+                  {/* Local video */}
+                  <video
+                    ref={localVideoRef}
+                    autoPlay
+                    muted
+                    playsInline
+                    className={`absolute inset-0 h-full w-full object-cover transition-all duration-200 ${
+                      !isVideoEnabled && !isScreenSharing ? "opacity-0" : ""
+                    } ${
+                      isLocalPrimary
+                        ? "rounded-2xl"
+                        : "bottom-3 right-3 h-24 w-32 rounded-xl border border-slate-800 bg-black/90 p-0.5 shadow-lg shadow-black/70 sm:h-32 sm:w-40 sm:inset-auto"
+                    }`}
+                  />
+                  <div
+                    className={`pointer-events-none absolute text-[10px] font-medium text-slate-100 transition-all duration-200 ${
+                      isLocalPrimary
+                        ? "left-3 top-3 rounded-full bg-black/60 px-3 py-1"
+                        : "left-2 top-2 rounded-full bg-black/60 px-2 py-0.5"
+                    }`}
+                  >
+                    You ({displayName})
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-center justify-center gap-3">
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
                   <button
                     type="button"
                     onClick={toggleAudio}
@@ -320,66 +364,194 @@ function solution() {
                     </span>
                     <span>{isSpeakerEnabled ? "Speaker off" : "Speaker on"}</span>
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsChatOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-100 shadow-sm transition hover:bg-slate-700"
+                  >
+                    <span className="inline-flex h-4 w-4 items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="h-4 w-4"
+                      >
+                        <path d="M3.5 4.75A1.75 1.75 0 0 1 5.25 3h9.5A1.75 1.75 0 0 1 16.5 4.75v5.5A1.75 1.75 0 0 1 14.75 12H11l-2.7 2.7A.75.75 0 0 1 7 14.75V12H5.25A1.75 1.75 0 0 1 3.5 10.25v-5.5Z" />
+                      </svg>
+                    </span>
+                    <span>Messages</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsChatOpen(false)}
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-100 shadow-sm transition hover:bg-slate-700"
+                  >
+                    <span className="inline-flex h-4 w-4 items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="h-4 w-4"
+                      >
+                        <path d="M4.75 5.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H6.56l-.53 3.182a.75.75 0 0 1-.74.618H4.25a.75.75 0 0 1 0-1.5h.61l.39-2.343V5.5Zm5.5 0a.75.75 0 0 1 .75-.75h4a.75.75 0 0 1 0 1.5h-3.25v2h2.25a.75.75 0 0 1 0 1.5h-2.25v2.25a.75.75 0 0 1-1.5 0v-6.5Z" />
+                      </svg>
+                    </span>
+                    <span>Code editor</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => (isScreenSharing ? stopScreenShare() : startScreenShare())}
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-100 shadow-sm transition hover:bg-slate-700"
+                  >
+                    <span className="inline-flex h-4 w-4 items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="h-4 w-4"
+                      >
+                        <path d="M3.25 4A1.25 1.25 0 0 1 4.5 2.75h11A1.25 1.25 0 0 1 16.75 4v8A1.25 1.25 0 0 1 15.5 13.25h-11A1.25 1.25 0 0 1 3.25 12V4Z" />
+                        <path d="M6 15.25a.75.75 0 0 1 .75-.75h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 6 15.25Z" />
+                      </svg>
+                    </span>
+                    <span>{isScreenSharing ? "Stop sharing" : "Screen share"}</span>
+                  </button>
                 </div>
 
-                <p className="mt-3 text-center text-xs text-slate-400">
-                  Room: <span className="font-mono text-slate-300">{details.roomName}</span>
-                </p>
-                <p className="mt-1 text-center text-[11px] text-slate-500">
-                  Your camera and microphone are used only for this interview session.
-                </p>
+
+                
+               
               </div>
             </div>
 
-            <aside className="flex w-full max-w-sm flex-col border-l border-slate-900/60 bg-slate-950/95">
+            <aside className="flex w-full md:max-w-sm flex-col border-l border-slate-900/60 bg-slate-950/95">
               <div className="flex h-full flex-col">
                 <header className="flex items-center justify-between border-b border-slate-900/80 px-4 py-3">
                   <div>
-                    <h3 className="text-sm font-semibold text-white">Code editor</h3>
+                    <h3 className="text-sm font-semibold text-white">
+                      {isChatOpen ? "Messages" : "Code Editor"}
+                    </h3>
                     <p className="mt-0.5 text-[11px] text-slate-400">
-                      Draft your solution here.
+                      {isChatOpen
+                        ? "Chat with the other participant."
+                        : "Write and run your solution."}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsEditorMaximized(true)}
-                    className="rounded-full border border-slate-700 px-2.5 py-1 text-[10px] font-medium text-slate-200 hover:bg-slate-800"
-                  >
-                    Full width
-                  </button>
                 </header>
-                <div className="flex-1 space-y-3 overflow-hidden border-t border-slate-900/60 bg-slate-950/80 p-3">
-                  <textarea
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    className="h-40 w-full resize-none rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-xs font-mono text-slate-100 outline-none ring-0 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/70"
-                    placeholder="Write your code here..."
-                  />
-                  <div className="flex flex-col gap-2">
-                    <button
-                      type="button"
-                      onClick={runCode}
-                      disabled={isRunning}
-                      className="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-emerald-500/40 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {isRunning ? "Running..." : "Run code"}
-                    </button>
-                    <div className="flex-1 rounded-lg border border-slate-800 bg-slate-950/80 p-2 text-[11px] text-slate-100">
-                      <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                        Output
+                <div className="flex flex-1 flex-col border-t border-slate-900/60 bg-slate-950/80 p-3">
+                  {isChatOpen ? (
+                    <>
+                      <div className="mb-2 flex-1 overflow-auto rounded-lg border border-slate-800 bg-slate-900/70 p-2 text-[11px] text-slate-200">
+                        {messages.length === 0 ? (
+                          <p className="text-slate-400">
+                            Chat history will appear here once someone sends a message.
+                          </p>
+                        ) : (
+                          <ul className="space-y-1">
+                            {messages.map((msg, index) => (
+                              <li
+                                key={index}
+                                className={`flex ${
+                                  msg.isSelf ? "justify-end" : "justify-start"
+                                }`}
+                              >
+                                <div
+                                  className={`max-w-[80%] rounded-lg px-2 py-1 text-[11px] ${
+                                    msg.isSelf
+                                      ? "bg-violet-600 text-white"
+                                      : "bg-slate-800 text-slate-100"
+                                  }`}
+                                >
+                                  <span className="block text-[10px] font-semibold text-slate-300">
+                                    {msg.isSelf ? "You" : msg.senderName ?? "Guest"}
+                                  </span>
+                                  <span className="block break-words">{msg.message}</span>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
-                      <div className="max-h-40 overflow-auto text-[11px]">
-                        {output || "No output yet. Run your code to see results."}
+                      <div className="mt-2 flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={chatMessage}
+                          onChange={(e) => setChatMessage(e.target.value)}
+                          placeholder="Type a message..."
+                          className="flex-1 rounded-lg border border-slate-800 bg-slate-950 px-3 py-1.5 text-[11px] text-slate-100 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/70"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey && chatMessage.trim()) {
+                              e.preventDefault();
+                              sendMessage(chatMessage);
+                              setChatMessage("");
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!chatMessage.trim()) return;
+                            sendMessage(chatMessage);
+                            setChatMessage("");
+                          }}
+                          disabled={!chatMessage.trim()}
+                          className="rounded-lg bg-violet-600 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm shadow-violet-500/40 transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Send
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex h-full flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                          Code Editor
+                        </h4>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={runCode}
+                            disabled={isRunning}
+                            className="inline-flex h-8 gap-1 rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm shadow-emerald-500/40 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {isRunning ? "Running..." : "▶ Run code"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsEditorMaximized(true)}
+                            className="rounded-lg border border-slate-600 px-3 py-1.5 text-[11px] font-medium text-slate-200 hover:bg-slate-800"
+                          >
+                            Full width
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex flex-1 flex-col gap-2">
+                        <textarea
+                          value={code}
+                          onChange={(e) => setCode(e.target.value)}
+                          className="flex-1 w-full resize-none rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs font-mono text-slate-100 outline-none ring-0 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/70"
+                          placeholder="Write your code here..."
+                        />
+                        <div className="flex h-32 flex-col rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-xs">
+                          <h4 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                            Output
+                          </h4>
+                          <div className="flex-1 overflow-auto rounded-lg bg-slate-900/70 p-2 text-[11px] text-slate-100">
+                            {output || "No output yet. Run your code to see results."}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </aside>
           </div>
         </div>
-      </div>
-    </div>
+    </>
+     
+      
+  
   );
 };
 

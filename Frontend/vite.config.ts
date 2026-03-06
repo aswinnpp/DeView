@@ -12,14 +12,26 @@ export default defineConfig({
       '@shared': path.resolve(__dirname, '../Shared'),
     },
   },
-
-server: {
-  host: true,
-  port: 5174,
-  strictPort: true,
-  allowedHosts: true,
-  fs: {
-    allow: [path.resolve(__dirname, '..')],
+  server: {
+    host: true,
+    port: 5174,
+    strictPort: true,
+    allowedHosts: true,
+    fs: {
+      allow: [path.resolve(__dirname, '..')],
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/socket.io': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        ws: true,
+      },
+    },
   },
-}
 })

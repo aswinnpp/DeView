@@ -1,7 +1,7 @@
 import type { Server as HTTPServer } from 'http';
 import type { FastifyInstance } from 'fastify';
 import { Server as SocketIOServer } from 'socket.io';
-import { signalingController } from '../../interfaces/controllers/signalingController.js';
+import { signalingController } from '../../interfaces/http/controllers/signaling-Controller.js';
 
 export interface InterviewSocketContext {
   io: SocketIOServer;

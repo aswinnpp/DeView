@@ -10,12 +10,24 @@ const rtcConfig: RTCConfiguration = {
       urls: ["stun:stun.l.google.com:19302"],
     },
     {
-      urls: ["turn:turn.yourdomain.com:3478"],
-      username: "webrtc",
-      credential: "strongpassword",
+      urls: [
+        "turn:3.27.107.241:3478?transport=udp",
+        "turn:3.27.107.241:3478?transport=tcp",
+      ],
+      username: "aswin",
+      credential: "Aswin@123",
     },
   ],
+  iceCandidatePoolSize: 10,
 };
+
+export interface ChatMessage {
+  message: string;
+  senderId: string | null;
+  senderName?: string;
+  isSelf: boolean;
+  createdAt?: string;
+}
 
 interface UseInterviewRoomResult {
   localVideoRef: MutableRefObject<Nullable<HTMLVideoElement>>;
@@ -25,20 +37,19 @@ interface UseInterviewRoomResult {
   isAudioEnabled: boolean;
   isVideoEnabled: boolean;
   isSpeakerEnabled: boolean;
+  isScreenSharing: boolean;
+  isRemoteVideoActive: boolean;
+  messages: ChatMessage[];
   toggleAudio: () => void;
   toggleVideo: () => void;
   toggleSpeaker: () => void;
+  sendMessage: (text: string) => void;
+  startScreenShare: () => Promise<void>;
+  stopScreenShare: () => void;
   leaveRoom: () => void;
 }
 
-const getSocketUrl = () => {
-  const configured =
-    (import.meta.env.VITE_SOCKET_URL as string | undefined) ||
-    (import.meta.env.VITE_WS_URL as string | undefined);
-
-  if (configured && configured.length > 0) return configured;
-  return window.location.origin;
-};
+const getSocketUrl = () => window.location.origin;
 
 export function useInterviewRoom(roomId: string | undefined, displayName: string): UseInterviewRoomResult {
   const localVideoRef = useRef<Nullable<HTMLVideoElement>>(null);
@@ -47,12 +58,16 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
   const peerConnectionRef = useRef<Nullable<RTCPeerConnection>>(null);
   const socketRef = useRef<Nullable<Socket>>(null);
   const localStreamRef = useRef<Nullable<MediaStream>>(null);
+  const screenStreamRef = useRef<Nullable<MediaStream>>(null);
 
   const [isInRoom, setIsInRoom] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isSpeakerEnabled, setIsSpeakerEnabled] = useState(true);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isRemoteVideoActive, setIsRemoteVideoActive] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   useEffect(() => {
     if (!roomId) return;
@@ -88,6 +103,12 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
           if (remoteVideoRef.current && remoteStream) {
             remoteVideoRef.current.srcObject = remoteStream;
           }
+          const videoTrack = remoteStream?.getVideoTracks()[0];
+          if (videoTrack) {
+            setIsRemoteVideoActive(!videoTrack.muted);
+            videoTrack.onmute = () => setIsRemoteVideoActive(false);
+            videoTrack.onunmute = () => setIsRemoteVideoActive(true);
+          }
         };
 
         pc.onicecandidate = (event) => {
@@ -112,6 +133,20 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
           socket.emit("join-room", { roomId, displayName });
           setIsInRoom(true);
         });
+
+        const handleMessage = (data: { message: string; senderId?: string; senderName?: string }) => {
+          setMessages((prev) => [
+            ...prev,
+            {
+              message: data.message,
+              senderId: data.senderId ?? "remote",
+              senderName: data.senderName ?? "Guest",
+              isSelf: false,
+            },
+          ]);
+        };
+
+        socket.on("message", handleMessage);
 
         socket.on("user-joined", async () => {
           if (!peerConnectionRef.current) return;
@@ -180,6 +215,10 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
         // ignore
       }
 
+      if (socketRef.current) {
+        socketRef.current.off("message");
+      }
+
       if (peerConnectionRef.current) {
         peerConnectionRef.current.getSenders().forEach((sender) => sender.track?.stop());
         peerConnectionRef.current.close();
@@ -189,6 +228,11 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
       if (localStreamRef.current) {
         localStreamRef.current.getTracks().forEach((t) => t.stop());
         localStreamRef.current = null;
+      }
+
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((t) => t.stop());
+        screenStreamRef.current = null;
       }
 
       if (localVideoRef.current) {
@@ -228,6 +272,15 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
       track.enabled = next;
     });
     setIsVideoEnabled(next);
+
+    if (localVideoRef.current) {
+      if (next) {
+        localVideoRef.current.srcObject =
+          screenStreamRef.current ?? localStreamRef.current;
+      } else {
+        localVideoRef.current.srcObject = null;
+      }
+    }
   };
 
   const toggleSpeaker = () => {
@@ -239,6 +292,115 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
       }
       return next;
     });
+  };
+
+  const stopScreenShare = () => {
+    const pc = peerConnectionRef.current;
+    const screenStream = screenStreamRef.current;
+    const localStream = localStreamRef.current;
+
+    if (!pc || !screenStream || !localStream) {
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((t) => t.stop());
+        screenStreamRef.current = null;
+      }
+      setIsScreenSharing(false);
+      if (localVideoRef.current && localStream) {
+        localVideoRef.current.srcObject = localStream;
+      }
+      return;
+    }
+
+    const cameraTrack = localStream.getVideoTracks()[0];
+    const sender = pc
+      .getSenders()
+      .find((s) => s.track && s.track.kind === "video");
+
+    if (sender && cameraTrack) {
+      sender.replaceTrack(cameraTrack);
+    }
+
+    screenStream.getTracks().forEach((t) => t.stop());
+    screenStreamRef.current = null;
+
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = isVideoEnabled ? localStream : null;
+    }
+
+    setIsScreenSharing(false);
+  };
+
+  const startScreenShare = async () => {
+    if (!peerConnectionRef.current) return;
+    if (!("mediaDevices" in navigator) || !navigator.mediaDevices.getDisplayMedia) {
+      setError("Screen sharing is not supported in this browser.");
+      return;
+    }
+
+    try {
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+      });
+
+      const screenTrack = screenStream.getVideoTracks()[0];
+      if (!screenTrack) {
+        screenStream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+
+      const sender = peerConnectionRef.current
+        .getSenders()
+        .find((s) => s.track && s.track.kind === "video");
+
+      if (!sender) {
+        screenStream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+
+      screenStreamRef.current = screenStream;
+      await sender.replaceTrack(screenTrack);
+
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = screenStream;
+      }
+
+      setIsScreenSharing(true);
+
+      screenTrack.onended = () => {
+        stopScreenShare();
+      };
+    } catch (err) {
+      if (err instanceof Error && err.name === "NotAllowedError") {
+        // User canceled screen share picker; ignore.
+        return;
+      }
+      const message =
+        err instanceof Error ? err.message : "Unable to start screen sharing.";
+      setError(message);
+    }
+  };
+
+  const sendMessage = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || !roomId) return;
+    const socket = socketRef.current;
+    if (!socket) return;
+
+    const senderId = socket.id ?? null;
+
+    const payload = {
+      roomId,
+      message: trimmed,
+      senderId,
+      senderName: displayName,
+    };
+
+    socket.emit("message", payload);
+
+    setMessages((prev) => [
+      ...prev,
+      { message: trimmed, senderId, senderName: displayName, isSelf: true },
+    ]);
   };
 
   const leaveRoom = () => {
@@ -262,6 +424,11 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
       localStreamRef.current = null;
     }
 
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach((t) => t.stop());
+      screenStreamRef.current = null;
+    }
+
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = null;
     }
@@ -280,9 +447,15 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
     isAudioEnabled,
     isVideoEnabled,
     isSpeakerEnabled,
+    isScreenSharing,
+    isRemoteVideoActive,
+    messages,
     toggleAudio,
     toggleVideo,
     toggleSpeaker,
+    sendMessage,
+    startScreenShare,
+    stopScreenShare,
     leaveRoom,
   };
 }

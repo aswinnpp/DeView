@@ -36,5 +36,28 @@ export const signalingController = (io: SocketIOServer, socket: Socket): void =>
       displayName: displayName ?? 'Guest',
     });
   });
+
+  socket.on(
+    'message',
+    ({
+      roomId,
+      message,
+      senderId,
+      senderName,
+    }: {
+      roomId: string;
+      message: string;
+      senderId?: string;
+      senderName?: string;
+    }) => {
+      if (!roomId || !message) return;
+
+      socket.to(roomId).emit('message', {
+        message,
+        senderId: senderId ?? socket.id,
+        senderName: senderName ?? 'Guest',
+      });
+    },
+  );
 };
 
