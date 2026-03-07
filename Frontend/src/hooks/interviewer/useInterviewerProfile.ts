@@ -15,7 +15,7 @@ import { APP_ROUTES } from "../../constants/routes";
 import {
   interviewerProfileSchema,
   type InterviewerProfileFormValues,
-} from "../../schemas/interviewerProfile.schema";
+} from "../../../../Shared/contracts/interviewer/interviewerProfile.schema";
 
 export type { ProfileData } from "../../services/interviewerProfile.service";
 

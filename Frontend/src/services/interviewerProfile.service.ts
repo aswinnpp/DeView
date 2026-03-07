@@ -24,7 +24,9 @@ export interface GetProfileResponse {
 
 export const interviewerProfileService = {
   getProfile: () =>
-    api.get<{ data: GetProfileResponse }>(API_ROUTES.INTERVIEWER.PROFILE).then((res) => res.data.data),
+    api
+      .get<GetProfileResponse>(API_ROUTES.INTERVIEWER.PROFILE)
+      .then((res) => res.data),
 
   createProfile: (data: ProfileData) =>
     api.post(API_ROUTES.INTERVIEWER.PROFILE, data),
