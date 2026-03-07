@@ -1,0 +1,70 @@
+import type { InterviewerProfile } from "../../../domain/interviewer/entities/InterviewerProfile";
+import type { CreateInterviewerProfileDTO } from "../dtos/CreateInterviewerProfileDTO";
+import type { UpdateInterviewerProfileDTO } from "../dtos/UpdateInterviewerProfileDTO";
+
+/** API response / request body shape (matches frontend ProfileData) */
+export interface InterviewerProfileView {
+  fullName: string;
+  phone: string;
+  location: string;
+  title: string;
+  currentCompany: string;
+  yearsOfExperience: number;
+  bio: string;
+  technicalSkills: string[];
+  languages: string[];
+  education: string;
+  university: string;
+  linkedinUrl: string;
+  githubUrl: string;
+}
+
+export function toView(profile: InterviewerProfile): InterviewerProfileView {
+  return {
+    fullName: profile.fullName,
+    phone: profile.phone,
+    location: profile.location,
+    title: profile.title,
+    currentCompany: profile.currentCompany,
+    yearsOfExperience: profile.yearsOfExperience,
+    bio: profile.bio,
+    technicalSkills: profile.technicalSkills,
+    languages: profile.languages,
+    education: profile.education,
+    university: profile.university,
+    linkedinUrl: profile.linkedinUrl,
+    githubUrl: profile.githubUrl,
+  };
+}
+
+export function toCreateDTO(
+  body: InterviewerProfileView,
+  userId: string
+): CreateInterviewerProfileDTO {
+  return {
+    userId,
+    fullName: body.fullName,
+    phone: body.phone ?? "",
+    location: body.location ?? "",
+    title: body.title,
+    currentCompany: body.currentCompany ?? "",
+    yearsOfExperience: body.yearsOfExperience,
+    bio: body.bio,
+    technicalSkills: body.technicalSkills ?? [],
+    languages: body.languages ?? [],
+    education: body.education,
+    university: body.university ?? "",
+    linkedinUrl: body.linkedinUrl ?? "",
+    githubUrl: body.githubUrl ?? "",
+  };
+}
+
+export function toUpdateDTO(
+  body: Partial<InterviewerProfileView>,
+  userId: string
+): UpdateInterviewerProfileDTO {
+  return {
+    userId,
+    ...body,
+  };
+}

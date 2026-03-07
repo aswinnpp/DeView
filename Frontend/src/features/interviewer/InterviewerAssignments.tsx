@@ -1,11 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Input, Table } from "../../components/common";
-import {
-  interviewerAssignmentsService,
-  type InterviewerAssignmentItem,
-} from "../../services/interviewerAssignments.service";
-
-type ScheduledInterview = InterviewerAssignmentItem;
+import { useInterviewerAssignments } from "../../hooks/interviewer";
+import type { InterviewerAssignmentItem } from "../../services/interviewerAssignments.service";
 
 const inputBaseClass =
   "w-full py-2 px-3.5 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500";
@@ -21,125 +16,39 @@ const statusStyles: Record<string, { bg: string; text: string }> = {
 };
 
 const InterviewerAssignments = () => {
-  const [assignments, setAssignments] = useState<ScheduledInterview[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [rejectModalOpen, setRejectModalOpen] = useState(false);
-  const [rejectInterview, setRejectInterview] = useState<ScheduledInterview | null>(null);
-  const [rejectionReason, setRejectionReason] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"date" | "name" | "status">("date");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [isRejecting, setIsRejecting] = useState(false);
-  const [isAccepting, setIsAccepting] = useState(false);
-
-  const fetchAssignments = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await interviewerAssignmentsService.list();
-      setAssignments(data);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load assignments");
-      setAssignments([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchAssignments();
-  }, [fetchAssignments]);
-
-  const pendingCount = useMemo(
-    () => assignments.filter((a) => a.status === "pending").length,
-    [assignments]
-  );
-
-  const filtered = useMemo(() => {
-    let list = [...assignments];
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(
-        (a) =>
-          a.candidateName.toLowerCase().includes(q) ||
-          a.candidateEmail.toLowerCase().includes(q) ||
-          (a.jobTitle || "").toLowerCase().includes(q)
-      );
-    }
-    list.sort((a, b) => {
-      let cmp = 0;
-      if (sortBy === "date") cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
-      else if (sortBy === "name") cmp = a.candidateName.localeCompare(b.candidateName);
-      else if (sortBy === "status") cmp = a.status.localeCompare(b.status);
-      return sortOrder === "asc" ? cmp : -cmp;
-    });
-    return list;
-  }, [assignments, searchQuery, sortBy, sortOrder]);
-
-  const formatTime = (time: string) => {
-    const [h, m] = time.split(":");
-    const hour = parseInt(h, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const h12 = hour % 12 || 12;
-    return `${h12}:${m} ${ampm}`;
-  };
-
-  const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString("en-IN", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-
-  const handleAccept = async (id: string) => {
-    setIsAccepting(true);
-    try {
-      await interviewerAssignmentsService.accept(id);
-      await fetchAssignments();
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to accept assignment");
-    } finally {
-      setIsAccepting(false);
-    }
-  };
-
-  const openRejectModal = (item: ScheduledInterview) => {
-    setRejectInterview(item);
-    setRejectionReason("");
-    setRejectModalOpen(true);
-  };
-
-  const closeRejectModal = () => {
-    setRejectModalOpen(false);
-    setRejectInterview(null);
-    setIsRejecting(false);
-  };
-
-  const submitReject = async () => {
-    if (!rejectInterview || !rejectionReason.trim()) return;
-    setIsRejecting(true);
-    try {
-      await interviewerAssignmentsService.reject(rejectInterview.id, rejectionReason.trim());
-      await fetchAssignments();
-      closeRejectModal();
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to reject assignment");
-    } finally {
-      setIsRejecting(false);
-    }
-  };
-
-  const emptyMessage =
-    assignments.length === 0
-      ? "No assignments yet."
-      : "No assignments found matching your search.";
+  const {
+    filtered,
+    pendingCount,
+    assignments,
+    emptyMessage,
+    isLoading,
+    error,
+    isAccepting,
+    isRejecting,
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    hasActiveFilters,
+    resetFilters,
+    rejectModalOpen,
+    rejectInterview,
+    rejectionReason,
+    setRejectionReason,
+    closeRejectModal,
+    openRejectModal,
+    submitReject,
+    handleAccept,
+    formatTime,
+    formatDate,
+  } = useInterviewerAssignments();
 
   const columns = [
     {
       header: "Candidate",
-      render: (item: ScheduledInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <div>
           <div className="font-semibold text-slate-200">{item.candidateName}</div>
           <div className="text-xs text-slate-500">{item.candidateEmail}</div>
@@ -148,19 +57,19 @@ const InterviewerAssignments = () => {
     },
     {
       header: "Role / JD",
-      render: (item: ScheduledInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <span className="text-slate-300">{item.jobTitle || "—"}</span>
       ),
     },
     {
       header: "Date",
-      render: (item: ScheduledInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <span className="text-sm text-slate-400">{formatDate(item.date)}</span>
       ),
     },
     {
       header: "Time",
-      render: (item: ScheduledInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <span className="font-medium text-blue-400">
           {formatTime(item.startTime)} – {formatTime(item.endTime)}
         </span>
@@ -168,7 +77,7 @@ const InterviewerAssignments = () => {
     },
     {
       header: "Round",
-      render: (item: ScheduledInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <span className="inline-block py-0.5 px-2 rounded text-[11px] font-semibold bg-violet-500/20 text-violet-300">
           {item.interviewRound}
         </span>
@@ -176,7 +85,7 @@ const InterviewerAssignments = () => {
     },
     {
       header: "Status",
-      render: (item: ScheduledInterview) => {
+      render: (item: InterviewerAssignmentItem) => {
         const s = statusStyles[item.status] || statusStyles.pending;
         const label = item.status.charAt(0).toUpperCase() + item.status.slice(1);
         return (
@@ -188,7 +97,7 @@ const InterviewerAssignments = () => {
     },
     {
       header: "Actions",
-      render: (item: ScheduledInterview) => {
+      render: (item: InterviewerAssignmentItem) => {
         if (item.status === "pending" || item.status === "scheduled")
           return (
             <div className="flex gap-2">
@@ -274,15 +183,11 @@ const InterviewerAssignments = () => {
             <option value="asc">Oldest First</option>
           </select>
         </div>
-        {(searchQuery || sortBy !== "date" || sortOrder !== "desc") && (
+        {hasActiveFilters && (
           <Button
             variant="secondary"
             className="!bg-slate-600 !py-2.5 !px-4 text-sm"
-            onClick={() => {
-              setSearchQuery("");
-              setSortBy("date");
-              setSortOrder("desc");
-            }}
+            onClick={resetFilters}
           >
             Reset
           </Button>
@@ -293,7 +198,7 @@ const InterviewerAssignments = () => {
         {isLoading ? (
           <p className="text-slate-400 py-8 text-center">Loading assignments...</p>
         ) : (
-          <Table<ScheduledInterview>
+          <Table<InterviewerAssignmentItem>
             columns={columns}
             data={filtered}
             rowKey={(item) => item.id}

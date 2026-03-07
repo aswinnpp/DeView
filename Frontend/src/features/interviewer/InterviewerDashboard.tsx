@@ -1,100 +1,36 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button, Input, Table } from "../../components/common";
-import {
-  interviewerAssignmentsService,
-  type InterviewerAssignmentItem,
-} from "../../services/interviewerAssignments.service";
-import { APP_ROUTES } from "../../constants/routes";
-
-type AcceptedInterview = InterviewerAssignmentItem;
+import { useInterviewerDashboard } from "../../hooks/interviewer";
+import type { InterviewerAssignmentItem } from "../../services/interviewerAssignments.service";
 
 const inputBaseClass =
   "w-full py-2 px-3.5 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500";
 const selectClass = `${inputBaseClass} cursor-pointer`;
 
 const InterviewerDashboard = () => {
-  const navigate = useNavigate();
-  const [assignments, setAssignments] = useState<AcceptedInterview[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"date" | "name" | "role">("date");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-
-  const fetchAssignments = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await interviewerAssignmentsService.list();
-      setAssignments(data);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load interviews");
-      setAssignments([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchAssignments();
-  }, [fetchAssignments]);
-
-  const acceptedOnly = useMemo(
-    () => assignments.filter((a) => a.status === "accepted"),
-    [assignments]
-  );
-
-  const filtered = useMemo(() => {
-    let list = [...acceptedOnly];
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(
-        (a) =>
-          a.candidateName.toLowerCase().includes(q) ||
-          (a.candidateEmail || "").toLowerCase().includes(q) ||
-          (a.jobTitle || "").toLowerCase().includes(q)
-      );
-    }
-    list.sort((a, b) => {
-      let cmp = 0;
-      if (sortBy === "date") cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
-      else if (sortBy === "name") cmp = a.candidateName.localeCompare(b.candidateName);
-      else if (sortBy === "role") cmp = (a.jobTitle || "").localeCompare(b.jobTitle || "");
-      return sortOrder === "asc" ? cmp : -cmp;
-    });
-    return list;
-  }, [acceptedOnly, searchQuery, sortBy, sortOrder]);
-
-  const formatTime = (time: string) => {
-    const [h, m] = time.split(":");
-    const hour = parseInt(h, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const h12 = hour % 12 || 12;
-    return `${h12}:${m || "00"} ${ampm}`;
-  };
-
-  const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString("en-IN", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-
-  const handleJoinRoom = (interviewId: string) => {
-    navigate(APP_ROUTES.INTERVIEW_ROOM(interviewId));
-  };
-
-  const emptyMessage =
-    acceptedOnly.length === 0
-      ? "No accepted interviews yet. Accept interviews from the Assignments page to see them here."
-      : "No interviews found matching your search.";
+  const {
+    assignments,
+    acceptedOnly,
+    filtered,
+    emptyMessage,
+    isLoading,
+    error,
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    hasActiveFilters,
+    resetFilters,
+    formatTime,
+    formatDate,
+    handleJoinRoom,
+  } = useInterviewerDashboard();
 
   const columns = [
     {
       header: "Candidate",
-      render: (item: AcceptedInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <div>
           <div className="font-semibold text-slate-200">{item.candidateName}</div>
           {item.candidateEmail && (
@@ -105,19 +41,19 @@ const InterviewerDashboard = () => {
     },
     {
       header: "Role / Position",
-      render: (item: AcceptedInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <span className="text-slate-300">{item.jobTitle || "—"}</span>
       ),
     },
     {
       header: "Date",
-      render: (item: AcceptedInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <span className="text-sm text-slate-400">{formatDate(item.date)}</span>
       ),
     },
     {
       header: "Time",
-      render: (item: AcceptedInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <span className="font-medium text-blue-400">
           {formatTime(item.startTime)}
           {item.endTime && item.endTime !== item.startTime
@@ -128,7 +64,7 @@ const InterviewerDashboard = () => {
     },
     {
       header: "Round",
-      render: (item: AcceptedInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <span className="inline-block py-0.5 px-2 rounded text-[11px] font-semibold bg-violet-500/20 text-violet-300">
           {item.interviewRound || "—"}
         </span>
@@ -144,7 +80,7 @@ const InterviewerDashboard = () => {
     },
     {
       header: "Action",
-      render: (item: AcceptedInterview) => (
+      render: (item: InterviewerAssignmentItem) => (
         <Button
           variant="primary"
           className="!py-2 !px-4 text-sm"
@@ -213,15 +149,11 @@ const InterviewerDashboard = () => {
             <option value="desc">Latest First</option>
           </select>
         </div>
-        {(searchQuery || sortBy !== "date" || sortOrder !== "asc") && (
+        {hasActiveFilters && (
           <Button
             variant="secondary"
             className="!bg-slate-600 !py-2.5 !px-4 text-sm"
-            onClick={() => {
-              setSearchQuery("");
-              setSortBy("date");
-              setSortOrder("asc");
-            }}
+            onClick={resetFilters}
           >
             Reset
           </Button>
@@ -232,7 +164,7 @@ const InterviewerDashboard = () => {
         {isLoading ? (
           <p className="text-slate-400 py-8 text-center">Loading interviews...</p>
         ) : (
-          <Table<AcceptedInterview>
+          <Table<InterviewerAssignmentItem>
             columns={columns}
             data={filtered}
             rowKey={(item) => item.id}

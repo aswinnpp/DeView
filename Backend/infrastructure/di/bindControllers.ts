@@ -16,6 +16,7 @@ import { CompanyPaymentController } from '../../interfaces/http/controllers/comp
 import { jobController } from '../../interfaces/http/controllers/jobs.controller.js';
 import { ApplicationsController } from '../../interfaces/http/controllers/applications.controller.js';
 import { InterviewerAssignmentsController } from '../../interfaces/http/controllers/interviewer-assignments.controller.js';
+import { InterviewerProfileController } from '../../interfaces/http/controllers/interviewer-profile.controller.js';
 
 export function bindControllers(container: Container): void {
   container.bind(AuthController).toSelf();
@@ -34,4 +35,5 @@ export function bindControllers(container: Container): void {
   container.bind(jobController).toSelf();
   container.bind(ApplicationsController).toSelf();
   container.bind(InterviewerAssignmentsController).toSelf();
+  container.bind(InterviewerProfileController).toSelf();
 }

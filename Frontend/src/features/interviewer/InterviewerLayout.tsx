@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useState } from "react";
+import { APP_ROUTES } from "../../constants/routes";
 
 interface Notification {
   id: number;
@@ -37,6 +38,9 @@ const InterviewerLayout: React.FC = () => {
             </NavLink>
             <NavLink to="/interviewer/manage" className={({ isActive }) => navLinkClass(isActive)}>
               Manage
+            </NavLink>
+            <NavLink to={APP_ROUTES.INTERVIEWER_PROFILE} className={({ isActive }) => navLinkClass(isActive)}>
+              Profile
             </NavLink>
 
             <div className="relative">

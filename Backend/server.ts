@@ -48,7 +48,6 @@ async function bootstrap() {
   registerErrorHandler(fastify);
 
   
-  const corsOrigin = env.NODE_ENV === 'production' ? env.FRONTEND_URL : true;
   await fastify.register(cors, {
     origin: [
       'http://localhost:5174',

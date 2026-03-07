@@ -27,6 +27,7 @@ import { CompanyPaymentController } from '../../interfaces/http/controllers/comp
 import { jobController } from '../../interfaces/http/controllers/jobs.controller.js';
 import { ApplicationsController } from '../../interfaces/http/controllers/applications.controller.js';
 import { InterviewerAssignmentsController } from '../../interfaces/http/controllers/interviewer-assignments.controller.js';
+import { InterviewerProfileController } from '../../interfaces/http/controllers/interviewer-profile.controller.js';
 
 export function createContainer(db: Db) {
   const container = new Container();
@@ -60,6 +61,7 @@ export function getControllers(container: ContainerType) {
     jobsControllers: container.get(jobController),
     applicationsController: container.get(ApplicationsController),
     interviewerAssignmentsController: container.get(InterviewerAssignmentsController),
+    interviewerProfileController: container.get(InterviewerProfileController),
   };
 }
 

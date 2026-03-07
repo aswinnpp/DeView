@@ -87,4 +87,9 @@ export const TYPES = {
   ListInterviewerAssignmentsUseCasePort: Symbol('ListInterviewerAssignmentsUseCasePort'),
   AcceptInterviewAssignmentUseCasePort: Symbol('AcceptInterviewAssignmentUseCasePort'),
   RejectInterviewAssignmentUseCasePort: Symbol('RejectInterviewAssignmentUseCasePort'),
+
+  InterviewerProfileRepositoryPort: Symbol('InterviewerProfileRepositoryPort'),
+  GetInterviewerProfileUseCasePort: Symbol('GetInterviewerProfileUseCasePort'),
+  CreateInterviewerProfileUseCasePort: Symbol('CreateInterviewerProfileUseCasePort'),
+  UpdateInterviewerProfileUseCasePort: Symbol('UpdateInterviewerProfileUseCasePort'),
 } as const;

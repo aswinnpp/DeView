@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import CandidateNavHeader from "./CandidateNavHeader";
 import { candidateJobsService, type InterviewItem } from "../../services/candidateJobs.service";
 import { APP_ROUTES } from "../../constants/routes";
+import SearchBar from "../../components/common/SearchBar";
+import SortFilter from "../../components/common/SortFilter";
+import { Button } from "../../components/common";
 
 const CandidateInterviews = () => {
   const navigate = useNavigate();
@@ -144,7 +147,7 @@ const CandidateInterviews = () => {
         <CandidateNavHeader title="SCHEDULED INTERVIEWS" currentPage="interviews" />
 
         <div className="pt-[72px] py-7 px-4 sm:px-6 lg:px-12 pb-20 max-md:pb-12">
-          <div className="mb-6 max-md:mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="mb-6 max-md:mb-4 space-y-4">
             <div>
               <h2 className="text-white text-2xl max-md:text-xl font-semibold flex items-center gap-3">
                 Upcoming Interviews
@@ -154,63 +157,34 @@ const CandidateInterviews = () => {
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:flex-wrap">
-              <div className="w-full sm:w-56">
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                  Search
-                </label>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Company, interviewer, or job title"
-                  className="w-full rounded-lg border border-slate-700/70 bg-slate-900/60 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/70"
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <div className="w-32">
-                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                    Sort by
-                  </label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as "date" | "company")}
-                    className="w-full rounded-lg border border-slate-700/70 bg-slate-900/60 px-2 py-2 text-xs text-slate-100 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/70"
-                  >
-                    <option value="date">Date &amp; time</option>
-                    <option value="company">Company</option>
-                  </select>
-                </div>
-
-                <div className="w-32">
-                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                    Order
-                  </label>
-                  <select
-                    value={sortOrder}
-                    onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
-                    className="w-full rounded-lg border border-slate-700/70 bg-slate-900/60 px-2 py-2 text-xs text-slate-100 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/70"
-                  >
-                    <option value="asc">Earliest first</option>
-                    <option value="desc">Latest first</option>
-                  </select>
-                </div>
-
-                {(searchQuery || sortBy !== "date" || sortOrder !== "asc") && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSortBy("date");
-                      setSortOrder("asc");
-                    }}
-                    className="h-[38px] self-end rounded-lg border border-slate-600/70 bg-slate-800/70 px-3 text-xs font-medium text-slate-100 transition hover:bg-slate-700/80"
-                  >
-                    Reset
-                  </button>
-                )}
-              </div>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <SearchBar
+                label="Search"
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Company, interviewer, or job title"
+                className="w-full sm:max-w-xs lg:max-w-sm"
+              />
+              <SortFilter
+                sortByOptions={[
+                  { value: "date", label: "Date & time" },
+                  { value: "company", label: "Company" },
+                ]}
+                orderOptions={[
+                  { value: "asc", label: "Earliest first" },
+                  { value: "desc", label: "Latest first" },
+                ]}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSortByChange={(v) => setSortBy(v as "date" | "company")}
+                onSortOrderChange={(v) => setSortOrder(v as "asc" | "desc")}
+                showReset={searchQuery !== "" || sortBy !== "date" || sortOrder !== "asc"}
+                onReset={() => {
+                  setSearchQuery("");
+                  setSortBy("date");
+                  setSortOrder("asc");
+                }}
+              />
             </div>
           </div>
 
@@ -226,11 +200,23 @@ const CandidateInterviews = () => {
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div
+              className={`grid gap-4 ${
+                filteredInterviews.length === 1
+                  ? "grid-cols-1"
+                  : filteredInterviews.length === 2
+                    ? "grid-cols-1 sm:grid-cols-2"
+                    : filteredInterviews.length === 3
+                      ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              }`}
+            >
               {filteredInterviews.map((interview) => (
                 <div
                   key={interview.id}
-                  className="flex flex-col justify-between rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-900/40 p-6 md:p-7 hover:bg-white/[0.04] transition-colors"
+                  className={`flex flex-col justify-between rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-900/40 hover:bg-white/[0.04] transition-colors ${
+                    filteredInterviews.length === 1 ? "p-8 md:p-10 lg:p-12" : "p-6 md:p-7"
+                  }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-[65%]">
@@ -264,28 +250,19 @@ const CandidateInterviews = () => {
                       <span className="font-semibold text-emerald-300">
                         {formatCountdown(interview.scheduledDate, interview.scheduledTime)}
                       </span>
-                  </div>
-
-                  <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     </div>
 
-                    <button
-                      type="button"
-                      className="rounded-lg border border-amber-400/70 bg-amber-500/20 px-3 py-1.5 text-[11px] md:text-xs font-semibold text-amber-100 uppercase tracking-wide shadow-sm hover:bg-amber-500/30 transition"
-                      onClick={() => openRescheduleModal(interview)}
-                    >
-                      Reschedule
-                    </button>
-
-                    <button
-                      type="button"
-                      className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-2.5 text-xs md:text-sm font-semibold text-white shadow-md shadow-violet-500/40 transition hover:from-violet-400 hover:to-indigo-400 focus:outline-none focus:ring-2 focus:ring-violet-500/80 focus:ring-offset-1 focus:ring-offset-slate-900"
-                      onClick={() => {
-                        navigate(APP_ROUTES.INTERVIEW_ROOM(interview.id));
-                      }}
-                    >
-                      Join Interview
-                    </button>
+                    <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <Button variant="amber" onClick={() => openRescheduleModal(interview)}>
+                        Reschedule
+                      </Button>
+                      <Button
+                        variant="violet"
+                        onClick={() => navigate(APP_ROUTES.INTERVIEW_ROOM(interview.id))}
+                      >
+                        Join Interview
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -303,13 +280,9 @@ const CandidateInterviews = () => {
                   {selectedInterview.jobTitle} • {selectedInterview.companyName}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={closeRescheduleModal}
-                className="rounded-full p-1 text-slate-400 hover:bg-slate-800/80 hover:text-slate-100"
-              >
+              <Button variant="icon" onClick={closeRescheduleModal}>
                 <span className="block text-lg leading-none">×</span>
-              </button>
+              </Button>
             </div>
 
             <div className="mb-4 rounded-xl border border-slate-800 bg-slate-900/60 p-3 sm:p-4">
@@ -359,21 +332,16 @@ const CandidateInterviews = () => {
               </div>
 
               <div className="mt-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <button
-                  type="button"
-                  onClick={closeRescheduleModal}
-                  className="inline-flex items-center justify-center rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-xs sm:text-sm font-medium text-slate-200 hover:bg-slate-800"
-                >
+                <Button variant="ghostOutline" onClick={closeRescheduleModal}>
                   Cancel
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
+                  variant="amberGradient"
                   onClick={submitReschedule}
                   disabled={isSubmittingReschedule || !rescheduleDate || !rescheduleReason.trim()}
-                  className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm shadow-amber-500/40 transition hover:from-amber-400 hover:to-orange-400 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isSubmittingReschedule ? "Submitting..." : "Submit request"}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
