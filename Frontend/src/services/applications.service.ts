@@ -31,6 +31,7 @@ export interface ApplicationItem {
     | "SHORTLISTED"
     | "INTERVIEW_SCHEDULED"
     | "INTERVIEW_COMPLETE"
+    | "COMPLETED"
     | "HIRED"
     | "REJECTED"
     | "RESCHEDULE_REQUESTED";
@@ -42,6 +43,7 @@ export interface ApplicationItem {
     scheduledDate: string;
     scheduledTime: string;
   };
+  completedRounds?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -194,6 +196,7 @@ export const applicationsService = {
         | "SHORTLISTED"
         | "INTERVIEW_SCHEDULED"
         | "INTERVIEW_COMPLETE"
+        | "COMPLETED"
         | "HIRED"
         | "REJECTED"
         | "RESCHEDULE_REQUESTED";

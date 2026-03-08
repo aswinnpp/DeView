@@ -17,5 +17,8 @@ export const interviewsService = {
     api
       .get<{ data?: InterviewRoomDetails }>(API_ROUTES.INTERVIEWS.ROOM(interviewId))
       .then((res) => res.data?.data as InterviewRoomDetails),
+
+  updateStatus: (interviewId: string, status: 'COMPLETED' | 'CANCELLED') =>
+    api.patch(API_ROUTES.INTERVIEWS.UPDATE_STATUS(interviewId), { status }),
 };
 

@@ -58,6 +58,7 @@ export class ApplicationsController {
           | 'SHORTLISTED'
           | 'INTERVIEW_SCHEDULED'
           | 'INTERVIEW_COMPLETE'
+          | 'COMPLETED'
           | 'HIRED'
           | 'REJECTED'
           | 'RESCHEDULE_REQUESTED';
@@ -123,6 +124,7 @@ export class ApplicationsController {
           | 'SHORTLISTED'
           | 'INTERVIEW_SCHEDULED'
           | 'INTERVIEW_COMPLETE'
+          | 'COMPLETED'
           | 'HIRED'
           | 'REJECTED'
           | 'RESCHEDULE_REQUESTED';

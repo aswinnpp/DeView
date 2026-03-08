@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { InterviewRoomController } from '../controllers/interview-room.controller.js';
-import { requireAuth } from '../middleware/authMiddleware.js';
+import { requireAuth, requireRoles } from '../middleware/authMiddleware.js';
 
 export async function interviewRoomRoutes(
   fastify: FastifyInstance,
@@ -12,6 +12,14 @@ export async function interviewRoomRoutes(
     Params: { interviewId: string };
   }>('/:interviewId/room', {
     handler: controller.getRoomDetails,
+  });
+
+  fastify.patch<{
+    Params: { interviewId: string };
+    Body: { status: 'COMPLETED' | 'CANCELLED' };
+  }>('/:interviewId/status', {
+    preHandler: requireRoles('interviewer'),
+    handler: controller.updateStatus,
   });
 }
 

@@ -1,4 +1,4 @@
-import type { Interview } from '../../../../domain/interview/entities/Interview.js';
+import type { Interview, InterviewStatus } from '../../../../domain/interview/entities/Interview.js';
 
 export interface IInterviewRepository {
   create(interview: Interview): Promise<Interview>;
@@ -7,5 +7,6 @@ export interface IInterviewRepository {
   listByCompanyId(companyId: string): Promise<Interview[]>;
   findById(id: string): Promise<Interview | null>;
   setInterviewerAccepted(id: string, accepted: boolean, rejectReason?: string): Promise<Interview | null>;
+  updateStatus(id: string, status: InterviewStatus): Promise<Interview | null>;
 }
 

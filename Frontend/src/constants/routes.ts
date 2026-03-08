@@ -61,6 +61,7 @@ export const API_ROUTES = {
     },
     INTERVIEWS: {
         ROOM: (interviewId: string) => `/interviews/${interviewId}/room`,
+        UPDATE_STATUS: (interviewId: string) => `/interviews/${interviewId}/status`,
     },
     INTERVIEWER: {
         PROFILE: '/interviewer/profile',

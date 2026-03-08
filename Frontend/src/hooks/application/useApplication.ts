@@ -8,6 +8,7 @@ export type ExtendedApplicantStatus =
   | ApplicantStatus
   | "INTERVIEW_SCHEDULED"
   | "INTERVIEW_COMPLETE"
+  | "COMPLETED"
   | "HIRED"
   | "RESCHEDULE_REQUESTED";
 
@@ -24,7 +25,7 @@ export interface Job {
   interviewRounds?: string[];
 }
 
-export type CandidatePipelineTab = "pending" | "shortlist" | "interview" | "complete";
+export type CandidatePipelineTab = "pending" | "shortlist" | "interview" | "interview_complete" | "complete";
 
 export interface Candidate {
   id: string;
@@ -61,6 +62,8 @@ export interface Candidate {
   resumeUrl?: string;
   aiScore?: number;
   currentRound?: string;
+  /** Round names the candidate has already attempted (for filtering next round) */
+  attemptedRounds?: string[];
   completedRounds?: Array<{
     roundName: string;
     interviewer: string;
@@ -135,6 +138,8 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     resumeUrl: apiApp.resumeUrl,
     aiScore: apiApp.aiScore,
     interviewDetails: apiApp.interviewDetails,
+    attemptedRounds: apiApp.completedRounds ?? [],
+    completedRounds: [], // Detailed round info for display (populated separately if needed)
   };
 }
 
@@ -235,12 +240,15 @@ export function useApplication() {
         ? c.status === "PENDING"
         : candidatePipelineTab === "shortlist"
           ? c.status === "SHORTLISTED"
-          : candidatePipelineTab === "interview"
-            ? (c.status === "INTERVIEW_SCHEDULED" ||
-                c.status === "RESCHEDULE_REQUESTED" ||
-                c.status === "INTERVIEW_COMPLETE" ||
-                c.status === "HIRED")
-            : c.status === "REJECTED";
+          : candidatePipelineTab === "interview_complete"
+            ? (c.status === "COMPLETED" || c.status === "INTERVIEW_COMPLETE")
+            : candidatePipelineTab === "interview"
+              ? (c.status === "INTERVIEW_SCHEDULED" ||
+                  c.status === "RESCHEDULE_REQUESTED" ||
+                  c.status === "INTERVIEW_COMPLETE" ||
+                  c.status === "COMPLETED" ||
+                  c.status === "HIRED")
+              : c.status === "REJECTED";
     if (!matchesTab) return false;
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
@@ -378,6 +386,7 @@ export function useApplication() {
       INTERVIEW_SCHEDULED: "py-1 px-3 rounded-full text-xs font-semibold bg-violet-500/20 text-violet-300",
       RESCHEDULE_REQUESTED: "py-1 px-3 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300",
       INTERVIEW_COMPLETE: "py-1 px-3 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300",
+      COMPLETED: "py-1 px-3 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300",
       HIRED: "py-1 px-3 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300",
       REJECTED: "py-1 px-3 rounded-full text-xs font-semibold bg-red-500/20 text-red-400",
     };

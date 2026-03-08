@@ -3,6 +3,7 @@ export type ApplicationStatus =
   | 'SHORTLISTED'
   | 'INTERVIEW_SCHEDULED'
   | 'INTERVIEW_COMPLETE'
+  | 'COMPLETED'
   | 'HIRED'
   | 'REJECTED'
   | 'RESCHEDULE_REQUESTED';
@@ -44,6 +45,8 @@ export class Application {
     public status: ApplicationStatus = 'PENDING',
     public aiScore?: number,
     public interviewDetails?: InterviewDetails,
+    /** Rounds the candidate has already attempted/completed */
+    public completedRounds: string[] = [],
     public rejectionEmailContent?: string,
     public rejectionSentAt?: Date,
     public createdAt: Date = new Date(),

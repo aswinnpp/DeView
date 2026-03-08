@@ -40,6 +40,14 @@ export interface IApplicationRepository {
     rejectionEmailContent?: string;
   }): Promise<Application | null>;
 
+  /** Add a round to the application's completedRounds (when interview is marked complete). */
+  addCompletedRound(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    round: string;
+  }): Promise<Application | null>;
+
   /** Schedule (or reschedule) an interview for an application. */
   scheduleInterview(input: {
     applicationId: string;

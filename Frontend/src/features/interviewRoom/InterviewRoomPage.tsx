@@ -37,6 +37,8 @@ const InterviewRoom = () => {
     leaveRoom,
   } = useInterviewRoom(roomId, displayName);
 
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isEditorMaximized, setIsEditorMaximized] = useState(false);
   const [code, setCode] = useState<string>(
     `// Write your solution here
@@ -111,16 +113,40 @@ function solution() {
     setIsLocalPrimary((prev) => !prev);
   };
 
-  const handleLeave = () => {
+  const doLeave = () => {
     leaveRoom();
     const role = user?.role?.toLowerCase();
-
     if (role === "candidate") {
       navigate(APP_ROUTES.CANDIDATE_INTERVIEWS);
     } else if (role === "interviewer") {
       navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS);
     } else {
       navigate(APP_ROUTES.ROOT);
+    }
+  };
+
+  const handleLeave = () => {
+    const role = user?.role?.toLowerCase();
+    if (role === "interviewer") {
+      setShowLeaveModal(true);
+    } else {
+      doLeave();
+    }
+  };
+
+  const handleLeaveWithStatus = async (status: "COMPLETED" | "CANCELLED") => {
+    if (!interviewId || isUpdatingStatus) return;
+    setIsUpdatingStatus(true);
+    try {
+      await interviewsService.updateStatus(interviewId, status);
+      setShowLeaveModal(false);
+      doLeave();
+    } catch (err) {
+      console.error("Failed to update interview status:", err);
+      setShowLeaveModal(false);
+      doLeave();
+    } finally {
+      setIsUpdatingStatus(false);
     }
   };
 
@@ -158,10 +184,45 @@ function solution() {
   }
 
   return (
-
     <>
+      {showLeaveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="mx-4 w-full max-w-md rounded-2xl border border-slate-700/70 bg-slate-950 px-6 py-5 shadow-2xl shadow-black/60">
+            <h3 className="mb-2 text-lg font-semibold text-white">Leave interview</h3>
+            <p className="mb-4 text-sm text-slate-400">
+              How would you like to mark this interview?
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => handleLeaveWithStatus("COMPLETED")}
+                disabled={isUpdatingStatus}
+                className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-emerald-500/40 transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isUpdatingStatus ? "Updating..." : "Complete"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLeaveWithStatus("CANCELLED")}
+                disabled={isUpdatingStatus}
+                className="inline-flex items-center justify-center rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-amber-500/40 transition hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isUpdatingStatus ? "Updating..." : "Not Attempt"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLeaveModal(false)}
+                disabled={isUpdatingStatus}
+                className="mt-2 rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-{isEditorMaximized && (
+      {isEditorMaximized && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/80">
           <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-950 shadow-2xl shadow-black/60">
             <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">

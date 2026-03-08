@@ -36,6 +36,7 @@ export const ApplicationMapper = {
       status: app.status,
       aiScore: app.aiScore,
       interviewDetails: app.interviewDetails,
+      completedRounds: app.completedRounds ?? [],
       createdAt: app.createdAt instanceof Date ? app.createdAt.toISOString() : String(app.createdAt),
       updatedAt: app.updatedAt instanceof Date ? app.updatedAt.toISOString() : String(app.updatedAt),
     };
@@ -53,6 +54,7 @@ export const ApplicationMapper = {
         | 'SHORTLISTED'
         | 'INTERVIEW_SCHEDULED'
         | 'INTERVIEW_COMPLETE'
+        | 'COMPLETED'
         | 'HIRED'
         | 'REJECTED'
         | 'RESCHEDULE_REQUESTED';
@@ -110,6 +112,7 @@ export const ApplicationMapper = {
         | 'SHORTLISTED'
         | 'INTERVIEW_SCHEDULED'
         | 'INTERVIEW_COMPLETE'
+        | 'COMPLETED'
         | 'HIRED'
         | 'REJECTED'
         | 'RESCHEDULE_REQUESTED';

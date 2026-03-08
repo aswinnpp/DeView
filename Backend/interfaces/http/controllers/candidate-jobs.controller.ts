@@ -57,6 +57,7 @@ export class CandidateJobsController {
           | 'SHORTLISTED'
           | 'INTERVIEW_SCHEDULED'
           | 'INTERVIEW_COMPLETE'
+          | 'COMPLETED'
           | 'HIRED'
           | 'REJECTED'
           | 'RESCHEDULE_REQUESTED';

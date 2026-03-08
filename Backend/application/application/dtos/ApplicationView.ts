@@ -35,6 +35,8 @@ export interface ApplicationView {
     scheduledDate: string;
     scheduledTime: string;
   };
+  /** Rounds the candidate has already attempted/completed */
+  completedRounds?: string[];
   createdAt: string;
   updatedAt: string;
 }

@@ -187,7 +187,8 @@ const CandidateAppliedJobsPage: React.FC = () => {
                             {/* Interview Details */}
                             {(selectedApplication.status === "INTERVIEW_SCHEDULED" ||
                                 selectedApplication.status === "RESCHEDULE_REQUESTED" ||
-                                selectedApplication.status === "INTERVIEW_COMPLETE") &&
+                                selectedApplication.status === "INTERVIEW_COMPLETE" ||
+                                selectedApplication.status === "COMPLETED") &&
                                 selectedApplication.interviewDetails && (
                                     <div className="mt-6 rounded-xl border border-violet-500/30 bg-violet-500/10 p-4">
                                         <h4 className="mb-3 text-sm font-semibold text-violet-200">Interview Scheduled</h4>
@@ -297,6 +298,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                     <option value="SHORTLISTED">Shortlisted</option>
                                     <option value="INTERVIEW_SCHEDULED">Interview Scheduled</option>
                                     <option value="INTERVIEW_COMPLETE">Interview Complete</option>
+                                    <option value="COMPLETED">Completed</option>
                                     <option value="HIRED">Hired</option>
                                     <option value="REJECTED">Rejected</option>
                                 </select>

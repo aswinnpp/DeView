@@ -54,12 +54,13 @@ interface Candidate {
     experience: string;
     education: string;
     skills: string;
-    status: 'PENDING' | 'SHORTLISTED' | 'INTERVIEW_SCHEDULED' | 'INTERVIEW_COMPLETE' | 'HIRED' | 'REJECTED' | 'RESCHEDULE_REQUESTED';
+    status: 'PENDING' | 'SHORTLISTED' | 'INTERVIEW_SCHEDULED' | 'INTERVIEW_COMPLETE' | 'COMPLETED' | 'HIRED' | 'REJECTED' | 'RESCHEDULE_REQUESTED';
     appliedDate: string;
     resume: string | null;
     coverLetter: string | null;
     aiScore?: number;
     currentRound?: string;
+    attemptedRounds?: string[];
     completedRounds?: CompletedRound[];
     interviewDetails?: {
         interviewer: string;
@@ -157,11 +158,11 @@ const HRApplicationsPage = () => {
     const [isLoadingInterviewers, setIsLoadingInterviewers] = useState(false);
 
     // Map workflow tab to underlying pipeline tab in useApplication()
-    const workflowToPipelineMap: Record<WorkflowTab, "pending" | "shortlist" | "interview" | "complete"> = {
+    const workflowToPipelineMap: Record<WorkflowTab, "pending" | "shortlist" | "interview" | "interview_complete" | "complete"> = {
         PENDING: "pending",
         SHORTLISTED: "shortlist",
         INTERVIEW_ATTENDEES: "interview",
-        INTERVIEW_COMPLETE: "interview",
+        INTERVIEW_COMPLETE: "interview_complete",
         HIRED: "interview",
         RESCHEDULE_REQUESTS: "interview",
         REJECTED: "complete",
@@ -187,7 +188,10 @@ const HRApplicationsPage = () => {
         setSelectedInterviewer(null);
         setSelectedDate('');
         setSelectedTime('');
-        setSelectedRound(selectedJob?.interviewRounds?.[0] ?? 'HR Screening');
+        const jobRounds = selectedJob?.interviewRounds ?? ['HR Screening'];
+        const attempted = candidate.attemptedRounds ?? [];
+        const available = jobRounds.filter((r: string) => !attempted.includes(r));
+        setSelectedRound(available[0] ?? jobRounds[0] ?? 'HR Screening');
         setScheduleStep(1);
         setShowInterviewerModal(true);
     };
@@ -236,7 +240,13 @@ const HRApplicationsPage = () => {
 
 
     const handleAssignNextRound = (candidate: Candidate) => {
+        const jobRounds = selectedJob?.interviewRounds ?? ['HR Screening'];
+        const attempted = candidate.attemptedRounds ?? [];
+        const available = jobRounds.filter((r: string) => !attempted.includes(r));
+        if (available.length === 0) return; // All rounds done - use Send Offer or Reject instead
         handleSelectCandidate(candidate);
+        setSelectedRound(available[0]);
+        setScheduleStep(1);
         setShowInterviewerModal(true);
     };
 
@@ -408,18 +418,33 @@ const HRApplicationsPage = () => {
 
         baseColumns.push({
             header: "Actions",
-
             render: (candidate: Candidate) => (
-                <Button
-                    variant="secondary"
-                    className="bg-slate-700 hover:bg-slate-600 text-xs font-semibold px-3 py-1.5 rounded-md"
-                    onClick={() => {
-                        handleSelectCandidate(candidate);
-                        setShowCandidateDetail(true);
-                    }}
-                >
-                    View
-                </Button>
+                <div className="flex gap-2 items-center justify-start flex-wrap">
+                    <Button
+                        variant="secondary"
+                        className="bg-slate-700 hover:bg-slate-600 text-xs font-semibold px-3 py-1.5 rounded-md"
+                        onClick={() => {
+                            handleSelectCandidate(candidate);
+                            setShowCandidateDetail(true);
+                        }}
+                    >
+                        View
+                    </Button>
+                    {status === "INTERVIEW_COMPLETE" && (() => {
+                        const jobRounds = selectedJob?.interviewRounds ?? [];
+                        const attempted = candidate.attemptedRounds ?? [];
+                        const hasMoreRounds = jobRounds.length > 0 && attempted.length < jobRounds.length;
+                        return hasMoreRounds ? (
+                            <Button
+                                variant="primary"
+                                className="bg-violet-600 hover:bg-violet-500 text-xs font-semibold px-3 py-1.5 rounded-md"
+                                onClick={() => handleAssignNextRound(candidate)}
+                            >
+                                Assign Next Round
+                            </Button>
+                        ) : null;
+                    })()}
+                </div>
             ),
         });
 
@@ -522,10 +547,21 @@ const HRApplicationsPage = () => {
                             columns={buildCandidateColumns(activeTab)}
                             data={
                                 selectedJob
-                                    ? paginatedCandidates.map((c) => ({
-                                        ...c,
-                                        aiScore: c.aiScore ?? candidateScores[c.id],
-                                    }))
+                                    ? paginatedCandidates
+                                        .filter((c) => {
+                                            if (activeTab === 'PENDING') return c.status === 'PENDING';
+                                            if (activeTab === 'SHORTLISTED') return c.status === 'SHORTLISTED';
+                                            if (activeTab === 'INTERVIEW_ATTENDEES') return c.status === 'INTERVIEW_SCHEDULED';
+                                            if (activeTab === 'RESCHEDULE_REQUESTS') return c.status === 'RESCHEDULE_REQUESTED';
+                                            if (activeTab === 'INTERVIEW_COMPLETE') return c.status === 'COMPLETED' || c.status === 'INTERVIEW_COMPLETE';
+                                            if (activeTab === 'HIRED') return c.status === 'HIRED';
+                                            if (activeTab === 'REJECTED') return c.status === 'REJECTED';
+                                            return true;
+                                        })
+                                        .map((c) => ({
+                                            ...c,
+                                            aiScore: c.aiScore ?? candidateScores[c.id],
+                                        }))
                                     : []
                             }
                             rowKey={(candidate) => candidate.id}
@@ -963,11 +999,22 @@ const HRApplicationsPage = () => {
                                     Reschedule Interview
                                 </button>
                             )}
-                            {selectedCandidate.status === 'INTERVIEW_COMPLETE' && (
+                            {(selectedCandidate.status === 'INTERVIEW_COMPLETE' || selectedCandidate.status === 'COMPLETED') && (
                                 <>
-                                    <button onClick={() => { setShowCandidateDetail(false); handleAssignNextRound(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Next Round</button>
-                                    <button onClick={() => { setShowCandidateDetail(false); handleSendOffer(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Send Offer</button>
-                                    <button onClick={() => { setShowCandidateDetail(false); handleReject(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Reject</button>
+                                    {(() => {
+                                        const jobRounds = selectedJob?.interviewRounds ?? ['HR Screening'];
+                                        const attempted = selectedCandidate.attemptedRounds ?? [];
+                                        const hasMoreRounds = attempted.length < jobRounds.length;
+                                        return (
+                                            <>
+                                                {hasMoreRounds && (
+                                                    <button onClick={() => { setShowCandidateDetail(false); handleAssignNextRound(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Assign Next Round</button>
+                                                )}
+                                                <button onClick={() => { setShowCandidateDetail(false); handleSendOffer(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Send Offer</button>
+                                                <button onClick={() => { setShowCandidateDetail(false); handleReject(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Reject</button>
+                                            </>
+                                        );
+                                    })()}
                                 </>
                             )}
                             {selectedCandidate.status === 'RESCHEDULE_REQUESTED' && (
@@ -1022,9 +1069,20 @@ const HRApplicationsPage = () => {
                             <>
                                 <div style={{ marginBottom: 24 }}>
                                     <h4 style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600, margin: '0 0 12px', textTransform: 'uppercase' }}>Select Interview Round</h4>
-                                    <p style={{ color: '#94a3b8', fontSize: 12, marginBottom: 16 }}>Choose the type of interview round for this candidate:</p>
+                                    <p style={{ color: '#94a3b8', fontSize: 12, marginBottom: 16 }}>Choose the type of interview round for this candidate (already attempted rounds are hidden):</p>
+                                    {(() => {
+                                        const allRounds = selectedJob?.interviewRounds?.length ? selectedJob.interviewRounds : ['HR Screening'];
+                                        const availableRounds = allRounds.filter((r: string) => !selectedCandidate.attemptedRounds?.includes(r));
+                                        if (availableRounds.length === 0) {
+                                            return (
+                                                <div style={{ padding: 16, backgroundColor: '#0f172a', borderRadius: 10, border: '1px solid #334155', color: '#94a3b8' }}>
+                                                    All rounds completed. Use Send Offer or Reject instead.
+                                                </div>
+                                            );
+                                        }
+                                        return (
                                     <div style={{ display: 'grid', gap: 10 }}>
-                                        {(selectedJob?.interviewRounds?.length ? selectedJob.interviewRounds : ['HR Screening']).map(round => (
+                                        {availableRounds.map((round: string) => (
                                             <div
                                                 key={round}
                                                 onClick={() => setSelectedRound(round)}
@@ -1050,12 +1108,14 @@ const HRApplicationsPage = () => {
                                             </div>
                                         ))}
                                     </div>
+                                        );
+                                    })()}
                                 </div>
 
                                 {/* Next Button */}
                                 <button
                                     onClick={() => setScheduleStep(2)}
-                                    disabled={!selectedRound}
+                                    disabled={!selectedRound || (selectedJob?.interviewRounds?.length ? selectedJob.interviewRounds : ['HR Screening']).filter((r: string) => !selectedCandidate.attemptedRounds?.includes(r)).length === 0}
                                     style={{
                                         width: '100%',
                                         padding: 14,

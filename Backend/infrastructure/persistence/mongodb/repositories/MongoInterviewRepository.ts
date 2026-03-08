@@ -20,7 +20,11 @@ export class MongoInterviewRepository
   }
 
   async listByCandidateUserId(candidateUserId: string): Promise<Interview[]> {
-    const filter: Filter<IInterviewDocument> = { candidateUserId, interviewerAccepted: true };
+    const filter: Filter<IInterviewDocument> = {
+      candidateUserId,
+      interviewerAccepted: true,
+      status: { $in: ['SCHEDULED'] },
+    };
     const docs = await this.collection
       .find(filter)
       .sort({ createdAt: -1 })
@@ -29,7 +33,10 @@ export class MongoInterviewRepository
   }
 
   async listByInterviewerUserId(interviewerUserId: string): Promise<Interview[]> {
-    const filter: Filter<IInterviewDocument> = { interviewerUserId };
+    const filter: Filter<IInterviewDocument> = {
+      interviewerUserId,
+      status: { $in: ['SCHEDULED'] },
+    };
     const docs = await this.collection
       .find(filter)
       .sort({ createdAt: -1 })
@@ -52,6 +59,21 @@ export class MongoInterviewRepository
     const result = await this.collection.findOneAndUpdate(
       { _id },
       { $set: update },
+      { returnDocument: 'after' }
+    );
+    return result ? this.toDomain(result) : null;
+  }
+
+  async updateStatus(id: string, status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'): Promise<Interview | null> {
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(id);
+    } catch {
+      return null;
+    }
+    const result = await this.collection.findOneAndUpdate(
+      { _id },
+      { $set: { status, updatedAt: new Date() } },
       { returnDocument: 'after' }
     );
     return result ? this.toDomain(result) : null;

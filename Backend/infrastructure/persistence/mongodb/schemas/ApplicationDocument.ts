@@ -30,6 +30,7 @@ export interface IApplicationDocument {
     | 'SHORTLISTED'
     | 'INTERVIEW_SCHEDULED'
     | 'INTERVIEW_COMPLETE'
+    | 'COMPLETED'
     | 'HIRED'
     | 'REJECTED'
     | 'RESCHEDULE_REQUESTED';
@@ -41,6 +42,8 @@ export interface IApplicationDocument {
     scheduledDate: string;
     scheduledTime: string;
   };
+  /** Rounds the candidate has already attempted/completed */
+  completedRounds?: string[];
   /** Optional rejection email content saved when application is rejected */
   rejectionEmailContent?: string;
   /** When the rejection email was sent */

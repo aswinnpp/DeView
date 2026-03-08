@@ -1,0 +1,58 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../../../shared/di/types.js';
+import type { IInterviewRepository } from '../ports/repository/IInterviewRepository.js';
+import type { IApplicationRepository } from '../../application/ports/repository/IApplicationRepository.js';
+import type { InterviewStatus } from '../../../domain/interview/entities/Interview.js';
+import { AppError } from '../../../shared/errors/AppError.js';
+
+export interface IUpdateInterviewStatusInput {
+  interviewId: string;
+  interviewerUserId: string;
+  status: InterviewStatus;
+}
+
+@injectable()
+export class UpdateInterviewStatusUseCase {
+  constructor(
+    @inject(TYPES.InterviewRepositoryPort)
+    private readonly interviewRepository: IInterviewRepository,
+    @inject(TYPES.ApplicationRepositoryPort)
+    private readonly applicationRepository: IApplicationRepository
+  ) {}
+
+  async execute(input: IUpdateInterviewStatusInput): Promise<void> {
+    const { interviewId, interviewerUserId, status } = input;
+
+    const interview = await this.interviewRepository.findById(interviewId);
+    if (!interview) {
+      throw AppError.notFound('Interview not found');
+    }
+
+    if (interview.interviewerUserId !== interviewerUserId) {
+      throw AppError.forbidden('Only the assigned interviewer can update interview status');
+    }
+
+    const updated = await this.interviewRepository.updateStatus(interviewId, status);
+    if (!updated) {
+      throw AppError.internal('Failed to update interview status');
+    }
+
+    // When interview is marked COMPLETED:
+    // 1. Add this round to application's completedRounds (so we don't show it when scheduling next)
+    // 2. Update application status to COMPLETED so it appears in Interview Complete tab
+    if (status === 'COMPLETED') {
+      await this.applicationRepository.addCompletedRound({
+        applicationId: interview.applicationId,
+        jobId: interview.jobId,
+        companyId: interview.companyId,
+        round: interview.round,
+      });
+      await this.applicationRepository.updateStatus({
+        applicationId: interview.applicationId,
+        jobId: interview.jobId,
+        companyId: interview.companyId,
+        status: 'COMPLETED',
+      });
+    }
+  }
+}

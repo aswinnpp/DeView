@@ -36,6 +36,7 @@ function toDomain(doc: IApplicationDocument): Application {
     doc.status,
     doc.aiScore,
     doc.interviewDetails,
+    doc.completedRounds ?? [],
     doc.rejectionEmailContent,
     doc.rejectionSentAt,
     doc.createdAt,
@@ -235,6 +236,30 @@ export class MongoApplicationRepository implements IApplicationRepository {
     const doc = await this.collection.findOne({ _id, jobId });
     if (!doc) return null;
     return toDomain(doc);
+  }
+
+  async addCompletedRound(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    round: string;
+  }): Promise<Application | null> {
+    const { applicationId, jobId, companyId, round } = input;
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(applicationId);
+    } catch {
+      return null;
+    }
+    const result = await this.collection.findOneAndUpdate(
+      { _id, jobId, companyId },
+      {
+        $addToSet: { completedRounds: round },
+        $set: { updatedAt: new Date() },
+      },
+      { returnDocument: 'after' }
+    );
+    return result ? toDomain(result) : null;
   }
 
   async scheduleInterview(input: {
