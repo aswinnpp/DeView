@@ -46,6 +46,8 @@ export const API_ROUTES = {
             `/applications/jobs/${jobId}/applications/${applicationId}/status`,
         SCHEDULE_INTERVIEW: (jobId: string, applicationId: string) =>
             `/applications/jobs/${jobId}/applications/${applicationId}/interview`,
+        DECLINE_RESCHEDULE: (jobId: string, applicationId: string) =>
+            `/applications/jobs/${jobId}/applications/${applicationId}/reschedule/decline`,
     },
     ADMIN: {
         COMPANY_PENDING: '/admin/company-requests/pending',
@@ -76,6 +78,7 @@ export const API_ROUTES = {
         APPLY: (jobId: string) => `/candidate/jobs/${jobId}/apply`,
         MY_APPLICATIONS: '/candidate/applications/my',
         MY_INTERVIEWS: '/candidate/interviews/my',
+        REQUEST_RESCHEDULE: (interviewId: string) => `/candidate/interviews/${interviewId}/reschedule`,
     },
 } as const;
 

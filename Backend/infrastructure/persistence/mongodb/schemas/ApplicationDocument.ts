@@ -42,6 +42,15 @@ export interface IApplicationDocument {
     scheduledDate: string;
     scheduledTime: string;
   };
+  /** Candidate requested to reschedule an interview. */
+  rescheduleRequest?: {
+    originalDate: string;
+    originalTime: string;
+    requestedDate: string;
+    requestedTime: string;
+    reason: string;
+    requestedAt: Date;
+  };
   /** Rounds the candidate has already attempted/completed */
   completedRounds?: string[];
   /** Optional rejection email content saved when application is rejected */

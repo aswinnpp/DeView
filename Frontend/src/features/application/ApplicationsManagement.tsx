@@ -1020,9 +1020,15 @@ const HRApplicationsPage = () => {
                             {selectedCandidate.status === 'RESCHEDULE_REQUESTED' && (
                                 <>
                                     <button
-                                        onClick={() => {
-                                            alert('Reschedule declined. Candidate will be notified to attend the original schedule.');
-                                            setShowCandidateDetail(false);
+                                        onClick={async () => {
+                                            try {
+                                                if (!selectedJob) return;
+                                                await applicationsService.declineRescheduleRequest(selectedJob.id, selectedCandidate.applicationId);
+                                                await refreshSelectedJobApplications();
+                                                setShowCandidateDetail(false);
+                                            } catch {
+                                                alert('Could not decline reschedule request. Please try again.');
+                                            }
                                         }}
                                         style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
                                     >

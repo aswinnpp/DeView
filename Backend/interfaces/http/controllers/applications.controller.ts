@@ -164,8 +164,6 @@ export class ApplicationsController {
 
     const companyId = ctx.companyId || '';
 
-    const roomName = `deview-interview-${applicationId}-${Date.now()}`;
-
     const updated = await this.applicationRepository.scheduleInterview({
       applicationId,
       jobId,
@@ -189,27 +187,80 @@ export class ApplicationsController {
     const job = await this.jobRepository.findById(jobId);
     const jobTitle = job?.title ?? '';
 
-    await this.interviewRepository.create(
-      new Interview(
-        null,
-        companyId,
-        companyName,
-        jobId,
-        jobTitle,
-        roomName,
-        applicationId,
-        updated.candidateUserId,
-        updated.fullName,
-        String(body.interviewerUserId ?? '').trim(),
-        String(body.interviewerName ?? '').trim(),
-        String(body.round ?? '').trim(),
-        String(body.scheduledDate ?? '').trim(),
-        String(body.scheduledTime ?? '').trim(),
-        'SCHEDULED',
-        false, // interviewerAccepted - interviewer must accept before candidate sees it
-        undefined
-      )
-    );
+    const scheduledDate = String(body.scheduledDate ?? '').trim();
+    const scheduledTime = String(body.scheduledTime ?? '').trim();
+    const interviewerUserId = String(body.interviewerUserId ?? '').trim();
+    const interviewerName = String(body.interviewerName ?? '').trim();
+    const round = String(body.round ?? '').trim();
+
+    // If an interview already exists for this application (scheduled or reschedule requested),
+    // update it instead of creating a new one so the old reschedule request doesn't linger.
+    const existing = await this.interviewRepository.findActiveByApplicationId(applicationId);
+    if (existing?.id) {
+      // Keep candidate visibility if interviewer didn't change; otherwise require acceptance again.
+      const keepAccepted = existing.interviewerUserId === interviewerUserId ? existing.interviewerAccepted : false;
+      await this.interviewRepository.rescheduleFromCompany(existing.id, {
+        scheduledDate,
+        scheduledTime,
+        interviewerUserId,
+        interviewerName,
+        round,
+      });
+      await this.interviewRepository.setInterviewerAccepted(existing.id, keepAccepted);
+    } else {
+      const roomName = `deview-interview-${applicationId}-${Date.now()}`;
+      await this.interviewRepository.create(
+        new Interview(
+          null,
+          companyId,
+          companyName,
+          jobId,
+          jobTitle,
+          roomName,
+          applicationId,
+          updated.candidateUserId,
+          updated.fullName,
+          interviewerUserId,
+          interviewerName,
+          round,
+          scheduledDate,
+          scheduledTime,
+          'SCHEDULED',
+          false, // interviewerAccepted - interviewer must accept before candidate sees it
+          undefined
+        )
+      );
+    }
+
+    reply.send(success({ application: ApplicationMapper.toView(updated) }));
+  };
+
+  declineRescheduleRequest = async (
+    request: FastifyRequest<{
+      Params: { jobId: string; applicationId: string };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const ctx = toContext(request.currentUser);
+    const { jobId, applicationId } = request.params;
+    const companyId = ctx.companyId || '';
+
+    // Set application back to interview scheduled so it leaves the reschedule requests tab.
+    const updated = await this.applicationRepository.updateStatus({
+      applicationId,
+      jobId,
+      companyId,
+      status: 'INTERVIEW_SCHEDULED',
+    });
+    if (!updated) {
+      return reply.status(404).send({ ok: false, error: 'Application not found' });
+    }
+
+    // Mark the reschedule request as declined on the interview (but keep the original schedule).
+    const existing = await this.interviewRepository.findActiveByApplicationId(applicationId);
+    if (existing?.id) {
+      await this.interviewRepository.declineCandidateRejection(existing.id);
+    }
 
     reply.send(success({ application: ApplicationMapper.toView(updated) }));
   };

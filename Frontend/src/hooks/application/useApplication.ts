@@ -138,6 +138,7 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     resumeUrl: apiApp.resumeUrl,
     aiScore: apiApp.aiScore,
     interviewDetails: apiApp.interviewDetails,
+    rescheduleRequest: apiApp.rescheduleRequest,
     attemptedRounds: apiApp.completedRounds ?? [],
     completedRounds: [], // Detailed round info for display (populated separately if needed)
   };

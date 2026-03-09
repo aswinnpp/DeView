@@ -35,6 +35,14 @@ export interface ApplicationView {
     scheduledDate: string;
     scheduledTime: string;
   };
+  rescheduleRequest?: {
+    originalDate: string;
+    originalTime: string;
+    requestedDate: string;
+    requestedTime: string;
+    reason: string;
+    requestedAt: string;
+  };
   /** Rounds the candidate has already attempted/completed */
   completedRounds?: string[];
   createdAt: string;

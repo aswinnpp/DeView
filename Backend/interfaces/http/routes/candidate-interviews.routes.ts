@@ -12,5 +12,13 @@ export async function candidateInterviewsRoutes(
     preHandler: requireRoles('candidate'),
     handler: controller.listMy,
   });
+
+  fastify.patch<{
+    Params: { interviewId: string };
+    Body: { requestedDate: string; reason: string };
+  }>('/interviews/:interviewId/reschedule', {
+    preHandler: requireRoles('candidate'),
+    handler: controller.requestReschedule,
+  });
 }
 

@@ -93,6 +93,8 @@ export interface InterviewItem {
   scheduledDate: string;
   scheduledTime: string;
   status: string;
+  candidateRejection?: { date: string; reason: string };
+  candidateRejectionStatus?: "PENDING" | "DECLINED";
   createdAt: string;
   updatedAt: string;
 }
@@ -147,8 +149,6 @@ export const candidateJobsService = {
       .get<InterviewItem[] | { data?: InterviewItem[] }>(API_ROUTES.CANDIDATE.MY_INTERVIEWS)
       .then((res) => {
         const body = res.data as unknown;
-        // Debug: inspect raw interviews payload
-        console.log("MY_INTERVIEWS raw response", body);
         if (Array.isArray(body)) {
           return body as InterviewItem[];
         }
@@ -160,4 +160,9 @@ export const candidateJobsService = {
         }
         return [] as InterviewItem[];
       }),
+
+  requestInterviewReschedule: (interviewId: string, payload: { requestedDate: string; reason: string }) =>
+    api
+      .patch(API_ROUTES.CANDIDATE.REQUEST_RESCHEDULE(interviewId), payload)
+      .then((res) => res.data),
 };

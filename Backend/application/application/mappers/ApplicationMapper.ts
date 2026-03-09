@@ -36,6 +36,19 @@ export const ApplicationMapper = {
       status: app.status,
       aiScore: app.aiScore,
       interviewDetails: app.interviewDetails,
+      rescheduleRequest: app.rescheduleRequest
+        ? {
+            originalDate: app.rescheduleRequest.originalDate,
+            originalTime: app.rescheduleRequest.originalTime,
+            requestedDate: app.rescheduleRequest.requestedDate,
+            requestedTime: app.rescheduleRequest.requestedTime,
+            reason: app.rescheduleRequest.reason,
+            requestedAt:
+              app.rescheduleRequest.requestedAt instanceof Date
+                ? app.rescheduleRequest.requestedAt.toISOString()
+                : String(app.rescheduleRequest.requestedAt),
+          }
+        : undefined,
       completedRounds: app.completedRounds ?? [],
       createdAt: app.createdAt instanceof Date ? app.createdAt.toISOString() : String(app.createdAt),
       updatedAt: app.updatedAt instanceof Date ? app.updatedAt.toISOString() : String(app.updatedAt),

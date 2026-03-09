@@ -6,11 +6,13 @@ import { APP_ROUTES } from "../../constants/routes";
 import SearchBar from "../../components/common/SearchBar";
 import SortFilter from "../../components/common/SortFilter";
 import { Button } from "../../components/common";
+import { showToast } from "../../components/common/toastService";
 
 const CandidateInterviews = () => {
   const navigate = useNavigate();
   const [interviews, setInterviews] = useState<InterviewItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"UPCOMING" | "RESCHEDULED">("UPCOMING");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"date" | "company">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -129,17 +131,31 @@ const CandidateInterviews = () => {
     }
     try {
       setIsSubmittingReschedule(true);
-      // TODO: hook up to reschedule API when available
-      console.log("Reschedule request", {
-        interviewId: selectedInterview.id,
-        newDate: rescheduleDate,
+      await candidateJobsService.requestInterviewReschedule(selectedInterview.id, {
+        requestedDate: rescheduleDate,
         reason: rescheduleReason,
       });
+
+      const data = await candidateJobsService.listMyInterviews();
+      setInterviews(data);
+      setActiveTab("RESCHEDULED");
+      showToast("Reschedule request submitted", "success");
       closeRescheduleModal();
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Could not submit reschedule request";
+      showToast(message, "error");
     } finally {
       setIsSubmittingReschedule(false);
     }
   };
+
+  const tabbedInterviews = useMemo(() => {
+    return filteredInterviews.filter((i) =>
+      activeTab === "UPCOMING"
+        ? i.status === "SCHEDULED"
+        : i.status === "RESCHEDULED" || i.candidateRejectionStatus === "DECLINED"
+    );
+  }, [filteredInterviews, activeTab]);
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)]">
@@ -150,11 +166,38 @@ const CandidateInterviews = () => {
           <div className="mb-6 max-md:mb-4 space-y-4">
             <div>
               <h2 className="text-white text-2xl max-md:text-xl font-semibold flex items-center gap-3">
-                Upcoming Interviews
+                {activeTab === "UPCOMING" ? "Upcoming Interviews" : "Reschedule Requests"}
               </h2>
               <p className="mt-1 text-xs text-slate-400 max-w-xl">
-                View and join your scheduled interviews. Search and sort to find the right one quickly.
+                {activeTab === "UPCOMING"
+                  ? "View and join your scheduled interviews. Search and sort to find the right one quickly."
+                  : "Track your reschedule requests and their status."}
               </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveTab("UPCOMING")}
+                className={`rounded-full px-4 py-2 text-xs font-semibold tracking-wide border transition-colors ${
+                  activeTab === "UPCOMING"
+                    ? "bg-violet-500/20 text-violet-200 border-violet-500/40"
+                    : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
+                }`}
+              >
+                Upcoming
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("RESCHEDULED")}
+                className={`rounded-full px-4 py-2 text-xs font-semibold tracking-wide border transition-colors ${
+                  activeTab === "RESCHEDULED"
+                    ? "bg-amber-500/20 text-amber-200 border-amber-500/40"
+                    : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
+                }`}
+              >
+                Reschedule Requests
+              </button>
             </div>
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -190,32 +233,38 @@ const CandidateInterviews = () => {
 
           {isLoading ? (
             <div className="text-center py-12 text-slate-400 text-sm">Loading interviews...</div>
-          ) : filteredInterviews.length === 0 ? (
+          ) : tabbedInterviews.length === 0 ? (
             <div className="text-center py-10 max-md:py-8 text-[#94a3b8]">
               <p className="text-base max-md:text-sm">
-                {searchQuery ? "No interviews match your search." : "No scheduled interviews yet."}
+                {searchQuery
+                  ? "No interviews match your search."
+                  : activeTab === "UPCOMING"
+                    ? "No scheduled interviews yet."
+                    : "No reschedule requests yet."}
               </p>
               <p className="text-[#64748b] text-sm max-md:text-xs mt-2">
-                When HR schedules an interview for you, it will appear here.
+                {activeTab === "UPCOMING"
+                  ? "When HR schedules an interview for you, it will appear here."
+                  : "When you request a reschedule, it will appear here for review."}
               </p>
             </div>
           ) : (
             <div
               className={`grid gap-4 ${
-                filteredInterviews.length === 1
+                tabbedInterviews.length === 1
                   ? "grid-cols-1"
-                  : filteredInterviews.length === 2
+                  : tabbedInterviews.length === 2
                     ? "grid-cols-1 sm:grid-cols-2"
-                    : filteredInterviews.length === 3
+                    : tabbedInterviews.length === 3
                       ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                       : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
               }`}
             >
-              {filteredInterviews.map((interview) => (
+              {tabbedInterviews.map((interview) => (
                 <div
                   key={interview.id}
                   className={`flex flex-col justify-between rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-900/40 hover:bg-white/[0.04] transition-colors ${
-                    filteredInterviews.length === 1 ? "p-8 md:p-10 lg:p-12" : "p-6 md:p-7"
+                    tabbedInterviews.length === 1 ? "p-8 md:p-10 lg:p-12" : "p-6 md:p-7"
                   }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
@@ -243,25 +292,58 @@ const CandidateInterviews = () => {
                           </span>
                         </div>
                       </div>
+
+                      {activeTab === "RESCHEDULED" && interview.candidateRejection && (
+                        <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs md:text-sm text-slate-100">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-300 mb-2">
+                            Requested reschedule{" "}
+                            {interview.candidateRejectionStatus === "DECLINED" ? (
+                              <span className="ml-2 rounded-full bg-rose-500/20 px-2 py-0.5 text-[10px] font-semibold text-rose-200">
+                                Cancelled
+                              </span>
+                            ) : (
+                              <span className="ml-2 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-semibold text-amber-200">
+                                Pending
+                              </span>
+                            )}
+                          </p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <p className="text-[11px] text-slate-400 uppercase">New date</p>
+                              <p className="mt-1">{formatDate(interview.candidateRejection.date)}</p>
+                            </div>
+                            <div>
+                              <p className="text-[11px] text-slate-400 uppercase">Reason</p>
+                              <p className="mt-1">{interview.candidateRejection.reason}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="rounded-xl bg-slate-900/70 px-4 py-2.5 text-xs md:text-sm text-slate-200">
-                      <span className="text-slate-400">Starts in:</span>{" "}
-                      <span className="font-semibold text-emerald-300">
-                        {formatCountdown(interview.scheduledDate, interview.scheduledTime)}
-                      </span>
-                    </div>
+                    {activeTab === "UPCOMING" && (
+                      <div className="rounded-xl bg-slate-900/70 px-4 py-2.5 text-xs md:text-sm text-slate-200">
+                        <span className="text-slate-400">Starts in:</span>{" "}
+                        <span className="font-semibold text-emerald-300">
+                          {formatCountdown(interview.scheduledDate, interview.scheduledTime)}
+                        </span>
+                      </div>
+                    )}
 
                     <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <Button variant="amber" onClick={() => openRescheduleModal(interview)}>
-                        Reschedule
-                      </Button>
-                      <Button
-                        variant="violet"
-                        onClick={() => navigate(APP_ROUTES.INTERVIEW_ROOM(interview.id))}
-                      >
-                        Join Interview
-                      </Button>
+                      {activeTab === "UPCOMING" && (
+                        <>
+                          <Button variant="amber" onClick={() => openRescheduleModal(interview)}>
+                            Reschedule
+                          </Button>
+                          <Button
+                            variant="violet"
+                            onClick={() => navigate(APP_ROUTES.INTERVIEW_ROOM(interview.id))}
+                          >
+                            Join Interview
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

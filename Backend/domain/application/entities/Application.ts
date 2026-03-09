@@ -16,6 +16,15 @@ export type InterviewDetails = {
   scheduledTime: string; // HH:mm
 };
 
+export type RescheduleRequest = {
+  originalDate: string;
+  originalTime: string;
+  requestedDate: string;
+  requestedTime: string;
+  reason: string;
+  requestedAt: Date;
+};
+
 export class Application {
   constructor(
     public id: string | null,
@@ -45,6 +54,7 @@ export class Application {
     public status: ApplicationStatus = 'PENDING',
     public aiScore?: number,
     public interviewDetails?: InterviewDetails,
+    public rescheduleRequest?: RescheduleRequest,
     /** Rounds the candidate has already attempted/completed */
     public completedRounds: string[] = [],
     public rejectionEmailContent?: string,

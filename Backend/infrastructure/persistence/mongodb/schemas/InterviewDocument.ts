@@ -15,9 +15,13 @@ export interface IInterviewDocument {
   round: string;
   scheduledDate: string;
   scheduledTime: string;
-  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
+  status: 'SCHEDULED' | 'RESCHEDULED' | 'COMPLETED' | 'CANCELLED';
   interviewerAccepted?: boolean;
   interviewerRejectReason?: string;
+  /** Candidate requested to reschedule (date + reason). */
+  candidateRejection?: { date: string; reason: string };
+  /** Status of candidate reschedule request (pending/declined). */
+  candidateRejectionStatus?: 'PENDING' | 'DECLINED';
   createdAt: Date;
   updatedAt: Date;
 }

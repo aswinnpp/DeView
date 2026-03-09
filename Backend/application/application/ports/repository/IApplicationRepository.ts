@@ -61,4 +61,19 @@ export interface IApplicationRepository {
       scheduledTime: string;
     };
   }): Promise<Application | null>;
+
+  /** Candidate requests to reschedule an interview; stored on the application. */
+  setRescheduleRequest(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    rescheduleRequest: {
+      originalDate: string;
+      originalTime: string;
+      requestedDate: string;
+      requestedTime: string;
+      reason: string;
+      requestedAt: Date;
+    };
+  }): Promise<Application | null>;
 }

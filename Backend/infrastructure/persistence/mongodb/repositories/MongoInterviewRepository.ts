@@ -23,7 +23,7 @@ export class MongoInterviewRepository
     const filter: Filter<IInterviewDocument> = {
       candidateUserId,
       interviewerAccepted: true,
-      status: { $in: ['SCHEDULED'] },
+      status: { $in: ['SCHEDULED', 'RESCHEDULED'] },
     };
     const docs = await this.collection
       .find(filter)
@@ -35,7 +35,7 @@ export class MongoInterviewRepository
   async listByInterviewerUserId(interviewerUserId: string): Promise<Interview[]> {
     const filter: Filter<IInterviewDocument> = {
       interviewerUserId,
-      status: { $in: ['SCHEDULED'] },
+      status: { $in: ['SCHEDULED', 'RESCHEDULED'] },
     };
     const docs = await this.collection
       .find(filter)
@@ -64,7 +64,84 @@ export class MongoInterviewRepository
     return result ? this.toDomain(result) : null;
   }
 
-  async updateStatus(id: string, status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'): Promise<Interview | null> {
+  async setCandidateRejection(id: string, input: { date: string; reason: string }): Promise<Interview | null> {
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(id);
+    } catch {
+      return null;
+    }
+    const update: Partial<IInterviewDocument> = {
+      status: 'RESCHEDULED',
+      candidateRejection: { date: input.date.trim(), reason: input.reason.trim() },
+      candidateRejectionStatus: 'PENDING',
+      updatedAt: new Date(),
+    };
+    const result = await this.collection.findOneAndUpdate(
+      { _id },
+      { $set: update },
+      { returnDocument: 'after' }
+    );
+    return result ? this.toDomain(result) : null;
+  }
+
+  async findActiveByApplicationId(applicationId: string): Promise<Interview | null> {
+    const doc = await this.collection
+      .find({ applicationId, status: { $in: ['SCHEDULED', 'RESCHEDULED'] } })
+      .sort({ createdAt: -1 })
+      .limit(1)
+      .next();
+    return doc ? this.toDomain(doc) : null;
+  }
+
+  async declineCandidateRejection(id: string): Promise<Interview | null> {
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(id);
+    } catch {
+      return null;
+    }
+    const update: Partial<IInterviewDocument> = {
+      status: 'SCHEDULED',
+      candidateRejectionStatus: 'DECLINED',
+      updatedAt: new Date(),
+    };
+    const result = await this.collection.findOneAndUpdate(
+      { _id },
+      { $set: update },
+      { returnDocument: 'after' }
+    );
+    return result ? this.toDomain(result) : null;
+  }
+
+  async rescheduleFromCompany(
+    id: string,
+    input: { scheduledDate: string; scheduledTime: string; interviewerUserId: string; interviewerName: string; round: string }
+  ): Promise<Interview | null> {
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(id);
+    } catch {
+      return null;
+    }
+    const update: Partial<IInterviewDocument> = {
+      scheduledDate: input.scheduledDate.trim(),
+      scheduledTime: input.scheduledTime.trim(),
+      interviewerUserId: input.interviewerUserId.trim(),
+      interviewerName: input.interviewerName.trim(),
+      round: input.round.trim(),
+      status: 'SCHEDULED',
+      updatedAt: new Date(),
+    };
+    const result = await this.collection.findOneAndUpdate(
+      { _id },
+      { $set: update, $unset: { candidateRejection: '', candidateRejectionStatus: '', interviewerRejectReason: '' } },
+      { returnDocument: 'after' }
+    );
+    return result ? this.toDomain(result) : null;
+  }
+
+  async updateStatus(id: string, status: IInterviewDocument['status']): Promise<Interview | null> {
     let _id: ObjectId;
     try {
       _id = new ObjectId(id);
@@ -119,6 +196,8 @@ export class MongoInterviewRepository
       doc.status,
       doc.interviewerAccepted ?? false,
       doc.interviewerRejectReason,
+      doc.candidateRejection,
+      doc.candidateRejectionStatus,
       doc.createdAt,
       doc.updatedAt
     );
@@ -143,6 +222,8 @@ export class MongoInterviewRepository
       status: entity.status,
       interviewerAccepted: entity.interviewerAccepted,
       interviewerRejectReason: entity.interviewerRejectReason,
+      candidateRejection: entity.candidateRejection,
+      candidateRejectionStatus: entity.candidateRejectionStatus,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

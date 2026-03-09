@@ -31,4 +31,8 @@ export async function applicationsRoutes(
   fastify.post('/jobs/:jobId/applications/:applicationId/interview', {
     handler: controller.scheduleInterview,
   });
+
+  fastify.patch('/jobs/:jobId/applications/:applicationId/reschedule/decline', {
+    handler: controller.declineRescheduleRequest,
+  });
 }

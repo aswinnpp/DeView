@@ -1,4 +1,7 @@
-export type InterviewStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
+export type InterviewStatus = 'SCHEDULED' | 'RESCHEDULED' | 'COMPLETED' | 'CANCELLED';
+
+export type CandidateRejection = { date: string; reason: string };
+export type CandidateRejectionStatus = 'PENDING' | 'DECLINED';
 
 export class Interview {
   constructor(
@@ -19,6 +22,8 @@ export class Interview {
     public status: InterviewStatus = 'SCHEDULED',
     public interviewerAccepted: boolean = false,
     public interviewerRejectReason?: string,
+    public candidateRejection?: CandidateRejection,
+    public candidateRejectionStatus?: CandidateRejectionStatus,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) {}

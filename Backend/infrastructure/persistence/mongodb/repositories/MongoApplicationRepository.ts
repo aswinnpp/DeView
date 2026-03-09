@@ -36,6 +36,7 @@ function toDomain(doc: IApplicationDocument): Application {
     doc.status,
     doc.aiScore,
     doc.interviewDetails,
+    doc.rescheduleRequest,
     doc.completedRounds ?? [],
     doc.rejectionEmailContent,
     doc.rejectionSentAt,
@@ -53,7 +54,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
   async listByJobId(
     jobId: string,
     companyId: string,
-    status?: 'PENDING' | 'SHORTLISTED' | 'REJECTED'
+    status?: ApplicationStatus
   ): Promise<Application[]> {
     const filter: Filter<IApplicationDocument> = { jobId, companyId };
     if (status) filter.status = status;
@@ -283,6 +284,40 @@ export class MongoApplicationRepository implements IApplicationRepository {
         $set: {
           status: 'INTERVIEW_SCHEDULED',
           interviewDetails,
+          updatedAt: new Date(),
+        },
+        $unset: {
+          rescheduleRequest: '',
+        },
+      }
+    );
+
+    if (!updateResult.matchedCount) return null;
+    const doc = await this.collection.findOne({ _id, jobId, companyId });
+    return doc ? toDomain(doc) : null;
+  }
+
+  async setRescheduleRequest(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    rescheduleRequest: NonNullable<IApplicationDocument['rescheduleRequest']>;
+  }): Promise<Application | null> {
+    const { applicationId, jobId, companyId, rescheduleRequest } = input;
+
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(applicationId);
+    } catch {
+      return null;
+    }
+
+    const updateResult = await this.collection.updateOne(
+      { _id, jobId, companyId },
+      {
+        $set: {
+          status: 'RESCHEDULE_REQUESTED',
+          rescheduleRequest,
           updatedAt: new Date(),
         },
       }

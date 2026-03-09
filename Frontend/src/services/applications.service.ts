@@ -43,6 +43,14 @@ export interface ApplicationItem {
     scheduledDate: string;
     scheduledTime: string;
   };
+  rescheduleRequest?: {
+    originalDate: string;
+    originalTime: string;
+    requestedDate: string;
+    requestedTime: string;
+    reason: string;
+    requestedAt: string;
+  };
   completedRounds?: string[];
   createdAt: string;
   updatedAt: string;
@@ -229,5 +237,10 @@ export const applicationsService = {
     const app = (res.data as { application?: ApplicationItem })?.application;
     if (!app) throw new Error("No application returned");
     return app;
+  },
+
+  /** Decline a candidate reschedule request (keeps original schedule). */
+  declineRescheduleRequest: async (jobId: string, applicationId: string): Promise<void> => {
+    await api.patch(API_ROUTES.APPLICATIONS.DECLINE_RESCHEDULE(jobId, applicationId));
   },
 };
