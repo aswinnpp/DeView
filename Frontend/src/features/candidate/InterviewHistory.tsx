@@ -1,12 +1,20 @@
 import React, { useState } from "react";
 import CandidateNavHeader from "./CandidateNavHeader";
-import { Button, Table, SearchInput } from "../../components/common";
+import { Button, Table, SearchInput, Pagination } from "../../components/common";
 import { useCandidateInterviewHistory } from "../../hooks/candidate/useCandidateInterviewHistory";
 import type { CandidateInterviewHistoryItem } from "../../services/candidateInterviewHistory.service";
 
+const ITEMS_PER_PAGE = 10;
+
 const InterviewHistory: React.FC = () => {
+    const [searchValue, setSearchValue] = useState("");
+    const [page, setPage] = useState(1);
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
     const {
         interviews,
+        total,
+        totalPages,
         isLoading,
         error,
         selectedRow,
@@ -15,11 +23,12 @@ const InterviewHistory: React.FC = () => {
         toggleExpandRow,
         formatDate,
         formatTime,
-    } = useCandidateInterviewHistory();
-
-    const [searchValue, setSearchValue] = useState("");
-    const [sortBy, setSortBy] = useState<"date" | "score">("date");
-    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+    } = useCandidateInterviewHistory({
+        search: searchValue,
+        page,
+        limit: ITEMS_PER_PAGE,
+        sortOrder,
+    });
 
     const columns = [
         {
@@ -109,56 +118,36 @@ const InterviewHistory: React.FC = () => {
 
                 <div className="px-4 sm:px-6 lg:px-10 py-7">
                     <div>
-                        {/* Search and Sort Controls (UI only) */}
+                        {/* Search and Filter Controls (backend) */}
                         <div className="flex flex-wrap items-end gap-3 mb-4">
                             <div className="flex-1 min-w-[250px]">
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5">
-                                    Search Interviews
+                                    Search by company
                                 </label>
                                 <SearchInput
-                                    placeholder="Search by company or interviewer..."
-                                    onSearch={(value) => setSearchValue(value)}
+                                    placeholder="Search by company name..."
+                                    onSearch={(value) => {
+                                        setSearchValue(value);
+                                        setPage(1);
+                                    }}
                                 />
                             </div>
-                            <div className="min-w-[140px]">
+                            <div className="min-w-[160px]">
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5">
-                                    Sort By
-                                </label>
-                                <select
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value as "date" | "score")}
-                                    className="w-full py-2.5 px-3.5 rounded-lg border border-slate-600 bg-slate-900 text-sm text-slate-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500"
-                                >
-                                    <option value="date">Date</option>
-                                    <option value="score">Score</option>
-                                </select>
-                            </div>
-                            <div className="min-w-[130px]">
-                                <label className="block text-xs font-semibold text-slate-400 mb-1.5">
-                                    Order
+                                    Filter
                                 </label>
                                 <select
                                     value={sortOrder}
-                                    onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
+                                    onChange={(e) => {
+                                        setSortOrder(e.target.value as "asc" | "desc");
+                                        setPage(1);
+                                    }}
                                     className="w-full py-2.5 px-3.5 rounded-lg border border-slate-600 bg-slate-900 text-sm text-slate-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500"
                                 >
-                                    <option value="desc">Newest First</option>
-                                    <option value="asc">Oldest First</option>
+                                    <option value="desc">Newest first</option>
+                                    <option value="asc">Oldest first</option>
                                 </select>
                             </div>
-                            {(searchValue || sortBy !== "date" || sortOrder !== "desc") && (
-                                <Button
-                                    variant="ghostOutline"
-                                    onClick={() => {
-                                        setSearchValue("");
-                                        setSortBy("date");
-                                        setSortOrder("desc");
-                                    }}
-                                    className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium"
-                                >
-                                    Reset
-                                </Button>
-                            )}
                         </div>
 
                         <div className="mt-4">
@@ -175,9 +164,21 @@ const InterviewHistory: React.FC = () => {
                                         : "No interviews match the selected filter."
                                 }
                             />
-                        </div>
 
-                       
+                            {!isLoading && interviews.length > 0 && (
+                                <Pagination
+                                    page={page}
+                                    totalPages={totalPages}
+                                    onPageChange={setPage}
+                                    leftContent={
+                                        <span>
+                                            Showing {(page - 1) * ITEMS_PER_PAGE + 1}–
+                                            {Math.min(page * ITEMS_PER_PAGE, total)} of {total}
+                                        </span>
+                                    }
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

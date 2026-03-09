@@ -11,10 +11,35 @@ export interface CandidateInterviewHistoryItem {
   createdAt: string;
 }
 
+export interface ListInterviewHistoryParams {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface ListInterviewHistoryResult {
+  data: CandidateInterviewHistoryItem[];
+  total: number;
+}
+
 export const candidateInterviewHistoryService = {
-  list: () =>
-    api.get<{ success: true; data: CandidateInterviewHistoryItem[] }>(
-      API_ROUTES.CANDIDATE.INTERVIEW_FEEDBACKS
-    ),
+  list: (params?: ListInterviewHistoryParams) =>
+    api
+      .get<{ data: CandidateInterviewHistoryItem[]; total: number }>(
+        API_ROUTES.CANDIDATE.INTERVIEW_FEEDBACKS,
+        {
+          params: {
+            search: params?.search?.trim() || undefined,
+            page: params?.page,
+            limit: params?.limit,
+            sortOrder: params?.sortOrder,
+          },
+        }
+      )
+      .then((res) => ({
+        data: res.data?.data ?? [],
+        total: res.data?.total ?? 0,
+      })),
 };
 

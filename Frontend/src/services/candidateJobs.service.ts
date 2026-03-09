@@ -144,21 +144,22 @@ export const candidateJobsService = {
       })
       .then((res) => toMyApplicationsResult(res.data)),
 
-  listMyInterviews: () =>
+  listMyInterviews: (params?: { search?: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }) =>
     api
-      .get<InterviewItem[] | { data?: InterviewItem[] }>(API_ROUTES.CANDIDATE.MY_INTERVIEWS)
+      .get<{ data: InterviewItem[]; total: number }>(API_ROUTES.CANDIDATE.MY_INTERVIEWS, {
+        params: {
+          search: params?.search?.trim() || undefined,
+          page: params?.page,
+          limit: params?.limit,
+          sortOrder: params?.sortOrder,
+        },
+      })
       .then((res) => {
-        const body = res.data as unknown;
-        if (Array.isArray(body)) {
-          return body as InterviewItem[];
+        const body = res.data;
+        if (body && typeof body === "object" && "data" in body && "total" in body) {
+          return { data: (body.data ?? []) as InterviewItem[], total: (body.total as number) ?? 0 };
         }
-        if (body && typeof body === "object" && "data" in body) {
-          const obj = body as { data?: unknown };
-          if (Array.isArray(obj.data)) {
-            return obj.data as InterviewItem[];
-          }
-        }
-        return [] as InterviewItem[];
+        return { data: [], total: 0 };
       }),
 
   requestInterviewReschedule: (interviewId: string, payload: { requestedDate: string; reason: string }) =>

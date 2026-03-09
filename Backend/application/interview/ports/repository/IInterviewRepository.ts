@@ -1,8 +1,18 @@
 import type { Interview, InterviewStatus } from '../../../../domain/interview/entities/Interview.js';
 
+export interface ListByCandidateUserIdOptions {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortOrder?: 'asc' | 'desc';
+}
+
 export interface IInterviewRepository {
   create(interview: Interview): Promise<Interview>;
-  listByCandidateUserId(candidateUserId: string): Promise<Interview[]>;
+  listByCandidateUserId(
+    candidateUserId: string,
+    options?: ListByCandidateUserIdOptions
+  ): Promise<{ data: Interview[]; total: number }>;
   listByInterviewerUserId(interviewerUserId: string): Promise<Interview[]>;
   listCompletedByInterviewerUserId(interviewerUserId: string): Promise<Interview[]>;
   listByCompanyId(companyId: string): Promise<Interview[]>;

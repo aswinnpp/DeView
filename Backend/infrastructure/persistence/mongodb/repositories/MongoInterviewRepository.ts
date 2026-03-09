@@ -19,17 +19,38 @@ export class MongoInterviewRepository
     return this.toDomain({ ...doc, _id: res.insertedId });
   }
 
-  async listByCandidateUserId(candidateUserId: string): Promise<Interview[]> {
+  async listByCandidateUserId(
+    candidateUserId: string,
+    options?: { search?: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }
+  ): Promise<{ data: Interview[]; total: number }> {
     const filter: Filter<IInterviewDocument> = {
       candidateUserId,
       interviewerAccepted: true,
       status: { $in: ['SCHEDULED', 'RESCHEDULED'] },
     };
-    const docs = await this.collection
-      .find(filter)
-      .sort({ createdAt: -1 })
-      .toArray();
-    return docs.map((d) => this.toDomain(d));
+
+    if (options?.search && options.search.trim()) {
+      const q = options.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.companyName = { $regex: q, $options: 'i' };
+    }
+
+    const page = Math.max(1, options?.page ?? 1);
+    const limit = Math.max(1, Math.min(100, options?.limit ?? 20));
+    const skip = (page - 1) * limit;
+    const sortDir = options?.sortOrder === 'asc' ? 1 : -1;
+
+    const [docs, total] = await Promise.all([
+      this.collection
+        .find(filter)
+        .sort({ createdAt: sortDir })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+      this.collection.countDocuments(filter),
+    ]);
+
+    const data = docs.map((d) => this.toDomain(d));
+    return { data, total };
   }
 
   async listByInterviewerUserId(interviewerUserId: string): Promise<Interview[]> {

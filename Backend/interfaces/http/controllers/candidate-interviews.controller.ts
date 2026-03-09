@@ -17,10 +17,25 @@ export class CandidateInterviewsController {
     private readonly listMyInterviewFeedbacksUseCase: IListMyInterviewFeedbacksUseCase
   ) {}
 
-  listMy = async (request: FastifyRequest, reply: FastifyReply) => {
+  listMy = async (
+    request: FastifyRequest<{
+      Querystring: { search?: string; page?: string; limit?: string; sortOrder?: string };
+    }>,
+    reply: FastifyReply
+  ) => {
     const candidateUserId = request.currentUser.userId;
-    const result = await this.listMyInterviewsUseCase.execute({ candidateUserId });
-    reply.send(success({ data: result.data }));
+    const { search, page, limit, sortOrder } = request.query;
+    const parsedPage = page != null && page !== '' ? parseInt(page, 10) : undefined;
+    const parsedLimit = limit != null && limit !== '' ? parseInt(limit, 10) : undefined;
+    const validSortOrder = sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : undefined;
+    const result = await this.listMyInterviewsUseCase.execute({
+      candidateUserId,
+      search: search?.trim() || undefined,
+      page: Number.isFinite(parsedPage) && parsedPage! >= 1 ? parsedPage : undefined,
+      limit: Number.isFinite(parsedLimit) && parsedLimit! >= 1 ? parsedLimit : undefined,
+      sortOrder: validSortOrder,
+    });
+    reply.send(success({ data: result.data, total: result.total }));
   };
 
   requestReschedule = async (
@@ -44,12 +59,25 @@ export class CandidateInterviewsController {
     reply.send(success({ interview: result.interview }));
   };
 
-  listMyFeedbacks = async (request: FastifyRequest, reply: FastifyReply) => {
+  listMyFeedbacks = async (
+    request: FastifyRequest<{
+      Querystring: { search?: string; page?: string; limit?: string; sortOrder?: string };
+    }>,
+    reply: FastifyReply
+  ) => {
     const candidateUserId = request.currentUser.userId;
-    const result = await this.listMyInterviewFeedbacksUseCase.execute({ candidateUserId });
-    console.log("result", result.data);
-    
-    reply.send(success(result.data));
+    const { search, page, limit, sortOrder } = request.query;
+    const parsedPage = page != null && page !== '' ? parseInt(page, 10) : undefined;
+    const parsedLimit = limit != null && limit !== '' ? parseInt(limit, 10) : undefined;
+    const validSortOrder = sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : undefined;
+    const result = await this.listMyInterviewFeedbacksUseCase.execute({
+      candidateUserId,
+      search: search?.trim() || undefined,
+      page: Number.isFinite(parsedPage) && parsedPage! >= 1 ? parsedPage : undefined,
+      limit: Number.isFinite(parsedLimit) && parsedLimit! >= 1 ? parsedLimit : undefined,
+      sortOrder: validSortOrder,
+    });
+    reply.send(success({ data: result.data, total: result.total }));
   };
 }
 

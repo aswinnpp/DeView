@@ -12,8 +12,16 @@ export interface ICandidateInterviewHistoryItem {
   createdAt: string;
 }
 
+export interface IListMyInterviewFeedbacksInput {
+  candidateUserId: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortOrder?: 'asc' | 'desc';
+}
+
 export interface IListMyInterviewFeedbacksUseCase {
-  execute(input: { candidateUserId: string }): Promise<{ data: ICandidateInterviewHistoryItem[] }>;
+  execute(input: IListMyInterviewFeedbacksInput): Promise<{ data: ICandidateInterviewHistoryItem[]; total: number }>;
 }
 
 @injectable()
@@ -23,10 +31,18 @@ export class ListMyInterviewFeedbacksUseCase implements IListMyInterviewFeedback
     private readonly feedbackRepo: IInterviewFeedbackRepository
   ) {}
 
-  async execute(input: { candidateUserId: string }): Promise<{ data: ICandidateInterviewHistoryItem[] }> {
-    const feedbacks = await this.feedbackRepo.listByCandidateUserId(input.candidateUserId);
+  async execute(input: IListMyInterviewFeedbacksInput): Promise<{
+    data: ICandidateInterviewHistoryItem[];
+    total: number;
+  }> {
+    const { candidateUserId, search, page, limit, sortOrder } = input;
+    const { data: feedbacks, total } = await this.feedbackRepo.listByCandidateUserId(candidateUserId, {
+      search,
+      page,
+      limit,
+      sortOrder,
+    });
 
-    
     const items: ICandidateInterviewHistoryItem[] = feedbacks.map((fb) => ({
       id: fb.id ?? fb.interviewId,
       interviewId: fb.interviewId,
@@ -37,7 +53,7 @@ export class ListMyInterviewFeedbacksUseCase implements IListMyInterviewFeedback
       createdAt: fb.createdAt.toISOString(),
     }));
 
-    return { data: items };
+    return { data: items, total };
   }
 }
 

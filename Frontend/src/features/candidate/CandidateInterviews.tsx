@@ -1,20 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CandidateNavHeader from "./CandidateNavHeader";
 import { candidateJobsService, type InterviewItem } from "../../services/candidateJobs.service";
 import { APP_ROUTES } from "../../constants/routes";
 import SearchBar from "../../components/common/SearchBar";
-import SortFilter from "../../components/common/SortFilter";
-import { Button } from "../../components/common";
+import { Button, Pagination } from "../../components/common";
 import { showToast } from "../../components/common/toastService";
+
+const ITEMS_PER_PAGE = 2;
 
 const CandidateInterviews = () => {
   const navigate = useNavigate();
   const [interviews, setInterviews] = useState<InterviewItem[]>([]);
+  const [totalInterviews, setTotalInterviews] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"UPCOMING" | "RESCHEDULED">("UPCOMING");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"date" | "company">("date");
+  const [page, setPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
@@ -23,23 +25,28 @@ const CandidateInterviews = () => {
   const [rescheduleReason, setRescheduleReason] = useState("");
   const [isSubmittingReschedule, setIsSubmittingReschedule] = useState(false);
 
+  const fetchInterviews = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { data, total } = await candidateJobsService.listMyInterviews({
+        search: searchQuery.trim() || undefined,
+        page,
+        limit: ITEMS_PER_PAGE,
+        sortOrder,
+      });
+      setInterviews(data);
+      setTotalInterviews(total);
+    } catch {
+      setInterviews([]);
+      setTotalInterviews(0);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [searchQuery, page, sortOrder]);
+
   useEffect(() => {
-    let cancelled = false;
-    const fetchInterviews = async () => {
-      try {
-        const data = await candidateJobsService.listMyInterviews();
-        if (!cancelled) setInterviews(data);
-      } catch {
-        if (!cancelled) setInterviews([]);
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    };
     fetchInterviews();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  }, [fetchInterviews]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -85,31 +92,6 @@ const CandidateInterviews = () => {
     return `${m}m ${s}s`;
   };
 
-  const filteredInterviews = useMemo(() => {
-    let result = [...interviews];
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter((item) =>
-        (item.companyName || "").toLowerCase().includes(q) ||
-        item.interviewerName.toLowerCase().includes(q) ||
-        item.jobTitle.toLowerCase().includes(q)
-      );
-    }
-
-    result.sort((a, b) => {
-      if (sortBy === "date") {
-        const aTime = new Date(`${a.scheduledDate}T${a.scheduledTime}`).getTime();
-        const bTime = new Date(`${b.scheduledDate}T${b.scheduledTime}`).getTime();
-        return sortOrder === "asc" ? aTime - bTime : bTime - aTime;
-      }
-      const compA = (a.companyName || "").toLowerCase();
-      const compB = (b.companyName || "").toLowerCase();
-      return sortOrder === "asc" ? compA.localeCompare(compB) : compB.localeCompare(compA);
-    });
-
-    return result;
-  }, [interviews, searchQuery, sortBy, sortOrder]);
 
   const openRescheduleModal = (interview: InterviewItem) => {
     setSelectedInterview(interview);
@@ -136,7 +118,12 @@ const CandidateInterviews = () => {
         reason: rescheduleReason,
       });
 
-      const data = await candidateJobsService.listMyInterviews();
+      const { data } = await candidateJobsService.listMyInterviews({
+        search: searchQuery.trim() || undefined,
+        page,
+        limit: ITEMS_PER_PAGE,
+        sortOrder,
+      });
       setInterviews(data);
       setActiveTab("RESCHEDULED");
       showToast("Reschedule request submitted", "success");
@@ -150,12 +137,14 @@ const CandidateInterviews = () => {
   };
 
   const tabbedInterviews = useMemo(() => {
-    return filteredInterviews.filter((i) =>
+    return interviews.filter((i) =>
       activeTab === "UPCOMING"
         ? i.status === "SCHEDULED"
         : i.status === "RESCHEDULED" || i.candidateRejectionStatus === "DECLINED"
     );
-  }, [filteredInterviews, activeTab]);
+  }, [interviews, activeTab]);
+
+  const totalPages = Math.max(1, Math.ceil(totalInterviews / ITEMS_PER_PAGE));
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)]">
@@ -170,7 +159,7 @@ const CandidateInterviews = () => {
               </h2>
               <p className="mt-1 text-xs text-slate-400 max-w-xl">
                 {activeTab === "UPCOMING"
-                  ? "View and join your scheduled interviews. Search and sort to find the right one quickly."
+                  ? "View and join your scheduled interviews. Search by company to find the right one quickly."
                   : "Track your reschedule requests and their status."}
               </p>
             </div>
@@ -200,34 +189,33 @@ const CandidateInterviews = () => {
               </button>
             </div>
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between sm:flex-wrap">
               <SearchBar
-                label="Search"
+                label="Search by company"
                 value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Company, interviewer, or job title"
+                onChange={(v) => {
+                  setSearchQuery(v);
+                  setPage(1);
+                }}
+                placeholder="Search by company name..."
                 className="w-full sm:max-w-xs lg:max-w-sm"
               />
-              <SortFilter
-                sortByOptions={[
-                  { value: "date", label: "Date & time" },
-                  { value: "company", label: "Company" },
-                ]}
-                orderOptions={[
-                  { value: "asc", label: "Earliest first" },
-                  { value: "desc", label: "Latest first" },
-                ]}
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-                onSortByChange={(v) => setSortBy(v as "date" | "company")}
-                onSortOrderChange={(v) => setSortOrder(v as "asc" | "desc")}
-                showReset={searchQuery !== "" || sortBy !== "date" || sortOrder !== "asc"}
-                onReset={() => {
-                  setSearchQuery("");
-                  setSortBy("date");
-                  setSortOrder("asc");
-                }}
-              />
+              <div className="min-w-[160px]">
+                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  Filter
+                </label>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => {
+                    setSortOrder(e.target.value as "asc" | "desc");
+                    setPage(1);
+                  }}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-2 text-xs text-slate-100 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/70"
+                >
+                  <option value="asc">Earliest first</option>
+                  <option value="desc">Latest first</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -349,6 +337,20 @@ const CandidateInterviews = () => {
                 </div>
               ))}
             </div>
+          )}
+
+          {!isLoading && tabbedInterviews.length > 0 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              leftContent={
+                <span>
+                  Showing {(page - 1) * ITEMS_PER_PAGE + 1}–
+                  {Math.min(page * ITEMS_PER_PAGE, totalInterviews)} of {totalInterviews}
+                </span>
+              }
+            />
           )}
         </div>
       </div>

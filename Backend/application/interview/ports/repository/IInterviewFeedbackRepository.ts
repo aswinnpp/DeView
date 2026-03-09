@@ -1,7 +1,17 @@
 import type { InterviewFeedback } from '../../../../domain/interview/entities/InterviewFeedback.js';
 
+export interface ListByCandidateUserIdOptions {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortOrder?: 'asc' | 'desc';
+}
+
 export interface IInterviewFeedbackRepository {
   create(feedback: InterviewFeedback): Promise<InterviewFeedback>;
-  listByCandidateUserId(candidateUserId: string): Promise<InterviewFeedback[]>;
+  listByCandidateUserId(
+    candidateUserId: string,
+    options?: ListByCandidateUserIdOptions
+  ): Promise<{ data: InterviewFeedback[]; total: number }>;
 }
 
