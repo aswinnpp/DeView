@@ -13,6 +13,11 @@ export async function candidateInterviewsRoutes(
     handler: controller.listMy,
   });
 
+  fastify.get('/interviews/feedbacks', {
+    preHandler: requireRoles('candidate'),
+    handler: controller.listMyFeedbacks,
+  });
+
   fastify.patch<{
     Params: { interviewId: string };
     Body: { requestedDate: string; reason: string };

@@ -93,6 +93,7 @@ export const TYPES = {
   InterviewFeedbackRepositoryPort: Symbol('InterviewFeedbackRepositoryPort'),
   ListCompletedInterviewsForInterviewerUseCasePort: Symbol('ListCompletedInterviewsForInterviewerUseCasePort'),
   SaveInterviewFeedbackUseCasePort: Symbol('SaveInterviewFeedbackUseCasePort'),
+  ListMyInterviewFeedbacksUseCasePort: Symbol('ListMyInterviewFeedbacksUseCasePort'),
 
   InterviewerProfileRepositoryPort: Symbol('InterviewerProfileRepositoryPort'),
   GetInterviewerProfileUseCasePort: Symbol('GetInterviewerProfileUseCasePort'),

@@ -19,6 +19,14 @@ export class MongoInterviewFeedbackRepository
     return this.toDomain({ ...doc, _id: res.insertedId });
   }
 
+  async listByCandidateUserId(candidateUserId: string): Promise<InterviewFeedback[]> {
+    const docs = await this.collection
+      .find({ candidateUserId })
+      .sort({ createdAt: -1 })
+      .toArray();
+    return docs.map((d) => this.toDomain(d));
+  }
+
   protected toDomain(doc: IInterviewFeedbackDocument): InterviewFeedback {
     return new InterviewFeedback(
       doc._id?.toString() ?? null,

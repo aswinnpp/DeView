@@ -2,5 +2,6 @@ import type { InterviewFeedback } from '../../../../domain/interview/entities/In
 
 export interface IInterviewFeedbackRepository {
   create(feedback: InterviewFeedback): Promise<InterviewFeedback>;
+  listByCandidateUserId(candidateUserId: string): Promise<InterviewFeedback[]>;
 }
 

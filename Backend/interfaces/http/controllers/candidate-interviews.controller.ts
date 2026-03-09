@@ -4,6 +4,7 @@ import { success } from '../../../shared/http/apiResponse.js';
 import { TYPES } from '../../../infrastructure/di/types.js';
 import type { IListMyInterviewsUseCase } from '../../../application/interview/use-cases/list-my-interviews.usecase.js';
 import type { IRequestCandidateRescheduleUseCase } from '../../../application/interview/use-cases/request-candidate-reschedule.usecase.js';
+import type { IListMyInterviewFeedbacksUseCase } from '../../../application/interview/use-cases/list-my-interview-feedbacks.usecase.js';
 
 @injectable()
 export class CandidateInterviewsController {
@@ -11,7 +12,9 @@ export class CandidateInterviewsController {
     @inject(TYPES.ListMyInterviewsUseCasePort)
     private readonly listMyInterviewsUseCase: IListMyInterviewsUseCase,
     @inject(TYPES.RequestCandidateRescheduleUseCasePort)
-    private readonly requestCandidateRescheduleUseCase: IRequestCandidateRescheduleUseCase
+    private readonly requestCandidateRescheduleUseCase: IRequestCandidateRescheduleUseCase,
+    @inject(TYPES.ListMyInterviewFeedbacksUseCasePort)
+    private readonly listMyInterviewFeedbacksUseCase: IListMyInterviewFeedbacksUseCase
   ) {}
 
   listMy = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -39,6 +42,14 @@ export class CandidateInterviewsController {
     });
 
     reply.send(success({ interview: result.interview }));
+  };
+
+  listMyFeedbacks = async (request: FastifyRequest, reply: FastifyReply) => {
+    const candidateUserId = request.currentUser.userId;
+    const result = await this.listMyInterviewFeedbacksUseCase.execute({ candidateUserId });
+    console.log("result", result.data);
+    
+    reply.send(success(result.data));
   };
 }
 

@@ -65,6 +65,7 @@ import { UpdateInterviewStatusUseCase } from '../../application/interview/use-ca
 import { RequestCandidateRescheduleUseCase } from '../../application/interview/use-cases/request-candidate-reschedule.usecase.js';
 import { ListCompletedInterviewsForInterviewerUseCase } from '../../application/interview/use-cases/list-completed-interviews-for-interviewer.usecase.js';
 import { SaveInterviewFeedbackUseCase } from '../../application/interview/use-cases/save-interview-feedback.usecase.ts';
+import { ListMyInterviewFeedbacksUseCase } from '../../application/interview/use-cases/list-my-interview-feedbacks.usecase.js';
 import { GetInterviewerProfileUseCase } from '../../application/interviewer/use-cases/get-interviewer-profile.usecase.js';
 import { CreateInterviewerProfileUseCase } from '../../application/interviewer/use-cases/create-interviewer-profile.usecase.js';
 import { UpdateInterviewerProfileUseCase } from '../../application/interviewer/use-cases/update-interviewer-profile.usecase.js';
@@ -146,6 +147,10 @@ export function bindUseCases(container: Container): void {
     .to(ListCompletedInterviewsForInterviewerUseCase);
 
   container.bind(TYPES.SaveInterviewFeedbackUseCasePort).to(SaveInterviewFeedbackUseCase);
+
+  container
+    .bind(TYPES.ListMyInterviewFeedbacksUseCasePort)
+    .to(ListMyInterviewFeedbacksUseCase);
 
   // Interviewer profile use cases
   container.bind(TYPES.GetInterviewerProfileUseCasePort).to(GetInterviewerProfileUseCase);

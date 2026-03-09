@@ -81,6 +81,7 @@ export const API_ROUTES = {
         MY_APPLICATIONS: '/candidate/applications/my',
         MY_INTERVIEWS: '/candidate/interviews/my',
         REQUEST_RESCHEDULE: (interviewId: string) => `/candidate/interviews/${interviewId}/reschedule`,
+        INTERVIEW_FEEDBACKS: '/candidate/interviews/feedbacks',
     },
 } as const;
 
