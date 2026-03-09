@@ -90,6 +90,10 @@ export const TYPES = {
   UpdateInterviewStatusUseCasePort: Symbol('UpdateInterviewStatusUseCasePort'),
   RequestCandidateRescheduleUseCasePort: Symbol('RequestCandidateRescheduleUseCasePort'),
 
+  InterviewFeedbackRepositoryPort: Symbol('InterviewFeedbackRepositoryPort'),
+  ListCompletedInterviewsForInterviewerUseCasePort: Symbol('ListCompletedInterviewsForInterviewerUseCasePort'),
+  SaveInterviewFeedbackUseCasePort: Symbol('SaveInterviewFeedbackUseCasePort'),
+
   InterviewerProfileRepositoryPort: Symbol('InterviewerProfileRepositoryPort'),
   GetInterviewerProfileUseCasePort: Symbol('GetInterviewerProfileUseCasePort'),
   CreateInterviewerProfileUseCasePort: Symbol('CreateInterviewerProfileUseCasePort'),

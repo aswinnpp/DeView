@@ -14,6 +14,7 @@ import type { IJobApplicationRepository } from '../../application/candidate/port
 import type { IApplicationRepository } from '../../application/application/ports/repository/IApplicationRepository.js';
 import type { IRejectionMailRepository } from '../../application/application/ports/repository/IRejectionMailRepository.js';
 import type { IInterviewRepository } from '../../application/interview/ports/repository/IInterviewRepository.js';
+import type { IInterviewFeedbackRepository } from '../../application/interview/ports/repository/IInterviewFeedbackRepository.js';
 import type { IInterviewerProfileRepository } from '../../application/interviewer/ports/repository/IInterviewerProfileRepository.js';
 import { MongoUserRepository } from '../persistence/mongodb/repositories/MongoUserRepository.js';
 import { MongoCompanyProfileRepository } from '../persistence/mongodb/repositories/MongoCompanyProfileRepository.js';
@@ -36,6 +37,8 @@ import { IRejectionMailDocument } from '../persistence/mongodb/schemas/Rejection
 import { MongoRejectionMailRepository } from '../persistence/mongodb/repositories/MongoRejectionMailRepository.js';
 import { IInterviewDocument } from '../persistence/mongodb/schemas/InterviewDocument.js';
 import { MongoInterviewRepository } from '../persistence/mongodb/repositories/MongoInterviewRepository.js';
+import { IInterviewFeedbackDocument } from '../persistence/mongodb/schemas/InterviewFeedbackDocument.js';
+import { MongoInterviewFeedbackRepository } from '../persistence/mongodb/repositories/MongoInterviewFeedbackRepository.js';
 import { IInterviewerProfileDocument } from '../persistence/mongodb/schemas/InterviewerProfileDocument.js';
 import { MongoInterviewerProfileRepository } from '../persistence/mongodb/repositories/MongoInterviewerProfileRepository.js';
 
@@ -74,6 +77,9 @@ const createRejectionMailRepository = (db: Db) =>
 
 const createInterviewRepository = (db: Db) =>
   new MongoInterviewRepository(db.collection<IInterviewDocument>('interviews'));
+
+const createInterviewFeedbackRepository = (db: Db) =>
+  new MongoInterviewFeedbackRepository(db.collection<IInterviewFeedbackDocument>('interviewFeedbacks'));
 
 const createInterviewerProfileRepository = (db: Db) =>
   new MongoInterviewerProfileRepository(db.collection<IInterviewerProfileDocument>('interviewerProfiles'));
@@ -125,6 +131,10 @@ export function bindRepositories(container: Container): void {
   container.bind<IInterviewRepository>(TYPES.InterviewRepositoryPort).toDynamicValue(() =>
     createInterviewRepository(container.get<Db>(TYPES.Db))
   );
+
+  container
+    .bind<IInterviewFeedbackRepository>(TYPES.InterviewFeedbackRepositoryPort)
+    .toDynamicValue(() => createInterviewFeedbackRepository(container.get<Db>(TYPES.Db)));
 
   container.bind<IInterviewerProfileRepository>(TYPES.InterviewerProfileRepositoryPort).toDynamicValue(() =>
     createInterviewerProfileRepository(container.get<Db>(TYPES.Db))

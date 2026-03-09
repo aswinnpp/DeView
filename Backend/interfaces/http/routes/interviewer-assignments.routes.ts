@@ -13,6 +13,11 @@ export async function interviewerAssignmentsRoutes(
     handler: controller.list,
   });
 
+  fastify.get('/completed-interviews', {
+    preHandler: requireRoles('interviewer'),
+    handler: controller.listCompleted,
+  });
+
   fastify.post('/assignments/:interviewId/accept', {
     preHandler: requireRoles('interviewer'),
     handler: controller.accept,
@@ -21,5 +26,10 @@ export async function interviewerAssignmentsRoutes(
   fastify.post('/assignments/:interviewId/reject', {
     preHandler: requireRoles('interviewer'),
     handler: controller.reject,
+  });
+
+  fastify.post('/interviews/:interviewId/feedback', {
+    preHandler: requireRoles('interviewer'),
+    handler: controller.submitFeedback,
   });
 }

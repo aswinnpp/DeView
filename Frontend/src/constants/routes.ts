@@ -70,6 +70,8 @@ export const API_ROUTES = {
         ASSIGNMENTS: '/interviewer/assignments',
         ACCEPT: (interviewId: string) => `/interviewer/assignments/${interviewId}/accept`,
         REJECT: (interviewId: string) => `/interviewer/assignments/${interviewId}/reject`,
+        COMPLETED: '/interviewer/completed-interviews',
+        SUBMIT_FEEDBACK: (interviewId: string) => `/interviewer/interviews/${interviewId}/feedback`,
     },
     CANDIDATE: {
         PROFILE: '/candidate/profile',

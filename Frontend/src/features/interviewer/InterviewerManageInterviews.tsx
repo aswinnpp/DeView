@@ -1,5 +1,7 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState } from "react";
 import { Button, Input, Table } from "../../components/common";
+import { useInterviewerCompletedInterviews } from "../../hooks/interviewer/useInterviewerCompletedInterviews";
+import { interviewerCompletedInterviewsService } from "../../services/interviewerCompletedInterviews.service";
 
 type InterviewItem = {
   id: string;
@@ -7,35 +9,7 @@ type InterviewItem = {
   jobDescription: { name: string };
   scheduledAt: string;
   status: string;
-  aiScore?: number;
 };
-
-const sampleNeedsEvaluationInterviews: InterviewItem[] = [
-  {
-    id: "eval-201",
-    candidateName: "Victor Chen",
-    jobDescription: { name: "Full Stack Developer" },
-    scheduledAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    status: "completed",
-    aiScore: 4.1,
-  },
-  {
-    id: "eval-202",
-    candidateName: "Maria G.",
-    jobDescription: { name: "Marketing Specialist" },
-    scheduledAt: new Date(Date.now() - 86400000 * 0.5).toISOString(),
-    status: "completed",
-    aiScore: 2.8,
-  },
-  {
-    id: "eval-203",
-    candidateName: "Kwame A.",
-    jobDescription: { name: "Senior Architect" },
-    scheduledAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-    status: "completed",
-    aiScore: 3.5,
-  },
-];
 
 const overallRatingField = { key: "overall", label: "Your Overall Score (1-5)" };
 
@@ -44,51 +18,29 @@ const inputBaseClass =
 const selectClass = `${inputBaseClass} cursor-pointer`;
 
 const InterviewerManageInterviews = () => {
-  const [interviews, setInterviews] = useState<InterviewItem[]>(sampleNeedsEvaluationInterviews);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [evaluationDrafts, setEvaluationDrafts] = useState<Record<string, { overallScore: number; decision: string; comments: string }>>({});
+  const {
+    list: interviews,
+    isLoading,
+    error,
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    resetFilters,
+    emptyMessage,
+    fetchItems,
+  } = useInterviewerCompletedInterviews();
+
+  const [evaluationDrafts, setEvaluationDrafts] = useState<Record<string, { overallScore: number; comments: string }>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentInterview, setCurrentInterview] = useState<InterviewItem | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"date" | "name" | "role">("date");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-  const refetch = useCallback(() => {
-    setIsLoading(true);
-    setError(null);
-    setTimeout(() => setIsLoading(false), 500);
-  }, []);
+  const needsEvaluation = useMemo(() => interviews, [interviews]);
 
-  const needsEvaluation = useMemo(() => {
-    let result = [...interviews];
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (interview) =>
-          interview.candidateName?.toLowerCase().includes(query) ||
-          interview.jobDescription?.name?.toLowerCase().includes(query)
-      );
-    }
-    result.sort((a, b) => {
-      let comparison = 0;
-      if (sortBy === "date") {
-        const dateA = a.scheduledAt ? new Date(a.scheduledAt).getTime() : 0;
-        const dateB = b.scheduledAt ? new Date(b.scheduledAt).getTime() : 0;
-        comparison = dateA - dateB;
-      } else if (sortBy === "name") {
-        comparison = (a.candidateName || "").localeCompare(b.candidateName || "");
-      } else if (sortBy === "role") {
-        comparison = (a.jobDescription?.name || "").localeCompare(b.jobDescription?.name || "");
-      }
-      return sortOrder === "asc" ? comparison : -comparison;
-    });
-    return result;
-  }, [interviews, searchQuery, sortBy, sortOrder]);
-
-  const ensureDraft = (draft?: { overallScore?: number; decision?: string; comments?: string }) => ({
+  const ensureDraft = (draft?: { overallScore?: number; comments?: string }) => ({
     overallScore: Number(draft?.overallScore ?? 3),
-    decision: draft?.decision ?? "",
     comments: draft?.comments ?? "",
   });
 
@@ -105,7 +57,7 @@ const InterviewerManageInterviews = () => {
     setCurrentInterview(null);
   };
 
-  const handleDraftChange = (interviewId: string, field: "overallScore" | "decision" | "comments", value: string | number) => {
+  const handleDraftChange = (interviewId: string, field: "overallScore" | "comments", value: string | number) => {
     setEvaluationDrafts((prev) => {
       const draft = ensureDraft(prev[interviewId]);
       return {
@@ -120,8 +72,8 @@ const InterviewerManageInterviews = () => {
     const interviewId = currentInterview.id;
     const draft = evaluationDrafts[interviewId];
 
-    if (!draft?.decision || !draft?.comments) {
-      alert("Please select a hiring decision and add detailed comments.");
+    if (!draft?.comments) {
+      alert("Please add detailed comments.");
       return;
     }
     if (draft.overallScore < 1 || draft.overallScore > 5) {
@@ -129,27 +81,28 @@ const InterviewerManageInterviews = () => {
       return;
     }
 
-    setIsLoading(true);
-    closeEvaluationModal();
-    setTimeout(() => {
-      setInterviews((prev) => prev.filter((item) => item.id !== interviewId));
+    try {
+      await interviewerCompletedInterviewsService.submitFeedback(interviewId, {
+        totalScore: draft.overallScore,
+        feedback: draft.comments,
+      });
+      closeEvaluationModal();
       setEvaluationDrafts((prev) => {
         const next = { ...prev };
         delete next[interviewId];
         return next;
       });
-      setIsLoading(false);
-      refetch();
-    }, 500);
+      await fetchItems();
+      alert("Feedback submitted successfully.");
+    } catch (e) {
+      alert(
+        e instanceof Error ? e.message : "Failed to submit feedback. Please try again."
+      );
+    }
   };
 
   const currentDraft = currentInterview ? evaluationDrafts[currentInterview.id] ?? ensureDraft() : ensureDraft();
-  const isFormValid = Boolean(currentDraft?.decision && currentDraft?.comments);
-
-  const emptyMessage =
-    interviews.length === 0
-      ? "✅ All evaluations are submitted."
-      : "🔍 No interviews found matching your search.";
+  const isFormValid = Boolean(currentDraft?.comments);
 
   const columns = [
     {
@@ -246,11 +199,7 @@ const InterviewerManageInterviews = () => {
           <Button
             variant="secondary"
             className="!bg-slate-600 !py-2.5 !px-4 text-sm font-medium"
-            onClick={() => {
-              setSearchQuery("");
-              setSortBy("date");
-              setSortOrder("desc");
-            }}
+            onClick={resetFilters}
           >
             Reset
           </Button>
@@ -297,20 +246,6 @@ const InterviewerManageInterviews = () => {
                     handleDraftChange(currentInterview.id, "overallScore", e.target.value)
                   }
                 />
-              </label>
-
-              <label className="block text-sm font-semibold text-white">
-                Hiring Decision
-                <select
-                  className="w-full py-2 px-3 mt-1 rounded border border-slate-300 bg-white/90 text-slate-900 cursor-pointer"
-                  value={currentDraft.decision}
-                  onChange={(e) => handleDraftChange(currentInterview.id, "decision", e.target.value)}
-                >
-                  <option value="">-- Select Decision --</option>
-                  <option value="hire">Hire</option>
-                  <option value="hold">Hold (Further review)</option>
-                  <option value="no-hire">No-hire</option>
-                </select>
               </label>
 
               <label className="block text-sm font-semibold text-white">

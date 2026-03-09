@@ -44,6 +44,18 @@ export class MongoInterviewRepository
     return docs.map((d) => this.toDomain(d));
   }
 
+  async listCompletedByInterviewerUserId(interviewerUserId: string): Promise<Interview[]> {
+    const filter: Filter<IInterviewDocument> = {
+      interviewerUserId,
+      status: 'COMPLETED',
+    };
+    const docs = await this.collection
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .toArray();
+    return docs.map((d) => this.toDomain(d));
+  }
+
   async setInterviewerAccepted(id: string, accepted: boolean, rejectReason?: string): Promise<Interview | null> {
     let _id: ObjectId;
     try {
