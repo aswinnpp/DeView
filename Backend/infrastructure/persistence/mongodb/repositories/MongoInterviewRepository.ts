@@ -53,28 +53,69 @@ export class MongoInterviewRepository
     return { data, total };
   }
 
-  async listByInterviewerUserId(interviewerUserId: string): Promise<Interview[]> {
+  async listByInterviewerUserId(
+    interviewerUserId: string,
+    options?: { search?: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc'; acceptedOnly?: boolean }
+  ): Promise<{ data: Interview[]; total: number }> {
     const filter: Filter<IInterviewDocument> = {
       interviewerUserId,
       status: { $in: ['SCHEDULED', 'RESCHEDULED'] },
     };
-    const docs = await this.collection
-      .find(filter)
-      .sort({ createdAt: -1 })
-      .toArray();
-    return docs.map((d) => this.toDomain(d));
+    if (options?.acceptedOnly) {
+      filter.interviewerAccepted = true;
+    }
+    if (options?.search && options.search.trim()) {
+      const q = options.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.$or = [
+        { candidateName: { $regex: q, $options: 'i' } },
+        { jobTitle: { $regex: q, $options: 'i' } },
+      ];
+    }
+    const page = Math.max(1, options?.page ?? 1);
+    const limit = Math.max(1, Math.min(100, options?.limit ?? 20));
+    const skip = (page - 1) * limit;
+    const sortDir = options?.sortOrder === 'asc' ? 1 : -1;
+    const [docs, total] = await Promise.all([
+      this.collection
+        .find(filter)
+        .sort({ createdAt: sortDir })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+      this.collection.countDocuments(filter),
+    ]);
+    return { data: docs.map((d) => this.toDomain(d)), total };
   }
 
-  async listCompletedByInterviewerUserId(interviewerUserId: string): Promise<Interview[]> {
+  async listCompletedByInterviewerUserId(
+    interviewerUserId: string,
+    options?: { search?: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }
+  ): Promise<{ data: Interview[]; total: number }> {
     const filter: Filter<IInterviewDocument> = {
       interviewerUserId,
       status: 'COMPLETED',
     };
-    const docs = await this.collection
-      .find(filter)
-      .sort({ createdAt: -1 })
-      .toArray();
-    return docs.map((d) => this.toDomain(d));
+    if (options?.search && options.search.trim()) {
+      const q = options.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.$or = [
+        { candidateName: { $regex: q, $options: 'i' } },
+        { jobTitle: { $regex: q, $options: 'i' } },
+      ];
+    }
+    const page = Math.max(1, options?.page ?? 1);
+    const limit = Math.max(1, Math.min(100, options?.limit ?? 20));
+    const skip = (page - 1) * limit;
+    const sortDir = options?.sortOrder === 'asc' ? 1 : -1;
+    const [docs, total] = await Promise.all([
+      this.collection
+        .find(filter)
+        .sort({ createdAt: sortDir })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+      this.collection.countDocuments(filter),
+    ]);
+    return { data: docs.map((d) => this.toDomain(d)), total };
   }
 
   async setInterviewerAccepted(id: string, accepted: boolean, rejectReason?: string): Promise<Interview | null> {

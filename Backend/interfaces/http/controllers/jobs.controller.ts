@@ -16,7 +16,7 @@ function toContext(user: { userId: string; companyId?: string }) {
 }
 
 @injectable()
-export class jobController {
+export class JobsController {
   constructor(
     @inject(TYPES.CreateJobUseCasePort) private readonly createJobUseCase: ICreateJobUseCase,
     @inject(TYPES.UpdateJobUseCasePort) private readonly updateJobUseCase: IUpdateJobUseCase,

@@ -3,8 +3,17 @@ import { TYPES } from '../../../shared/di/types.js';
 import type { IInterviewRepository } from '../ports/repository/IInterviewRepository.js';
 import type { Interview } from '../../../domain/interview/entities/Interview.js';
 
+export interface IListInterviewerAssignmentsInput {
+  interviewerUserId: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortOrder?: 'asc' | 'desc';
+  acceptedOnly?: boolean;
+}
+
 export interface IListInterviewerAssignmentsUseCase {
-  execute(input: { interviewerUserId: string }): Promise<{ data: Interview[] }>;
+  execute(input: IListInterviewerAssignmentsInput): Promise<{ data: Interview[]; total: number }>;
 }
 
 @injectable()
@@ -13,8 +22,14 @@ export class ListInterviewerAssignmentsUseCase implements IListInterviewerAssign
     @inject(TYPES.InterviewRepositoryPort) private readonly repo: IInterviewRepository
   ) {}
 
-  async execute(input: { interviewerUserId: string }): Promise<{ data: Interview[] }> {
-    const data = await this.repo.listByInterviewerUserId(input.interviewerUserId);
-    return { data };
+  async execute(input: IListInterviewerAssignmentsInput): Promise<{ data: Interview[]; total: number }> {
+    const { interviewerUserId, search, page, limit, sortOrder, acceptedOnly } = input;
+    return this.repo.listByInterviewerUserId(interviewerUserId, {
+      search,
+      page,
+      limit,
+      sortOrder,
+      acceptedOnly,
+    });
   }
 }

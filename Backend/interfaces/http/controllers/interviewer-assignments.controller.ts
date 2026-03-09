@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { success } from '../../../shared/http/apiResponse.js';
 import { TYPES } from '../../../infrastructure/di/types.js';
+import { InterviewMapper } from '../../../application/interview/mappers/InterviewMapper.js';
 import type { IListInterviewerAssignmentsUseCase } from '../../../application/interview/use-cases/list-interviewer-assignments.usecase.js';
 import type { IAcceptInterviewAssignmentUseCase } from '../../../application/interview/use-cases/accept-interview-assignment.usecase.js';
 import type { IRejectInterviewAssignmentUseCase } from '../../../application/interview/use-cases/reject-interview-assignment.usecase.js';
@@ -23,25 +24,40 @@ export class InterviewerAssignmentsController {
     private readonly saveFeedbackUseCase: ISaveInterviewFeedbackUseCase
   ) {}
 
-  list = async (request: FastifyRequest, reply: FastifyReply) => {
-    const interviewerUserId = request.currentUser.userId;
-    const result = await this.listAssignmentsUseCase.execute({ interviewerUserId });
-    reply.send(success({ data: result.data }));
+  list = async (
+    request: FastifyRequest<{
+      Querystring: { search?: string; page?: string; limit?: string; sortOrder?: string; acceptedOnly?: string };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const input = InterviewMapper.toListInterviewerAssignmentsInput(
+      request.query,
+      request.currentUser.userId
+    );
+    const result = await this.listAssignmentsUseCase.execute(input);
+    reply.send(success({ data: result.data, total: result.total }));
   };
 
-  listCompleted = async (request: FastifyRequest, reply: FastifyReply) => {
-    const interviewerUserId = request.currentUser.userId;
-    const result = await this.listCompletedUseCase.execute({ interviewerUserId });
-    reply.send(success({ data: result.data }));
+  listCompleted = async (
+    request: FastifyRequest<{
+      Querystring: { search?: string; page?: string; limit?: string; sortOrder?: string };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const input = InterviewMapper.toListCompletedInterviewsInput(
+      request.query,
+      request.currentUser.userId
+    );
+    const result = await this.listCompletedUseCase.execute(input);
+    reply.send(success({ data: result.data, total: result.total }));
   };
 
   accept = async (request: FastifyRequest<{ Params: { interviewId: string } }>, reply: FastifyReply) => {
-    const interviewerUserId = request.currentUser.userId;
-    const { interviewId } = request.params;
-    const result = await this.acceptAssignmentUseCase.execute({ interviewId, interviewerUserId });
-    if (!result.data) {
-      return reply.status(404).send({ success: false, error: 'Interview not found or not assigned to you' });
-    }
+    const input = InterviewMapper.toAcceptAssignmentInput(
+      request.params,
+      request.currentUser.userId
+    );
+    const result = await this.acceptAssignmentUseCase.execute(input);
     reply.send(success({ data: result.data }));
   };
 
@@ -52,16 +68,12 @@ export class InterviewerAssignmentsController {
     }>,
     reply: FastifyReply
   ) => {
-    const interviewerUserId = request.currentUser.userId;
-    const { interviewId } = request.params;
-    const reason = (request.body?.reason ?? '').trim();
-    if (!reason) {
-      return reply.status(400).send({ success: false, error: 'Rejection reason is required' });
-    }
-    const result = await this.rejectAssignmentUseCase.execute({ interviewId, interviewerUserId, reason });
-    if (!result.data) {
-      return reply.status(404).send({ success: false, error: 'Interview not found or not assigned to you' });
-    }
+    const input = InterviewMapper.toRejectAssignmentInput(
+      request.params,
+      request.body ?? {},
+      request.currentUser.userId
+    );
+    const result = await this.rejectAssignmentUseCase.execute(input);
     reply.send(success({ data: result.data }));
   };
 
@@ -72,21 +84,12 @@ export class InterviewerAssignmentsController {
     }>,
     reply: FastifyReply
   ) => {
-    const interviewerUserId = request.currentUser.userId;
-    const { interviewId } = request.params;
-    const { feedback, totalScore } = request.body ?? {};
-
-    try {
-      const result = await this.saveFeedbackUseCase.execute({
-        interviewId,
-        interviewerUserId,
-        feedback: feedback ?? '',
-        totalScore: Number(totalScore ?? 0),
-      });
-      reply.send(success({ data: result }));
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save feedback';
-      reply.status(400).send({ success: false, error: message });
-    }
+    const input = InterviewMapper.toSubmitFeedbackInput(
+      request.params,
+      request.body ?? {},
+      request.currentUser.userId
+    );
+    const result = await this.saveFeedbackUseCase.execute(input);
+    reply.send(success({ data: result }));
   };
 }

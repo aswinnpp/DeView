@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { success } from '../../../shared/http/apiResponse.js';
 import { TYPES } from '../../../infrastructure/di/types.js';
+import { InterviewMapper } from '../../../application/interview/mappers/InterviewMapper.js';
 import type { IListMyInterviewsUseCase } from '../../../application/interview/use-cases/list-my-interviews.usecase.js';
 import type { IRequestCandidateRescheduleUseCase } from '../../../application/interview/use-cases/request-candidate-reschedule.usecase.js';
 import type { IListMyInterviewFeedbacksUseCase } from '../../../application/interview/use-cases/list-my-interview-feedbacks.usecase.js';
@@ -23,18 +24,11 @@ export class CandidateInterviewsController {
     }>,
     reply: FastifyReply
   ) => {
-    const candidateUserId = request.currentUser.userId;
-    const { search, page, limit, sortOrder } = request.query;
-    const parsedPage = page != null && page !== '' ? parseInt(page, 10) : undefined;
-    const parsedLimit = limit != null && limit !== '' ? parseInt(limit, 10) : undefined;
-    const validSortOrder = sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : undefined;
-    const result = await this.listMyInterviewsUseCase.execute({
-      candidateUserId,
-      search: search?.trim() || undefined,
-      page: Number.isFinite(parsedPage) && parsedPage! >= 1 ? parsedPage : undefined,
-      limit: Number.isFinite(parsedLimit) && parsedLimit! >= 1 ? parsedLimit : undefined,
-      sortOrder: validSortOrder,
-    });
+    const input = InterviewMapper.toListMyInterviewsInput(
+      request.query,
+      request.currentUser.userId
+    );
+    const result = await this.listMyInterviewsUseCase.execute(input);
     reply.send(success({ data: result.data, total: result.total }));
   };
 
@@ -45,17 +39,12 @@ export class CandidateInterviewsController {
     }>,
     reply: FastifyReply
   ) => {
-    const candidateUserId = request.currentUser.userId;
-    const { interviewId } = request.params;
-    const body = request.body;
-
-    const result = await this.requestCandidateRescheduleUseCase.execute({
-      interviewId,
-      candidateUserId,
-      requestedDate: body.requestedDate,
-      reason: body.reason,
-    });
-
+    const input = InterviewMapper.toRequestRescheduleInput(
+      request.params,
+      request.body,
+      request.currentUser.userId
+    );
+    const result = await this.requestCandidateRescheduleUseCase.execute(input);
     reply.send(success({ interview: result.interview }));
   };
 
@@ -65,18 +54,11 @@ export class CandidateInterviewsController {
     }>,
     reply: FastifyReply
   ) => {
-    const candidateUserId = request.currentUser.userId;
-    const { search, page, limit, sortOrder } = request.query;
-    const parsedPage = page != null && page !== '' ? parseInt(page, 10) : undefined;
-    const parsedLimit = limit != null && limit !== '' ? parseInt(limit, 10) : undefined;
-    const validSortOrder = sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : undefined;
-    const result = await this.listMyInterviewFeedbacksUseCase.execute({
-      candidateUserId,
-      search: search?.trim() || undefined,
-      page: Number.isFinite(parsedPage) && parsedPage! >= 1 ? parsedPage : undefined,
-      limit: Number.isFinite(parsedLimit) && parsedLimit! >= 1 ? parsedLimit : undefined,
-      sortOrder: validSortOrder,
-    });
+    const input = InterviewMapper.toListMyFeedbacksInput(
+      request.query,
+      request.currentUser.userId
+    );
+    const result = await this.listMyInterviewFeedbacksUseCase.execute(input);
     reply.send(success({ data: result.data, total: result.total }));
   };
 }

@@ -6,14 +6,11 @@ import type { IListJobsUseCase } from '../../../application/job/ports/usecase/IL
 import type { IListPendingApplicationsForJobUseCase } from '../../../application/application/ports/usecase/IListPendingApplicationsForJobUseCase.js';
 import type { IScoreCandidatesUseCase } from '../../../application/application/ports/usecase/IScoreCandidatesUseCase.js';
 import type { IUpdateApplicationStatusUseCase } from '../../../application/application/ports/usecase/IUpdateApplicationStatusUseCase.js';
-import type { IApplicationRepository } from '../../../application/application/ports/repository/IApplicationRepository.js';
-import type { IFileStorage } from '../../../application/upload/ports/services/IFileStorage.js';
-import type { IInterviewRepository } from '../../../application/interview/ports/repository/IInterviewRepository.js';
-import type { ICompanyProfileRepository } from '../../../application/company/ports/repository/ICompanyProfileRepository.js';
-import type { IJobRepository } from '../../../application/job/ports/repository/IJobRepository.js';
+import type { IScheduleInterviewUseCase } from '../../../application/application/use-cases/schedule-interview.usecase.js';
+import type { IDeclineRescheduleRequestUseCase } from '../../../application/application/use-cases/decline-reschedule-request.usecase.js';
+import type { IGetResumeViewUrlUseCase } from '../../../application/application/use-cases/get-resume-view-url.usecase.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ApplicationMapper } from '../../../application/application/mappers/ApplicationMapper.js';
-import { Interview } from '../../../domain/interview/entities/Interview.js';
 
 function toContext(user: { userId: string; companyId?: string }) {
   return { userId: user.userId, companyId: user.companyId };
@@ -27,14 +24,14 @@ export class ApplicationsController {
     private readonly listPendingApplicationsUseCase: IListPendingApplicationsForJobUseCase,
     @inject(TYPES.ScoreCandidatesUseCasePort)
     private readonly scoreCandidatesUseCase: IScoreCandidatesUseCase,
-    @inject(TYPES.ApplicationRepositoryPort) private readonly applicationRepository: IApplicationRepository,
-    @inject(TYPES.FileStoragePort) private readonly fileStorage: IFileStorage,
     @inject(TYPES.UpdateApplicationStatusUseCasePort)
     private readonly updateApplicationStatusUseCase: IUpdateApplicationStatusUseCase,
-    @inject(TYPES.InterviewRepositoryPort) private readonly interviewRepository: IInterviewRepository,
-    @inject(TYPES.CompanyProfileRepositoryPort)
-    private readonly companyProfileRepository: ICompanyProfileRepository,
-    @inject(TYPES.JobRepositoryPort) private readonly jobRepository: IJobRepository
+    @inject(TYPES.ScheduleInterviewUseCasePort)
+    private readonly scheduleInterviewUseCase: IScheduleInterviewUseCase,
+    @inject(TYPES.DeclineRescheduleRequestUseCasePort)
+    private readonly declineRescheduleRequestUseCase: IDeclineRescheduleRequestUseCase,
+    @inject(TYPES.GetResumeViewUrlUseCasePort)
+    private readonly getResumeViewUrlUseCase: IGetResumeViewUrlUseCase
   ) {}
 
   listJobs = async (
@@ -81,21 +78,10 @@ export class ApplicationsController {
     request: FastifyRequest<{ Params: { jobId: string; applicationId: string } }>,
     reply: FastifyReply
   ) => {
-    const user = request.currentUser;
-    const companyId = user.companyId || '';
-    const { jobId, applicationId } = request.params;
-
-    const application = await this.applicationRepository.findByIdAndJobId(
-      applicationId,
-      jobId,
-      companyId
-    );
-    if (!application?.resumeUrl?.trim()) {
-      return reply.status(404).send({ ok: false, error: 'Application or resume not found' });
-    }
-
-    const url = await this.fileStorage.getSignedViewUrl(application.resumeUrl, 3600);
-    reply.send(success({ url }));
+    const ctx = toContext(request.currentUser);
+    const input = ApplicationMapper.toGetResumeViewUrlInput(request.params, ctx);
+    const result = await this.getResumeViewUrlUseCase.execute(input);
+    reply.send(success(result));
   };
 
   scoreCandidates = async (
@@ -159,80 +145,9 @@ export class ApplicationsController {
     reply: FastifyReply
   ) => {
     const ctx = toContext(request.currentUser);
-    const { jobId, applicationId } = request.params;
-    const body = request.body;
-
-    const companyId = ctx.companyId || '';
-
-    const updated = await this.applicationRepository.scheduleInterview({
-      applicationId,
-      jobId,
-      companyId,
-      interviewDetails: {
-        round: String(body.round ?? '').trim(),
-        interviewer: String(body.interviewerName ?? '').trim(),
-        interviewerEmail: body.interviewerEmail ? String(body.interviewerEmail).trim() : undefined,
-        scheduledDate: String(body.scheduledDate ?? '').trim(),
-        scheduledTime: String(body.scheduledTime ?? '').trim(),
-      },
-    });
-
-    if (!updated) {
-      return reply.status(404).send({ ok: false, error: 'Application not found' });
-    }
-
-    // Create an interview record in interviews collection
-    const companyProfile = companyId ? await this.companyProfileRepository.findById(companyId) : null;
-    const companyName = companyProfile?.companyName ?? '';
-    const job = await this.jobRepository.findById(jobId);
-    const jobTitle = job?.title ?? '';
-
-    const scheduledDate = String(body.scheduledDate ?? '').trim();
-    const scheduledTime = String(body.scheduledTime ?? '').trim();
-    const interviewerUserId = String(body.interviewerUserId ?? '').trim();
-    const interviewerName = String(body.interviewerName ?? '').trim();
-    const round = String(body.round ?? '').trim();
-
-    // If an interview already exists for this application (scheduled or reschedule requested),
-    // update it instead of creating a new one so the old reschedule request doesn't linger.
-    const existing = await this.interviewRepository.findActiveByApplicationId(applicationId);
-    if (existing?.id) {
-      // Keep candidate visibility if interviewer didn't change; otherwise require acceptance again.
-      const keepAccepted = existing.interviewerUserId === interviewerUserId ? existing.interviewerAccepted : false;
-      await this.interviewRepository.rescheduleFromCompany(existing.id, {
-        scheduledDate,
-        scheduledTime,
-        interviewerUserId,
-        interviewerName,
-        round,
-      });
-      await this.interviewRepository.setInterviewerAccepted(existing.id, keepAccepted);
-    } else {
-      const roomName = `deview-interview-${applicationId}-${Date.now()}`;
-      await this.interviewRepository.create(
-        new Interview(
-          null,
-          companyId,
-          companyName,
-          jobId,
-          jobTitle,
-          roomName,
-          applicationId,
-          updated.candidateUserId,
-          updated.fullName,
-          interviewerUserId,
-          interviewerName,
-          round,
-          scheduledDate,
-          scheduledTime,
-          'SCHEDULED',
-          false, // interviewerAccepted - interviewer must accept before candidate sees it
-          undefined
-        )
-      );
-    }
-
-    reply.send(success({ application: ApplicationMapper.toView(updated) }));
+    const input = ApplicationMapper.toScheduleInterviewInput(request.params, request.body, ctx);
+    const result = await this.scheduleInterviewUseCase.execute(input);
+    reply.send(success({ application: ApplicationMapper.toView(result.application) }));
   };
 
   declineRescheduleRequest = async (
@@ -242,26 +157,8 @@ export class ApplicationsController {
     reply: FastifyReply
   ) => {
     const ctx = toContext(request.currentUser);
-    const { jobId, applicationId } = request.params;
-    const companyId = ctx.companyId || '';
-
-    // Set application back to interview scheduled so it leaves the reschedule requests tab.
-    const updated = await this.applicationRepository.updateStatus({
-      applicationId,
-      jobId,
-      companyId,
-      status: 'INTERVIEW_SCHEDULED',
-    });
-    if (!updated) {
-      return reply.status(404).send({ ok: false, error: 'Application not found' });
-    }
-
-    // Mark the reschedule request as declined on the interview (but keep the original schedule).
-    const existing = await this.interviewRepository.findActiveByApplicationId(applicationId);
-    if (existing?.id) {
-      await this.interviewRepository.declineCandidateRejection(existing.id);
-    }
-
-    reply.send(success({ application: ApplicationMapper.toView(updated) }));
+    const input = ApplicationMapper.toDeclineRescheduleRequestInput(request.params, ctx);
+    const result = await this.declineRescheduleRequestUseCase.execute(input);
+    reply.send(success({ application: ApplicationMapper.toView(result.application) }));
   };
 }

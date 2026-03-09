@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   interviewerAssignmentsService,
@@ -6,68 +6,54 @@ import {
 } from "../../services/interviewerAssignments.service";
 import { APP_ROUTES } from "../../constants/routes";
 
-export type DashboardSortByOption = "date" | "name" | "role";
+const ITEMS_PER_PAGE = 10;
+
 export type DashboardSortOrderOption = "asc" | "desc";
 
 export function useInterviewerDashboard() {
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState<InterviewerAssignmentItem[]>([]);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<DashboardSortByOption>("date");
+  const [page, setPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<DashboardSortOrderOption>("asc");
 
   const fetchAssignments = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await interviewerAssignmentsService.list();
+      const { data, total: t } = await interviewerAssignmentsService.list({
+        search: searchQuery.trim() || undefined,
+        page,
+        limit: ITEMS_PER_PAGE,
+        sortOrder,
+        acceptedOnly: true,
+      });
       setAssignments(data);
+      setTotal(t);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load interviews");
       setAssignments([]);
+      setTotal(0);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [searchQuery, page, sortOrder]);
 
   useEffect(() => {
     void fetchAssignments();
   }, [fetchAssignments]);
 
-  const acceptedOnly = useMemo(
-    () => assignments.filter((a) => a.status === "accepted"),
-    [assignments]
-  );
-
-  const filtered = useMemo(() => {
-    let list = [...acceptedOnly];
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(
-        (a) =>
-          a.candidateName.toLowerCase().includes(q) ||
-          (a.candidateEmail || "").toLowerCase().includes(q) ||
-          (a.jobTitle || "").toLowerCase().includes(q)
-      );
-    }
-    list.sort((a, b) => {
-      let cmp = 0;
-      if (sortBy === "date") cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
-      else if (sortBy === "name") cmp = a.candidateName.localeCompare(b.candidateName);
-      else if (sortBy === "role") cmp = (a.jobTitle || "").localeCompare(b.jobTitle || "");
-      return sortOrder === "asc" ? cmp : -cmp;
-    });
-    return list;
-  }, [acceptedOnly, searchQuery, sortBy, sortOrder]);
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
   const formatTime = useCallback((time: string) => {
     const [h, m] = time.split(":");
     const hour = parseInt(h, 10);
     const ampm = hour >= 12 ? "PM" : "AM";
     const h12 = hour % 12 || 12;
-    return `${h12}:${m || "00"} ${ampm}`;
+    return `${h12}:${m ?? "00"} ${ampm}`;
   }, []);
 
   const formatDate = useCallback((dateStr: string) => {
@@ -86,37 +72,30 @@ export function useInterviewerDashboard() {
     [navigate]
   );
 
-  const resetFilters = useCallback(() => {
-    setSearchQuery("");
-    setSortBy("date");
-    setSortOrder("asc");
-  }, []);
-
   const emptyMessage =
-    acceptedOnly.length === 0
+    total === 0
       ? "No accepted interviews yet. Accept interviews from the Assignments page to see them here."
       : "No interviews found matching your search.";
 
-  const hasActiveFilters = searchQuery !== "" || sortBy !== "date" || sortOrder !== "asc";
-
   return {
     assignments,
-    acceptedOnly,
-    filtered,
+    acceptedOnly: assignments,
+    filtered: assignments,
+    total,
+    totalPages,
+    page,
+    setPage,
     emptyMessage,
     isLoading,
     error,
     searchQuery,
     setSearchQuery,
-    sortBy,
-    setSortBy,
     sortOrder,
     setSortOrder,
-    resetFilters,
-    hasActiveFilters,
     formatTime,
     formatDate,
     handleJoinRoom,
     fetchAssignments,
+    ITEMS_PER_PAGE,
   };
 }

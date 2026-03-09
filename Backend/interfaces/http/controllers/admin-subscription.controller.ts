@@ -3,12 +3,12 @@ import { injectable, inject } from 'inversify';
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { TYPES } from "../../../infrastructure/di/types";
+import { SubscriptionMapper } from "../../../application/admin/mappers/SubscriptionMapper.js";
 import type { IAdminCreateSubscription } from "../../../application/admin/ports/usecase/IAdmin-CreateSubscriptionUsecase";
 import type { ICreateSubscriptionInputDTO } from "../../../application/admin/dtos/CreateSubscriptionDTO.js";
 import type {
   IAdminListSubscriptionsUsecase,
 } from "../../../application/admin/ports/usecase/IAdmin-ListSubscriptionsUsecase";
-import type { IListSubscriptionsInputDTO } from "../../../application/admin/dtos/ListSubscriptionsDTO.js";
 import type { IAdminToggleSubscriptionStatusUsecase } from "../../../application/admin/ports/usecase/IAdmin-ToggleSubscriptionStatusUsecase";
 import type {
   IAdminUpdateSubscriptionUsecase,
@@ -66,24 +66,7 @@ export class AdminSubscriptionController {
     request: FastifyRequest<{ Querystring: ListSubscriptionsQuery }>,
     reply: FastifyReply,
   ) => {
-    const {
-      search,
-      status,
-      duration,
-      sortOrder,
-      page,
-      limit,
-    } = request.query;
-
-    const input: IListSubscriptionsInputDTO = {
-      search,
-      status,
-      duration,
-      sortOrder,
-      page: page ? Number(page) : undefined,
-      limit: limit ? Number(limit) : undefined,
-    };
-
+    const input = SubscriptionMapper.toListInput(request.query);
     const result = await this.listSubscriptionsUsecase.execute(input);
 
     reply

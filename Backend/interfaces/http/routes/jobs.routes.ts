@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { jobController } from '../controllers/jobs.controller';
+import { JobsController } from '../controllers/jobs.controller.js';
 import { requireRoles } from '../middleware/authMiddleware';
 import {
   createJobSchema,
@@ -9,7 +9,7 @@ import {
 
 export async function jobRoutes(
   fastify: FastifyInstance,
-  controller: jobController
+  controller: JobsController
 ) {
   fastify.addHook('preHandler', requireRoles('company', 'hr'));
 

@@ -56,13 +56,38 @@ function fromBackendInterview(raw: {
   };
 }
 
+export interface ListAssignmentsParams {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortOrder?: 'asc' | 'desc';
+  acceptedOnly?: boolean;
+}
+
+export interface ListAssignmentsResult {
+  data: InterviewerAssignmentItem[];
+  total: number;
+}
+
 export const interviewerAssignmentsService = {
-  list: () =>
-    api.get(API_ROUTES.INTERVIEWER.ASSIGNMENTS).then((res) => {
-      const data = res.data as unknown;
-      const arr = Array.isArray(data) ? data : (data as { data?: unknown[] })?.data;
-      return Array.isArray(arr) ? arr.map((item) => fromBackendInterview(item as Parameters<typeof fromBackendInterview>[0])) : [];
-    }),
+  list: (params?: ListAssignmentsParams) =>
+    api
+      .get(API_ROUTES.INTERVIEWER.ASSIGNMENTS, {
+        params: {
+          search: params?.search?.trim() || undefined,
+          page: params?.page,
+          limit: params?.limit,
+          sortOrder: params?.sortOrder,
+          acceptedOnly: params?.acceptedOnly,
+        },
+      })
+      .then((res) => {
+        const body = res.data as { data?: unknown[]; total?: number };
+        const arr = Array.isArray(body?.data) ? body.data : [];
+        const total = typeof body?.total === 'number' ? body.total : arr.length;
+        const data = arr.map((item) => fromBackendInterview(item as Parameters<typeof fromBackendInterview>[0]));
+        return { data, total };
+      }),
 
   accept: (interviewId: string) =>
     api.post<{ data?: unknown }>(API_ROUTES.INTERVIEWER.ACCEPT(interviewId)).then((res) => res.data),

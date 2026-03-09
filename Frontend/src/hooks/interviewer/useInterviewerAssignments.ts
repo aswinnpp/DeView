@@ -4,18 +4,20 @@ import {
   type InterviewerAssignmentItem,
 } from "../../services/interviewerAssignments.service";
 
-export type SortByOption = "date" | "name" | "status";
+const ITEMS_PER_PAGE = 10;
+
 export type SortOrderOption = "asc" | "desc";
 
 export function useInterviewerAssignments() {
   const [assignments, setAssignments] = useState<InterviewerAssignmentItem[]>([]);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectInterview, setRejectInterview] = useState<InterviewerAssignmentItem | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<SortByOption>("date");
+  const [page, setPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<SortOrderOption>("desc");
   const [isRejecting, setIsRejecting] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
@@ -24,15 +26,22 @@ export function useInterviewerAssignments() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await interviewerAssignmentsService.list();
+      const { data, total: t } = await interviewerAssignmentsService.list({
+        search: searchQuery.trim() || undefined,
+        page,
+        limit: ITEMS_PER_PAGE,
+        sortOrder,
+      });
       setAssignments(data);
+      setTotal(t);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load assignments");
       setAssignments([]);
+      setTotal(0);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [searchQuery, page, sortOrder]);
 
   useEffect(() => {
     void fetchAssignments();
@@ -43,33 +52,14 @@ export function useInterviewerAssignments() {
     [assignments]
   );
 
-  const filtered = useMemo(() => {
-    let list = [...assignments];
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(
-        (a) =>
-          a.candidateName.toLowerCase().includes(q) ||
-          a.candidateEmail.toLowerCase().includes(q) ||
-          (a.jobTitle || "").toLowerCase().includes(q)
-      );
-    }
-    list.sort((a, b) => {
-      let cmp = 0;
-      if (sortBy === "date") cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
-      else if (sortBy === "name") cmp = a.candidateName.localeCompare(b.candidateName);
-      else if (sortBy === "status") cmp = a.status.localeCompare(b.status);
-      return sortOrder === "asc" ? cmp : -cmp;
-    });
-    return list;
-  }, [assignments, searchQuery, sortBy, sortOrder]);
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
   const formatTime = useCallback((time: string) => {
     const [h, m] = time.split(":");
     const hour = parseInt(h, 10);
     const ampm = hour >= 12 ? "PM" : "AM";
     const h12 = hour % 12 || 12;
-    return `${h12}:${m} ${ampm}`;
+    return `${h12}:${m ?? "00"} ${ampm}`;
   }, []);
 
   const formatDate = useCallback((dateStr: string) => {
@@ -122,40 +112,30 @@ export function useInterviewerAssignments() {
     }
   }, [rejectInterview, rejectionReason, fetchAssignments, closeRejectModal]);
 
-  const resetFilters = useCallback(() => {
-    setSearchQuery("");
-    setSortBy("date");
-    setSortOrder("desc");
-  }, []);
-
   const emptyMessage =
-    assignments.length === 0
+    total === 0
       ? "No assignments yet."
       : "No assignments found matching your search.";
 
-  const hasActiveFilters = searchQuery !== "" || sortBy !== "date" || sortOrder !== "desc";
-
   return {
-    // data
     assignments,
-    filtered,
+    filtered: assignments,
+    total,
+    totalPages,
+    page,
+    setPage,
     pendingCount,
     emptyMessage,
-    // loading & error
     isLoading,
     error,
     isAccepting,
     isRejecting,
-    // filters
     searchQuery,
     setSearchQuery,
-    sortBy,
-    setSortBy,
     sortOrder,
     setSortOrder,
-    resetFilters,
-    hasActiveFilters,
-    // reject modal
+    formatTime,
+    formatDate,
     rejectModalOpen,
     rejectInterview,
     rejectionReason,
@@ -163,10 +143,8 @@ export function useInterviewerAssignments() {
     openRejectModal,
     closeRejectModal,
     submitReject,
-    // actions
     fetchAssignments,
     handleAccept,
-    formatTime,
-    formatDate,
+    ITEMS_PER_PAGE,
   };
 }

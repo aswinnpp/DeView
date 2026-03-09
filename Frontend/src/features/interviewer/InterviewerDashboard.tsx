@@ -1,30 +1,30 @@
-import { Button, Input, Table } from "../../components/common";
+import { Button, Table, Pagination, SearchInput } from "../../components/common";
 import { useInterviewerDashboard } from "../../hooks/interviewer";
 import type { InterviewerAssignmentItem } from "../../services/interviewerAssignments.service";
 
-const inputBaseClass =
-  "w-full py-2 px-3.5 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500";
-const selectClass = `${inputBaseClass} cursor-pointer`;
+const selectClass =
+  "w-full py-2 px-3.5 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer";
 
 const InterviewerDashboard = () => {
   const {
     assignments,
     acceptedOnly,
     filtered,
+    total,
+    totalPages,
+    page,
+    setPage,
     emptyMessage,
     isLoading,
     error,
     searchQuery,
     setSearchQuery,
-    sortBy,
-    setSortBy,
     sortOrder,
     setSortOrder,
-    hasActiveFilters,
-    resetFilters,
     formatTime,
     formatDate,
     handleJoinRoom,
+    ITEMS_PER_PAGE,
   } = useInterviewerDashboard();
 
   const columns = [
@@ -110,66 +110,62 @@ const InterviewerDashboard = () => {
           Accepted: <strong className="text-emerald-400">{acceptedOnly.length}</strong>
         </span>
         <span className="text-sm text-slate-400">
-          Total assigned: <strong className="text-slate-200">{assignments.length}</strong>
+          Total: <strong className="text-slate-200">{total}</strong>
         </span>
       </div>
 
       <div className="flex flex-wrap gap-4 items-end mb-6">
         <div className="flex-1 min-w-[250px]">
-          <Input
-            label="Search Interviews"
-            placeholder="Search by candidate name, email, or job title..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            wrapperClassName="flex flex-col gap-1.5"
-            labelClassName="block text-xs text-slate-400 font-semibold"
-            className={inputBaseClass}
+          <label className="block text-xs text-slate-400 font-semibold mb-1.5">Search Interviews</label>
+          <SearchInput
+            placeholder="Search by candidate name or job title..."
+            onSearch={(v) => {
+              setSearchQuery(v);
+              setPage(1);
+            }}
           />
         </div>
-        <div className="min-w-[150px]">
-          <label className="block text-xs text-slate-400 font-semibold mb-1.5">Sort By</label>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as "date" | "name" | "role")}
-            className={selectClass}
-          >
-            <option value="date">Date</option>
-            <option value="name">Candidate Name</option>
-            <option value="role">Role / Position</option>
-          </select>
-        </div>
-        <div className="min-w-[130px]">
-          <label className="block text-xs text-slate-400 font-semibold mb-1.5">Order</label>
+        <div className="min-w-[160px]">
+          <label className="block text-xs text-slate-400 font-semibold mb-1.5">Filter</label>
           <select
             value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
+            onChange={(e) => {
+              setSortOrder(e.target.value as "asc" | "desc");
+              setPage(1);
+            }}
             className={selectClass}
           >
             <option value="asc">Earliest First</option>
             <option value="desc">Latest First</option>
           </select>
         </div>
-        {hasActiveFilters && (
-          <Button
-            variant="secondary"
-            className="!bg-slate-600 !py-2.5 !px-4 text-sm"
-            onClick={resetFilters}
-          >
-            Reset
-          </Button>
-        )}
       </div>
 
       <div className="overflow-x-auto">
         {isLoading ? (
           <p className="text-slate-400 py-8 text-center">Loading interviews...</p>
         ) : (
-          <Table<InterviewerAssignmentItem>
-            columns={columns}
-            data={filtered}
-            rowKey={(item) => item.id}
-            emptyMessage={emptyMessage}
-          />
+          <>
+            <Table<InterviewerAssignmentItem>
+              columns={columns}
+              data={filtered}
+              rowKey={(item) => item.id}
+              emptyMessage={emptyMessage}
+            />
+            {!isLoading && filtered.length > 0 && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+                leftContent={
+                  <span>
+                    Showing {(page - 1) * ITEMS_PER_PAGE + 1}–
+                    {Math.min(page * ITEMS_PER_PAGE, total)} of {total}
+                  </span>
+                }
+              />
+            )}
+          </>
         )}
       </div>
     </div>

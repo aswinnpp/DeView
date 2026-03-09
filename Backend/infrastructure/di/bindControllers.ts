@@ -13,7 +13,7 @@ import { InterviewRoomController } from '../../interfaces/http/controllers/inter
 import { CompanyProfileController } from '../../interfaces/http/controllers/company-profile.controller.js';
 import { AdminSubscriptionController } from '../../interfaces/http/controllers/admin-subscription.controller.js';
 import { CompanyPaymentController } from '../../interfaces/http/controllers/company-payment.controller.js';
-import { jobController } from '../../interfaces/http/controllers/jobs.controller.js';
+import { JobsController } from '../../interfaces/http/controllers/jobs.controller.js';
 import { ApplicationsController } from '../../interfaces/http/controllers/applications.controller.js';
 import { InterviewerAssignmentsController } from '../../interfaces/http/controllers/interviewer-assignments.controller.js';
 import { InterviewerProfileController } from '../../interfaces/http/controllers/interviewer-profile.controller.js';
@@ -32,7 +32,7 @@ export function bindControllers(container: Container): void {
   container.bind(CompanyProfileController).toSelf();
   container.bind(AdminSubscriptionController).toSelf();
   container.bind(CompanyPaymentController).toSelf();
-  container.bind(jobController).toSelf();
+  container.bind(JobsController).toSelf();
   container.bind(ApplicationsController).toSelf();
   container.bind(InterviewerAssignmentsController).toSelf();
   container.bind(InterviewerProfileController).toSelf();

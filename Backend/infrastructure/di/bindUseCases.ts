@@ -56,6 +56,9 @@ import { ListMyApplicationsUseCase } from '../../application/candidate/use-cases
 import { ListPendingApplicationsForJobUseCase } from '../../application/application/use-cases/list-pending-applications-for-job.usecase.js';
 import { ScoreCandidatesUseCase } from '../../application/application/use-cases/score-candidates.usecase.js';
 import { UpdateApplicationStatusUseCase } from '../../application/application/use-cases/update-application-status.usecase.js';
+import { ScheduleInterviewUseCase } from '../../application/application/use-cases/schedule-interview.usecase.js';
+import { DeclineRescheduleRequestUseCase } from '../../application/application/use-cases/decline-reschedule-request.usecase.js';
+import { GetResumeViewUrlUseCase } from '../../application/application/use-cases/get-resume-view-url.usecase.js';
 import { ListMyInterviewsUseCase } from '../../application/interview/use-cases/list-my-interviews.usecase.js';
 import { GetInterviewRoomDetailsUseCase } from '../../application/interview/use-cases/get-interview-room-details.usecase.js';
 import { ListInterviewerAssignmentsUseCase } from '../../application/interview/use-cases/list-interviewer-assignments.usecase.js';
@@ -132,6 +135,9 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ListPendingApplicationsForJobUseCasePort).to(ListPendingApplicationsForJobUseCase);
   container.bind(TYPES.ScoreCandidatesUseCasePort).to(ScoreCandidatesUseCase);
   container.bind(TYPES.UpdateApplicationStatusUseCasePort).to(UpdateApplicationStatusUseCase);
+  container.bind(TYPES.ScheduleInterviewUseCasePort).to(ScheduleInterviewUseCase);
+  container.bind(TYPES.DeclineRescheduleRequestUseCasePort).to(DeclineRescheduleRequestUseCase);
+  container.bind(TYPES.GetResumeViewUrlUseCasePort).to(GetResumeViewUrlUseCase);
 
   // Interview use cases
   container.bind(TYPES.ListMyInterviewsUseCasePort).to(ListMyInterviewsUseCase);

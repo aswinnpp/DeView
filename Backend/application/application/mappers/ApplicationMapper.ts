@@ -5,6 +5,9 @@ import type { IScoreCandidatesInputDTO, IScoreCandidateInputDTO } from '../dtos/
 import type { IUpdateApplicationStatusInputDTO } from '../dtos/UpdateApplicationStatusDTO.js';
 import type { IListMyApplicationsInput } from '../../candidate/ports/usecase/IListMyApplicationsUseCase.js';
 import type { CallerContext } from '../../shared/types/CallerContext.js';
+import type { IScheduleInterviewInput } from '../use-cases/schedule-interview.usecase.js';
+import type { IDeclineRescheduleRequestInput } from '../use-cases/decline-reschedule-request.usecase.js';
+import type { IGetResumeViewUrlInput } from '../use-cases/get-resume-view-url.usecase.js';
 
 export const ApplicationMapper = {
   toView(app: Application): ApplicationView {
@@ -178,6 +181,53 @@ export const ApplicationMapper = {
       page,
       limit,
       sortOrder: input.sortOrder,
+    };
+  },
+
+  toScheduleInterviewInput(
+    params: { jobId: string; applicationId: string },
+    body: {
+      round: string;
+      interviewerUserId: string;
+      interviewerName: string;
+      interviewerEmail?: string;
+      scheduledDate: string;
+      scheduledTime: string;
+    },
+    context: CallerContext
+  ): IScheduleInterviewInput {
+    return {
+      companyId: context.companyId || '',
+      jobId: params.jobId,
+      applicationId: params.applicationId,
+      round: body.round,
+      interviewerUserId: body.interviewerUserId,
+      interviewerName: body.interviewerName,
+      interviewerEmail: body.interviewerEmail,
+      scheduledDate: body.scheduledDate,
+      scheduledTime: body.scheduledTime,
+    };
+  },
+
+  toDeclineRescheduleRequestInput(
+    params: { jobId: string; applicationId: string },
+    context: CallerContext
+  ): IDeclineRescheduleRequestInput {
+    return {
+      companyId: context.companyId || '',
+      jobId: params.jobId,
+      applicationId: params.applicationId,
+    };
+  },
+
+  toGetResumeViewUrlInput(
+    params: { jobId: string; applicationId: string },
+    context: CallerContext
+  ): IGetResumeViewUrlInput {
+    return {
+      companyId: context.companyId || '',
+      jobId: params.jobId,
+      applicationId: params.applicationId,
     };
   },
 };

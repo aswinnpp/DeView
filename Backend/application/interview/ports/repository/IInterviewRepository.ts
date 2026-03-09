@@ -13,8 +13,14 @@ export interface IInterviewRepository {
     candidateUserId: string,
     options?: ListByCandidateUserIdOptions
   ): Promise<{ data: Interview[]; total: number }>;
-  listByInterviewerUserId(interviewerUserId: string): Promise<Interview[]>;
-  listCompletedByInterviewerUserId(interviewerUserId: string): Promise<Interview[]>;
+  listByInterviewerUserId(
+    interviewerUserId: string,
+    options?: { search?: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc'; acceptedOnly?: boolean }
+  ): Promise<{ data: Interview[]; total: number }>;
+  listCompletedByInterviewerUserId(
+    interviewerUserId: string,
+    options?: { search?: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }
+  ): Promise<{ data: Interview[]; total: number }>;
   listByCompanyId(companyId: string): Promise<Interview[]>;
   findById(id: string): Promise<Interview | null>;
   findActiveByApplicationId(applicationId: string): Promise<Interview | null>;

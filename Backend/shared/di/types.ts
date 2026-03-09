@@ -79,6 +79,9 @@ export const TYPES = {
   ListPendingApplicationsForJobUseCasePort: Symbol('ListPendingApplicationsForJobUseCasePort'),
   ScoreCandidatesUseCasePort: Symbol('ScoreCandidatesUseCasePort'),
   UpdateApplicationStatusUseCasePort: Symbol('UpdateApplicationStatusUseCasePort'),
+  ScheduleInterviewUseCasePort: Symbol('ScheduleInterviewUseCasePort'),
+  DeclineRescheduleRequestUseCasePort: Symbol('DeclineRescheduleRequestUseCasePort'),
+  GetResumeViewUrlUseCasePort: Symbol('GetResumeViewUrlUseCasePort'),
 
   // Interview
   InterviewRepositoryPort: Symbol('InterviewRepositoryPort'),

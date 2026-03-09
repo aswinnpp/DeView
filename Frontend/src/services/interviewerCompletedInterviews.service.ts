@@ -69,20 +69,35 @@ function fromBackendInterview(raw: BackendInterview): CompletedInterviewItem | n
   };
 }
 
+export interface ListCompletedParams {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface ListCompletedResult {
+  data: CompletedInterviewItem[];
+  total: number;
+}
+
 export const interviewerCompletedInterviewsService = {
-  list: () =>
+  list: (params?: ListCompletedParams) =>
     api
-      .get<CompletedInterviewItem[] | { data?: unknown }>(
-        API_ROUTES.INTERVIEWER.COMPLETED
-      )
+      .get(API_ROUTES.INTERVIEWER.COMPLETED, {
+        params: {
+          search: params?.search?.trim() || undefined,
+          page: params?.page,
+          limit: params?.limit,
+          sortOrder: params?.sortOrder,
+        },
+      })
       .then((res) => {
-        const body = res.data as unknown;
-        const arr: BackendInterview[] = Array.isArray(body)
-          ? (body as BackendInterview[])
-          : Array.isArray((body as { data?: unknown }).data)
-          ? (((body as { data?: unknown }).data as BackendInterview[]) || [])
-          : [];
-        return arr.map((item) => fromBackendInterview(item)).filter((x): x is CompletedInterviewItem => Boolean(x));
+        const body = res.data as { data?: BackendInterview[]; total?: number };
+        const arr: BackendInterview[] = Array.isArray(body?.data) ? body.data : [];
+        const total = typeof body?.total === 'number' ? body.total : arr.length;
+        const data = arr.map((item) => fromBackendInterview(item)).filter((x): x is CompletedInterviewItem => Boolean(x));
+        return { data, total };
       }),
 
   submitFeedback: (interviewId: string, payload: { totalScore: number; feedback: string }) =>
