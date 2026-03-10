@@ -72,6 +72,8 @@ export class CompanyPaymentController {
     const signature = request.headers['stripe-signature'] as string;
     const rawBody = (request as { rawBody?: Buffer | string })?.rawBody as Buffer | string;
 
+    console.log("signature", signature);
+
     const event = stripe.webhooks.constructEvent(rawBody, signature, env.STRIPE_WEBHOOK_SECRET as string);
 
     if (event.type === 'payment_intent.succeeded' || event.type === 'payment_intent.payment_failed') {

@@ -13,6 +13,11 @@ export interface ICompanySubscriptionRecord {
   status: CompanySubscriptionStatus;
   createdAt: Date;
   sourcePaymentIntentId?: string;
+  /** Embedded limits at purchase time. Optional for legacy records. */
+  interviewLimit?: number;
+  interviewUnlimited?: boolean;
+  jobPostLimit?: number;
+  jobUnlimited?: boolean;
 }
 
 export interface ICompanyApprovalDocument {
@@ -31,8 +36,6 @@ export interface ICompanyApprovalDocument {
   status: 'pending' | 'approved' | 'rejected';
   rejectionReason?: string;
   isActive: boolean;
-  subscriptionPlanId?: string;
-  subscriptionEndsAt?: Date;
   // New subscription management fields (embedded in company profile)
   activeSubscription?: ICompanySubscriptionRecord | null;
   pendingSubscriptions?: ICompanySubscriptionRecord[];

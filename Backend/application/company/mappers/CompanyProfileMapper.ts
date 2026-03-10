@@ -36,15 +36,15 @@ export const CompanyProfileMapper = {
       (a, b) => new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime()
     );
 
-    const merged = [...pending, ...history];
+    // Order: active first, then pending (upcoming), then history (expired)
+    const active = profile.activeSubscription ? [profile.activeSubscription] : [];
+    const merged = [...active, ...pending, ...history];
     const total = merged.length;
     const start = (page - 1) * limit;
     const items = merged.slice(start, start + limit);
 
     return {
       ...(profile as unknown as Record<string, unknown>),
-      subscriptionPlanId: undefined,
-      subscriptionEndsAt: undefined,
       pendingSubscriptions: undefined,
       subscriptionHistory: undefined,
       subscriptions: {

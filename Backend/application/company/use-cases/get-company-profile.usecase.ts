@@ -25,34 +25,25 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
 
     const now = new Date();
 
-    // Enrich legacy subscription fields into the new embedded record
-    if (!profile.activeSubscription && profile.subscriptionPlanId && profile.subscriptionEndsAt) {
-      const plan = await this.subscriptionRepo.findById(profile.subscriptionPlanId);
-      if (plan) {
-        profile.activeSubscription = {
-          id: crypto.randomUUID(),
-          planId: plan.id ?? profile.subscriptionPlanId,
-          planName: plan.name,
-          price: plan.price,
-          duration: plan.duration,
-          startAt: now,
-          endsAt: profile.subscriptionEndsAt,
-          status: "Active",
-          createdAt: now,
-        };
-      }
-    }
-
-    if (profile.activeSubscription && (!profile.activeSubscription.planName || profile.activeSubscription.price === 0)) {
+    // Backfill plan details and embedded limits when missing (legacy records)
+    if (profile.activeSubscription && (
+      !profile.activeSubscription.planName ||
+      profile.activeSubscription.price === 0 ||
+      profile.activeSubscription.interviewLimit === undefined
+    )) {
       const plan = await this.subscriptionRepo.findById(profile.activeSubscription.planId);
       if (plan) {
         profile.activeSubscription.planName = plan.name;
         profile.activeSubscription.price = plan.price;
         profile.activeSubscription.duration = plan.duration;
+        profile.activeSubscription.interviewLimit = plan.interviewLimit;
+        profile.activeSubscription.interviewUnlimited = plan.interviewUnlimited;
+        profile.activeSubscription.jobPostLimit = plan.jobPostLimit;
+        profile.activeSubscription.jobUnlimited = plan.jobUnlimited;
       }
     }
 
-    // Lazy refresh subscription state (expiry promotion, etc.)
+    // Refresh subscription state (expiry promotion, etc.)
     profile.refreshSubscriptions(now);
     await this.repo.save(profile);
 

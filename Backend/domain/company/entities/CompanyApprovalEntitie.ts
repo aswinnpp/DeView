@@ -19,6 +19,7 @@ export interface CompanyDocuments {
 
 export type CompanySubscriptionStatus = "Active" | "Pending" | "Expired";
 
+/** Embedded plan limits at subscription time. Admin plan edits do not affect existing subscribers. */
 export interface CompanySubscriptionRecord {
   id: string;
   planId: string;
@@ -30,6 +31,11 @@ export interface CompanySubscriptionRecord {
   status: CompanySubscriptionStatus;
   createdAt: Date;
   sourcePaymentIntentId?: string;
+  /** Embedded limits at purchase time (not from plan table). Optional for legacy records. */
+  interviewLimit?: number;
+  interviewUnlimited?: boolean;
+  jobPostLimit?: number;
+  jobUnlimited?: boolean;
 }
 
 function addMonths(date: Date, months: number): Date {
@@ -68,8 +74,6 @@ export class CompanyApproval {
     public status: CompanyStatus = "pending",
     public rejectionReason?: string,
     public isActive: boolean = true,
-    public subscriptionPlanId?: string,
-    public subscriptionEndsAt?: Date,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
     public activeSubscription: CompanySubscriptionRecord | null = null,
@@ -77,79 +81,18 @@ export class CompanyApproval {
     public subscriptionHistory: CompanySubscriptionRecord[] = []
   ) {}
 
-  /**
-   * Legacy setter kept for backward compatibility.
-   * Internally, keep new subscription model in sync.
-   */
-  setSubscription(planId: string, endsAt: Date): void {
-    this.subscriptionPlanId = planId;
-    this.subscriptionEndsAt = endsAt;
-    const now = new Date();
-
-    const record: CompanySubscriptionRecord = {
-      id: crypto.randomUUID(),
-      planId,
-      planName: "",
-      price: 0,
-      duration: "Monthly",
-      startAt: now,
-      endsAt,
-      status: "Active",
-      createdAt: now,
-    };
-
-    this.activeSubscription = record;
-    this.updatedAt = new Date();
-  }
-
   private ensureSubscriptionArraysInitialized(): void {
     if (!this.pendingSubscriptions) this.pendingSubscriptions = [];
     if (!this.subscriptionHistory) this.subscriptionHistory = [];
   }
 
-  private migrateLegacySubscriptionIfNeeded(): void {
-    this.ensureSubscriptionArraysInitialized();
-
-    if (!this.activeSubscription && this.subscriptionPlanId && this.subscriptionEndsAt) {
-      const now = new Date();
-      const record: CompanySubscriptionRecord = {
-        id: crypto.randomUUID(),
-        planId: this.subscriptionPlanId,
-        planName: "",
-        price: 0,
-        duration: "Monthly",
-        startAt: now,
-        endsAt: this.subscriptionEndsAt,
-        status: "Active",
-        createdAt: now,
-      };
-
-      this.activeSubscription = record;
-    }
-  }
-
-  private syncLegacyFieldsFromActive(): void {
-    if (this.activeSubscription) {
-      this.subscriptionPlanId = this.activeSubscription.planId;
-      this.subscriptionEndsAt = this.activeSubscription.endsAt;
-    } else {
-      this.subscriptionPlanId = undefined;
-      this.subscriptionEndsAt = undefined;
-    }
-    this.updatedAt = new Date();
-  }
-
   /**
    * Refresh subscription state based on current time:
-   * - Migrate legacy fields if needed
    * - Move expired active subscriptions to history
    * - Promote pending subscriptions when appropriate
    */
   refreshSubscriptions(now: Date): void {
     this.ensureSubscriptionArraysInitialized();
-    this.migrateLegacySubscriptionIfNeeded();
-
-    let changed = false;
 
     while (this.activeSubscription && this.activeSubscription.endsAt <= now) {
       const expired = {
@@ -158,7 +101,6 @@ export class CompanyApproval {
       };
       this.subscriptionHistory.push(expired);
       this.activeSubscription = null;
-      changed = true;
 
       if (!this.pendingSubscriptions.length) {
         break;
@@ -174,14 +116,11 @@ export class CompanyApproval {
         status: "Active",
       };
     }
-
-    if (changed) {
-      this.syncLegacyFieldsFromActive();
-    }
   }
 
   /**
    * Enqueue a newly purchased subscription, activating immediately if there is no active plan.
+   * Embeds plan limits so admin edits to the plan do not affect existing subscribers.
    */
   addPurchasedPlanAsActiveOrPending(
     input: {
@@ -190,6 +129,10 @@ export class CompanyApproval {
       price: number;
       duration: "Monthly" | "Quarterly" | "Annual";
       sourcePaymentIntentId?: string;
+      interviewLimit?: number;
+      interviewUnlimited?: boolean;
+      jobPostLimit?: number;
+      jobUnlimited?: boolean;
     },
     now: Date
   ): void {
@@ -216,6 +159,10 @@ export class CompanyApproval {
       status: isFirst ? "Active" : "Pending",
       createdAt: now,
       sourcePaymentIntentId: input.sourcePaymentIntentId,
+      interviewLimit: input.interviewLimit,
+      interviewUnlimited: input.interviewUnlimited,
+      jobPostLimit: input.jobPostLimit,
+      jobUnlimited: input.jobUnlimited,
     };
 
     if (isFirst) {
@@ -223,8 +170,6 @@ export class CompanyApproval {
     } else {
       this.pendingSubscriptions.push(record);
     }
-
-    this.syncLegacyFieldsFromActive();
   }
 
   /**
@@ -270,8 +215,6 @@ export class CompanyApproval {
         status: "Pending" as const,
       };
     });
-
-    this.syncLegacyFieldsFromActive();
   }
 
   approve() {

@@ -145,6 +145,7 @@ const HRApplicationsPage = () => {
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [showCandidateDetail, setShowCandidateDetail] = useState(false);
     const [showRejectionModal, setShowRejectionModal] = useState(false);
+    const [showInterviewLimitModal, setShowInterviewLimitModal] = useState(false);
 
     // Schedule interview step state
     const [scheduleStep, setScheduleStep] = useState(1); // 1 = select interviewer, 2 = select date/time/round
@@ -1467,9 +1468,31 @@ const HRApplicationsPage = () => {
                                                 setSelectedDate('');
                                                 setSelectedTime('');
                                                 setScheduleStep(1);
-                                            } catch (e) {
-                                                const msg = e instanceof Error ? e.message : "Failed to schedule interview";
-                                                alert(msg);
+                                            } catch (e: any) {
+                                                const rawMsg =
+                                                    typeof e?.response?.data?.message === 'string'
+                                                        ? e.response.data.message
+                                                        : e instanceof Error
+                                                            ? e.message
+                                                            : 'Failed to schedule interview';
+
+                                                const normalized = rawMsg.toLowerCase();
+                                                const isLimit =
+                                                    normalized.includes('interview scheduling limit') ||
+                                                    normalized.includes('interview limit') ||
+                                                    normalized.includes('schedule more interviews');
+
+                                                if (isLimit) {
+                                                    // Close schedule modal and reset its state, then show limit modal
+                                                    setShowInterviewerModal(false);
+                                                    setSelectedInterviewer(null);
+                                                    setSelectedDate('');
+                                                    setSelectedTime('');
+                                                    setScheduleStep(1);
+                                                    setShowInterviewLimitModal(true);
+                                                } else {
+                                                    alert(rawMsg);
+                                                }
                                             }
                                         }}
                                         disabled={!selectedDate || !selectedTime}
@@ -1490,6 +1513,73 @@ const HRApplicationsPage = () => {
                                 </div>
                             </>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* INTERVIEW LIMIT REACHED MODAL */}
+            {showInterviewLimitModal && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        backgroundColor: 'rgba(15,23,42,0.8)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 60,
+                    }}
+                >
+                    <div
+                        style={{
+                            width: '100%',
+                            maxWidth: 460,
+                            backgroundColor: '#020617',
+                            borderRadius: 16,
+                            padding: 24,
+                            border: '1px solid #1f2937',
+                            boxShadow: '0 25px 50px -12px rgba(15,23,42,0.9)',
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                            <h2 style={{ fontSize: 18, fontWeight: 600, color: '#e5e7eb' }}>
+                                Interview limit reached
+                            </h2>
+                            <button
+                                onClick={() => setShowInterviewLimitModal(false)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#9ca3af',
+                                    cursor: 'pointer',
+                                    fontSize: 22,
+                                    lineHeight: 1,
+                                }}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 20 }}>
+                            You’ve reached the maximum number of interviews allowed on your current subscription
+                            plan. Upgrade your plan to schedule more interviews
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                            <button
+                                onClick={() => setShowInterviewLimitModal(false)}
+                                style={{
+                                    padding: '10px 16px',
+                                    borderRadius: 8,
+                                    border: '1px solid #4b5563',
+                                    background: 'transparent',
+                                    color: '#e5e7eb',
+                                    cursor: 'pointer',
+                                    fontSize: 14,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

@@ -37,19 +37,27 @@ export class CreateJobUseCase implements ICreateJobUseCase {
       throw AppError.forbidden('Your subscription has expired or is missing. Please upgrade your plan to post jobs.');
     }
 
-
-
-    // Load full plan details to inspect job posting limits
-    const plan = await this.subscriptionRepo.findById(activeSub.planId);
-
-   
-
-    if (!plan) {
-      throw AppError.forbidden('Unable to resolve your subscription plan. Please contact support or upgrade your plan.');
+    // Use embedded limits from company profile (admin plan edits do not affect subscribers).
+    // Fallback to plan table for legacy records missing embedded limits.
+    let jobPostLimit = activeSub.jobPostLimit;
+    let jobUnlimited = activeSub.jobUnlimited;
+    if (jobPostLimit === undefined || jobUnlimited === undefined) {
+      const plan = await this.subscriptionRepo.findById(activeSub.planId);
+      if (!plan) {
+        throw AppError.forbidden('Unable to resolve your subscription plan. Please contact support or upgrade your plan.');
+      }
+      jobPostLimit = plan.jobPostLimit;
+      jobUnlimited = plan.jobUnlimited;
+      // Backfill embedded limits for legacy records
+      activeSub.interviewLimit = plan.interviewLimit;
+      activeSub.interviewUnlimited = plan.interviewUnlimited;
+      activeSub.jobPostLimit = plan.jobPostLimit;
+      activeSub.jobUnlimited = plan.jobUnlimited;
+      await this.companyRepo.save(company);
     }
 
-    if (!plan.jobUnlimited) {
-      if (!Number.isFinite(plan.jobPostLimit) || plan.jobPostLimit <= 0) {
+    if (!jobUnlimited) {
+      if (!Number.isFinite(jobPostLimit) || (jobPostLimit ?? 0) <= 0) {
         throw AppError.forbidden('Your current plan does not allow job postings. Please upgrade your plan.');
       }
 
@@ -57,7 +65,7 @@ export class CreateJobUseCase implements ICreateJobUseCase {
       const existingJobs = await this.repo.listByCompanyId(dto.companyId);
       const activeJobsCount = existingJobs.length;
 
-      if (activeJobsCount >= plan.jobPostLimit) {
+      if (activeJobsCount >= (jobPostLimit ?? 0)) {
         throw AppError.forbidden(
           'You have reached the job posting limit for your current plan. Please upgrade your plan to post more jobs.',
         );

@@ -21,12 +21,16 @@ export class HandlePaymentWebhookUseCase implements IHandlePaymentWebhookUseCase
   ) {}
 
   async execute(input: IHandlePaymentWebhookInput): Promise<void> {
-    const { eventType, paymentIntentId, planId, companyId } = input;
+    const { eventType, paymentIntentId } = input;
 
     const payment = await this.paymentRepository.findByStripePaymentIntentId(paymentIntentId);
     if (!payment) {
       throw AppError.notFound(`Payment not found for intent ${paymentIntentId}`);
     }
+
+    // Prefer companyId/planId from Payment record (stored at create time) - more reliable than Stripe metadata
+    const companyId = payment.companyId || input.companyId;
+    const planId = payment.subscriptionPlanId || input.planId;
 
     if (eventType === 'payment_intent.succeeded') {
       // Idempotency: do not reprocess already completed payments
@@ -36,6 +40,10 @@ export class HandlePaymentWebhookUseCase implements IHandlePaymentWebhookUseCase
 
       payment.markSucceeded();
       await this.paymentRepository.save(payment);
+
+      if (!companyId?.trim()) {
+        return;
+      }
 
       const company = await this.companyProfileRepository.findById(companyId);
       if (!company) {
@@ -55,6 +63,10 @@ export class HandlePaymentWebhookUseCase implements IHandlePaymentWebhookUseCase
           price: plan.price,
           duration: plan.duration,
           sourcePaymentIntentId: paymentIntentId,
+          interviewLimit: plan.interviewLimit,
+          interviewUnlimited: plan.interviewUnlimited,
+          jobPostLimit: plan.jobPostLimit,
+          jobUnlimited: plan.jobUnlimited,
         },
         now,
       );

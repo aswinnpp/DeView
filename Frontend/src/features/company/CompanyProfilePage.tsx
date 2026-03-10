@@ -181,8 +181,11 @@ const CompanyProfilePage = () => {
         activePlanId,
     } = useCompanySubscription({
         onPaymentSucceeded: async () => {
-            // refresh profile after successful payment
-            await fetchProfile({ page: 1, silent: false });
+            // Webhook runs async; retry profile fetch so pending subscription appears in table
+            for (let i = 0; i < 4; i++) {
+                await fetchProfile({ page: 1, limit: 8, silent: i > 0 });
+                if (i < 3) await new Promise((r) => setTimeout(r, 1000));
+            }
         },
         companyData,
         fetchProfile,
@@ -276,7 +279,11 @@ const CompanyProfilePage = () => {
         {
             header: "Status",
             render: (sub) =>
-                sub.status === "Pending" ? (
+                sub.status === "Active" ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-200 border border-emerald-500/20">
+                        Active
+                    </span>
+                ) : sub.status === "Pending" ? (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-200 border border-amber-500/20">
                         Pending
                     </span>
@@ -289,7 +296,9 @@ const CompanyProfilePage = () => {
         {
             header: "Action",
             render: (sub) =>
-                sub.status === "Pending" ? (
+                sub.status === "Active" ? (
+                    <span className="text-slate-400 text-xs">Current plan</span>
+                ) : sub.status === "Pending" ? (
                     <Button
                         type="button"
                         disabled={subscriptionActionLoadingId === sub.id}
@@ -646,7 +655,7 @@ const CompanyProfilePage = () => {
                         </>
                     ) : (
                         <div className="px-6 py-6 text-sm text-slate-400">
-                            No subscription history yet.
+                            No pending or past subscriptions.
                         </div>
                     )}
                 

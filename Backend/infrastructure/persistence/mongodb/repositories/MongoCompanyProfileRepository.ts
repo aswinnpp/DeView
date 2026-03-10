@@ -104,6 +104,10 @@ export class MongoCompanyProfileRepository
       status: record.status,
       createdAt: new Date(record.createdAt),
       sourcePaymentIntentId: record.sourcePaymentIntentId,
+      interviewLimit: record.interviewLimit,
+      interviewUnlimited: record.interviewUnlimited,
+      jobPostLimit: record.jobPostLimit,
+      jobUnlimited: record.jobUnlimited,
     };
   }
 
@@ -122,6 +126,10 @@ export class MongoCompanyProfileRepository
       status: record.status,
       createdAt: record.createdAt,
       sourcePaymentIntentId: record.sourcePaymentIntentId,
+      interviewLimit: record.interviewLimit,
+      interviewUnlimited: record.interviewUnlimited,
+      jobPostLimit: record.jobPostLimit,
+      jobUnlimited: record.jobUnlimited,
     };
   }
 
@@ -150,8 +158,6 @@ export class MongoCompanyProfileRepository
       doc.status,
       doc.rejectionReason,
       doc.isActive ?? true,
-      doc.subscriptionPlanId,
-      doc.subscriptionEndsAt,
       doc.createdAt,
       doc.updatedAt,
       active,
@@ -187,8 +193,6 @@ export class MongoCompanyProfileRepository
       status: entity.status,
       rejectionReason: entity.rejectionReason,
       isActive: entity.isActive,
-      subscriptionPlanId: entity.subscriptionPlanId,
-      subscriptionEndsAt: entity.subscriptionEndsAt,
       activeSubscription: active ?? undefined,
       pendingSubscriptions: pending,
       subscriptionHistory: history,
