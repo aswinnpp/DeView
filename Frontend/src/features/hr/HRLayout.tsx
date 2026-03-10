@@ -123,12 +123,6 @@ const HRLayout = () => {
                             <NavLink to="/hr/offer-letters" className={({ isActive }) => navTabClass(isActive)}>
                                 Offer Letters
                             </NavLink>
-                            <NavLink to="/hr/interviewers" className={({ isActive }) => navTabClass(isActive)}>
-                                Interviewers
-                            </NavLink>
-                            <NavLink to="/hr/slots" className={({ isActive }) => navTabClass(isActive)}>
-                                Slots
-                            </NavLink>
                         </nav>
 
                         {/* Logout at bottom */}
@@ -173,12 +167,6 @@ const HRLayout = () => {
                             </NavLink>
                             <NavLink to="/hr/offer-letters" className={({ isActive }) => navTabClass(isActive)}>
                                 Offer Letters
-                            </NavLink>
-                            <NavLink to="/hr/interviewers" className={({ isActive }) => navTabClass(isActive)}>
-                                Interviewers
-                            </NavLink>
-                            <NavLink to="/hr/slots" className={({ isActive }) => navTabClass(isActive)}>
-                                Slots
                             </NavLink>
                         </nav>
                         <button

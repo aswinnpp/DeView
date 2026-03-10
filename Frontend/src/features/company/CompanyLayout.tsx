@@ -112,6 +112,9 @@ const CompanyLayout = () => {
                             <NavLink to="/company/applications" className={({ isActive }) => navTabClass(isActive)}>
                                 Applications
                             </NavLink>
+                            <NavLink to="/company/offer-letters" className={({ isActive }) => navTabClass(isActive)}>
+                                Offer Letters
+                            </NavLink>
                             <NavLink to="/company/team" className={({ isActive }) => navTabClass(isActive)}>
                                 Team Management
                             </NavLink>
@@ -163,6 +166,9 @@ const CompanyLayout = () => {
                             </NavLink>
                             <NavLink to="/company/applications" className={({ isActive }) => navTabClass(isActive)}>
                                 Applications
+                            </NavLink>
+                            <NavLink to="/company/offer-letters" className={({ isActive }) => navTabClass(isActive)}>
+                                Offer Letters
                             </NavLink>
                             <NavLink to="/company/team" className={({ isActive }) => navTabClass(isActive)}>
                                 Team Management
