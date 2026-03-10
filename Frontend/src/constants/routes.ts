@@ -28,6 +28,7 @@ export const API_ROUTES = {
         INTERVIEWER_LIST: '/company/interviewer/list',
         INTERVIEWER_CREATE: '/company/interviewer/create',
         INTERVIEWER_TOGGLE_STATUS: (id: string) => `/company/interviewer/${id}/toggle-status`,
+        INTERVIEWER_SLOTS: (id: string) => `/company/interviewer/${id}/slots`,
     },
     JOB: {
         JOBS_LIST: '/jobs',
@@ -68,6 +69,7 @@ export const API_ROUTES = {
     INTERVIEWER: {
         PROFILE: '/interviewer/profile',
         ASSIGNMENTS: '/interviewer/assignments',
+        SLOTS: '/interviewer/slots',
         ACCEPT: (interviewId: string) => `/interviewer/assignments/${interviewId}/accept`,
         REJECT: (interviewId: string) => `/interviewer/assignments/${interviewId}/reject`,
         COMPLETED: '/interviewer/completed-interviews',
@@ -105,6 +107,7 @@ export const APP_ROUTES = {
     ADMIN_DASHBOARD: '/admin',
     INTERVIEWER_DASHBOARD: '/interviewer/dashboard',
     INTERVIEWER_ASSIGNMENTS: '/interviewer/assignments',
+    INTERVIEWER_SLOTS: '/interviewer/slots',
     INTERVIEWER_PROFILE: '/interviewer/profile',
 } as const;
 

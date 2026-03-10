@@ -72,6 +72,8 @@ import { ListMyInterviewFeedbacksUseCase } from '../../application/interview/use
 import { GetInterviewerProfileUseCase } from '../../application/interviewer/use-cases/get-interviewer-profile.usecase.js';
 import { CreateInterviewerProfileUseCase } from '../../application/interviewer/use-cases/create-interviewer-profile.usecase.js';
 import { UpdateInterviewerProfileUseCase } from '../../application/interviewer/use-cases/update-interviewer-profile.usecase.js';
+import { GetMyInterviewerSlotsUseCase } from "../../application/interviewer/use-cases/get-my-interviewer-slots.usecase.js";
+import { UpsertMyInterviewerSlotsUseCase } from "../../application/interviewer/use-cases/upsert-my-interviewer-slots.usecase.js";
 
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
@@ -162,6 +164,8 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.GetInterviewerProfileUseCasePort).to(GetInterviewerProfileUseCase);
   container.bind(TYPES.CreateInterviewerProfileUseCasePort).to(CreateInterviewerProfileUseCase);
   container.bind(TYPES.UpdateInterviewerProfileUseCasePort).to(UpdateInterviewerProfileUseCase);
+  container.bind(TYPES.GetMyInterviewerSlotsUseCasePort).to(GetMyInterviewerSlotsUseCase);
+  container.bind(TYPES.UpsertMyInterviewerSlotsUseCasePort).to(UpsertMyInterviewerSlotsUseCase);
 
   // Upload use cases
   container.bind(TYPES.GenerateUploadSignatureUseCasePort).to(GenerateUploadSignatureUseCase);

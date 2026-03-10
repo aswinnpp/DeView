@@ -39,6 +39,9 @@ const InterviewerLayout: React.FC = () => {
             <NavLink to="/interviewer/manage" className={({ isActive }) => navLinkClass(isActive)}>
               Manage
             </NavLink>
+            <NavLink to={APP_ROUTES.INTERVIEWER_SLOTS} className={({ isActive }) => navLinkClass(isActive)}>
+              Slots
+            </NavLink>
             <NavLink to={APP_ROUTES.INTERVIEWER_PROFILE} className={({ isActive }) => navLinkClass(isActive)}>
               Profile
             </NavLink>

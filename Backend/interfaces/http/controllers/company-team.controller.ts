@@ -7,6 +7,8 @@ import type { ICreateTeamMemberUseCase } from '../../../application/company/port
 import type { IListTeamMembersUseCase } from '../../../application/company/ports/usecase/IListTeamMembersUseCase.js';
 import type { IToggleTeamMemberStatusUseCase } from '../../../application/company/ports/usecase/IToggleTeamMemberStatusUseCase.js';
 import { CompanyTeamMapper } from '../../../application/company/mappers/CompanyTeamMapper.js';
+import type { IGetMyInterviewerSlotsUseCase } from "../../../application/interviewer/ports/usecase/IGetMyInterviewerSlotsUseCase.js";
+import { AppError } from "../../../shared/errors/AppError.js";
 
 interface ICreateBody {
     fullName: string;
@@ -17,6 +19,10 @@ interface IToggleParams {
     id: string;
 }
 
+interface IInterviewerIdParams {
+    id: string;
+}
+
 interface ISearchQuery {
     search?: string;
     status?: string;
@@ -24,12 +30,17 @@ interface ISearchQuery {
     limit?: string;
 }
 
+interface IInterviewerSlotsQuery {
+    slotDate?: string;
+}
+
 @injectable()
 export class CompanyTeamController {
     constructor(
         @inject(TYPES.CreateTeamMemberUseCasePort) private readonly createTeamMemberUseCase: ICreateTeamMemberUseCase,
         @inject(TYPES.ListTeamMembersUseCasePort) private readonly listTeamMembersUseCase: IListTeamMembersUseCase,
-        @inject(TYPES.ToggleTeamMemberStatusUseCasePort) private readonly toggleTeamMemberStatusUseCase: IToggleTeamMemberStatusUseCase
+        @inject(TYPES.ToggleTeamMemberStatusUseCasePort) private readonly toggleTeamMemberStatusUseCase: IToggleTeamMemberStatusUseCase,
+        @inject(TYPES.GetMyInterviewerSlotsUseCasePort) private readonly getInterviewerSlotsUseCase: IGetMyInterviewerSlotsUseCase,
     ) {}
 
     listHRs = async (
@@ -97,6 +108,18 @@ export class CompanyTeamController {
             userId,
             companyId
         );
+        reply.send(success(result));
+    };
+
+    getInterviewerSlots = async (
+        request: FastifyRequest<{ Params: IInterviewerIdParams; Querystring: IInterviewerSlotsQuery }>,
+        reply: FastifyReply,
+    ) => {
+        const { companyId } = request.currentUser;
+        if (!companyId) throw AppError.forbidden("No company associated with this account");
+        const interviewerId = request.params.id;
+        const { slotDate } = request.query ?? {};
+        const result = await this.getInterviewerSlotsUseCase.execute({ interviewerId, companyId, slotDate });
         reply.send(success(result));
     };
 }

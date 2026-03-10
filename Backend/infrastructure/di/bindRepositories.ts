@@ -16,6 +16,7 @@ import type { IRejectionMailRepository } from '../../application/application/por
 import type { IInterviewRepository } from '../../application/interview/ports/repository/IInterviewRepository.js';
 import type { IInterviewFeedbackRepository } from '../../application/interview/ports/repository/IInterviewFeedbackRepository.js';
 import type { IInterviewerProfileRepository } from '../../application/interviewer/ports/repository/IInterviewerProfileRepository.js';
+import type { IInterviewerSlotsRepository } from "../../application/interviewer/ports/repository/IInterviewerSlotsRepository.js";
 import { MongoUserRepository } from '../persistence/mongodb/repositories/MongoUserRepository.js';
 import { MongoCompanyProfileRepository } from '../persistence/mongodb/repositories/MongoCompanyProfileRepository.js';
 import { MongoCandidateProfileRepository } from '../persistence/mongodb/repositories/MongoCandidateProfileRepository.js';
@@ -41,6 +42,8 @@ import { IInterviewFeedbackDocument } from '../persistence/mongodb/schemas/Inter
 import { MongoInterviewFeedbackRepository } from '../persistence/mongodb/repositories/MongoInterviewFeedbackRepository.js';
 import { IInterviewerProfileDocument } from '../persistence/mongodb/schemas/InterviewerProfileDocument.js';
 import { MongoInterviewerProfileRepository } from '../persistence/mongodb/repositories/MongoInterviewerProfileRepository.js';
+import { MongoInterviewerSlotsRepository } from "../persistence/mongodb/repositories/MongoInterviewerSlotsRepository.js";
+import { IInterviewerSlotsDocument } from "../persistence/mongodb/schemas/InterviewerSlotsDocument.js";
 
 /**
  * Helper functions to create repository instances
@@ -83,6 +86,9 @@ const createInterviewFeedbackRepository = (db: Db) =>
 
 const createInterviewerProfileRepository = (db: Db) =>
   new MongoInterviewerProfileRepository(db.collection<IInterviewerProfileDocument>('interviewerProfiles'));
+
+const createInterviewerSlotsRepository = (db: Db) =>
+  new MongoInterviewerSlotsRepository(db.collection<IInterviewerSlotsDocument>("interviewerSlots"));
 
 const createOTPRepository = (redis: RedisClientType) => 
   new RedisOTPRepository(redis);
@@ -138,6 +144,10 @@ export function bindRepositories(container: Container): void {
 
   container.bind<IInterviewerProfileRepository>(TYPES.InterviewerProfileRepositoryPort).toDynamicValue(() =>
     createInterviewerProfileRepository(container.get<Db>(TYPES.Db))
+  );
+
+  container.bind<IInterviewerSlotsRepository>(TYPES.InterviewerSlotsRepositoryPort).toDynamicValue(() =>
+    createInterviewerSlotsRepository(container.get<Db>(TYPES.Db))
   );
 
   container.bind<IOtpRepository>(TYPES.OTPRepositoryPort).toDynamicValue(() =>

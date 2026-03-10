@@ -48,6 +48,7 @@ const InterviewerDashboard = lazy(() => import("../features/interviewer/Intervie
 const InterviewerAssignments = lazy(() => import("../features/interviewer/InterviewerAssignments"));
 const InterviewerManageInterviews = lazy(() => import("../features/interviewer/InterviewerManageInterviews"));
 const InterviewerProfile = lazy(() => import("../features/interviewer/InterviewerProfile"));
+const SlotBookingPage = lazy(() => import("../features/interviewer/SlotBookingPage"));
 
 const LoadingFallback = () => (
   <div className="p-5 text-center">
@@ -126,6 +127,7 @@ const AppRouter = () => {
             <Route path="dashboard" element={<InterviewerDashboard />} />
             <Route path="profile" element={<InterviewerProfile />} />
             <Route path="assignments" element={<InterviewerAssignments />} />
+            <Route path="slots" element={<SlotBookingPage />} />
             <Route path="manage" element={<InterviewerManageInterviews />} />
           </Route>
 

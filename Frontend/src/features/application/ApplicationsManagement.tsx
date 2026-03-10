@@ -11,6 +11,8 @@ import Pagination from "../../components/common/Pagination";
 import { ToastContainer } from "../../components/common/Toast";
 import { applicationsService } from "../../services/applications.service";
 import { companyTeamService, type TeamMember } from "../../services/companyTeam.service";
+import { interviewerSlotsService } from "../../services/interviewerSlots.service";
+import { extractApiError } from "../../api/axios";
 
 // ==================== TYPE DEFINITIONS ====================
 interface Job {
@@ -157,6 +159,10 @@ const HRApplicationsPage = () => {
     const [selectedInterviewer, setSelectedInterviewer] = useState<Interviewer | null>(null);
     const [isLoadingInterviewers, setIsLoadingInterviewers] = useState(false);
 
+    const [isLoadingInterviewerSlots, setIsLoadingInterviewerSlots] = useState(false);
+    const [interviewerSlotTimes, setInterviewerSlotTimes] = useState<string[]>([]);
+    const [interviewerSlotsError, setInterviewerSlotsError] = useState<string | null>(null);
+
     // Map workflow tab to underlying pipeline tab in useApplication()
     const workflowToPipelineMap: Record<WorkflowTab, "pending" | "shortlist" | "interview" | "interview_complete" | "complete"> = {
         PENDING: "pending",
@@ -226,7 +232,56 @@ const HRApplicationsPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showInterviewerModal, scheduleStep]);
 
-     console.log("interviewers", interviewers);
+    function toDDMMYYYYFromYYYYMMDD(s: string): string {
+        const [yyyy, mm, dd] = s.split("-");
+        return `${dd}-${mm}-${yyyy}`;
+    }
+
+    const formatTime = (iso: string) =>
+        new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+
+    const addMinutes = (iso: string, minutes: number) => {
+        const d = new Date(iso);
+        d.setMinutes(d.getMinutes() + minutes);
+        return d.toISOString();
+    };
+
+    useEffect(() => {
+        if (!showInterviewerModal) return;
+        if (scheduleStep !== 3) return;
+        if (!selectedInterviewer?.id) return;
+        if (!selectedDate) {
+            setInterviewerSlotTimes([]);
+            setInterviewerSlotsError(null);
+            return;
+        }
+
+        const slotDateApi = toDDMMYYYYFromYYYYMMDD(selectedDate);
+
+        let cancelled = false;
+        (async () => {
+            setIsLoadingInterviewerSlots(true);
+            setInterviewerSlotsError(null);
+            try {
+                const docs = await interviewerSlotsService.getInterviewerSlots(selectedInterviewer.id, {
+                    slotDate: slotDateApi,
+                });
+                const doc = docs?.[0] ?? null;
+                if (cancelled) return;
+                setInterviewerSlotTimes(doc?.times ?? []);
+            } catch (e) {
+                if (cancelled) return;
+                setInterviewerSlotTimes([]);
+                setInterviewerSlotsError(extractApiError(e));
+            } finally {
+                if (!cancelled) setIsLoadingInterviewerSlots(false);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [showInterviewerModal, scheduleStep, selectedInterviewer?.id, selectedDate]);
 
     // Helper function to format slot date
  
@@ -1295,33 +1350,49 @@ const HRApplicationsPage = () => {
                                         <p style={{ color: '#94a3b8', fontSize: 12, marginBottom: 12 }}>
                                             {selectedInterviewer.name}'s available slots for {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}:
                                         </p>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-                                            {/* Dummy time slots */}
-                                            {[
-                                                { time: '09:00', endTime: '10:00', duration: 60 },
-                                                { time: '10:30', endTime: '11:30', duration: 60 },
-                                                { time: '14:00', endTime: '15:00', duration: 60 },
-                                                { time: '15:30', endTime: '16:30', duration: 60 },
-                                            ].map(slot => (
-                                                <div
-                                                    key={slot.time}
-                                                    onClick={() => setSelectedTime(slot.time)}
-                                                    style={{
-                                                        padding: '14px 16px',
-                                                        backgroundColor: selectedTime === slot.time ? '#334155' : '#0f172a',
-                                                        border: selectedTime === slot.time ? '2px solid #10b981' : '1px solid #334155',
-                                                        borderRadius: 10,
-                                                        cursor: 'pointer',
-                                                        textAlign: 'center'
-                                                    }}
-                                                >
-                                                    <span style={{ color: selectedTime === slot.time ? '#10b981' : '#e2e8f0', fontWeight: 600, fontSize: 15 }}>
-                                                        {slot.time} - {slot.endTime}
-                                                    </span>
-                                                    <p style={{ color: '#64748b', fontSize: 11, margin: '4px 0 0' }}>{slot.duration} min</p>
-                                                </div>
-                                            ))}
-                                        </div>
+                                        {isLoadingInterviewerSlots ? (
+                                            <div style={{ padding: 16, color: '#94a3b8', backgroundColor: '#0f172a', borderRadius: 8, border: '1px solid #334155' }}>
+                                                Loading available slots...
+                                            </div>
+                                        ) : interviewerSlotsError ? (
+                                            <div style={{ padding: 16, color: '#fca5a5', backgroundColor: '#0f172a', borderRadius: 8, border: '1px solid #334155' }}>
+                                                {interviewerSlotsError}
+                                            </div>
+                                        ) : interviewerSlotTimes.length === 0 ? (
+                                            <div style={{ padding: 16, color: '#94a3b8', backgroundColor: '#0f172a', borderRadius: 8, border: '1px solid #334155' }}>
+                                                No slots available for this date.
+                                            </div>
+                                        ) : (
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                                                {[...interviewerSlotTimes]
+                                                    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+                                                    .map((startIso) => {
+                                                        const startLabel = formatTime(startIso);
+                                                        const endLabel = formatTime(addMinutes(startIso, 60));
+                                                        const key = startIso;
+                                                        const value = startLabel;
+                                                        return (
+                                                            <div
+                                                                key={key}
+                                                                onClick={() => setSelectedTime(value)}
+                                                                style={{
+                                                                    padding: '14px 16px',
+                                                                    backgroundColor: selectedTime === value ? '#334155' : '#0f172a',
+                                                                    border: selectedTime === value ? '2px solid #10b981' : '1px solid #334155',
+                                                                    borderRadius: 10,
+                                                                    cursor: 'pointer',
+                                                                    textAlign: 'center'
+                                                                }}
+                                                            >
+                                                                <span style={{ color: selectedTime === value ? '#10b981' : '#e2e8f0', fontWeight: 600, fontSize: 15 }}>
+                                                                    {startLabel} - {endLabel}
+                                                                </span>
+                                                                <p style={{ color: '#64748b', fontSize: 11, margin: '4px 0 0' }}>60 min</p>
+                                                            </div>
+                                                        );
+                                                    })}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 

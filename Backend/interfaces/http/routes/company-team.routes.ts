@@ -36,4 +36,8 @@ export async function companyTeamRoutes(
         handler: controller.toggleInterviewerStatus,
     });
 
+    fastify.get('/interviewer/:id/slots', {
+        handler: controller.getInterviewerSlots,
+    });
+
 }

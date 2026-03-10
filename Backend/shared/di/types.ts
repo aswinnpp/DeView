@@ -99,7 +99,10 @@ export const TYPES = {
   ListMyInterviewFeedbacksUseCasePort: Symbol('ListMyInterviewFeedbacksUseCasePort'),
 
   InterviewerProfileRepositoryPort: Symbol('InterviewerProfileRepositoryPort'),
+  InterviewerSlotsRepositoryPort: Symbol("InterviewerSlotsRepositoryPort"),
   GetInterviewerProfileUseCasePort: Symbol('GetInterviewerProfileUseCasePort'),
   CreateInterviewerProfileUseCasePort: Symbol('CreateInterviewerProfileUseCasePort'),
   UpdateInterviewerProfileUseCasePort: Symbol('UpdateInterviewerProfileUseCasePort'),
+  GetMyInterviewerSlotsUseCasePort: Symbol("GetMyInterviewerSlotsUseCasePort"),
+  UpsertMyInterviewerSlotsUseCasePort: Symbol("UpsertMyInterviewerSlotsUseCasePort"),
 } as const;
