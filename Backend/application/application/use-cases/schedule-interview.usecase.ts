@@ -107,6 +107,14 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
 
     const existing = await this.interviewRepository.findActiveByApplicationId(applicationId);
 
+    // Guard: do not allow scheduling the next round until the last completed interview has feedback.
+    if (!existing) {
+      const lastCompleted = await this.interviewRepository.findLatestCompletedByApplicationId(applicationId);
+      if (lastCompleted && !lastCompleted.feedbackSubmitted) {
+        throw AppError.forbidden('Interviewer feedback PENDING');
+      }
+    }
+
     // Only enforce interview count limit when creating a brand new interview record.
     if (!existing && !interviewUnlimited) {
       if (!Number.isFinite(interviewLimit) || (interviewLimit ?? 0) <= 0) {
@@ -178,6 +186,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
           trimmedDate,
           trimmedTime,
           'SCHEDULED',
+          false,
           false,
           undefined
         )

@@ -94,6 +94,8 @@ export class MongoInterviewRepository
     const filter: Filter<IInterviewDocument> = {
       interviewerUserId,
       status: 'COMPLETED',
+      // Only interviews still pending feedback
+      feedbackSubmitted: { $ne: true },
     };
     if (options?.search && options.search.trim()) {
       const q = options.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -168,6 +170,15 @@ export class MongoInterviewRepository
     return doc ? this.toDomain(doc) : null;
   }
 
+  async findLatestCompletedByApplicationId(applicationId: string): Promise<Interview | null> {
+    const doc = await this.collection
+      .find({ applicationId, status: 'COMPLETED' })
+      .sort({ createdAt: -1 })
+      .limit(1)
+      .next();
+    return doc ? this.toDomain(doc) : null;
+  }
+
   async declineCandidateRejection(id: string): Promise<Interview | null> {
     let _id: ObjectId;
     try {
@@ -230,6 +241,21 @@ export class MongoInterviewRepository
     return result ? this.toDomain(result) : null;
   }
 
+  async setFeedbackSubmitted(id: string, submitted: boolean): Promise<Interview | null> {
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(id);
+    } catch {
+      return null;
+    }
+    const result = await this.collection.findOneAndUpdate(
+      { _id },
+      { $set: { feedbackSubmitted: submitted, updatedAt: new Date() } },
+      { returnDocument: 'after' }
+    );
+    return result ? this.toDomain(result) : null;
+  }
+
   async listByCompanyId(companyId: string): Promise<Interview[]> {
     const filter: Filter<IInterviewDocument> = { companyId };
     const docs = await this.collection
@@ -268,6 +294,7 @@ export class MongoInterviewRepository
       doc.scheduledDate,
       doc.scheduledTime,
       doc.status,
+      doc.feedbackSubmitted ?? false,
       doc.interviewerAccepted ?? false,
       doc.interviewerRejectReason,
       doc.candidateRejection,
@@ -294,6 +321,7 @@ export class MongoInterviewRepository
       scheduledDate: entity.scheduledDate,
       scheduledTime: entity.scheduledTime,
       status: entity.status,
+      feedbackSubmitted: entity.feedbackSubmitted,
       interviewerAccepted: entity.interviewerAccepted,
       interviewerRejectReason: entity.interviewerRejectReason,
       candidateRejection: entity.candidateRejection,

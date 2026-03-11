@@ -203,6 +203,9 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
       }
     };
 
+    const localVideoEl = localVideoRef.current;
+    const remoteVideoEl = remoteVideoRef.current;
+
     setupConnection();
 
     return () => {
@@ -235,11 +238,11 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
         screenStreamRef.current = null;
       }
 
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = null;
+      if (localVideoEl) {
+        localVideoEl.srcObject = null;
       }
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = null;
+      if (remoteVideoEl) {
+        remoteVideoEl.srcObject = null;
       }
 
       setIsInRoom(false);

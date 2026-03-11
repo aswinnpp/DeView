@@ -16,11 +16,10 @@ export interface IInterviewDocument {
   scheduledDate: string;
   scheduledTime: string;
   status: 'SCHEDULED' | 'RESCHEDULED' | 'COMPLETED' | 'CANCELLED';
+  feedbackSubmitted?: boolean;
   interviewerAccepted?: boolean;
   interviewerRejectReason?: string;
-  /** Candidate requested to reschedule (date + reason). */
   candidateRejection?: { date: string; reason: string };
-  /** Status of candidate reschedule request (pending/declined). */
   candidateRejectionStatus?: 'PENDING' | 'DECLINED';
   createdAt: Date;
   updatedAt: Date;

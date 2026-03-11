@@ -139,6 +139,20 @@ export const applicationsService = {
     return url;
   },
 
+  getLatestInterviewerFeedback: async (
+    jobId: string,
+    applicationId: string
+  ): Promise<{ interviewerName: string; totalScore: number; feedback: string; createdAt: string }> => {
+    const res = await api.get<{
+      data?: { interviewerName: string; totalScore: number; feedback: string; createdAt: string };
+    }>(
+      API_ROUTES.APPLICATIONS.LATEST_INTERVIEWER_FEEDBACK(jobId, applicationId)
+    );
+    const d = (res.data as { data?: { interviewerName: string; totalScore: number; feedback: string; createdAt: string } })?.data;
+    if (!d) throw new Error("No feedback returned");
+    return d;
+  },
+
   /** Score candidates against job using AI. Returns scores per applicationId. */
   scoreCandidates: async (
     jobId: string,

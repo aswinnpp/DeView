@@ -24,10 +24,12 @@ export interface IInterviewRepository {
   listByCompanyId(companyId: string): Promise<Interview[]>;
   findById(id: string): Promise<Interview | null>;
   findActiveByApplicationId(applicationId: string): Promise<Interview | null>;
+  findLatestCompletedByApplicationId(applicationId: string): Promise<Interview | null>;
   setInterviewerAccepted(id: string, accepted: boolean, rejectReason?: string): Promise<Interview | null>;
   setCandidateRejection(id: string, input: { date: string; reason: string }): Promise<Interview | null>;
   declineCandidateRejection(id: string): Promise<Interview | null>;
   rescheduleFromCompany(id: string, input: { scheduledDate: string; scheduledTime: string; interviewerUserId: string; interviewerName: string; round: string }): Promise<Interview | null>;
   updateStatus(id: string, status: InterviewStatus): Promise<Interview | null>;
+  setFeedbackSubmitted(id: string, submitted: boolean): Promise<Interview | null>;
 }
 

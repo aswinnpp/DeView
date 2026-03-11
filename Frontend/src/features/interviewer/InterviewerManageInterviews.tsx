@@ -25,7 +25,6 @@ const InterviewerManageInterviews = () => {
     setPage,
     isLoading,
     error,
-    searchQuery,
     setSearchQuery,
     sortOrder,
     setSortOrder,
@@ -37,6 +36,7 @@ const InterviewerManageInterviews = () => {
   const [evaluationDrafts, setEvaluationDrafts] = useState<Record<string, { overallScore: number; comments: string }>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentInterview, setCurrentInterview] = useState<InterviewItem | null>(null);
+  const [submittedFeedbackIds, setSubmittedFeedbackIds] = useState<Set<string>>(new Set());
 
   const needsEvaluation = useMemo(() => interviews, [interviews]);
 
@@ -87,6 +87,7 @@ const InterviewerManageInterviews = () => {
         totalScore: draft.overallScore,
         feedback: draft.comments,
       });
+      setSubmittedFeedbackIds((prev) => new Set(prev).add(interviewId));
       closeEvaluationModal();
       setEvaluationDrafts((prev) => {
         const next = { ...prev };
@@ -139,6 +140,9 @@ const InterviewerManageInterviews = () => {
     {
       header: "Action",
       render: (item: InterviewItem) => {
+        if (submittedFeedbackIds.has(item.id)) {
+          return <span className="text-slate-400 text-sm">Submitted</span>;
+        }
         const draft = evaluationDrafts[item.id] ?? ensureDraft();
         return (
           <Button

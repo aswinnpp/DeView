@@ -42,6 +42,8 @@ export const API_ROUTES = {
         PENDING_APPLICATIONS: (jobId: string) => `/applications/jobs/${jobId}/applications`,
         RESUME_VIEW_URL: (jobId: string, applicationId: string) =>
             `/applications/jobs/${jobId}/applications/${applicationId}/resume-view-url`,
+        LATEST_INTERVIEWER_FEEDBACK: (jobId: string, applicationId: string) =>
+            `/applications/jobs/${jobId}/applications/${applicationId}/interviewer-feedback`,
         SCORE_CANDIDATES: (jobId: string) => `/applications/jobs/${jobId}/score-candidates`,
         UPDATE_STATUS: (jobId: string, applicationId: string) =>
             `/applications/jobs/${jobId}/applications/${applicationId}/status`,

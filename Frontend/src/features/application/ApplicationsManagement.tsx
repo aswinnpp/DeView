@@ -146,6 +146,15 @@ const HRApplicationsPage = () => {
     const [showCandidateDetail, setShowCandidateDetail] = useState(false);
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [showInterviewLimitModal, setShowInterviewLimitModal] = useState(false);
+    const [showFeedbackPendingModal, setShowFeedbackPendingModal] = useState(false);
+    const [latestInterviewerFeedback, setLatestInterviewerFeedback] = useState<{
+        interviewerName: string;
+        totalScore: number;
+        feedback: string;
+        createdAt: string;
+    } | null>(null);
+    const [isLoadingLatestFeedback, setIsLoadingLatestFeedback] = useState(false);
+    const [latestFeedbackError, setLatestFeedbackError] = useState<string | null>(null);
 
     // Schedule interview step state
     const [scheduleStep, setScheduleStep] = useState(1); // 1 = select interviewer, 2 = select date/time/round
@@ -283,6 +292,45 @@ const HRApplicationsPage = () => {
             cancelled = true;
         };
     }, [showInterviewerModal, scheduleStep, selectedInterviewer?.id, selectedDate]);
+
+    useEffect(() => {
+        if (!showCandidateDetail || !selectedJob || !selectedCandidate) return;
+        const isInterviewComplete =
+            selectedCandidate.status === 'INTERVIEW_COMPLETE' || selectedCandidate.status === 'COMPLETED';
+        if (!isInterviewComplete) return;
+
+        let cancelled = false;
+        setIsLoadingLatestFeedback(true);
+        setLatestFeedbackError(null);
+        setLatestInterviewerFeedback(null);
+
+        (async () => {
+            try {
+                const fb = await applicationsService.getLatestInterviewerFeedback(
+                    selectedJob.id,
+                    selectedCandidate.applicationId
+                );
+                if (!cancelled) setLatestInterviewerFeedback(fb);
+            } catch (e) {
+                if (cancelled) return;
+                const msg = extractApiError(e);
+                // If backend returns 404 or "not submitted", treat it as pending (no error).
+                const lower = msg.toLowerCase();
+                if (lower.includes('not submitted') || lower.includes('not found')) {
+                    setLatestInterviewerFeedback(null);
+                    setLatestFeedbackError(null);
+                } else {
+                    setLatestFeedbackError(msg);
+                }
+            } finally {
+                if (!cancelled) setIsLoadingLatestFeedback(false);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [showCandidateDetail, selectedJob?.id, selectedCandidate?.applicationId, selectedCandidate?.status]);
 
     // Helper function to format slot date
  
@@ -1008,6 +1056,47 @@ const HRApplicationsPage = () => {
                             </div>
                         )}
 
+                        {/* Interviewer Feedback (for completed interviews) */}
+                        {(selectedCandidate.status === 'INTERVIEW_COMPLETE' || selectedCandidate.status === 'COMPLETED') && (
+                            <div style={{ marginBottom: 20, padding: 16, backgroundColor: '#0f172a', borderRadius: 12, border: '1px solid #334155' }}>
+                                <h4 style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600, margin: '0 0 12px', textTransform: 'uppercase', borderBottom: '1px solid #334155', paddingBottom: 8 }}>
+                                    Interviewer Feedback
+                                </h4>
+                                {isLoadingLatestFeedback ? (
+                                    <p style={{ color: '#94a3b8', margin: 0, fontSize: 14 }}>Loading feedback...</p>
+                                ) : latestFeedbackError ? (
+                                    <p style={{ color: '#fca5a5', margin: 0, fontSize: 14 }}>{latestFeedbackError}</p>
+                                ) : latestInterviewerFeedback ? (
+                                    <>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 10 }}>
+                                            <div>
+                                                <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Interviewer</span>
+                                                <p style={{ color: '#e2e8f0', margin: '4px 0 0', fontSize: 14, fontWeight: 600 }}>
+                                                    {latestInterviewerFeedback.interviewerName}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Score</span>
+                                                <p style={{ color: '#e2e8f0', margin: '4px 0 0', fontSize: 14, fontWeight: 600 }}>
+                                                    {latestInterviewerFeedback.totalScore}/5
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Feedback</span>
+                                            <p style={{ color: '#e2e8f0', margin: '6px 0 0', fontSize: 14, whiteSpace: 'pre-wrap' }}>
+                                                {latestInterviewerFeedback.feedback}
+                                            </p>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p style={{ color: '#fbbf24', margin: 0, fontSize: 14, fontWeight: 600 }}>
+                                        Interviewer feedback: PENDING
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
                         {/* Action Buttons based on status */}
                         <div style={{ display: 'flex', gap: 12, marginTop: 24, flexWrap: 'wrap' }}>
                             {selectedCandidate.status === 'PENDING' && (
@@ -1057,20 +1146,8 @@ const HRApplicationsPage = () => {
                             )}
                             {(selectedCandidate.status === 'INTERVIEW_COMPLETE' || selectedCandidate.status === 'COMPLETED') && (
                                 <>
-                                    {(() => {
-                                        const jobRounds = selectedJob?.interviewRounds ?? ['HR Screening'];
-                                        const attempted = selectedCandidate.attemptedRounds ?? [];
-                                        const hasMoreRounds = attempted.length < jobRounds.length;
-                                        return (
-                                            <>
-                                                {hasMoreRounds && (
-                                                    <button onClick={() => { setShowCandidateDetail(false); handleAssignNextRound(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Assign Next Round</button>
-                                                )}
-                                                <button onClick={() => { setShowCandidateDetail(false); handleSendOffer(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Send Offer</button>
-                                                <button onClick={() => { setShowCandidateDetail(false); handleReject(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Reject</button>
-                                            </>
-                                        );
-                                    })()}
+                                    <button onClick={() => { setShowCandidateDetail(false); handleSendOffer(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Send Offer</button>
+                                    <button onClick={() => { setShowCandidateDetail(false); handleReject(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Reject</button>
                                 </>
                             )}
                             {selectedCandidate.status === 'RESCHEDULE_REQUESTED' && (
@@ -1468,10 +1545,11 @@ const HRApplicationsPage = () => {
                                                 setSelectedDate('');
                                                 setSelectedTime('');
                                                 setScheduleStep(1);
-                                            } catch (e: any) {
+                                            } catch (e: unknown) {
+                                                const err = e as { response?: { data?: { message?: string } } };
                                                 const rawMsg =
-                                                    typeof e?.response?.data?.message === 'string'
-                                                        ? e.response.data.message
+                                                    typeof err?.response?.data?.message === 'string'
+                                                        ? err.response.data.message
                                                         : e instanceof Error
                                                             ? e.message
                                                             : 'Failed to schedule interview';
@@ -1481,6 +1559,9 @@ const HRApplicationsPage = () => {
                                                     normalized.includes('interview scheduling limit') ||
                                                     normalized.includes('interview limit') ||
                                                     normalized.includes('schedule more interviews');
+                                                const isFeedbackPending =
+                                                    normalized.includes('interviewer feedback pending') ||
+                                                    normalized.includes('feedback pending');
 
                                                 if (isLimit) {
                                                     // Close schedule modal and reset its state, then show limit modal
@@ -1490,6 +1571,14 @@ const HRApplicationsPage = () => {
                                                     setSelectedTime('');
                                                     setScheduleStep(1);
                                                     setShowInterviewLimitModal(true);
+                                                } else if (isFeedbackPending) {
+                                                    // Close schedule modal and reset its state, then show pending modal
+                                                    setShowInterviewerModal(false);
+                                                    setSelectedInterviewer(null);
+                                                    setSelectedDate('');
+                                                    setSelectedTime('');
+                                                    setScheduleStep(1);
+                                                    setShowFeedbackPendingModal(true);
                                                 } else {
                                                     alert(rawMsg);
                                                 }
@@ -1566,6 +1655,73 @@ const HRApplicationsPage = () => {
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                             <button
                                 onClick={() => setShowInterviewLimitModal(false)}
+                                style={{
+                                    padding: '10px 16px',
+                                    borderRadius: 8,
+                                    border: '1px solid #4b5563',
+                                    background: 'transparent',
+                                    color: '#e5e7eb',
+                                    cursor: 'pointer',
+                                    fontSize: 14,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* INTERVIEWER FEEDBACK PENDING MODAL */}
+            {showFeedbackPendingModal && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        backgroundColor: 'rgba(15,23,42,0.8)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 60,
+                    }}
+                >
+                    <div
+                        style={{
+                            width: '100%',
+                            maxWidth: 460,
+                            backgroundColor: '#020617',
+                            borderRadius: 16,
+                            padding: 24,
+                            border: '1px solid #1f2937',
+                            boxShadow: '0 25px 50px -12px rgba(15,23,42,0.9)',
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                            <h2 style={{ fontSize: 18, fontWeight: 600, color: '#e5e7eb' }}>
+                                Interviewer feedback pending
+                            </h2>
+                            <button
+                                onClick={() => setShowFeedbackPendingModal(false)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#9ca3af',
+                                    cursor: 'pointer',
+                                    fontSize: 22,
+                                    lineHeight: 1,
+                                }}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 20 }}>
+                            You can’t assign the next round until the interviewer submits feedback for the previous
+                            completed interview.
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                            <button
+                                onClick={() => setShowFeedbackPendingModal(false)}
                                 style={{
                                     padding: '10px 16px',
                                     borderRadius: 8,

@@ -9,6 +9,7 @@ export interface ListByCandidateUserIdOptions {
 
 export interface IInterviewFeedbackRepository {
   create(feedback: InterviewFeedback): Promise<InterviewFeedback>;
+  findLatestByInterviewId(interviewId: string): Promise<InterviewFeedback | null>;
   listByCandidateUserId(
     candidateUserId: string,
     options?: ListByCandidateUserIdOptions

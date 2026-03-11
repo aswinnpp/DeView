@@ -20,6 +20,8 @@ export class Interview {
     public scheduledDate: string, // YYYY-MM-DD
     public scheduledTime: string, // HH:mm
     public status: InterviewStatus = 'SCHEDULED',
+    /** True when interviewer feedback has been submitted for this interview. */
+    public feedbackSubmitted: boolean = false,
     public interviewerAccepted: boolean = false,
     public interviewerRejectReason?: string,
     public candidateRejection?: CandidateRejection,

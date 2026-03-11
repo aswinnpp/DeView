@@ -492,6 +492,8 @@ export const SystemDataProvider = ({ children }: ISystemDataProviderProps) => {
             acceptOffer,
             rejectOffer
         }),
+        // Intentionally stable: callback identities are stable; full deps would cause unnecessary re-renders
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [hrs, interviews, interviewers, candidates, paymentRequests, companies, jobs, subscriptionPlans, mails]
     );
 

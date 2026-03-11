@@ -19,6 +19,15 @@ export class MongoInterviewFeedbackRepository
     return this.toDomain({ ...doc, _id: res.insertedId });
   }
 
+  async findLatestByInterviewId(interviewId: string): Promise<InterviewFeedback | null> {
+    const doc = await this.collection
+      .find({ interviewId })
+      .sort({ createdAt: -1 })
+      .limit(1)
+      .next();
+    return doc ? this.toDomain(doc as IInterviewFeedbackDocument) : null;
+  }
+
   async listByCandidateUserId(
     candidateUserId: string,
     options?: { search?: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }

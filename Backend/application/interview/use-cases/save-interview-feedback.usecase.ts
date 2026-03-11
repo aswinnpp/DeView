@@ -65,6 +65,7 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
     );
 
     await this.feedbackRepo.create(feedbackEntity);
+    await this.interviewRepo.setFeedbackSubmitted(interview.id ?? interviewId, true);
 
     return { success: true };
   }

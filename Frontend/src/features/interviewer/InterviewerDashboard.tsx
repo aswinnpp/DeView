@@ -7,7 +7,7 @@ const selectClass =
 
 const InterviewerDashboard = () => {
   const {
-    assignments,
+    
     acceptedOnly,
     filtered,
     total,
@@ -17,7 +17,6 @@ const InterviewerDashboard = () => {
     emptyMessage,
     isLoading,
     error,
-    searchQuery,
     setSearchQuery,
     sortOrder,
     setSortOrder,

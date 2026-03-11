@@ -59,6 +59,7 @@ import { UpdateApplicationStatusUseCase } from '../../application/application/us
 import { ScheduleInterviewUseCase } from '../../application/application/use-cases/schedule-interview.usecase.js';
 import { DeclineRescheduleRequestUseCase } from '../../application/application/use-cases/decline-reschedule-request.usecase.js';
 import { GetResumeViewUrlUseCase } from '../../application/application/use-cases/get-resume-view-url.usecase.js';
+import { GetLatestInterviewerFeedbackUseCase } from '../../application/application/use-cases/get-latest-interviewer-feedback.usecase.js';
 import { ListMyInterviewsUseCase } from '../../application/interview/use-cases/list-my-interviews.usecase.js';
 import { GetInterviewRoomDetailsUseCase } from '../../application/interview/use-cases/get-interview-room-details.usecase.js';
 import { ListInterviewerAssignmentsUseCase } from '../../application/interview/use-cases/list-interviewer-assignments.usecase.js';
@@ -140,6 +141,7 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ScheduleInterviewUseCasePort).to(ScheduleInterviewUseCase);
   container.bind(TYPES.DeclineRescheduleRequestUseCasePort).to(DeclineRescheduleRequestUseCase);
   container.bind(TYPES.GetResumeViewUrlUseCasePort).to(GetResumeViewUrlUseCase);
+  container.bind(TYPES.GetLatestInterviewerFeedbackUseCasePort).to(GetLatestInterviewerFeedbackUseCase);
 
   // Interview use cases
   container.bind(TYPES.ListMyInterviewsUseCasePort).to(ListMyInterviewsUseCase);

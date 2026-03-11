@@ -9,6 +9,7 @@ import type { IUpdateApplicationStatusUseCase } from '../../../application/appli
 import type { IScheduleInterviewUseCase } from '../../../application/application/use-cases/schedule-interview.usecase.js';
 import type { IDeclineRescheduleRequestUseCase } from '../../../application/application/use-cases/decline-reschedule-request.usecase.js';
 import type { IGetResumeViewUrlUseCase } from '../../../application/application/use-cases/get-resume-view-url.usecase.js';
+import type { IGetLatestInterviewerFeedbackUseCase } from '../../../application/application/use-cases/get-latest-interviewer-feedback.usecase.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ApplicationMapper } from '../../../application/application/mappers/ApplicationMapper.js';
 
@@ -31,7 +32,9 @@ export class ApplicationsController {
     @inject(TYPES.DeclineRescheduleRequestUseCasePort)
     private readonly declineRescheduleRequestUseCase: IDeclineRescheduleRequestUseCase,
     @inject(TYPES.GetResumeViewUrlUseCasePort)
-    private readonly getResumeViewUrlUseCase: IGetResumeViewUrlUseCase
+    private readonly getResumeViewUrlUseCase: IGetResumeViewUrlUseCase,
+    @inject(TYPES.GetLatestInterviewerFeedbackUseCasePort)
+    private readonly getLatestInterviewerFeedbackUseCase: IGetLatestInterviewerFeedbackUseCase
   ) {}
 
   listJobs = async (
@@ -160,5 +163,18 @@ export class ApplicationsController {
     const input = ApplicationMapper.toDeclineRescheduleRequestInput(request.params, ctx);
     const result = await this.declineRescheduleRequestUseCase.execute(input);
     reply.send(success({ application: ApplicationMapper.toView(result.application) }));
+  };
+
+  getLatestInterviewerFeedback = async (
+    request: FastifyRequest<{ Params: { jobId: string; applicationId: string } }>,
+    reply: FastifyReply
+  ) => {
+    const ctx = toContext(request.currentUser);
+    const result = await this.getLatestInterviewerFeedbackUseCase.execute({
+      companyId: ctx.companyId ?? '',
+      jobId: request.params.jobId,
+      applicationId: request.params.applicationId,
+    });
+    reply.send(success(result));
   };
 }

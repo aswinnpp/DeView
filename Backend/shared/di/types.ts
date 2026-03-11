@@ -82,6 +82,7 @@ export const TYPES = {
   ScheduleInterviewUseCasePort: Symbol('ScheduleInterviewUseCasePort'),
   DeclineRescheduleRequestUseCasePort: Symbol('DeclineRescheduleRequestUseCasePort'),
   GetResumeViewUrlUseCasePort: Symbol('GetResumeViewUrlUseCasePort'),
+  GetLatestInterviewerFeedbackUseCasePort: Symbol('GetLatestInterviewerFeedbackUseCasePort'),
 
   // Interview
   InterviewRepositoryPort: Symbol('InterviewRepositoryPort'),
