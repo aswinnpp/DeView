@@ -1,6 +1,4 @@
-/**
- * Presentation DTO for a single application (application layer).
- */
+
 export interface ApplicationView {
   id: string | null;
   jobId: string;
@@ -43,7 +41,6 @@ export interface ApplicationView {
     reason: string;
     requestedAt: string;
   };
-  /** Rounds the candidate has already attempted/completed */
   completedRounds?: string[];
   createdAt: string;
   updatedAt: string;

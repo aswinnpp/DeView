@@ -37,6 +37,8 @@ const InterviewerManageInterviews = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentInterview, setCurrentInterview] = useState<InterviewItem | null>(null);
   const [submittedFeedbackIds, setSubmittedFeedbackIds] = useState<Set<string>>(new Set());
+  const [showSubmittedModal, setShowSubmittedModal] = useState(false);
+  const [submittedModalMessage, setSubmittedModalMessage] = useState("Feedback submitted successfully.");
 
   const needsEvaluation = useMemo(() => interviews, [interviews]);
 
@@ -95,7 +97,8 @@ const InterviewerManageInterviews = () => {
         return next;
       });
       await fetchItems();
-      alert("Feedback submitted successfully.");
+      setSubmittedModalMessage("Feedback submitted successfully.");
+      setShowSubmittedModal(true);
     } catch (e) {
       alert(
         e instanceof Error ? e.message : "Failed to submit feedback. Please try again."
@@ -272,6 +275,36 @@ const InterviewerManageInterviews = () => {
               >
                 {isLoading ? "Submitting..." : "Finalize Evaluation"}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback submitted confirm modal */}
+      {showSubmittedModal && (
+        <div className="fixed inset-0 z-[1100] bg-black/75 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="px-6 pt-5 pb-4 border-b border-slate-800 flex items-center justify-between">
+              <h3 className="text-slate-50 text-lg font-bold m-0">Success</h3>
+              <button
+                onClick={() => setShowSubmittedModal(false)}
+                className="bg-transparent border-none text-slate-400 text-2xl leading-none cursor-pointer"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-slate-300 text-sm m-0">{submittedModalMessage}</p>
+              <div className="mt-5 flex justify-end">
+                <Button
+                  type="button"
+                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none px-5 py-2.5 rounded-lg text-sm font-semibold"
+                  onClick={() => setShowSubmittedModal(false)}
+                >
+                  OK
+                </Button>
+              </div>
             </div>
           </div>
         </div>

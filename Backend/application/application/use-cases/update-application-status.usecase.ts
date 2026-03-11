@@ -27,7 +27,6 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
       throw AppError.notFound('Application not found');
     }
 
-    // If this is a rejection with email content, also store it in the separate rejection mail collection
     if (updated.status === 'REJECTED' && input.rejectionEmailContent && input.rejectionEmailContent.trim().length > 0) {
       await this.rejectionMailRepository.create({
         applicationId: updated.id || input.applicationId,

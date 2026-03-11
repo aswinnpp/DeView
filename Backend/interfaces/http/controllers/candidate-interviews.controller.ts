@@ -3,9 +3,9 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { success } from '../../../shared/http/apiResponse.js';
 import { TYPES } from '../../../infrastructure/di/types.js';
 import { InterviewMapper } from '../../../application/interview/mappers/InterviewMapper.js';
-import type { IListMyInterviewsUseCase } from '../../../application/interview/use-cases/list-my-interviews.usecase.js';
-import type { IRequestCandidateRescheduleUseCase } from '../../../application/interview/use-cases/request-candidate-reschedule.usecase.js';
-import type { IListMyInterviewFeedbacksUseCase } from '../../../application/interview/use-cases/list-my-interview-feedbacks.usecase.js';
+import type { IListMyInterviewsUseCase } from '../../../application/interview/ports/usecase/IListMyInterviewsUseCase.js';
+import type { IRequestCandidateRescheduleUseCase } from '../../../application/interview/ports/usecase/IRequestCandidateRescheduleUseCase.js';
+import type { IListMyInterviewFeedbacksUseCase } from '../../../application/interview/ports/usecase/IListMyInterviewFeedbacksUseCase.js';
 
 @injectable()
 export class CandidateInterviewsController {

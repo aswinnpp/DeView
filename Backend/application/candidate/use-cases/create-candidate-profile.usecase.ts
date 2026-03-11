@@ -15,7 +15,6 @@ export class CreateCandidateProfileUseCase implements ICreateCandidateProfileUse
             throw AppError.badRequest("UserId is required");
         }
 
-        // Prevent duplicate profiles
         const existing = await this.repo.findByUserId(dto.userId);
         if (existing) {
             throw AppError.conflict("Candidate profile already exists");

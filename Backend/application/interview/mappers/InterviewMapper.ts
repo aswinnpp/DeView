@@ -1,8 +1,8 @@
 import { parseSearchParams } from '../../shared/utils/parseSearchParams.js';
-import type { IListInterviewerAssignmentsInput } from '../use-cases/list-interviewer-assignments.usecase.js';
-import type { IListCompletedInterviewsForInterviewerInput } from '../use-cases/list-completed-interviews-for-interviewer.usecase.js';
-import type { IListMyInterviewsInput } from '../use-cases/list-my-interviews.usecase.js';
-import type { IListMyInterviewFeedbacksInput } from '../use-cases/list-my-interview-feedbacks.usecase.js';
+import type { IListInterviewerAssignmentsInput } from '../ports/usecase/IListInterviewerAssignmentsUseCase.js';
+import type { IListCompletedInterviewsForInterviewerInput } from '../ports/usecase/IListCompletedInterviewsForInterviewerUseCase.js';
+import type { IListMyInterviewsInput } from '../ports/usecase/IListMyInterviewsUseCase.js';
+import type { IListMyInterviewFeedbacksInput } from '../ports/usecase/IListMyInterviewFeedbacksUseCase.js';
 
 export interface IListAssignmentsQuery {
   search?: string;

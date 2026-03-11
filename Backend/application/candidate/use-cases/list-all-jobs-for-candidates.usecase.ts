@@ -17,7 +17,6 @@ export class ListAllJobsForCandidatesUseCase implements IListAllJobsForCandidate
   ) {}
 
   async execute(input: IListAllJobsForCandidatesInput): Promise<IListAllJobsForCandidatesResult> {
-    // 1. Fetch jobs
     const { data: jobs, total } = await this.jobRepo.listAllPaginated({
       search: input.search,
       status: input.status === 'all' ? undefined : input.status,
@@ -28,7 +27,6 @@ export class ListAllJobsForCandidatesUseCase implements IListAllJobsForCandidate
       sortOrder: input.sortOrder,
     });
 
-    // 2. Fetch company name for each unique company
     const companyIds = [...new Set(jobs.map((j) => j.companyId))];
     const companyNames: Record<string, { name: string; status: string; isActive: boolean }> = {};
     for (const id of companyIds) {
@@ -38,7 +36,6 @@ export class ListAllJobsForCandidatesUseCase implements IListAllJobsForCandidate
       }
     }
 
-    // 3. Add company info to each job
     const data: CandidateJobForList[] = jobs.map((job) => {
       const company = companyNames[job.companyId];
       return {

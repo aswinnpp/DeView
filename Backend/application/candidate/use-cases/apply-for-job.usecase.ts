@@ -20,13 +20,11 @@ export class ApplyForJobUseCase implements IApplyForJobUseCase {
   async execute(input: IApplyForJobInput): Promise<{ applicationId: string }> {
     const { jobId, candidateUserId, useResumeFromProfile, coverLetter, resumeUrl } = input;
 
-    // 1. Get profile
     const profile = await this.candidateProfileRepo.findByUserId(candidateUserId);
     if (!profile) {
       throw AppError.badRequest('Profile not found. Please complete your profile before applying.');
     }
 
-    // 2. Validate resume: if checkbox checked, profile must have resume
     if (useResumeFromProfile) {
       if (!profile.resumeUrl?.trim()) {
         throw AppError.badRequest('Resume not in profile. Please upload a resume to your profile or add a new resume below.');
@@ -39,7 +37,6 @@ export class ApplyForJobUseCase implements IApplyForJobUseCase {
 
     const effectiveResumeUrl = useResumeFromProfile ? profile.resumeUrl! : resumeUrl!;
 
-    // 3. Get job
     const job = await this.jobRepo.findById(jobId);
     if (!job) {
       throw AppError.notFound('Job not found.');
@@ -51,7 +48,6 @@ export class ApplyForJobUseCase implements IApplyForJobUseCase {
       throw AppError.badRequest('You have already applied for this job.');
     }
 
-    // 4. Create application with profile snapshot
     const applicationId = await this.applicationRepo.create({
       jobId,
       companyId: job.companyId,
@@ -78,7 +74,6 @@ export class ApplyForJobUseCase implements IApplyForJobUseCase {
       coverLetter: coverLetter?.trim() || undefined,
     });
 
-    // 5. Add application detail to job applicants
     const now = new Date();
     job.applicants = [
       ...job.applicants,

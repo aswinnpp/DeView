@@ -21,7 +21,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
 
     const existing = await this.repo.findByUserId(dto.userId);
 
-    console.log("ex",existing);
+   
     
 
     if (existing?.status === "pending") {
@@ -32,13 +32,11 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       throw AppError.conflict("Company already approved");
     }
 
-    // Fetch the user's email from the User collection
     const user = await this.userRepo.findById(dto.userId);
     if (!user) {
       throw AppError.badRequest("User not found");
     }
 
-    // If the user was previously rejected, update the existing record
     if (existing?.status === "rejected") {
       existing.companyName = dto.companyName;
       existing.address = dto.address;
@@ -58,7 +56,6 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       return { approvalId: existing.id };
     }
 
-    // Brand new submission
     const approval = new CompanyApproval(
       null,
       dto.userId,

@@ -20,7 +20,6 @@ export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase
             throw AppError.notFound("Company profile not found");
         }
 
-        // Exclude documents and other protected fields from update
         const {  ...fields } = dto;
         profile.updateFields(fields);
 

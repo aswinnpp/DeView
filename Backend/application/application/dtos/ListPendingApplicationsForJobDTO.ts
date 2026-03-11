@@ -3,7 +3,6 @@ import type { Application, ApplicationStatus } from '../../../domain/application
 export interface IListPendingApplicationsForJobInput {
   jobId: string;
   companyId: string;
-  /** Optional status filter. If omitted, returns all applications. */
   status?: ApplicationStatus;
 }
 

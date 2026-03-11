@@ -2,8 +2,8 @@ import { injectable, inject } from 'inversify';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { success } from '../../../shared/http/apiResponse.js';
 import { TYPES } from '../../../infrastructure/di/types.js';
-import type { GetInterviewRoomDetailsUseCase } from '../../../application/interview/use-cases/get-interview-room-details.usecase.js';
-import type { UpdateInterviewStatusUseCase } from '../../../application/interview/use-cases/update-interview-status.usecase.js';
+import type { IGetInterviewRoomDetailsUseCase } from '../../../application/interview/ports/usecase/IGetInterviewRoomDetailsUseCase.js';
+import type { IUpdateInterviewStatusUseCase } from '../../../application/interview/ports/usecase/IUpdateInterviewStatusUseCase.js';
 type GetRoomParams = {
   interviewId: string;
 };
@@ -20,9 +20,9 @@ type UpdateStatusBody = {
 export class InterviewRoomController {
   constructor(
     @inject(TYPES.GetInterviewRoomDetailsUseCasePort)
-    private readonly getInterviewRoomDetailsUseCase: GetInterviewRoomDetailsUseCase,
+    private readonly getInterviewRoomDetailsUseCase: IGetInterviewRoomDetailsUseCase,
     @inject(TYPES.UpdateInterviewStatusUseCasePort)
-    private readonly updateInterviewStatusUseCase: UpdateInterviewStatusUseCase
+    private readonly updateInterviewStatusUseCase: IUpdateInterviewStatusUseCase
   ) {}
 
   getRoomDetails = async (

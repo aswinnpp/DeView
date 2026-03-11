@@ -147,6 +147,8 @@ const HRApplicationsPage = () => {
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [showInterviewLimitModal, setShowInterviewLimitModal] = useState(false);
     const [showFeedbackPendingModal, setShowFeedbackPendingModal] = useState(false);
+    const [showScheduleSuccessModal, setShowScheduleSuccessModal] = useState(false);
+    const [scheduleSuccessMessage, setScheduleSuccessMessage] = useState<string>("");
     const [latestInterviewerFeedback, setLatestInterviewerFeedback] = useState<{
         interviewerName: string;
         totalScore: number;
@@ -1534,11 +1536,12 @@ const HRApplicationsPage = () => {
 
                                                 await refreshSelectedJobApplications();
 
-                                                alert(
+                                                setScheduleSuccessMessage(
                                                     `Interview scheduled with ${selectedInterviewer.name} on ${new Date(
                                                         selectedDate
                                                     ).toLocaleDateString()} at ${selectedTime}`
                                                 );
+                                                setShowScheduleSuccessModal(true);
 
                                                 setShowInterviewerModal(false);
                                                 setSelectedInterviewer(null);
@@ -1734,6 +1737,72 @@ const HRApplicationsPage = () => {
                                 }}
                             >
                                 Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* INTERVIEW SCHEDULED CONFIRM MODAL */}
+            {showScheduleSuccessModal && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        backgroundColor: 'rgba(15,23,42,0.8)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 60,
+                    }}
+                >
+                    <div
+                        style={{
+                            width: '100%',
+                            maxWidth: 460,
+                            backgroundColor: '#020617',
+                            borderRadius: 16,
+                            padding: 24,
+                            border: '1px solid #1f2937',
+                            boxShadow: '0 25px 50px -12px rgba(15,23,42,0.9)',
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                            <h2 style={{ fontSize: 18, fontWeight: 600, color: '#e5e7eb' }}>
+                                Interview scheduled
+                            </h2>
+                            <button
+                                onClick={() => setShowScheduleSuccessModal(false)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#9ca3af',
+                                    cursor: 'pointer',
+                                    fontSize: 22,
+                                    lineHeight: 1,
+                                }}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 20 }}>
+                            {scheduleSuccessMessage || 'Interview scheduled successfully.'}
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                            <button
+                                onClick={() => setShowScheduleSuccessModal(false)}
+                                style={{
+                                    padding: '10px 16px',
+                                    borderRadius: 8,
+                                    border: '1px solid #4b5563',
+                                    background: 'transparent',
+                                    color: '#e5e7eb',
+                                    cursor: 'pointer',
+                                    fontSize: 14,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                OK
                             </button>
                         </div>
                     </div>

@@ -3,11 +3,11 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { success } from '../../../shared/http/apiResponse.js';
 import { TYPES } from '../../../infrastructure/di/types.js';
 import { InterviewMapper } from '../../../application/interview/mappers/InterviewMapper.js';
-import type { IListInterviewerAssignmentsUseCase } from '../../../application/interview/use-cases/list-interviewer-assignments.usecase.js';
-import type { IAcceptInterviewAssignmentUseCase } from '../../../application/interview/use-cases/accept-interview-assignment.usecase.js';
-import type { IRejectInterviewAssignmentUseCase } from '../../../application/interview/use-cases/reject-interview-assignment.usecase.js';
-import type { IListCompletedInterviewsForInterviewerUseCase } from '../../../application/interview/use-cases/list-completed-interviews-for-interviewer.usecase.js';
-import type { ISaveInterviewFeedbackUseCase } from '../../../application/interview/use-cases/save-interview-feedback.usecase.js';
+import type { IListInterviewerAssignmentsUseCase } from '../../../application/interview/ports/usecase/IListInterviewerAssignmentsUseCase.js';
+import type { IAcceptInterviewAssignmentUseCase } from '../../../application/interview/ports/usecase/IAcceptInterviewAssignmentUseCase.js';
+import type { IRejectInterviewAssignmentUseCase } from '../../../application/interview/ports/usecase/IRejectInterviewAssignmentUseCase.js';
+import type { IListCompletedInterviewsForInterviewerUseCase } from '../../../application/interview/ports/usecase/IListCompletedInterviewsForInterviewerUseCase.js';
+import type { ISaveInterviewFeedbackUseCase } from '../../../application/interview/ports/usecase/ISaveInterviewFeedbackUseCase.js';
 
 @injectable()
 export class InterviewerAssignmentsController {

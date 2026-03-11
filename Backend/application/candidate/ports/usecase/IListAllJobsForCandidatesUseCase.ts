@@ -11,7 +11,6 @@ export interface IListAllJobsForCandidatesInput {
   sortOrder?: 'asc' | 'desc';
 }
 
-// Lightweight DTO used for candidate job listings
 export interface CandidateJobForList {
   id: string | null;
   companyId: string;
