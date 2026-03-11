@@ -10,7 +10,6 @@ import type { IGetAllCandidatesUseCase } from "../../../application/candidate/po
 import type { IToggleCandidateStatusUseCase } from "../../../application/candidate/ports/usecase/IToggleCandidateStatusUseCase";
 import { CandidateProfileMapper } from "../../../application/candidate/mappers/CandidateProfileMapper.js";
 
-/** Body shape from Zod-validated request */
 interface IProfileBody {
     fullName: string;
     email: string;

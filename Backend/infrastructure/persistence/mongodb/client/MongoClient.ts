@@ -10,15 +10,15 @@ export async function connectMongoDB(): Promise<Db> {
         return db;
     }
 
-    // Connection pooling configuration for better performance
+    
     client = new MongoClient(env.MONGO_URI, {
-        maxPoolSize: 10,              // Maximum connections in the pool
-        minPoolSize: 2,               // Minimum connections to maintain
-        maxIdleTimeMS: 30000,         // Close idle connections after 30 seconds
-        serverSelectionTimeoutMS: 5000, // Timeout for server selection
-        socketTimeoutMS: 45000,       // Socket timeout
-        retryWrites: true,            // Retry failed writes
-        retryReads: true,             // Retry failed reads
+        maxPoolSize: 10,              
+        minPoolSize: 2,               
+        maxIdleTimeMS: 30000,         
+        serverSelectionTimeoutMS: 5000, 
+        socketTimeoutMS: 45000,       
+        retryWrites: true,            
+        retryReads: true,             
     });
 
     await client.connect();

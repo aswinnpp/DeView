@@ -33,10 +33,7 @@ export class Job {
     this.syncStatusWithDeadline();
   }
 
-  /**
-   * Ensure status is consistent with application deadline.
-   * If a past deadline is set, the job is treated as CLOSED.
-   */
+  
   private syncStatusWithDeadline() {
     if (!this.applicationDeadline) return;
 

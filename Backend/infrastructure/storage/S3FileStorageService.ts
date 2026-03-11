@@ -54,10 +54,7 @@ export class S3FileStorageService implements IFileStorage {
     };
   }
 
-  /**
-   * Generate a fresh pre-signed GET URL for viewing a file.
-   * @param s3KeyOrFullUrl - S3 object key (e.g. "resumes/userId/uuid") or existing full URL (key is parsed from pathname).
-   */
+  
   async getSignedViewUrl(s3KeyOrFullUrl: string, expiresInSeconds = 3600): Promise<string> {
     let key = s3KeyOrFullUrl;
     if (s3KeyOrFullUrl.startsWith('http://') || s3KeyOrFullUrl.startsWith('https://')) {

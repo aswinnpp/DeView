@@ -34,8 +34,6 @@ function cookieBase(request: FastifyRequest) {
   const sameSite: "lax" | "none" = crossSite ? "none" : "lax";
   return {
     httpOnly: true,
-    // For cross-site requests (e.g. frontend on localhost, API on ngrok),
-    // browsers require SameSite=None + Secure for cookies to be sent.
     sameSite,
     secure: crossSite ? true : isProduction,
     path: "/",

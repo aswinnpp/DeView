@@ -100,7 +100,6 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
         { prefix: '/applications' }
     );
 
-    // Interview room - shared route for authorized participants
     await fastify.register(
         async (instance) => {
             await interviewRoomRoutes(instance, controllers.interviewRoomController);

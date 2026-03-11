@@ -30,9 +30,7 @@ export interface IEnvConfig {
     STRIPE_WEBHOOK_SECRET?: string;
     STRIPE_CURRENCY?: string;
     GOOGLE_AI_API_KEY?: string;
-    /** Enable file logging with rotation (e.g. 'true' in production). When false, logs go to stdout only. */
     LOG_TO_FILE?: string;
-    /** How many days of rotated log files to keep (retention period). Default 30. */
     LOG_RETENTION_DAYS?: string;
 }
 function validateEnv(): IEnvConfig {

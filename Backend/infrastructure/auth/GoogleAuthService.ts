@@ -25,7 +25,7 @@ export class GoogleAuthService implements IGoogleAuth {
         return this.client;
     }
 
-    // Generate Google OAuth URL
+
     getAuthUrl(role?: string, mode?: string): string {
         const client = this.getClient();
         const scopes = [

@@ -8,7 +8,6 @@ import type { ISubmitCompanyApprovalUseCase } from "../../../application/company
 import type { IGetMyCompanyApprovalUseCase } from "../../../application/company/ports/usecase/IGetMyCompanyApprovalUseCase";
 import { CompanyApprovalMapper } from "../../../application/company/mappers/CompanyApprovalMapper.js";
 
-/** Body shape from Zod-validated request */
 interface ISubmitApprovalBody {
   companyName: string;
   address: string;

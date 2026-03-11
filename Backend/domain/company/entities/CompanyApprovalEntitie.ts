@@ -19,7 +19,6 @@ export interface CompanyDocuments {
 
 export type CompanySubscriptionStatus = "Active" | "Pending" | "Expired";
 
-/** Embedded plan limits at subscription time. Admin plan edits do not affect existing subscribers. */
 export interface CompanySubscriptionRecord {
   id: string;
   planId: string;
@@ -31,7 +30,6 @@ export interface CompanySubscriptionRecord {
   status: CompanySubscriptionStatus;
   createdAt: Date;
   sourcePaymentIntentId?: string;
-  /** Embedded limits at purchase time (not from plan table). Optional for legacy records. */
   interviewLimit?: number;
   interviewUnlimited?: boolean;
   jobPostLimit?: number;

@@ -76,7 +76,6 @@ export class GoogleGenAiScoringService implements IAiScoringService {
 
     let text = rawText.trim();
 
-    // Handle models that wrap JSON in Markdown code fences (``` or ```json)
     if (text.startsWith('```')) {
       const firstNewline = text.indexOf('\n');
       if (firstNewline !== -1) {

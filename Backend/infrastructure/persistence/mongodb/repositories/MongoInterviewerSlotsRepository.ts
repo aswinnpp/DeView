@@ -1,5 +1,5 @@
 import type { Collection } from "mongodb";
-import type { IInterviewerSlotsRepository } from "../../../application/interviewer/ports/repository/IInterviewerSlotsRepository.js";
+import type { IInterviewerSlotsRepository } from "../../../../application/interviewer/ports/repository/IInterviewerSlotsRepository";
 import type { IInterviewerSlotsDocument } from "../schemas/InterviewerSlotsDocument.js";
 
 export class MongoInterviewerSlotsRepository implements IInterviewerSlotsRepository {
