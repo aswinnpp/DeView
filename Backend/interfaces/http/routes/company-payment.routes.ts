@@ -7,13 +7,7 @@ export async function companyPaymentRoutes(
   controller: CompanyPaymentController,
 ): Promise<void> {
 
-  console.log("companyPaymentRoutes");
-  console.log("fastify", fastify);
-  console.log("controller", controller);
-  console.log("requireAuth", requireAuth);
-  console.log("createPaymentIntent", controller.createPaymentIntent);
-  console.log("activatePendingNow", controller.activatePendingNow);
-  console.log("handleWebhook", controller.handleWebhook);
+ 
   
   fastify.post('/payments/create-intent', {
     preHandler: requireAuth,
