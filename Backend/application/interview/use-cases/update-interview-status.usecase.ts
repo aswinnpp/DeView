@@ -37,9 +37,7 @@ export class UpdateInterviewStatusUseCase {
       throw AppError.internal('Failed to update interview status');
     }
 
-    // When interview is marked COMPLETED:
-    // 1. Add this round to application's completedRounds (so we don't show it when scheduling next)
-    // 2. Update application status to COMPLETED so it appears in Interview Complete tab
+ 
     if (status === 'COMPLETED') {
       await this.applicationRepository.addCompletedRound({
         applicationId: interview.applicationId,

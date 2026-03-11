@@ -47,7 +47,6 @@ export class RequestCandidateRescheduleUseCase implements IRequestCandidateResch
     });
     if (!updatedInterview) throw AppError.notFound('Interview not found');
 
-    // Store request also on the application so HR can see it in Reschedule Requests tab.
     await this.applicationRepo.setRescheduleRequest({
       applicationId: interview.applicationId,
       jobId: interview.jobId,

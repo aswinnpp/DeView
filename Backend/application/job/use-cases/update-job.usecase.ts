@@ -24,7 +24,6 @@ export class UpdateJobUseCase implements IUpdateJobUseCase {
       throw AppError.notFound('Job not found');
     }
 
-    // ── Guard 1: block edits when job already has applications ──
     const existingApplications = await this.applicationRepo.listByJobId(
       dto.jobId,
       dto.companyId,
@@ -35,7 +34,6 @@ export class UpdateJobUseCase implements IUpdateJobUseCase {
       );
     }
 
-    // ── Guard 2: block edits when subscription is expired or missing ──
     const company = await this.companyRepo.findById(dto.companyId);
     if (!company) {
       throw AppError.forbidden(

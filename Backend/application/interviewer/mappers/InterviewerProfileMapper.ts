@@ -2,7 +2,6 @@ import type { InterviewerProfile } from "../../../domain/interviewer/entities/In
 import type { CreateInterviewerProfileDTO } from "../dtos/CreateInterviewerProfileDTO";
 import type { UpdateInterviewerProfileDTO } from "../dtos/UpdateInterviewerProfileDTO";
 
-/** API response / request body shape (matches frontend ProfileData) */
 export interface InterviewerProfileView {
   fullName: string;
   phone: string;

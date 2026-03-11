@@ -20,14 +20,12 @@ export class CreateJobUseCase implements ICreateJobUseCase {
   async execute(dto: ICreateJobDTO) {
     const now = new Date();
 
-    // ── Guard: company must have an active (non‑expired) subscription plan ──
     const company = await this.companyRepo.findById(dto.companyId);
 
     if (!company) {
       throw AppError.forbidden('Company profile not found. Please complete your company profile before posting jobs.');
     }
 
-    // Refresh subscription state (handles expiry & pending promotions)
     company.refreshSubscriptions(now);
     await this.companyRepo.save(company);
 
@@ -37,8 +35,7 @@ export class CreateJobUseCase implements ICreateJobUseCase {
       throw AppError.forbidden('Your subscription has expired or is missing. Please upgrade your plan to post jobs.');
     }
 
-    // Use embedded limits from company profile (admin plan edits do not affect subscribers).
-    // Fallback to plan table for legacy records missing embedded limits.
+    
     let jobPostLimit = activeSub.jobPostLimit;
     let jobUnlimited = activeSub.jobUnlimited;
     if (jobPostLimit === undefined || jobUnlimited === undefined) {
@@ -48,7 +45,6 @@ export class CreateJobUseCase implements ICreateJobUseCase {
       }
       jobPostLimit = plan.jobPostLimit;
       jobUnlimited = plan.jobUnlimited;
-      // Backfill embedded limits for legacy records
       activeSub.interviewLimit = plan.interviewLimit;
       activeSub.interviewUnlimited = plan.interviewUnlimited;
       activeSub.jobPostLimit = plan.jobPostLimit;
@@ -61,7 +57,6 @@ export class CreateJobUseCase implements ICreateJobUseCase {
         throw AppError.forbidden('Your current plan does not allow job postings. Please upgrade your plan.');
       }
 
-      // Count current active job postings (OPEN) for this company
       const existingJobs = await this.repo.listByCompanyId(dto.companyId);
       const activeJobsCount = existingJobs.length;
 

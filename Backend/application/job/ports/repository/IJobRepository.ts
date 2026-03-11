@@ -17,7 +17,6 @@ export interface IJobRepository {
     companyId: string,
     options?: IListJobsOptions
   ): Promise<{ data: Job[]; total: number }>;
-  /** List all jobs from all companies (for candidates) */
   listAllPaginated(options?: IListJobsOptions): Promise<{ data: Job[]; total: number }>;
   save(job: Job): Promise<void>;
  

@@ -4,8 +4,8 @@ export interface IUpsertMyInterviewerSlotsUseCase {
   execute(input: {
     interviewerId: string;
     companyId: string;
-    slotDate: string; // YYYY-MM-DD
-    times: string[]; // ISO datetime strings
+    slotDate: string; 
+    times: string[]; 
     booked?: boolean;
   }): Promise<IInterviewerSlotsDocument>;
 }
