@@ -509,16 +509,7 @@ const HRApplicationsPage = () => {
             });
         }
 
-        if (status === "INTERVIEW_ATTENDEES") {
-            baseColumns.push({
-                header: "Current Round",
-                render: (candidate: Candidate) => (
-                    <span className="text-violet-400 text-[13px] font-medium">
-                        {candidate.currentRound || "-"}
-                    </span>
-                ),
-            });
-        }
+      
 
         baseColumns.push({
             header: "Actions",

@@ -5,7 +5,7 @@ import { Button } from '../../components/common';
 
 interface ICandidateNavHeaderProps {
     title: string;
-    currentPage?: 'jobs' | 'dashboard' | 'profile' | 'history' | 'mails' | 'interviews' | 'applied';
+    currentPage?: 'jobs' | 'dashboard' | 'profile' | 'mails' | 'interviews' | 'applied';
 }
 
 interface INotification {
@@ -112,11 +112,6 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
                     {currentPage !== 'interviews' && currentPage !== 'dashboard' && (
                         <Link to="/candidate/interviews" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
                              Interviews
-                        </Link>
-                    )}
-                    {currentPage !== 'history' && (
-                        <Link to="/candidate/history" className="text-[rgba(255,255,255,0.78)] no-underline py-2 px-2.5 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white">
-                            History
                         </Link>
                     )}
                     {currentPage !== 'mails' && (
@@ -237,11 +232,6 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
                     {currentPage !== 'interviews' && currentPage !== 'dashboard' && (
                         <Link to="/candidate/interviews" className="text-[rgba(255,255,255,0.78)] no-underline py-2.5 px-3 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white transition-colors">
                              Interviews
-                        </Link>
-                    )}
-                    {currentPage !== 'history' && (
-                        <Link to="/candidate/history" className="text-[rgba(255,255,255,0.78)] no-underline py-2.5 px-3 rounded-lg font-semibold hover:bg-[rgba(255,255,255,0.02)] hover:text-white transition-colors">
-                            History
                         </Link>
                     )}
                     {currentPage !== 'mails' && (

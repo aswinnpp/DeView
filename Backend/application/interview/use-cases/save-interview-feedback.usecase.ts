@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IInterviewRepository } from '../ports/repository/IInterviewRepository.js';
 import type { IInterviewFeedbackRepository } from '../ports/repository/IInterviewFeedbackRepository.js';
+import type { IApplicationRepository } from '../../application/ports/repository/IApplicationRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { InterviewFeedback } from '../../../domain/interview/entities/InterviewFeedback.js';
 
@@ -19,7 +20,8 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
   constructor(
     @inject(TYPES.InterviewRepositoryPort) private readonly _interviewRepo: IInterviewRepository,
     @inject(TYPES.InterviewFeedbackRepositoryPort)
-    private readonly _feedbackRepo: IInterviewFeedbackRepository
+    private readonly _feedbackRepo: IInterviewFeedbackRepository,
+    @inject(TYPES.ApplicationRepositoryPort) private readonly _applicationRepo: IApplicationRepository
   ) {}
 
   async execute(input: {
@@ -56,8 +58,10 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
       interview.candidateUserId,
       interview.companyId,
       interview.companyName,
+      interview.jobId,
       interviewerUserId,
       interview.interviewerName,
+      interview.round,
       feedback.trim(),
       totalScore,
       now,
@@ -66,6 +70,15 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
 
     await this._feedbackRepo.create(feedbackEntity);
     await this._interviewRepo.setFeedbackSubmitted(interview.id ?? interviewId, true);
+
+    await this._applicationRepo.updateInterviewFeedback({
+      applicationId: interview.applicationId,
+      jobId: interview.jobId,
+      companyId: interview.companyId,
+      round: interview.round,
+      feedback: feedback.trim(),
+      totalScore,
+    });
 
     return { success: true };
   }

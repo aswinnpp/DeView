@@ -36,13 +36,26 @@ export interface ApplicationItem {
     | "REJECTED"
     | "RESCHEDULE_REQUESTED";
   aiScore?: number;
+  /** @deprecated Use interviewRounds. Last round for backward compat. */
   interviewDetails?: {
     round: string;
     interviewer: string;
     interviewerEmail?: string;
     scheduledDate: string;
     scheduledTime: string;
+    feedback?: string;
+    totalScore?: number;
   };
+  /** All rounds attempted (schedule + feedback per round) */
+  interviewRounds?: Array<{
+    round: string;
+    interviewer: string;
+    interviewerEmail?: string;
+    scheduledDate: string;
+    scheduledTime: string;
+    feedback?: string;
+    totalScore?: number;
+  }>;
   rescheduleRequest?: {
     originalDate: string;
     originalTime: string;
@@ -142,13 +155,36 @@ export const applicationsService = {
   getLatestInterviewerFeedback: async (
     jobId: string,
     applicationId: string
-  ): Promise<{ interviewerName: string; totalScore: number; feedback: string; createdAt: string }> => {
+  ): Promise<{
+    interviewerName: string;
+    jobId: string;
+    round: string;
+    totalScore: number;
+    feedback: string;
+    createdAt: string;
+  }> => {
     const res = await api.get<{
-      data?: { interviewerName: string; totalScore: number; feedback: string; createdAt: string };
+      data?: {
+        interviewerName: string;
+        jobId: string;
+        round: string;
+        totalScore: number;
+        feedback: string;
+        createdAt: string;
+      };
     }>(
       API_ROUTES.APPLICATIONS.LATEST_INTERVIEWER_FEEDBACK(jobId, applicationId)
     );
-    const d = (res.data as { data?: { interviewerName: string; totalScore: number; feedback: string; createdAt: string } })?.data;
+    const d = (res.data as {
+      data?: {
+        interviewerName: string;
+        jobId: string;
+        round: string;
+        totalScore: number;
+        feedback: string;
+        createdAt: string;
+      };
+    })?.data;
     if (!d) throw new Error("No feedback returned");
     return d;
   },

@@ -38,7 +38,10 @@ export const ApplicationMapper = {
       coverLetter: app.coverLetter,
       status: app.status,
       aiScore: app.aiScore,
-      interviewDetails: app.interviewDetails,
+      interviewDetails:
+        app.interviewDetails ??
+        (app.interviewRounds?.length ? app.interviewRounds[app.interviewRounds.length - 1] : undefined),
+      interviewRounds: app.interviewRounds ?? [],
       rescheduleRequest: app.rescheduleRequest
         ? {
             originalDate: app.rescheduleRequest.originalDate,

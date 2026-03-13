@@ -44,13 +44,15 @@ export interface IApplicationRepository {
     applicationId: string;
     jobId: string;
     companyId: string;
-    interviewDetails: {
+    roundDetails: {
       round: string;
       interviewer: string;
       interviewerEmail?: string;
       scheduledDate: string;
       scheduledTime: string;
     };
+    /** If provided, update existing round; else add new round */
+    isReschedule?: boolean;
   }): Promise<Application | null>;
 
   setRescheduleRequest(input: {
@@ -65,5 +67,14 @@ export interface IApplicationRepository {
       reason: string;
       requestedAt: Date;
     };
+  }): Promise<Application | null>;
+
+  updateInterviewFeedback(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    round: string;
+    feedback: string;
+    totalScore: number;
   }): Promise<Application | null>;
 }

@@ -6,6 +6,8 @@ export interface CandidateInterviewHistoryItem {
   interviewId: string;
   companyName: string;
   interviewerName: string;
+  jobId: string;
+  round: string;
   feedback: string;
   totalScore: number;
   createdAt: string;

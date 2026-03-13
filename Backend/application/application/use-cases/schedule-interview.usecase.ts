@@ -138,13 +138,14 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       applicationId,
       jobId,
       companyId,
-      interviewDetails: {
+      roundDetails: {
         round: trimmedRound,
         interviewer: trimmedInterviewerName,
         interviewerEmail: trimmedInterviewerEmail,
         scheduledDate: trimmedDate,
         scheduledTime: trimmedTime,
       },
+      isReschedule: !!existing?.id,
     });
 
     if (!updated) {

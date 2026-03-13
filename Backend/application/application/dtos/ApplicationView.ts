@@ -26,13 +26,26 @@ export interface ApplicationView {
   coverLetter?: string;
   status: string;
   aiScore?: number;
+  /** @deprecated Use interviewRounds. Last/single round for backward compat. */
   interviewDetails?: {
     round: string;
     interviewer: string;
     interviewerEmail?: string;
     scheduledDate: string;
     scheduledTime: string;
+    feedback?: string;
+    totalScore?: number;
   };
+  /** All rounds attempted (schedule + feedback per round) */
+  interviewRounds?: Array<{
+    round: string;
+    interviewer: string;
+    interviewerEmail?: string;
+    scheduledDate: string;
+    scheduledTime: string;
+    feedback?: string;
+    totalScore?: number;
+  }>;
   rescheduleRequest?: {
     originalDate: string;
     originalTime: string;

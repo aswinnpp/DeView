@@ -16,6 +16,8 @@ export interface IGetLatestInterviewerFeedbackUseCase {
     data: {
       interviewId: string;
       interviewerName: string;
+      jobId: string;
+      round: string;
       totalScore: number;
       feedback: string;
       createdAt: string;
@@ -51,6 +53,8 @@ export class GetLatestInterviewerFeedbackUseCase implements IGetLatestInterviewe
       data: {
         interviewId: fb.interviewId,
         interviewerName: fb.interviewerName,
+        jobId: fb.jobId,
+        round: fb.round,
         totalScore: fb.totalScore,
         feedback: fb.feedback,
         createdAt: fb.createdAt.toISOString(),

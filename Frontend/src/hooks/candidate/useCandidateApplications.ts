@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ApplicationItem } from "../../services/applications.service";
 import { candidateJobsService, type CandidateJob } from "../../services/candidateJobs.service";
+import {
+  candidateInterviewHistoryService,
+  type CandidateInterviewHistoryItem,
+} from "../../services/candidateInterviewHistory.service";
 
 type JobInfo = {
   id: string;
@@ -17,6 +21,8 @@ type JobInfo = {
 
 export type ApplicationWithJob = ApplicationItem & {
   job?: JobInfo;
+  feedbacks?: CandidateInterviewHistoryItem[];
+  latestFeedback?: CandidateInterviewHistoryItem | null;
 };
 
 export type FilterOptions = {
@@ -45,6 +51,7 @@ export function useCandidateApplications(options: FilterOptions = {}): HookResul
 
   const [rawApplications, setRawApplications] = useState<ApplicationItem[]>([]);
   const [jobs, setJobs] = useState<JobInfo[]>([]);
+  const [feedbacks, setFeedbacks] = useState<CandidateInterviewHistoryItem[]>([]);
   const [totalApplications, setTotalApplications] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -121,15 +128,55 @@ export function useCandidateApplications(options: FilterOptions = {}): HookResul
     };
   }, [status, search, page, itemsPerPage, sortOrder]);
 
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchFeedbacks() {
+      try {
+        // Keep this reasonably large; feedback count per candidate is typically small.
+        const res = await candidateInterviewHistoryService.list({
+          page: 1,
+          limit: 200,
+          sortOrder: "desc",
+        });
+        if (cancelled) return;
+        setFeedbacks(res.data ?? []);
+      } catch {
+        if (!cancelled) setFeedbacks([]);
+      }
+    }
+    fetchFeedbacks();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const applications = useMemo(() => {
+    const feedbacksByJobId = new Map<string, CandidateInterviewHistoryItem[]>();
+    for (const fb of feedbacks) {
+      if (!fb?.jobId) continue;
+      const list = feedbacksByJobId.get(fb.jobId) ?? [];
+      list.push(fb);
+      feedbacksByJobId.set(fb.jobId, list);
+    }
+    for (const [jobId, list] of feedbacksByJobId.entries()) {
+      list.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+      feedbacksByJobId.set(jobId, list);
+    }
+
     return rawApplications.map((app) => {
       const job = jobs.find((j) => j.id === app.jobId);
       const jobToAttach = job
         ? { ...job, salary: job.salaryNonDisclosure ? undefined : job.salary }
         : undefined;
-      return { ...app, job: jobToAttach };
+      const jobFeedbacks = feedbacksByJobId.get(app.jobId) ?? [];
+      return {
+        ...app,
+        job: jobToAttach,
+        feedbacks: jobFeedbacks,
+        latestFeedback: jobFeedbacks.length > 0 ? jobFeedbacks[0] : null,
+      };
     });
-  }, [rawApplications, jobs]);
+  }, [rawApplications, jobs, feedbacks]);
 
   return {
     applications,

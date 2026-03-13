@@ -7,6 +7,8 @@ export interface ICandidateInterviewHistoryItem {
   interviewId: string;
   companyName: string;
   interviewerName: string;
+  jobId: string;
+  round: string;
   feedback: string;
   totalScore: number;
   createdAt: string;
@@ -48,6 +50,8 @@ export class ListMyInterviewFeedbacksUseCase implements IListMyInterviewFeedback
       interviewId: fb.interviewId,
       companyName: fb.companyName,
       interviewerName: fb.interviewerName,
+      jobId: fb.jobId,
+      round: fb.round,
       feedback: fb.feedback,
       totalScore: fb.totalScore,
       createdAt: fb.createdAt.toISOString(),

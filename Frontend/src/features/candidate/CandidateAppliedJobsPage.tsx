@@ -184,53 +184,101 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                 </div>
                             )}
 
-                            {/* Interview Details */}
-                            {(selectedApplication.status === "INTERVIEW_SCHEDULED" ||
+                            {/* All interview rounds (schedule + feedback per round) */}
+                            {((selectedApplication.status === "INTERVIEW_SCHEDULED" ||
                                 selectedApplication.status === "RESCHEDULE_REQUESTED" ||
                                 selectedApplication.status === "INTERVIEW_COMPLETE" ||
                                 selectedApplication.status === "COMPLETED") &&
-                                selectedApplication.interviewDetails && (
-                                    <div className="mt-6 rounded-xl border border-violet-500/30 bg-violet-500/10 p-4">
-                                        <h4 className="mb-3 text-sm font-semibold text-violet-200">Interview Scheduled</h4>
-                                        <div className="grid gap-3 text-sm text-slate-100 sm:grid-cols-2">
-                                            <div>
-                                                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                                    Round
+                                ((selectedApplication.interviewRounds && selectedApplication.interviewRounds.length > 0) ||
+                                    selectedApplication.interviewDetails)) && (
+                                    <div className="mt-6">
+                                        <h4 className="mb-3 text-sm font-semibold text-violet-200">
+                                            Interviews Attempted ({(
+                                                selectedApplication.interviewRounds?.length ??
+                                                (selectedApplication.interviewDetails ? 1 : 0)
+                                            )})
+                                        </h4>
+                                        <div className="space-y-4">
+                                            {(selectedApplication.interviewRounds?.length
+                                                ? selectedApplication.interviewRounds
+                                                : selectedApplication.interviewDetails
+                                                    ? [selectedApplication.interviewDetails]
+                                                    : []
+                                            ).map((r, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="rounded-xl border border-violet-500/30 bg-violet-500/10 p-4"
+                                                >
+                                                    <div className="mb-2 text-xs font-semibold text-violet-300">
+                                                        Round {idx + 1}: {r.round}
+                                                    </div>
+                                                    <div className="grid gap-3 text-sm text-slate-100 sm:grid-cols-2">
+                                                        <div>
+                                                            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Interviewer</div>
+                                                            <div className="mt-1 text-slate-100">
+                                                                {r.interviewer}
+                                                                {r.interviewerEmail ? ` (${r.interviewerEmail})` : ""}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Date & Time</div>
+                                                            <div className="mt-1 text-slate-100">
+                                                                {formatDate(r.scheduledDate)} at {r.scheduledTime}
+                                                            </div>
+                                                        </div>
+                                                        {r.totalScore != null && (
+                                                            <div>
+                                                                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Score</div>
+                                                                <div className="mt-1 text-slate-100">{r.totalScore}/5</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    {r.feedback && (
+                                                        <div className="mt-3">
+                                                            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Feedback</div>
+                                                            <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-slate-200">{r.feedback}</p>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div className="mt-1 text-slate-100">
-                                                    {selectedApplication.interviewDetails.round}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                                    Interviewer
-                                                </div>
-                                                <div className="mt-1 text-slate-100">
-                                                    {selectedApplication.interviewDetails.interviewer}
-                                                    {selectedApplication.interviewDetails.interviewerEmail
-                                                        ? ` (${selectedApplication.interviewDetails.interviewerEmail})`
-                                                        : ""}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                                    Date
-                                                </div>
-                                                <div className="mt-1 text-slate-100">
-                                                    {formatDate(selectedApplication.interviewDetails.scheduledDate)}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                                    Time
-                                                </div>
-                                                <div className="mt-1 text-slate-100">
-                                                    {selectedApplication.interviewDetails.scheduledTime}
-                                                </div>
-                                            </div>
+                                            ))}
                                         </div>
                                     </div>
                                 )}
+
+                            {/* Fallback: merged feedbacks API when no rounds in application yet */}
+                            {selectedApplication.latestFeedback &&
+                                !selectedApplication.interviewRounds?.length &&
+                                !selectedApplication.interviewDetails?.feedback && (
+                                <div className="mt-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                                    <h4 className="mb-3 text-sm font-semibold text-emerald-200">Interviewer Feedback</h4>
+                                    <div className="grid gap-3 text-sm text-slate-100 sm:grid-cols-2">
+                                        <div>
+                                            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                Round
+                                            </div>
+                                            <div className="mt-1 text-slate-100">
+                                                {selectedApplication.latestFeedback.round || "—"}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                Score
+                                            </div>
+                                            <div className="mt-1 text-slate-100">
+                                                {selectedApplication.latestFeedback.totalScore}/5
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-3">
+                                        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                            Feedback
+                                        </div>
+                                        <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-slate-200">
+                                            {selectedApplication.latestFeedback.feedback || "—"}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Timeline */}
                             <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
@@ -406,6 +454,34 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                                     {formatStatus(application.status)}
                                                 </span>
                                             </p>
+
+                                            {((application.interviewRounds?.length ?? 0) > 0 ||
+                                                application.interviewDetails ||
+                                                application.latestFeedback) && (
+                                                <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
+                                                    <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 font-semibold text-violet-200">
+                                                        {application.interviewRounds?.length
+                                                            ? `${application.interviewRounds.length} round${application.interviewRounds.length !== 1 ? "s" : ""}`
+                                                            : "1 round"}
+                                                    </span>
+                                                    {(application.interviewRounds?.some((r) => r.totalScore != null) ||
+                                                        application.interviewDetails?.totalScore != null ||
+                                                        application.latestFeedback?.totalScore != null) && (
+                                                        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-semibold text-emerald-200">
+                                                            Latest score:{" "}
+                                                            {([
+                                                                ...(application.interviewRounds ?? []),
+                                                            ]
+                                                                .reverse()
+                                                                .find((r) => r.totalScore != null)?.totalScore ??
+                                                                application.interviewDetails?.totalScore ??
+                                                                application.latestFeedback?.totalScore ??
+                                                                "—")}
+                                                            /5
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="self-center text-lg text-slate-500">

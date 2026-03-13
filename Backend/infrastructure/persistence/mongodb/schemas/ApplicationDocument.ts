@@ -35,13 +35,26 @@ export interface IApplicationDocument {
     | 'REJECTED'
     | 'RESCHEDULE_REQUESTED';
   aiScore?: number;
+  /** @deprecated Use interviewRounds. Kept for backward compat. */
   interviewDetails?: {
     round: string;
     interviewer: string;
     interviewerEmail?: string;
     scheduledDate: string;
     scheduledTime: string;
+    feedback?: string;
+    totalScore?: number;
   };
+  /** All rounds attempted (schedule + feedback per round) */
+  interviewRounds?: Array<{
+    round: string;
+    interviewer: string;
+    interviewerEmail?: string;
+    scheduledDate: string;
+    scheduledTime: string;
+    feedback?: string;
+    totalScore?: number;
+  }>;
   /** Candidate requested to reschedule an interview. */
   rescheduleRequest?: {
     originalDate: string;

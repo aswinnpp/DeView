@@ -8,6 +8,13 @@ import type { IApplicationDocument } from '../schemas/ApplicationDocument.js';
 import type { IJobDocument } from '../schemas/JobDocument.js';
 
 function toDomain(doc: IApplicationDocument): Application {
+  const interviewRounds =
+    doc.interviewRounds && doc.interviewRounds.length > 0
+      ? doc.interviewRounds
+      : doc.interviewDetails
+        ? [{ ...doc.interviewDetails }]
+        : [];
+
   return new Application(
     doc._id?.toString() ?? null,
     doc.jobId,
@@ -36,6 +43,7 @@ function toDomain(doc: IApplicationDocument): Application {
     doc.status,
     doc.aiScore,
     doc.interviewDetails,
+    interviewRounds,
     doc.rescheduleRequest,
     doc.completedRounds ?? [],
     doc.rejectionEmailContent,
@@ -267,9 +275,16 @@ export class MongoApplicationRepository implements IApplicationRepository {
     applicationId: string;
     jobId: string;
     companyId: string;
-    interviewDetails: NonNullable<IApplicationDocument['interviewDetails']>;
+    roundDetails: {
+      round: string;
+      interviewer: string;
+      interviewerEmail?: string;
+      scheduledDate: string;
+      scheduledTime: string;
+    };
+    isReschedule?: boolean;
   }): Promise<Application | null> {
-    const { applicationId, jobId, companyId, interviewDetails } = input;
+    const { applicationId, jobId, companyId, roundDetails, isReschedule } = input;
 
     let _id: ObjectId;
     try {
@@ -278,19 +293,72 @@ export class MongoApplicationRepository implements IApplicationRepository {
       return null;
     }
 
-    const updateResult = await this._collection.updateOne(
-      { _id, jobId, companyId },
-      {
-        $set: {
-          status: 'INTERVIEW_SCHEDULED',
-          interviewDetails,
-          updatedAt: new Date(),
+    const roundEntry = {
+      round: roundDetails.round,
+      interviewer: roundDetails.interviewer,
+      ...(roundDetails.interviewerEmail && { interviewerEmail: roundDetails.interviewerEmail }),
+      scheduledDate: roundDetails.scheduledDate,
+      scheduledTime: roundDetails.scheduledTime,
+    };
+
+    let updateResult;
+    if (isReschedule) {
+      updateResult = await this._collection.updateOne(
+        { _id, jobId, companyId, 'interviewRounds.round': roundDetails.round },
+        {
+          $set: {
+            status: 'INTERVIEW_SCHEDULED',
+            updatedAt: new Date(),
+            'interviewRounds.$[elem].interviewer': roundEntry.interviewer,
+            'interviewRounds.$[elem].scheduledDate': roundEntry.scheduledDate,
+            'interviewRounds.$[elem].scheduledTime': roundEntry.scheduledTime,
+            ...(roundEntry.interviewerEmail && {
+              'interviewRounds.$[elem].interviewerEmail': roundEntry.interviewerEmail,
+            }),
+          },
+          $unset: { rescheduleRequest: '' },
         },
-        $unset: {
-          rescheduleRequest: '',
-        },
+        { arrayFilters: [{ 'elem.round': roundDetails.round }] }
+      );
+      if (!updateResult.matchedCount) {
+        const doc = await this._collection.findOne({ _id, jobId, companyId });
+        if (doc?.interviewDetails && !doc?.interviewRounds?.length) {
+          updateResult = await this._collection.updateOne(
+            { _id, jobId, companyId },
+            {
+              $set: {
+                status: 'INTERVIEW_SCHEDULED',
+                interviewDetails: { ...doc.interviewDetails, ...roundEntry },
+                updatedAt: new Date(),
+              },
+              $unset: { rescheduleRequest: '' },
+            }
+          );
+        }
       }
-    );
+    } else {
+      const doc = await this._collection.findOne({ _id, jobId, companyId });
+      const hasLegacyOnly = doc?.interviewDetails && !doc?.interviewRounds?.length;
+      if (hasLegacyOnly) {
+        await this._collection.updateOne(
+          { _id, jobId, companyId },
+          {
+            $set: {
+              interviewRounds: [{ ...doc!.interviewDetails }],
+              updatedAt: new Date(),
+            },
+          }
+        );
+      }
+      updateResult = await this._collection.updateOne(
+        { _id, jobId, companyId },
+        {
+          $set: { status: 'INTERVIEW_SCHEDULED', updatedAt: new Date() },
+          $push: { interviewRounds: roundEntry },
+          $unset: { rescheduleRequest: '' },
+        }
+      );
+    }
 
     if (!updateResult.matchedCount) return null;
     const doc = await this._collection.findOne({ _id, jobId, companyId });
@@ -324,6 +392,58 @@ export class MongoApplicationRepository implements IApplicationRepository {
     );
 
     if (!updateResult.matchedCount) return null;
+    const doc = await this._collection.findOne({ _id, jobId, companyId });
+    return doc ? toDomain(doc) : null;
+  }
+
+  async updateInterviewFeedback(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    round: string;
+    feedback: string;
+    totalScore: number;
+  }): Promise<Application | null> {
+    const { applicationId, jobId, companyId, round, feedback, totalScore } = input;
+
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(applicationId);
+    } catch {
+      return null;
+    }
+
+    const updateResult = await this._collection.updateOne(
+      { _id, jobId, companyId, 'interviewRounds.round': round },
+      {
+        $set: {
+          'interviewRounds.$[elem].feedback': feedback,
+          'interviewRounds.$[elem].totalScore': totalScore,
+          updatedAt: new Date(),
+        },
+      },
+      { arrayFilters: [{ 'elem.round': round }] }
+    );
+
+    if (!updateResult.matchedCount) {
+      const docForLegacy = await this._collection.findOne({ _id, jobId, companyId });
+      const hasLegacyDetails =
+        docForLegacy?.interviewDetails && (!docForLegacy.interviewRounds?.length ?? true);
+      if (hasLegacyDetails) {
+        await this._collection.updateOne(
+          { _id, jobId, companyId },
+          {
+            $set: {
+              'interviewDetails.feedback': feedback,
+              'interviewDetails.totalScore': totalScore,
+              updatedAt: new Date(),
+            },
+          }
+        );
+      } else {
+        return null;
+      }
+    }
     const doc = await this._collection.findOne({ _id, jobId, companyId });
     return doc ? toDomain(doc) : null;
   }

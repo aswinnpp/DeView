@@ -14,7 +14,13 @@ export type InterviewDetails = {
   interviewerEmail?: string;
   scheduledDate: string; // YYYY-MM-DD
   scheduledTime: string; // HH:mm
+  /** Filled when interviewer submits feedback */
+  feedback?: string;
+  totalScore?: number;
 };
+
+/** One round in interviewRounds - same shape, used in array */
+export type InterviewRoundDetails = InterviewDetails;
 
 export type RescheduleRequest = {
   originalDate: string;
@@ -53,7 +59,10 @@ export class Application {
     public coverLetter?: string,
     public status: ApplicationStatus = 'PENDING',
     public aiScore?: number,
+    /** @deprecated Use interviewRounds. Kept for backward compat. */
     public interviewDetails?: InterviewDetails,
+    /** All rounds attempted for this application (schedule + feedback per round) */
+    public interviewRounds: InterviewRoundDetails[] = [],
     public rescheduleRequest?: RescheduleRequest,
     public completedRounds: string[] = [],
     public rejectionEmailContent?: string,
