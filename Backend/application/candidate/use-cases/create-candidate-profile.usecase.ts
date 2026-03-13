@@ -45,7 +45,8 @@ export class CreateCandidateProfileUseCase implements ICreateCandidateProfileUse
             dto.graduationYear,
             dto.linkedinUrl,
             dto.githubUrl,
-            dto.resumeUrl
+            dto.resumeUrl,
+            dto.profilePicUrl
         );
 
         await this._repo.save(profile);

@@ -60,7 +60,7 @@ const CompanyApprovalFormPage = () => {
         setUploadingKey(key);
         setUploadingFileName(file.name);
         reset();
-        upload(file, key as UploadCategory);
+        void upload(file, key as UploadCategory);
     };
 
     const getUploadedDoc = (key: string) => documents[key];

@@ -5,6 +5,8 @@ import { TYPES } from "../../../infrastructure/di/types";
 import type { IGetCompanyProfileUseCase } from "../../../application/company/ports/usecase/IGetCompanyProfileUseCase";
 import type { IUpdateCompanyProfileUseCase } from "../../../application/company/ports/usecase/IUpdateCompanyProfileUseCase";
 import { CompanyProfileMapper } from "../../../application/company/mappers/CompanyProfileMapper.js";
+import type { IFileStorage } from "../../../application/upload/ports/services/IFileStorage.js";
+import { AppError } from "../../../shared/errors/AppError";
 
 interface IUpdateProfileBody {
   companyName?: string;
@@ -16,6 +18,7 @@ interface IUpdateProfileBody {
   taxId?: string;
   website?: string;
   numberOfEmployees?: string;
+  logoUrl?: string;
 }
 
 type GetProfileQuery = {
@@ -28,6 +31,7 @@ export class CompanyProfileController {
   constructor(
     @inject(TYPES.GetCompanyProfileUseCasePort) private readonly _getProfileUseCase: IGetCompanyProfileUseCase,
     @inject(TYPES.UpdateCompanyProfileUseCasePort) private readonly _updateProfileUseCase: IUpdateCompanyProfileUseCase,
+    @inject(TYPES.FileStoragePort) private readonly _fileStorage: IFileStorage,
   ) {}
 
   getProfile = async (
@@ -52,5 +56,14 @@ export class CompanyProfileController {
     const dto = CompanyProfileMapper.toUpdateDTO(request.body, ctx);
     const result = await this._updateProfileUseCase.execute(dto);
     reply.send(success(result));
+  };
+
+  getLogoViewUrl = async (request: FastifyRequest, reply: FastifyReply) => {
+    const user = request.currentUser;
+    const profile = await this._getProfileUseCase.execute(user.userId);
+    const raw = (profile as unknown as { logoUrl?: string } | null)?.logoUrl ?? '';
+    if (!raw.trim()) throw AppError.notFound("Company logo not found");
+    const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
+    reply.send(success({ url }));
   };
 }

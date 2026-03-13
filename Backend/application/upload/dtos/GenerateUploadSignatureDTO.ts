@@ -6,4 +6,5 @@ export interface IGenerateUploadSignatureInputDTO {
 export interface IGenerateUploadSignatureOutputDTO {
     uploadUrl: string;
     fileUrl: string;
+    key: string;
 }

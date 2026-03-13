@@ -12,6 +12,7 @@ export interface IUpdateProfileBody {
   taxId?: string;
   website?: string;
   numberOfEmployees?: string;
+  logoUrl?: string;
 }
 
 export const CompanyProfileMapper = {

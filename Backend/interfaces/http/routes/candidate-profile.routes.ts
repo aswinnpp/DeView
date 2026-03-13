@@ -17,6 +17,14 @@ export async function candidateProfileRoutes(
         handler: controller.getProfile,
     });
 
+    fastify.get("/profile/resume-view-url", {
+        handler: controller.getResumeViewUrl,
+    });
+
+    fastify.get("/profile/profile-pic-view-url", {
+        handler: controller.getProfilePicViewUrl,
+    });
+
     fastify.post("/profile", {
         schema: createCandidateProfileSchema,
         handler: controller.createProfile,

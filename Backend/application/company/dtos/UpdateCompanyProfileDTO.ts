@@ -9,4 +9,5 @@ export interface IUpdateCompanyProfileDTO {
     taxId?: string;
     website?: string;
     numberOfEmployees?: string;
+    logoUrl?: string;
 }

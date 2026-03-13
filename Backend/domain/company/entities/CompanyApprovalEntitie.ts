@@ -60,6 +60,7 @@ export class CompanyApproval {
     public id: string | null,
     public userId: string,
     public companyName: string,
+    public logoUrl: string | undefined,
     public location: string | undefined,
     public address: string,
     public contactPerson: string,
@@ -280,6 +281,9 @@ export class CompanyApproval {
   ) {
     if (fields.companyName !== undefined) {
       this.companyName = fields.companyName;
+    }
+    if (fields.logoUrl !== undefined) {
+      this.logoUrl = fields.logoUrl;
     }
     if (fields.location !== undefined) {
       this.location = fields.location;

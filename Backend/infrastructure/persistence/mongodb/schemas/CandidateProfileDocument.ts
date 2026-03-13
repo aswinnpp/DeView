@@ -26,6 +26,7 @@ export interface ICandidateProfileDocument {
     linkedinUrl?: string;
     githubUrl?: string;
     resumeUrl?: string;
+    profilePicUrl?: string;
     createdAt: Date;
     updatedAt: Date;
 }

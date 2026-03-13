@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { stripePromise } from "../../stripe";
 import type { SubscriptionPlan } from "../../services/adminSubscription.service";
 import type { ICompanySubscriptionView } from "../../hooks/company/useCompanyProfile";
 import { useCompanyProfile, useCompanySubscription } from "../../hooks/company";
 import { Button, Input, Table, Pagination } from "../../components/common";
+import { useFileUpload } from "../../hooks/useFileUpload";
+import { api } from "../../api/axios";
 
 type PaymentResult = {
     open: boolean;
@@ -163,6 +165,11 @@ const CompanyProfilePage = () => {
         fetchProfile,
     } = useCompanyProfile();
 
+    const { upload: uploadCompanyLogo, isUploading: isCompanyLogoUploading } = useFileUpload();
+    const [companyLogoPreviewUrl, setCompanyLogoPreviewUrl] = useState<string | null>(null);
+    const [companyLogoViewUrl, setCompanyLogoViewUrl] = useState<string>("");
+    const lastUploadedCompanyLogoKeyRef = useRef<string | null>(null);
+
     const {
         plans: subscription,
         selectedPlan,
@@ -198,6 +205,61 @@ const CompanyProfilePage = () => {
         status: "success",
         title: "",
     });
+
+    useEffect(() => {
+        const keyOrUrl = (companyData as { logoUrl?: string } | null)?.logoUrl?.trim();
+        if (!keyOrUrl || companyLogoPreviewUrl) return;
+        if (
+            lastUploadedCompanyLogoKeyRef.current &&
+            keyOrUrl === lastUploadedCompanyLogoKeyRef.current &&
+            companyLogoViewUrl
+        ) {
+            return;
+        }
+
+        let cancelled = false;
+        api.get<{ url: string }>("/company/profile/logo-view-url")
+            .then(({ data }) => {
+                if (!cancelled) setCompanyLogoViewUrl(data.url);
+            })
+            .catch(() => {
+                if (!cancelled) setCompanyLogoViewUrl("");
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [companyData, companyLogoPreviewUrl, companyLogoViewUrl]);
+
+    useEffect(() => {
+        return () => {
+            if (companyLogoPreviewUrl) URL.revokeObjectURL(companyLogoPreviewUrl);
+        };
+    }, [companyLogoPreviewUrl]);
+
+    const handleCompanyLogoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const nextPreview = URL.createObjectURL(file);
+        setCompanyLogoPreviewUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return nextPreview;
+        });
+        e.target.value = "";
+
+        const res = await uploadCompanyLogo(file, "companyLogo");
+        if (!res?.key && !res?.url) return;
+        const stored = res.key ?? res.url;
+        lastUploadedCompanyLogoKeyRef.current = stored;
+        if (res.url) setCompanyLogoViewUrl(res.url);
+        setCompanyLogoPreviewUrl(null);
+
+        // autosave (no need to click Edit/Save)
+        try {
+            await updateProfile({ logoUrl: stored });
+        } catch {
+            // ignore; user can retry via edit-save if needed
+        }
+    };
     const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
@@ -350,8 +412,30 @@ const CompanyProfilePage = () => {
                 {/* Company Header with Avatar */}
                 <div className="flex items-start gap-6 max-md:gap-4 mb-8 max-md:mb-6 max-md:flex-col">
                     {/* Avatar */}
-                    <div className="w-[120px] h-[120px] max-md:w-20 max-md:h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-5xl max-md:text-4xl font-bold text-white shrink-0 shadow-[0_8px_24px_rgba(99,102,241,0.3)]">
-                        {companyData.companyName.charAt(0)}
+                    <div className="relative group w-[120px] h-[120px] max-md:w-20 max-md:h-20 shrink-0">
+                        <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-5xl max-md:text-4xl font-bold text-white shadow-[0_8px_24px_rgba(99,102,241,0.3)]">
+                            {companyLogoPreviewUrl || companyLogoViewUrl ? (
+                                <img
+                                    src={companyLogoPreviewUrl ?? companyLogoViewUrl}
+                                    alt="Company logo"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                companyData.companyName.charAt(0)
+                            )}
+                        </div>
+                        <label className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleCompanyLogoSelect}
+                                disabled={isCompanyLogoUploading}
+                                className="hidden"
+                            />
+                            <span className="text-white text-xs font-medium px-2 py-1 bg-white/20 rounded">
+                                {isCompanyLogoUploading ? "Uploading…" : "Change logo"}
+                            </span>
+                        </label>
                     </div>
 
                     {/* Company Info */}

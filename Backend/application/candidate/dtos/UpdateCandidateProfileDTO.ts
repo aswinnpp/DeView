@@ -23,4 +23,5 @@ export interface IUpdateCandidateProfileDTO {
     linkedinUrl?: string;
     githubUrl?: string;
     resumeUrl?: string;
+    profilePicUrl?: string;
 }

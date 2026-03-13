@@ -27,6 +27,7 @@ export class CandidateProfile {
         public linkedinUrl?: string,
         public githubUrl?: string,
         public resumeUrl?: string,
+        public profilePicUrl?: string,
         public createdAt: Date = new Date(),
         public updatedAt: Date = new Date()
     ) { }
@@ -55,6 +56,7 @@ export class CandidateProfile {
         if (fields.linkedinUrl !== undefined) this.linkedinUrl = fields.linkedinUrl;
         if (fields.githubUrl !== undefined) this.githubUrl = fields.githubUrl;
         if (fields.resumeUrl !== undefined) this.resumeUrl = fields.resumeUrl;
+        if (fields.profilePicUrl !== undefined) this.profilePicUrl = fields.profilePicUrl;
 
         this.updatedAt = new Date();
     }

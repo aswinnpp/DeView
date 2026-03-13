@@ -6,6 +6,8 @@ export const generateSignatureSchema = {
             category: {
                 type: 'string',
                 enum: [
+                    'profilePic',
+                    'companyLogo',
                     'resume',
                     'certificateOfIncorporation',
                     'gstCertificate',

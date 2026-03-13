@@ -14,6 +14,10 @@ export async function companyProfileRoutes(
         handler: controller.getProfile,
     });
 
+    fastify.get('/profile/logo-view-url', {
+        handler: controller.getLogoViewUrl,
+    });
+
     fastify.put('/profile', {
         schema: updateCompanyProfileSchema,
         preHandler: [updateCompanyProfileBodyParser],

@@ -19,6 +19,7 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const notificationRef = useRef<HTMLDivElement>(null);
     const [candidateName, setCandidateName] = useState<string>(localStorage.getItem('userName') || '');
+    const [candidateProfilePicUrl, setCandidateProfilePicUrl] = useState<string>('');
 
     useEffect(() => {
         if (sidebarOpen) {
@@ -35,8 +36,14 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
         const loadProfile = async () => {
             try {
                 const { data: profileData } = await candidateService.getProfile();
-                if (profileData?.profile?.fullName) {
-                    setCandidateName(profileData.profile.fullName);
+                if (profileData?.profile?.fullName) setCandidateName(profileData.profile.fullName);
+                if (profileData?.profile?.profilePicUrl) {
+                    try {
+                        const { data } = await candidateService.getProfilePicViewUrl();
+                        setCandidateProfilePicUrl(data.url);
+                    } catch {
+                        setCandidateProfilePicUrl('');
+                    }
                 }
             } catch {
                 // Silently fail — use fallback name
@@ -194,8 +201,16 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
                         }
                         title="Profile"
                     >
-                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-white text-sm font-bold">
-                            {getInitials(candidateName)}
+                        <div className="w-9 h-9 rounded-full overflow-hidden bg-linear-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-white text-sm font-bold">
+                            {candidateProfilePicUrl ? (
+                                <img
+                                    src={candidateProfilePicUrl}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                getInitials(candidateName)
+                            )}
                         </div>
                     </NavLink>
                 )}

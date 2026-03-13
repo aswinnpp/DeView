@@ -134,6 +134,15 @@ const HRApplicationsPage = () => {
         refreshSelectedJobApplications,
     } = useApplication();
 
+    const handleViewResume = async (jobId: string, applicationId: string) => {
+        try {
+            const url = await applicationsService.getResumeViewUrl(jobId, applicationId);
+            window.open(url, "_blank", "noopener,noreferrer");
+        } catch {
+            // noop
+        }
+    };
+
     // View states
     const [activeTab, setActiveTab] = useState<WorkflowTab>('PENDING');
 
@@ -917,7 +926,7 @@ const HRApplicationsPage = () => {
                                         }}>GitHub</a>
                                     )}
                                     {selectedCandidate.resumeUrl && (
-                                        <a href={selectedCandidate.resumeUrl} target="_blank" rel="noopener noreferrer" style={{
+                                        <button type="button" onClick={() => handleViewResume(selectedCandidate.jobId, selectedCandidate.applicationId)} style={{
                                             padding: '8px 16px',
                                             backgroundColor: '#ef4444',
                                             color: '#fff',
@@ -927,8 +936,10 @@ const HRApplicationsPage = () => {
                                             textDecoration: 'none',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: 6
-                                        }}>View Resume</a>
+                                            gap: 6,
+                                            border: 'none',
+                                            cursor: 'pointer'
+                                        }}>View Resume</button>
                                     )}
                                 </div>
                             </div>

@@ -1,13 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Input, Button } from '../../components/common';
 import CandidateNavHeader from './CandidateNavHeader';
 import { useCandidateProfile } from '../../hooks/candidate/useCandidateProfile';
 import { useFileUpload } from '../../hooks/useFileUpload';
+import { candidateService } from '../../services/candidate.service';
 
 
 
 const Profile = () => {
     const errorBannerRef = useRef<HTMLDivElement>(null);
+    const [profilePicPreviewUrl, setProfilePicPreviewUrl] = useState<string | null>(null);
+    const [profilePicViewUrl, setProfilePicViewUrl] = useState<string>('');
+    const lastUploadedProfilePicKeyRef = useRef<string | null>(null);
 
     const {
         form,
@@ -28,19 +32,81 @@ const Profile = () => {
         error: formError,
     } = useCandidateProfile();
 
-    const { upload, isUploading, uploadedFile } = useFileUpload();
+    const { upload: uploadResume, isUploading: isResumeUploading } = useFileUpload();
+    const { upload: uploadProfilePic, isUploading: isProfilePicUploading } = useFileUpload();
 
     useEffect(() => {
-        if (uploadedFile?.url) {
-            form.setValue('resumeUrl', uploadedFile.url, { shouldDirty: true, shouldValidate: true });
+        // When profilePicUrl is an S3 key (stable), get a fresh signed URL for viewing.
+        const keyOrUrl = profileData.profilePicUrl?.trim();
+        if (!keyOrUrl || profilePicPreviewUrl) return;
+        if (
+            lastUploadedProfilePicKeyRef.current &&
+            keyOrUrl === lastUploadedProfilePicKeyRef.current &&
+            profilePicViewUrl
+        ) {
+            return;
         }
-    }, [uploadedFile, form]);
 
-    const handleResumeSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let cancelled = false;
+        candidateService.getProfilePicViewUrl()
+            .then(({ data }) => {
+                if (!cancelled) setProfilePicViewUrl(data.url);
+            })
+            .catch(() => {
+                if (!cancelled) setProfilePicViewUrl('');
+            });
+        return () => { cancelled = true; };
+    }, [profileData.profilePicUrl, profilePicPreviewUrl, profilePicViewUrl]);
+
+    useEffect(() => {
+        return () => {
+            if (profilePicPreviewUrl) URL.revokeObjectURL(profilePicPreviewUrl);
+        };
+    }, [profilePicPreviewUrl]);
+
+    const handleResumeSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         e.target.value = '';
-        upload(file, 'resume');
+        const res = await uploadResume(file, 'resume');
+        if (res?.key || res?.url) {
+            form.setValue('resumeUrl', res.key ?? res.url, { shouldDirty: true, shouldValidate: true });
+        }
+    };
+
+    const handleProfilePicSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const nextPreview = URL.createObjectURL(file);
+        setProfilePicPreviewUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return nextPreview;
+        });
+        e.target.value = '';
+        const res = await uploadProfilePic(file, 'profilePic');
+        if (res?.key || res?.url) {
+            const stored = res.key ?? res.url;
+            form.setValue('profilePicUrl', stored, { shouldDirty: true, shouldValidate: true });
+            lastUploadedProfilePicKeyRef.current = stored;
+            // Prefer showing the just-uploaded URL immediately to avoid flashing old image
+            // while the DB is being updated / read back.
+            if (res.url) setProfilePicViewUrl(res.url);
+            setProfilePicPreviewUrl(null);
+            try {
+                await candidateService.updateProfile({ profilePicUrl: stored });
+            } catch {
+                // If autosave fails, user can still save via full form.
+            }
+        }
+    };
+
+    const handleViewResume = async () => {
+        try {
+            const { data } = await candidateService.getResumeViewUrl();
+            window.open(data.url, '_blank', 'noopener,noreferrer');
+        } catch {
+            // noop
+        }
     };
 
     const handleEditClick = () => setIsEditing(true);
@@ -99,8 +165,26 @@ const Profile = () => {
                         {/* Profile Header */}
                         <div className="flex justify-between items-center gap-[18px] mb-[18px] max-md:mb-4 max-[900px]:flex-col max-[900px]:items-start max-[900px]:gap-3">
                             <div className="flex gap-4 max-md:gap-3 items-center min-w-0 flex-1">
-                                <div className="w-22 h-22 max-md:w-16 max-md:h-16 rounded-[14px] bg-linear-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-4xl max-md:text-3xl shadow-[0_6px_18px_rgba(0,0,0,0.4)] max-[480px]:w-[72px] max-[480px]:h-[72px] max-[480px]:text-[28px] shrink-0">
-                                    {profileData.fullName ? profileData.fullName.charAt(0).toUpperCase() : '👤'}
+                                <div className="relative group shrink-0">
+                                    <div className="w-22 h-22 max-md:w-16 max-md:h-16 rounded-[14px] bg-linear-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-4xl max-md:text-3xl shadow-[0_6px_18px_rgba(0,0,0,0.4)] max-[480px]:w-[72px] max-[480px]:h-[72px] max-[480px]:text-[28px] overflow-hidden object-cover">
+                                        {profilePicPreviewUrl || profilePicViewUrl ? (
+                                            <img src={profilePicPreviewUrl ?? profilePicViewUrl} alt="Profile" className="w-full h-full object-cover" />
+                                        ) : (
+                                            profileData.fullName ? profileData.fullName.charAt(0).toUpperCase() : '👤'
+                                        )}
+                                    </div>
+                                    <label className="absolute inset-0 flex items-center justify-center rounded-[14px] bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                            <input
+                                                type="file"
+                                                accept="image/jpeg,image/jpg,image/png,image/webp"
+                                                onChange={handleProfilePicSelect}
+                                                disabled={isProfilePicUploading}
+                                                className="hidden"
+                                            />
+                                            <span className="text-white text-xs font-medium px-2 py-1 bg-white/20 rounded">
+                                                {isProfilePicUploading ? 'Uploading…' : 'Change photo'}
+                                            </span>
+                                    </label>
                                 </div>
                                 <div className="flex flex-col gap-1.5 min-w-0 flex-1">
                                     <h1 className="m-0 text-2xl max-md:text-xl font-extrabold text-white max-[480px]:text-lg truncate">{profileData.fullName || 'Your Name'}</h1>
@@ -347,20 +431,19 @@ const Profile = () => {
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
                                 <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Resume</h3>
                                 <div className="py-4 max-md:py-3">
-                                    {profileData.resumeUrl || isUploading ? (
+                                    {profileData.resumeUrl || isResumeUploading ? (
                                         <div className="flex flex-wrap items-center gap-3 p-4 bg-[rgba(102,126,234,0.1)] border border-[rgba(102,126,234,0.2)] rounded-[10px]">
                                            
                                             {profileData.resumeUrl && (
-                                                <a
-                                                    href={profileData.resumeUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
+                                                <button
+                                                    type="button"
+                                                    onClick={handleViewResume}
                                                     className="text-brand-primary no-underline font-medium transition-colors duration-200 hover:text-brand-secondary hover:underline"
                                                 >
                                                     View Resume
-                                                </a>
+                                                </button>
                                             )}
-                                            {isUploading && (
+                                            {isResumeUploading && (
                                                 <span className="text-[rgba(255,255,255,0.75)] text-sm">
                                                     Uploading…
                                                 </span>
@@ -372,7 +455,7 @@ const Profile = () => {
                                                         type="file"
                                                         accept=".pdf"
                                                         onChange={handleResumeSelect}
-                                                        disabled={isUploading}
+                                                        disabled={isResumeUploading}
                                                         className="hidden"
                                                     />
                                                 </label>
@@ -383,13 +466,13 @@ const Profile = () => {
                                             {isEditing ? (
                                                 <div className="flex flex-col items-center">
                                                     <label className="inline-flex items-center gap-2 py-3 px-6 bg-linear-to-br from-brand-primary to-brand-secondary rounded-lg text-white text-sm font-medium cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(102,126,234,0.3)]">
-                                                        {isUploading ? 'Uploading…' : '↑ Upload Resume '}
+                                                        {isResumeUploading ? 'Uploading…' : '↑ Upload Resume '}
                                                         <input
                                                             type="file"
                                                             accept=".pdf"
                                                             onChange={handleResumeSelect}
                                                             className="hidden"
-                                                            disabled={isUploading}
+                                                            disabled={isResumeUploading}
                                                         />
                                                     </label>
                                                 </div>

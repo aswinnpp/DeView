@@ -26,6 +26,7 @@ export interface ICreateProfileBody {
   linkedinUrl?: string;
   githubUrl?: string;
   resumeUrl?: string;
+  profilePicUrl?: string;
 }
 
 export type IUpdateProfileBody = Partial<ICreateProfileBody>;

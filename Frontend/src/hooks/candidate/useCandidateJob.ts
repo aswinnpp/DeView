@@ -112,7 +112,7 @@ export function useCandidateJob() {
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = "";
-    upload(file, "resume");
+    void upload(file, "resume");
   }, [upload]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));

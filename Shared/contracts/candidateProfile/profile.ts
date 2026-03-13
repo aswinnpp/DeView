@@ -110,6 +110,7 @@ export const candidateProfileSchema = z.object({
     linkedinUrl: optionalLinkedInUrl,
     githubUrl: optionalGithubUrl,
     resumeUrl: optionalString,
+    profilePicUrl: optionalString,
 });
 
 export type CandidateProfileData = z.infer<typeof candidateProfileSchema>;

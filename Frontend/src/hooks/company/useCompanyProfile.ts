@@ -11,6 +11,7 @@ export interface ICompanyProfileData {
     id?: string;
     userId: string;
     companyName: string;
+    logoUrl?: string;
     industry?: string;
     location?: string;
     address: string;
@@ -102,6 +103,7 @@ export function useCompanyProfile() {
                 taxId: data.taxId,
                 website: data.website,
                 numberOfEmployees: data.numberOfEmployees,
+                logoUrl: data.logoUrl,
             };
 
             await api.put('/company/profile', payload);

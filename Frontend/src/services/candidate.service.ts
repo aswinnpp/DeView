@@ -50,4 +50,12 @@ export const candidateService = {
     updateProfile(data: Partial<ProfileData>) {
         return api.patch(API_ROUTES.CANDIDATE.PROFILE, data);
     },
+
+    getResumeViewUrl() {
+        return api.get<{ url: string }>(`${API_ROUTES.CANDIDATE.PROFILE}/resume-view-url`);
+    },
+
+    getProfilePicViewUrl() {
+        return api.get<{ url: string }>(`${API_ROUTES.CANDIDATE.PROFILE}/profile-pic-view-url`);
+    },
 };

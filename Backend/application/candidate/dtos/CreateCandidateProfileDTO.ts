@@ -23,4 +23,5 @@ export interface ICreateCandidateProfileDTO {
     linkedinUrl?: string;
     githubUrl?: string;
     resumeUrl?: string;
+    profilePicUrl?: string;
 }

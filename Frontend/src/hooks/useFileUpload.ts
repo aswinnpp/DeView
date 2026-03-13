@@ -3,10 +3,11 @@ import { uploadService, type UploadCategory } from '../services/upload.service';
 
 interface IFileUploadResponse {
     url: string;
+    key: string;
 }
 
 interface IUseFileUploadReturn {
-    upload: (file: File, category: UploadCategory) => Promise<void>;
+    upload: (file: File, category: UploadCategory) => Promise<IFileUploadResponse | null>;
     isUploading: boolean;
     error: string | null;
     uploadedFile: IFileUploadResponse | null;
@@ -24,7 +25,7 @@ export function useFileUpload(): IUseFileUploadReturn {
         setIsUploading(false);
     }, []);
 
-    const upload = async (file: File, category: UploadCategory): Promise<void> => {
+    const upload = async (file: File, category: UploadCategory): Promise<IFileUploadResponse | null> => {
         try {
             setIsUploading(true);
             setError(null);
@@ -38,10 +39,13 @@ export function useFileUpload(): IUseFileUploadReturn {
 
             if (!res.ok) throw new Error('Failed to upload to S3');
 
-            setUploadedFile({ url: sig.fileUrl });
+            const out = { url: sig.fileUrl, key: sig.key };
+            setUploadedFile(out);
+            return out;
         } catch (err) {
             const msg = err instanceof Error ? err.message : 'Failed to upload file';
             setError(msg);
+            return null;
         } finally {
             setIsUploading(false);
         }

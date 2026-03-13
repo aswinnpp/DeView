@@ -24,6 +24,7 @@ export interface ICompanyApprovalDocument {
   _id?: ObjectId;
   userId: string;
   companyName: string;
+  logoUrl?: string;
   location?: string;
   address: string;
   contactPerson: string;

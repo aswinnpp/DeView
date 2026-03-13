@@ -66,6 +66,7 @@ export class MongoCandidateProfileRepository
       doc.linkedinUrl,
       doc.githubUrl,
       doc.resumeUrl,
+      doc.profilePicUrl,
       doc.createdAt,
       doc.updatedAt
     );
@@ -98,6 +99,7 @@ export class MongoCandidateProfileRepository
       linkedinUrl: entity.linkedinUrl,
       githubUrl: entity.githubUrl,
       resumeUrl: entity.resumeUrl,
+      profilePicUrl: entity.profilePicUrl,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

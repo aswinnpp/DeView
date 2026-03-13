@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { candidateService } from '../../services/candidate.service';
 import { authService } from '../../services/auth.service';
 import type { RootState, AppDispatch } from '../../context/store';
-import { APP_ROUTES } from '../../constants/routes';
 import { logout } from '../../context/authSlice';
 import {
   candidateProfileSchema,
@@ -39,6 +38,7 @@ function getDefaultValues(email: string): CandidateProfileData {
     linkedinUrl: '',
     githubUrl: '',
     resumeUrl: '',
+    profilePicUrl: '',
   };
 }
 
@@ -164,9 +164,7 @@ export function useCandidateProfile() {
       async (values) => {
         const ok = await onSubmit(values);
 
-        if (ok) {
-          navigate(APP_ROUTES.CANDIDATE_INTERVIEWS);
-        }
+        if (ok) return;
       },
       (errors) => {
         const firstError = Object.values(errors)[0];

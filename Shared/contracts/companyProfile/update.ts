@@ -10,6 +10,7 @@ const flatFieldsSchema = z.object({
   taxId: z.string().trim().min(1).max(50).optional(),
   website: z.string().trim().url().optional().or(z.literal('')),
   numberOfEmployees: z.string().trim().min(1).optional(),
+  logoUrl: z.string().trim().optional(),
 });
 
 

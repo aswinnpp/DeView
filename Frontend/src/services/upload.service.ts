@@ -1,6 +1,8 @@
 import { api } from '../api/axios';
 
 export type UploadCategory =
+    | 'profilePic'
+    | 'companyLogo'
     | 'resume'
     | 'certificateOfIncorporation'
     | 'gstCertificate'
@@ -12,6 +14,7 @@ export type UploadCategory =
 export interface IGenerateSignatureResponse {
     uploadUrl: string;
     fileUrl: string;
+    key: string;
 }
 
 export const uploadService = {

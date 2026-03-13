@@ -9,6 +9,8 @@ import type { IUpdateCandidateProfileUseCase } from "../../../application/candid
 import type { IGetAllCandidatesUseCase } from "../../../application/candidate/ports/usecase/IGetAllCandidatesUseCase";
 import type { IToggleCandidateStatusUseCase } from "../../../application/candidate/ports/usecase/IToggleCandidateStatusUseCase";
 import { CandidateProfileMapper } from "../../../application/candidate/mappers/CandidateProfileMapper.js";
+import type { IFileStorage } from "../../../application/upload/ports/services/IFileStorage.js";
+import { AppError } from "../../../shared/errors/AppError";
 
 interface IProfileBody {
     fullName: string;
@@ -34,6 +36,7 @@ interface IProfileBody {
     linkedinUrl?: string;
     githubUrl?: string;
     resumeUrl?: string;
+    profilePicUrl?: string;
 }
 
 @injectable()
@@ -43,13 +46,32 @@ export class CandidateProfileController {
         @inject(TYPES.GetCandidateProfileUseCasePort) private readonly _getProfileUseCase: IGetCandidateProfileUseCase,
         @inject(TYPES.UpdateCandidateProfileUseCasePort) private readonly _updateProfileUseCase: IUpdateCandidateProfileUseCase,
         @inject(TYPES.GetAllCandidatesUseCasePort) private readonly _getAllCandidatesUseCase: IGetAllCandidatesUseCase,
-        @inject(TYPES.ToggleCandidateStatusUseCasePort) private readonly _toggleStatusUseCase: IToggleCandidateStatusUseCase
+        @inject(TYPES.ToggleCandidateStatusUseCasePort) private readonly _toggleStatusUseCase: IToggleCandidateStatusUseCase,
+        @inject(TYPES.FileStoragePort) private readonly _fileStorage: IFileStorage
     ) { }
 
     getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
         const user = request.currentUser;
         const profile = await this._getProfileUseCase.execute(user.userId);
         reply.send(success({ profile: profile ?? null }));
+    };
+
+    getResumeViewUrl = async (request: FastifyRequest, reply: FastifyReply) => {
+        const user = request.currentUser;
+        const profile = await this._getProfileUseCase.execute(user.userId);
+        const raw = profile?.resumeUrl ?? '';
+        if (!raw.trim()) throw AppError.notFound("Resume not found");
+        const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
+        reply.send(success({ url }));
+    };
+
+    getProfilePicViewUrl = async (request: FastifyRequest, reply: FastifyReply) => {
+        const user = request.currentUser;
+        const profile = await this._getProfileUseCase.execute(user.userId);
+        const raw = profile?.profilePicUrl ?? '';
+        if (!raw.trim()) throw AppError.notFound("Profile picture not found");
+        const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
+        reply.send(success({ url }));
     };
 
     createProfile = async (

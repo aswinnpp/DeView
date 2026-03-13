@@ -5,11 +5,13 @@ import { SystemDataProvider } from '../../context/SystemDataContext';
 import { APP_ROUTES } from '../../constants/routes';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../context/store';
+import { api } from '../../api/axios';
 
 
 const CompanyLayout = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [companyLogoViewUrl, setCompanyLogoViewUrl] = useState<string>('');
     const user = useSelector((state: RootState) => state.auth.user);
 
     const role = (user?.role || "").toLowerCase();
@@ -43,6 +45,20 @@ const CompanyLayout = () => {
             document.body.style.overflow = "";
         };
     }, [sidebarOpen]);
+
+    useEffect(() => {
+        let cancelled = false;
+        api.get<{ url: string }>('/company/profile/logo-view-url')
+            .then(({ data }) => {
+                if (!cancelled) setCompanyLogoViewUrl(data.url);
+            })
+            .catch(() => {
+                if (!cancelled) setCompanyLogoViewUrl('');
+            });
+        return () => { cancelled = true; };
+    }, []);
+
+    const companyInitial = (user as { companyName?: string } | null)?.companyName?.trim()?.charAt(0)?.toUpperCase() || 'C';
 
     const notifications = [
         { id: 1, text: 'Welcome to Intervu for Business!', time: 'Just now' },
@@ -149,9 +165,13 @@ const CompanyLayout = () => {
                             className="flex items-center gap-3 py-2.5 px-3 mt-auto rounded-xl cursor-pointer select-none transition-all duration-150 bg-linear-to-b from-[rgba(255,255,255,0.02)] to-[rgba(255,255,255,0.01)] self-stretch shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] no-underline hover:bg-[rgba(255,255,255,0.03)] hover:-translate-y-px"
                         >
                             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-linear-to-br from-[#6366f1] to-[#8b5cf6] overflow-hidden shrink-0">
-                                <div className="font-bold text-lg text-white p-1.5">
-                                   P
-                                </div>
+                                {companyLogoViewUrl ? (
+                                    <img src={companyLogoViewUrl} alt="Company" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="font-bold text-lg text-white p-1.5">
+                                        {companyInitial}
+                                    </div>
+                                )}
                             </div>
                             <div className="flex flex-col min-w-0">
                                 <div className="text-[13px] font-semibold text-[#e6eef7] whitespace-nowrap overflow-hidden text-ellipsis">View Profile </div>
@@ -204,9 +224,13 @@ const CompanyLayout = () => {
                             onClick={() => setSidebarOpen(false)}
                         >
                             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-linear-to-br from-[#6366f1] to-[#8b5cf6] overflow-hidden shrink-0">
-                                <div className="font-bold text-lg text-white p-1.5">
-                                    P
-                                </div>
+                                {companyLogoViewUrl ? (
+                                    <img src={companyLogoViewUrl} alt="Company" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="font-bold text-lg text-white p-1.5">
+                                        {companyInitial}
+                                    </div>
+                                )}
                             </div>
                             <div className="flex flex-col min-w-0">
                                 <div className="text-[13px] font-semibold text-[#e6eef7] whitespace-nowrap overflow-hidden text-ellipsis">View Profile</div>
