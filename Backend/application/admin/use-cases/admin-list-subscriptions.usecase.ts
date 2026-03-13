@@ -16,7 +16,7 @@ export class AdminListSubscriptionsUsecase
 {
   constructor(
     @inject(TYPES.SubscriptionRepositoryPort)
-    private readonly subscriptionRepository: ISubscriptionRepository
+    private readonly _subscriptionRepository: ISubscriptionRepository
   ) {}
 
   async execute(input: IListSubscriptionsInputDTO): Promise<IListSubscriptionsOutputDTO> {
@@ -44,7 +44,7 @@ export class AdminListSubscriptionsUsecase
       limit,
     };
 
-    const result = await this.subscriptionRepository.findAll(options);
+    const result = await this._subscriptionRepository.findAll(options);
     return result;
   }
 }

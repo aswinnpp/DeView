@@ -6,9 +6,9 @@ import type { IGenerateUploadSignatureUseCase } from '../ports/usecase/IGenerate
 
 @injectable()
 export class GenerateUploadSignatureUseCase implements IGenerateUploadSignatureUseCase {
-    constructor(@inject(TYPES.FileStoragePort) private readonly fileStorage: IFileStorage) { }
+    constructor(@inject(TYPES.FileStoragePort) private readonly _fileStorage: IFileStorage) { }
 
     async execute(dto: IGenerateUploadSignatureInputDTO): Promise<IGenerateUploadSignatureOutputDTO> {
-        return this.fileStorage.generateUploadSignature(dto.category, dto.userId);
+        return this._fileStorage.generateUploadSignature(dto.category, dto.userId);
     }
 }

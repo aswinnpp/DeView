@@ -19,7 +19,7 @@ function toDomain(doc: IRejectionMailDocument): RejectionMail {
 }
 
 export class MongoRejectionMailRepository implements IRejectionMailRepository {
-  constructor(private readonly collection: Collection<IRejectionMailDocument>) {}
+  constructor(private readonly _collection: Collection<IRejectionMailDocument>) {}
 
   async create(input: {
     applicationId: string;
@@ -41,7 +41,7 @@ export class MongoRejectionMailRepository implements IRejectionMailRepository {
       createdAt: new Date(),
     };
 
-    const result: InsertOneResult<IRejectionMailDocument> = await this.collection.insertOne(doc);
+    const result: InsertOneResult<IRejectionMailDocument> = await this._collection.insertOne(doc);
     const inserted: IRejectionMailDocument = {
       ...doc,
       _id: result.insertedId ?? new ObjectId(),

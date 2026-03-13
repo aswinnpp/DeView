@@ -6,7 +6,7 @@ export async function applicationsRoutes(
   fastify: FastifyInstance,
   controller: ApplicationsController
 ) {
-  fastify.addHook('preHandler', requireRoles('company', 'hr'));
+  fastify.addHook('preHandler', requireRoles('company', 'hr' ));
 
   fastify.get('/jobs', {
     handler: controller.listJobs,

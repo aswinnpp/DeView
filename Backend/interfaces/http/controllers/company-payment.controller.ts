@@ -24,8 +24,8 @@ type ActivatePendingNowParams = {
 @injectable()
 export class CompanyPaymentController {
   constructor(
-    @inject(TYPES.CreatePaymentIntentUseCasePort) private readonly createPaymentIntentUseCase: ICreatePaymentIntentUseCase,
-    @inject(TYPES.HandlePaymentWebhookUseCasePort) private readonly handlePaymentWebhookUseCase: IHandlePaymentWebhookUseCase,
+    @inject(TYPES.CreatePaymentIntentUseCasePort) private readonly _createPaymentIntentUseCase: ICreatePaymentIntentUseCase,
+    @inject(TYPES.HandlePaymentWebhookUseCasePort) private readonly _handlePaymentWebhookUseCase: IHandlePaymentWebhookUseCase,
     @inject(TYPES.ActivatePendingSubscriptionNowUseCasePort)
     private readonly activatePendingSubscriptionNowUseCase: IActivatePendingSubscriptionNowUseCase,
   ) {}
@@ -41,7 +41,7 @@ export class CompanyPaymentController {
       throw AppError.forbidden('Company id missing on user');
     }
 
-    const result = await this.createPaymentIntentUseCase.execute({
+    const result = await this._createPaymentIntentUseCase.execute({
       companyId: user.companyId,
       planId,
     });
@@ -82,7 +82,7 @@ export class CompanyPaymentController {
         { id: paymentIntent.id, metadata: paymentIntent.metadata as { planId?: string; companyId?: string } | null },
         event.type
       );
-      await this.handlePaymentWebhookUseCase.execute(input);
+      await this._handlePaymentWebhookUseCase.execute(input);
     }
 
     return reply.status(200).send({ received: true });

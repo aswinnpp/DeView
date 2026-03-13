@@ -3,7 +3,7 @@ import type { IJobApplicationRepository, IApplicationInput } from '../../../../a
 import type { IApplicationDocument } from '../schemas/ApplicationDocument.js';
 
 export class MongoJobApplicationRepository implements IJobApplicationRepository {
-  constructor(private collection: Collection<IApplicationDocument>) {}
+  constructor(private _collection: Collection<IApplicationDocument>) {}
 
   async create(input: IApplicationInput): Promise<string> {
     const now = new Date();
@@ -36,7 +36,7 @@ export class MongoJobApplicationRepository implements IJobApplicationRepository 
       updatedAt: now,
     };
 
-    const result = await this.collection.insertOne(doc as IApplicationDocument & { _id?: ObjectId });
+    const result = await this._collection.insertOne(doc as IApplicationDocument & { _id?: ObjectId });
     return result.insertedId.toString();
   }
 }

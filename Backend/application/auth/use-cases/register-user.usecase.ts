@@ -14,23 +14,23 @@ import type { IRegisterUserUseCase, IRegisterUserDTO } from "../ports/usecase/IR
 @injectable()
 export class RegisterUserUseCase implements IRegisterUserUseCase {
   constructor(
-    @inject(TYPES.UserRepositoryPort) private readonly userRepo: IUserRepository,
-    @inject(TYPES.OTPRepositoryPort) private readonly otpRepo: IOtpRepository,
-    @inject(TYPES.PasswordHasherPort) private readonly passwordHasher: IPasswordHasher,
-    @inject(TYPES.EmailServicePort) private readonly emailService: IEmailService
+    @inject(TYPES.UserRepositoryPort) private readonly _userRepo: IUserRepository,
+    @inject(TYPES.OTPRepositoryPort) private readonly _otpRepo: IOtpRepository,
+    @inject(TYPES.PasswordHasherPort) private readonly _passwordHasher: IPasswordHasher,
+    @inject(TYPES.EmailServicePort) private readonly _emailService: IEmailService
   ) {}
 
   async execute(dto: IRegisterUserDTO): Promise<{ message: string; email: string }> {
     const email = new Email(dto.email);
     const role = new Role(dto.role);
 
-    const existingUser = await this.userRepo.findByEmail(email);
+    const existingUser = await this._userRepo.findByEmail(email);
 
     if (existingUser && existingUser.isEmailVerified) {
     throw AppError.unauthorized("User already Exist");
     }
 
-    const passwordHash = await this.passwordHasher.hash(dto.password);
+    const passwordHash = await this._passwordHasher.hash(dto.password);
 
     const user = new User(
       existingUser?.id ?? null,
@@ -48,13 +48,13 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     const otp = OTPCode.generate();
 
     // Save user (repo decides insert/update)
-    await this.userRepo.save(user);
+    await this._userRepo.save(user);
 
     // Save OTP
-    await this.otpRepo.save(email.getValue(), otp);
+    await this._otpRepo.save(email.getValue(), otp);
 
     // Send email
-    await this.emailService.sendOTP(
+    await this._emailService.sendOTP(
       email.getValue(),
       otp.getValue(),
       dto.fullName

@@ -10,15 +10,15 @@ import type { IVerifyOtpUseCase } from "../ports/usecase/IVerifyOtpUseCase";
 @injectable()
 export class VerifyOTPUseCase implements IVerifyOtpUseCase {
   constructor(
-    @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository,
-    @inject(TYPES.OTPRepositoryPort) private otpRepo: IOtpRepository
+    @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository,
+    @inject(TYPES.OTPRepositoryPort) private _otpRepo: IOtpRepository
   ) {}
 
   async execute(emailStr: string, otpStr: string) {
     const email = new Email(emailStr);
     const otp = new OTPCode(otpStr);
 
-    const user = await this.userRepo.findByEmail(email);
+    const user = await this._userRepo.findByEmail(email);
 
     if (!user) {
       throw AppError.notFound("User not found");
@@ -28,7 +28,7 @@ export class VerifyOTPUseCase implements IVerifyOtpUseCase {
       throw AppError.badRequest("Email already verified");
     }
 
-    const stored = await this.otpRepo.find(email.getValue());
+    const stored = await this._otpRepo.find(email.getValue());
 
     if (!stored || !stored.equals(otp)) {
       throw AppError.badRequest("Invalid or expired OTP");
@@ -36,8 +36,8 @@ export class VerifyOTPUseCase implements IVerifyOtpUseCase {
 
     user.markEmailAsVerified();
 
-    await this.userRepo.save(user);
+    await this._userRepo.save(user);
 
-    await this.otpRepo.delete(email.getValue());
+    await this._otpRepo.delete(email.getValue());
   }
 }

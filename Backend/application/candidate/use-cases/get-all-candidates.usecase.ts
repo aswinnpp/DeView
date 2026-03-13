@@ -7,12 +7,12 @@ import type { IGetAllCandidatesUseCase, ICandidateListItem } from "../ports/usec
 @injectable()
 export class GetAllCandidatesUseCase implements IGetAllCandidatesUseCase {
     constructor(
-        @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository
+        @inject(TYPES.UserRepositoryPort) private readonly _userRepository: IUserRepository
     ) {}
 
     async execute(search?: string, status?: string, sortOrder: 'asc' | 'desc' = 'desc', page?: string, limit?: string): Promise<{ data: ICandidateListItem[]; total: number }> {
         const { page: parsedPage, limit: parsedLimit } = parseSearchParams({ page, limit });
-        const { data: users, total } = await this.userRepository.findByRole('candidate', { search, status, sortOrder, page: parsedPage, limit: parsedLimit });
+        const { data: users, total } = await this._userRepository.findByRole('candidate', { search, status, sortOrder, page: parsedPage, limit: parsedLimit });
 
         const data: ICandidateListItem[] = users.map((user) => ({
             id: user.id || '',

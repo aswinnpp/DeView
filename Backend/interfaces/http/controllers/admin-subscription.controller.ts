@@ -30,20 +30,20 @@ type ListSubscriptionsQuery = {
 export class AdminSubscriptionController {
   constructor(
     @inject(TYPES.CreateSubscriptionUsecasePort)
-    private readonly createSubscriptionUsecase: IAdminCreateSubscription,
+    private readonly _createSubscriptionUsecase: IAdminCreateSubscription,
     @inject(TYPES.ListSubscriptionsUsecasePort)
-    private readonly listSubscriptionsUsecase: IAdminListSubscriptionsUsecase,
+    private readonly _listSubscriptionsUsecase: IAdminListSubscriptionsUsecase,
     @inject(TYPES.ToggleSubscriptionStatusUsecasePort)
-    private readonly toggleSubscriptionStatusUsecase: IAdminToggleSubscriptionStatusUsecase,
+    private readonly _toggleSubscriptionStatusUsecase: IAdminToggleSubscriptionStatusUsecase,
     @inject(TYPES.UpdateSubscriptionUsecasePort)
-    private readonly updateSubscriptionUsecase: IAdminUpdateSubscriptionUsecase,
+    private readonly _updateSubscriptionUsecase: IAdminUpdateSubscriptionUsecase,
   ) {}
 
   create = async (
     request: FastifyRequest<{ Body: CreateSubscriptionBody }>,
     reply: FastifyReply,
   ) => {
-    await this.createSubscriptionUsecase.execute(request.body);
+    await this._createSubscriptionUsecase.execute(request.body);
 
     reply
       .status(HttpStatus.CREATED)
@@ -55,7 +55,7 @@ export class AdminSubscriptionController {
     reply: FastifyReply,
   ) => {
     const { id } = request.params;
-    await this.updateSubscriptionUsecase.execute(id, request.body);
+    await this._updateSubscriptionUsecase.execute(id, request.body);
 
     reply
       .status(HttpStatus.OK)
@@ -67,7 +67,7 @@ export class AdminSubscriptionController {
     reply: FastifyReply,
   ) => {
     const input = SubscriptionMapper.toListInput(request.query);
-    const result = await this.listSubscriptionsUsecase.execute(input);
+    const result = await this._listSubscriptionsUsecase.execute(input);
 
     reply
       .status(HttpStatus.OK)
@@ -79,7 +79,7 @@ export class AdminSubscriptionController {
     reply: FastifyReply,
   ) => {
     const { id } = request.params;
-    const result = await this.toggleSubscriptionStatusUsecase.execute(id);
+    const result = await this._toggleSubscriptionStatusUsecase.execute(id);
 
     reply
       .status(HttpStatus.OK)

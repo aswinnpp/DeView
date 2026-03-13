@@ -12,9 +12,9 @@ import { AppError } from "../../../shared/errors/AppError.js";
 export class InterviewerSlotsController {
   constructor(
     @inject(TYPES.GetMyInterviewerSlotsUseCasePort)
-    private readonly getMySlotsUseCase: IGetMyInterviewerSlotsUseCase,
+    private readonly _getMySlotsUseCase: IGetMyInterviewerSlotsUseCase,
     @inject(TYPES.UpsertMyInterviewerSlotsUseCasePort)
-    private readonly upsertMySlotsUseCase: IUpsertMyInterviewerSlotsUseCase,
+    private readonly _upsertMySlotsUseCase: IUpsertMyInterviewerSlotsUseCase,
   ) {}
 
   getMySlots = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -23,7 +23,7 @@ export class InterviewerSlotsController {
     if (!companyId) throw AppError.forbidden("No company associated with this account");
 
     const { slotDate } = (request.query ?? {}) as { slotDate?: string };
-    const docs = await this.getMySlotsUseCase.execute({ interviewerId, companyId, slotDate });
+    const docs = await this._getMySlotsUseCase.execute({ interviewerId, companyId, slotDate });
     reply.send(success(docs));
   };
 
@@ -36,7 +36,7 @@ export class InterviewerSlotsController {
     if (!companyId) throw AppError.badRequest("companyId is required");
     const { slotDate, times } = request.body;
     const booked = request.body.booked ?? false;
-    const doc = await this.upsertMySlotsUseCase.execute({
+    const doc = await this._upsertMySlotsUseCase.execute({
       interviewerId,
       companyId,
       slotDate,

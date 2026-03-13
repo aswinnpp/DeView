@@ -6,11 +6,11 @@ import type { IListJobsInput, IListJobsUseCase } from '../ports/usecase/IListJob
 @injectable()
 export class ListJobsUseCase implements IListJobsUseCase {
   constructor(
-    @inject(TYPES.JobRepositoryPort) private readonly repo: IJobRepository,
+    @inject(TYPES.JobRepositoryPort) private readonly _repo: IJobRepository,
   ) {}
 
   async execute(input: IListJobsInput) {
-    return this.repo.listByCompanyIdPaginated(input.companyId, {
+    return this._repo.listByCompanyIdPaginated(input.companyId, {
       search: input.search,
       status: input.status,
       page: input.page,

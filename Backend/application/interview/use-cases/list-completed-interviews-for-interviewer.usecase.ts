@@ -20,12 +20,12 @@ export class ListCompletedInterviewsForInterviewerUseCase
   implements IListCompletedInterviewsForInterviewerUseCase
 {
   constructor(
-    @inject(TYPES.InterviewRepositoryPort) private readonly repo: IInterviewRepository
+    @inject(TYPES.InterviewRepositoryPort) private readonly _repo: IInterviewRepository
   ) {}
 
   async execute(input: IListCompletedInterviewsForInterviewerInput): Promise<{ data: Interview[]; total: number }> {
     const { interviewerUserId, search, page, limit, sortOrder } = input;
-    return this.repo.listCompletedByInterviewerUserId(interviewerUserId, {
+    return this._repo.listCompletedByInterviewerUserId(interviewerUserId, {
       search,
       page,
       limit,

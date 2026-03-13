@@ -5,9 +5,9 @@ import { env } from '../config/env.js';
 
 @injectable()
 export class NodemailerEmailService implements IEmailService {
-    private transporter: nodemailer.Transporter;
+    private _transporter: nodemailer.Transporter;
     constructor() {
-        this.transporter = nodemailer.createTransport({
+        this._transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 user: env.EMAIL_USER,
@@ -39,7 +39,7 @@ export class NodemailerEmailService implements IEmailService {
                 </div>
             `,
         };
-        await this.transporter.sendMail(mailOptions);
+        await this._transporter.sendMail(mailOptions);
     }
 
     async sendPasswordResetEmail(email: string, resetToken: string, userName: string): Promise<void> {
@@ -83,7 +83,7 @@ export class NodemailerEmailService implements IEmailService {
                 </div>
             `,
         };
-        await this.transporter.sendMail(mailOptions);
+        await this._transporter.sendMail(mailOptions);
     }
 
     async sendPasswordResetOTP(email: string, otp: string, userName: string): Promise<void> {
@@ -115,7 +115,7 @@ export class NodemailerEmailService implements IEmailService {
                 </div>
             `,
         };
-        await this.transporter.sendMail(mailOptions);
+        await this._transporter.sendMail(mailOptions);
     }
 
     async sendWelcomeEmail(email: string, userName: string, role: string, temporaryPassword: string): Promise<void> {
@@ -159,7 +159,7 @@ export class NodemailerEmailService implements IEmailService {
                 </div>
             `,
         };
-        await this.transporter.sendMail(mailOptions);
+        await this._transporter.sendMail(mailOptions);
     }
 
 }

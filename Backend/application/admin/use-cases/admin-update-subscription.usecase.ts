@@ -13,11 +13,11 @@ export class AdminUpdateSubscription
 {
   constructor(
     @inject(TYPES.SubscriptionRepositoryPort)
-    private readonly subscriptionRepository: ISubscriptionRepository
+    private readonly _subscriptionRepository: ISubscriptionRepository
   ) {}
 
   async execute(id: string, input: IUpdateSubscriptionInput): Promise<void> {
-    const existing = await this.subscriptionRepository.findById(id);
+    const existing = await this._subscriptionRepository.findById(id);
     if (!existing) {
       throw AppError.notFound("Subscription plan not found");
     }
@@ -69,6 +69,6 @@ export class AdminUpdateSubscription
     existing.isActive = input.isActive;
     existing.updatedAt = new Date();
 
-    await this.subscriptionRepository.save(existing);
+    await this._subscriptionRepository.save(existing);
   }
 }

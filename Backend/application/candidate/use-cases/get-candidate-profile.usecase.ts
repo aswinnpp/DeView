@@ -7,14 +7,14 @@ import type { IGetCandidateProfileUseCase } from "../ports/usecase/IGetCandidate
 
 @injectable()
 export class GetCandidateProfileUseCase implements IGetCandidateProfileUseCase {
-    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private repo: ICandidateProfileRepository) { }
+    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private _repo: ICandidateProfileRepository) { }
 
     async execute(userId: string): Promise<CandidateProfile | null> {
         if (!userId) {
             throw AppError.badRequest("UserId is required");
         }
 
-        const profile = await this.repo.findByUserId(userId);
+        const profile = await this._repo.findByUserId(userId);
         return profile ?? null;
     }
 }

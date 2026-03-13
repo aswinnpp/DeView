@@ -1,19 +1,19 @@
 
 export class OTPCode {
-  private value: string;
+  private _value: string;
 
   constructor(otp: string) {
 
 
-    this.value = otp;
+    this._value = otp;
   }
 
   getValue(): string {
-    return this.value;
+    return this._value;
   }
 
   equals(other: OTPCode): boolean {
-    return this.value === other.value;
+    return this._value === other._value;
   }
 
   static generate(): OTPCode {

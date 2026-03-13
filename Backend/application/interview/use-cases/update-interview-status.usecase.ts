@@ -15,15 +15,15 @@ export interface IUpdateInterviewStatusInput {
 export class UpdateInterviewStatusUseCase {
   constructor(
     @inject(TYPES.InterviewRepositoryPort)
-    private readonly interviewRepository: IInterviewRepository,
+    private readonly _interviewRepository: IInterviewRepository,
     @inject(TYPES.ApplicationRepositoryPort)
-    private readonly applicationRepository: IApplicationRepository
+    private readonly _applicationRepository: IApplicationRepository
   ) {}
 
   async execute(input: IUpdateInterviewStatusInput): Promise<void> {
     const { interviewId, interviewerUserId, status } = input;
 
-    const interview = await this.interviewRepository.findById(interviewId);
+    const interview = await this._interviewRepository.findById(interviewId);
     if (!interview) {
       throw AppError.notFound('Interview not found');
     }
@@ -32,20 +32,20 @@ export class UpdateInterviewStatusUseCase {
       throw AppError.forbidden('Only the assigned interviewer can update interview status');
     }
 
-    const updated = await this.interviewRepository.updateStatus(interviewId, status);
+    const updated = await this._interviewRepository.updateStatus(interviewId, status);
     if (!updated) {
       throw AppError.internal('Failed to update interview status');
     }
 
  
     if (status === 'COMPLETED') {
-      await this.applicationRepository.addCompletedRound({
+      await this._applicationRepository.addCompletedRound({
         applicationId: interview.applicationId,
         jobId: interview.jobId,
         companyId: interview.companyId,
         round: interview.round,
       });
-      await this.applicationRepository.updateStatus({
+      await this._applicationRepository.updateStatus({
         applicationId: interview.applicationId,
         jobId: interview.jobId,
         companyId: interview.companyId,

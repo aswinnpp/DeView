@@ -5,14 +5,14 @@ import type { ILogoutUseCase } from "../ports/usecase/ILogoutUseCase";
 
 @injectable()
 export class LogoutUseCase implements ILogoutUseCase {
-  constructor(@inject(TYPES.TokenServicePort) private readonly tokenService: ITokenService) {}
+  constructor(@inject(TYPES.TokenServicePort) private readonly _tokenService: ITokenService) {}
 
   async execute(refreshToken?: string, accessToken?: string): Promise<{ success: true }> {
     if (refreshToken) {
-      await this.tokenService.revokeRefreshToken(refreshToken);
+      await this._tokenService.revokeRefreshToken(refreshToken);
     }
     if (accessToken) {
-      await this.tokenService.revokeAccessToken(accessToken);
+      await this._tokenService.revokeAccessToken(accessToken);
     }
     return { success: true };
   }

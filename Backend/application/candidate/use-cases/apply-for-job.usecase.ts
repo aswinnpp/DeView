@@ -10,17 +10,17 @@ import type { IApplyForJobInput, IApplyForJobUseCase } from '../ports/usecase/IA
 export class ApplyForJobUseCase implements IApplyForJobUseCase {
   constructor(
     @inject(TYPES.CandidateProfileRepositoryPort)
-    private readonly candidateProfileRepo: ICandidateProfileRepository,
+    private readonly _candidateProfileRepo: ICandidateProfileRepository,
     @inject(TYPES.JobRepositoryPort)
-    private readonly jobRepo: IJobRepository,
+    private readonly _jobRepo: IJobRepository,
     @inject(TYPES.JobApplicationRepositoryPort)
-    private readonly applicationRepo: IJobApplicationRepository,
+    private readonly _applicationRepo: IJobApplicationRepository,
   ) {}
 
   async execute(input: IApplyForJobInput): Promise<{ applicationId: string }> {
     const { jobId, candidateUserId, useResumeFromProfile, coverLetter, resumeUrl } = input;
 
-    const profile = await this.candidateProfileRepo.findByUserId(candidateUserId);
+    const profile = await this._candidateProfileRepo.findByUserId(candidateUserId);
     if (!profile) {
       throw AppError.badRequest('Profile not found. Please complete your profile before applying.');
     }
@@ -37,7 +37,7 @@ export class ApplyForJobUseCase implements IApplyForJobUseCase {
 
     const effectiveResumeUrl = useResumeFromProfile ? profile.resumeUrl! : resumeUrl!;
 
-    const job = await this.jobRepo.findById(jobId);
+    const job = await this._jobRepo.findById(jobId);
     if (!job) {
       throw AppError.notFound('Job not found.');
     }
@@ -48,7 +48,7 @@ export class ApplyForJobUseCase implements IApplyForJobUseCase {
       throw AppError.badRequest('You have already applied for this job.');
     }
 
-    const applicationId = await this.applicationRepo.create({
+    const applicationId = await this._applicationRepo.create({
       jobId,
       companyId: job.companyId,
       candidateUserId,
@@ -86,7 +86,7 @@ export class ApplyForJobUseCase implements IApplyForJobUseCase {
         appliedAt: now,
       },
     ];
-    await this.jobRepo.save(job);
+    await this._jobRepo.save(job);
 
     return { applicationId };
   }

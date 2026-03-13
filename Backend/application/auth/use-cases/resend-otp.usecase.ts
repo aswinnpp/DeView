@@ -13,15 +13,15 @@ import type { IResendOtpUseCase } from "../ports/usecase/IResendOtpUseCase";
 @injectable()
 export class ResendOTPUseCase implements IResendOtpUseCase {
   constructor(
-    @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository,
-    @inject(TYPES.OTPRepositoryPort) private readonly otpRepository: IOtpRepository,
-    @inject(TYPES.EmailServicePort) private readonly emailService: IEmailService
+    @inject(TYPES.UserRepositoryPort) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.OTPRepositoryPort) private readonly _otpRepository: IOtpRepository,
+    @inject(TYPES.EmailServicePort) private readonly _emailService: IEmailService
   ) {}
 
   async execute(dto: IResendOtpRequestDTO): Promise<IResendOtpResponseDTO> {
     const email = new Email(dto.email);
 
-    const existingUser = await this.userRepository.findByEmail(email);
+    const existingUser = await this._userRepository.findByEmail(email);
 
     if (!existingUser) {
       throw AppError.notFound("No account found with this email");
@@ -33,9 +33,9 @@ export class ResendOTPUseCase implements IResendOtpUseCase {
 
     const otp = OTPCode.generate();
 
-    await this.otpRepository.save(email.getValue(), otp);
+    await this._otpRepository.save(email.getValue(), otp);
 
-    await this.emailService.sendOTP(
+    await this._emailService.sendOTP(
       email.getValue(),
       otp.getValue(),
       existingUser.fullName

@@ -9,14 +9,14 @@ import { AppError } from "../../../shared/errors/AppError";
 export class GetInterviewerProfileUseCase implements IGetInterviewerProfileUseCase {
   constructor(
     @inject(TYPES.InterviewerProfileRepositoryPort)
-    private repo: IInterviewerProfileRepository
+    private readonly _repo: IInterviewerProfileRepository
   ) {}
 
   async execute(userId: string): Promise<InterviewerProfile | null> {
     if (!userId) {
       throw AppError.badRequest("UserId is required");
     }
-    const profile = await this.repo.findByUserId(userId);
+    const profile = await this._repo.findByUserId(userId);
     return profile ?? null;
   }
 }

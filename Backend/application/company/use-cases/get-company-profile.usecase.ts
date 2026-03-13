@@ -8,8 +8,8 @@ import type { ISubscriptionRepository } from "../../admin/ports/repository/ISubs
 @injectable()
 export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
   constructor(
-    @inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository,
-    @inject(TYPES.SubscriptionRepositoryPort) private subscriptionRepo: ISubscriptionRepository,
+    @inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository,
+    @inject(TYPES.SubscriptionRepositoryPort) private _subscriptionRepo: ISubscriptionRepository,
   ) {}
 
   async execute(userId: string) {
@@ -17,7 +17,7 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
       throw AppError.badRequest("UserId is required");
     }
 
-    const profile = await this.repo.findByUserId(userId);
+    const profile = await this._repo.findByUserId(userId);
 
     if (!profile) {
       throw AppError.notFound("Company profile not found");
@@ -31,7 +31,7 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
       profile.activeSubscription.price === 0 ||
       profile.activeSubscription.interviewLimit === undefined
     )) {
-      const plan = await this.subscriptionRepo.findById(profile.activeSubscription.planId);
+      const plan = await this._subscriptionRepo.findById(profile.activeSubscription.planId);
       if (plan) {
         profile.activeSubscription.planName = plan.name;
         profile.activeSubscription.price = plan.price;
@@ -45,7 +45,7 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
 
     // Refresh subscription state (expiry promotion, etc.)
     profile.refreshSubscriptions(now);
-    await this.repo.save(profile);
+    await this._repo.save(profile);
 
     return profile;
   }

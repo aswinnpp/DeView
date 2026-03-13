@@ -13,20 +13,20 @@ export class ActivatePendingSubscriptionNowUseCase
 {
   constructor(
     @inject(TYPES.CompanyProfileRepositoryPort)
-    private readonly companyProfileRepository: ICompanyProfileRepository,
+    private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
   async execute(input: IActivatePendingSubscriptionNowInput): Promise<void> {
     const { companyId, pendingSubscriptionId } = input;
 
-    const company = await this.companyProfileRepository.findById(companyId);
+    const company = await this._companyProfileRepository.findById(companyId);
     if (!company) {
       throw AppError.notFound('Company not found');
     }
 
     const now = new Date();
     company.activatePendingNow(pendingSubscriptionId, now);
-    await this.companyProfileRepository.save(company);
+    await this._companyProfileRepository.save(company);
   }
 }
 

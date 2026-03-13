@@ -12,12 +12,12 @@ import type { ICompanyProfileRepository } from '../../company/ports/repository/I
 @injectable()
 export class ListAllJobsForCandidatesUseCase implements IListAllJobsForCandidatesUseCase {
   constructor(
-    @inject(TYPES.JobRepositoryPort) private readonly jobRepo: IJobRepository,
-    @inject(TYPES.CompanyProfileRepositoryPort) private readonly companyRepo: ICompanyProfileRepository,
+    @inject(TYPES.JobRepositoryPort) private readonly _jobRepo: IJobRepository,
+    @inject(TYPES.CompanyProfileRepositoryPort) private readonly _companyRepo: ICompanyProfileRepository,
   ) {}
 
   async execute(input: IListAllJobsForCandidatesInput): Promise<IListAllJobsForCandidatesResult> {
-    const { data: jobs, total } = await this.jobRepo.listAllPaginated({
+    const { data: jobs, total } = await this._jobRepo.listAllPaginated({
       search: input.search,
       status: input.status === 'all' ? undefined : input.status,
       jobType: input.jobType,
@@ -30,7 +30,7 @@ export class ListAllJobsForCandidatesUseCase implements IListAllJobsForCandidate
     const companyIds = [...new Set(jobs.map((j) => j.companyId))];
     const companyNames: Record<string, { name: string; status: string; isActive: boolean }> = {};
     for (const id of companyIds) {
-      const company = await this.companyRepo.findById(id);
+      const company = await this._companyRepo.findById(id);
       if (company) {
         companyNames[id] = { name: company.companyName, status: company.status, isActive: company.isActive };
       }

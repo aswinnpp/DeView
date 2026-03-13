@@ -26,8 +26,8 @@ type GetProfileQuery = {
 @injectable()
 export class CompanyProfileController {
   constructor(
-    @inject(TYPES.GetCompanyProfileUseCasePort) private readonly getProfileUseCase: IGetCompanyProfileUseCase,
-    @inject(TYPES.UpdateCompanyProfileUseCasePort) private readonly updateProfileUseCase: IUpdateCompanyProfileUseCase,
+    @inject(TYPES.GetCompanyProfileUseCasePort) private readonly _getProfileUseCase: IGetCompanyProfileUseCase,
+    @inject(TYPES.UpdateCompanyProfileUseCasePort) private readonly _updateProfileUseCase: IUpdateCompanyProfileUseCase,
   ) {}
 
   getProfile = async (
@@ -38,7 +38,7 @@ export class CompanyProfileController {
     const page = Math.max(1, Number(request.query.page ?? 1) || 1);
     const limit = Math.max(1, Math.min(50, Number(request.query.limit ?? 8) || 8));
 
-    const profile = await this.getProfileUseCase.execute(user.userId);
+    const profile = await this._getProfileUseCase.execute(user.userId);
     const data = CompanyProfileMapper.toProfileResponse(profile, { page, limit });
 
     reply.send(success({ data }));
@@ -50,7 +50,7 @@ export class CompanyProfileController {
   ) => {
     const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
     const dto = CompanyProfileMapper.toUpdateDTO(request.body, ctx);
-    const result = await this.updateProfileUseCase.execute(dto);
+    const result = await this._updateProfileUseCase.execute(dto);
     reply.send(success(result));
   };
 }

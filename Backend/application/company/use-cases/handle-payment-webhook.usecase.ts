@@ -13,17 +13,17 @@ import { AppError } from '../../../shared/errors/AppError.js';
 export class HandlePaymentWebhookUseCase implements IHandlePaymentWebhookUseCase {
   constructor(
     @inject(TYPES.PaymentRepositoryPort)
-    private readonly paymentRepository: IPaymentRepository,
+    private readonly _paymentRepository: IPaymentRepository,
     @inject(TYPES.CompanyProfileRepositoryPort)
-    private readonly companyProfileRepository: ICompanyProfileRepository,
+    private readonly _companyProfileRepository: ICompanyProfileRepository,
     @inject(TYPES.SubscriptionRepositoryPort)
-    private readonly subscriptionRepository: ISubscriptionRepository,
+    private readonly _subscriptionRepository: ISubscriptionRepository,
   ) {}
 
   async execute(input: IHandlePaymentWebhookInput): Promise<void> {
     const { eventType, paymentIntentId } = input;
 
-    const payment = await this.paymentRepository.findByStripePaymentIntentId(paymentIntentId);
+    const payment = await this._paymentRepository.findByStripePaymentIntentId(paymentIntentId);
     if (!payment) {
       throw AppError.notFound(`Payment not found for intent ${paymentIntentId}`);
     }
@@ -39,18 +39,18 @@ export class HandlePaymentWebhookUseCase implements IHandlePaymentWebhookUseCase
       }
 
       payment.markSucceeded();
-      await this.paymentRepository.save(payment);
+      await this._paymentRepository.save(payment);
 
       if (!companyId?.trim()) {
         return;
       }
 
-      const company = await this.companyProfileRepository.findById(companyId);
+      const company = await this._companyProfileRepository.findById(companyId);
       if (!company) {
         return;
       }
 
-      const plan = await this.subscriptionRepository.findById(planId);
+      const plan = await this._subscriptionRepository.findById(planId);
       if (!plan) {
         return;
       }
@@ -70,13 +70,13 @@ export class HandlePaymentWebhookUseCase implements IHandlePaymentWebhookUseCase
         },
         now,
       );
-      await this.companyProfileRepository.save(company);
+      await this._companyProfileRepository.save(company);
     } else if (eventType === 'payment_intent.payment_failed') {
       if (payment.status === 'failed') {
         return;
       }
       payment.markFailed();
-      await this.paymentRepository.save(payment);
+      await this._paymentRepository.save(payment);
     }
   }
 }

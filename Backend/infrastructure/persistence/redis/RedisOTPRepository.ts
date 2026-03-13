@@ -3,23 +3,23 @@ import { IOtpRepository } from "../../../application/auth/ports/repository/IOtpR
 import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
 
 export class RedisOTPRepository implements IOtpRepository {
-  private readonly PREFIX = "otp:";
-  private readonly TTL_SECONDS = 60;
+  private readonly _PREFIX = "otp:";
+  private readonly _TTL_SECONDS = 60;
 
-  constructor(private readonly redis: RedisClientType) {}
+  constructor(private readonly _redis: RedisClientType) {}
 
   private key(email: string): string {
-    return `${this.PREFIX}${email.toLowerCase()}`;
+    return `${this._PREFIX}${email.toLowerCase()}`;
   }
 
   async save(email: string, otp: OTPCode): Promise<void> {
-    await this.redis.set(this.key(email), otp.getValue(), {
-      EX: this.TTL_SECONDS,
+    await this._redis.set(this.key(email), otp.getValue(), {
+      EX: this._TTL_SECONDS,
     });
   }
 
   async find(email: string): Promise<OTPCode | null> {
-    const value = await this.redis.get(this.key(email));
+    const value = await this._redis.get(this.key(email));
 
     if (!value) return null;
 
@@ -27,6 +27,6 @@ export class RedisOTPRepository implements IOtpRepository {
   }
 
   async delete(email: string): Promise<void> {
-    await this.redis.del(this.key(email));
+    await this._redis.del(this.key(email));
   }
 }

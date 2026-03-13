@@ -7,14 +7,14 @@ import type { ICheckCompanyStatusUseCase } from "../ports/usecase/ICheckCompanyS
 
 @injectable()
 export class CheckCompanyStatusUseCase implements ICheckCompanyStatusUseCase {
-  constructor(@inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository) { }
+  constructor(@inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository) { }
 
   async execute(dto: ICheckCompanyStatusDTO) {
     if (!dto.userId) {
       throw AppError.badRequest("UserId is required");
     }
 
-    const approval = await this.repo.findByUserId(dto.userId);
+    const approval = await this._repo.findByUserId(dto.userId);
 
     console.log(approval, "approval");
     console.log("dto", dto.userId);

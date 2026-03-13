@@ -10,7 +10,7 @@ import { AppError } from "../../../shared/errors/AppError";
 export class AdminCreateSubscription implements IAdminCreateSubscription {
     constructor(
       @inject(TYPES.SubscriptionRepositoryPort)
-      private readonly subscriptionRepository: ISubscriptionRepository,
+      private readonly _subscriptionRepository: ISubscriptionRepository,
     ) {}  
 
     async execute(input: ICreateSubscriptionInputDTO): Promise<void> {
@@ -63,6 +63,6 @@ export class AdminCreateSubscription implements IAdminCreateSubscription {
         input.isActive
       );
 
-      await this.subscriptionRepository.save(entity);
+      await this._subscriptionRepository.save(entity);
     }
 }

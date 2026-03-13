@@ -20,21 +20,21 @@ function toContext(user: { userId: string; companyId?: string }) {
 @injectable()
 export class ApplicationsController {
   constructor(
-    @inject(TYPES.ListJobsUseCasePort) private readonly listJobsUseCase: IListJobsUseCase,
+    @inject(TYPES.ListJobsUseCasePort) private readonly _listJobsUseCase: IListJobsUseCase,
     @inject(TYPES.ListPendingApplicationsForJobUseCasePort)
-    private readonly listPendingApplicationsUseCase: IListPendingApplicationsForJobUseCase,
+    private readonly _listPendingApplicationsUseCase: IListPendingApplicationsForJobUseCase,
     @inject(TYPES.ScoreCandidatesUseCasePort)
-    private readonly scoreCandidatesUseCase: IScoreCandidatesUseCase,
+    private readonly _scoreCandidatesUseCase: IScoreCandidatesUseCase,
     @inject(TYPES.UpdateApplicationStatusUseCasePort)
-    private readonly updateApplicationStatusUseCase: IUpdateApplicationStatusUseCase,
+    private readonly _updateApplicationStatusUseCase: IUpdateApplicationStatusUseCase,
     @inject(TYPES.ScheduleInterviewUseCasePort)
-    private readonly scheduleInterviewUseCase: IScheduleInterviewUseCase,
+    private readonly _scheduleInterviewUseCase: IScheduleInterviewUseCase,
     @inject(TYPES.DeclineRescheduleRequestUseCasePort)
-    private readonly declineRescheduleRequestUseCase: IDeclineRescheduleRequestUseCase,
+    private readonly _declineRescheduleRequestUseCase: IDeclineRescheduleRequestUseCase,
     @inject(TYPES.GetResumeViewUrlUseCasePort)
-    private readonly getResumeViewUrlUseCase: IGetResumeViewUrlUseCase,
+    private readonly _getResumeViewUrlUseCase: IGetResumeViewUrlUseCase,
     @inject(TYPES.GetLatestInterviewerFeedbackUseCasePort)
-    private readonly getLatestInterviewerFeedbackUseCase: IGetLatestInterviewerFeedbackUseCase
+    private readonly _getLatestInterviewerFeedbackUseCase: IGetLatestInterviewerFeedbackUseCase
   ) {}
 
   listJobs = async (
@@ -45,7 +45,7 @@ export class ApplicationsController {
   ) => {
     const ctx = toContext(request.currentUser);
     const input = JobMapper.toListInput(request.query, ctx);
-    const result = await this.listJobsUseCase.execute(input);
+    const result = await this._listJobsUseCase.execute(input);
     reply.send(success(result));
   };
 
@@ -72,7 +72,7 @@ export class ApplicationsController {
       request.query,
       ctx
     );
-    const result = await this.listPendingApplicationsUseCase.execute(input);
+    const result = await this._listPendingApplicationsUseCase.execute(input);
     const data = ApplicationMapper.toListView(result.data);
     reply.send(success({ data }));
   };
@@ -83,7 +83,7 @@ export class ApplicationsController {
   ) => {
     const ctx = toContext(request.currentUser);
     const input = ApplicationMapper.toGetResumeViewUrlInput(request.params, ctx);
-    const result = await this.getResumeViewUrlUseCase.execute(input);
+    const result = await this._getResumeViewUrlUseCase.execute(input);
     reply.send(success(result));
   };
 
@@ -100,7 +100,7 @@ export class ApplicationsController {
       request.body as { candidates: unknown[] },
       ctx
     );
-    const result = await this.scoreCandidatesUseCase.execute(input);
+    const result = await this._scoreCandidatesUseCase.execute(input);
     reply.send(success(result));
   };
 
@@ -128,7 +128,7 @@ export class ApplicationsController {
       request.body,
       ctx
     );
-    const result = await this.updateApplicationStatusUseCase.execute(input);
+    const result = await this._updateApplicationStatusUseCase.execute(input);
     const application = ApplicationMapper.toView(result.application);
     reply.send(success({ application }));
   };
@@ -149,7 +149,7 @@ export class ApplicationsController {
   ) => {
     const ctx = toContext(request.currentUser);
     const input = ApplicationMapper.toScheduleInterviewInput(request.params, request.body, ctx);
-    const result = await this.scheduleInterviewUseCase.execute(input);
+    const result = await this._scheduleInterviewUseCase.execute(input);
     reply.send(success({ application: ApplicationMapper.toView(result.application) }));
   };
 
@@ -161,7 +161,7 @@ export class ApplicationsController {
   ) => {
     const ctx = toContext(request.currentUser);
     const input = ApplicationMapper.toDeclineRescheduleRequestInput(request.params, ctx);
-    const result = await this.declineRescheduleRequestUseCase.execute(input);
+    const result = await this._declineRescheduleRequestUseCase.execute(input);
     reply.send(success({ application: ApplicationMapper.toView(result.application) }));
   };
 
@@ -170,7 +170,7 @@ export class ApplicationsController {
     reply: FastifyReply
   ) => {
     const ctx = toContext(request.currentUser);
-    const result = await this.getLatestInterviewerFeedbackUseCase.execute({
+    const result = await this._getLatestInterviewerFeedbackUseCase.execute({
       companyId: ctx.companyId ?? '',
       jobId: request.params.jobId,
       applicationId: request.params.applicationId,

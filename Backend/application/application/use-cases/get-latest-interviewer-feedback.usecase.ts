@@ -27,24 +27,24 @@ export interface IGetLatestInterviewerFeedbackUseCase {
 export class GetLatestInterviewerFeedbackUseCase implements IGetLatestInterviewerFeedbackUseCase {
   constructor(
     @inject(TYPES.ApplicationRepositoryPort)
-    private readonly applicationRepository: IApplicationRepository,
+    private readonly _applicationRepository: IApplicationRepository,
     @inject(TYPES.InterviewRepositoryPort)
-    private readonly interviewRepository: IInterviewRepository,
+    private readonly _interviewRepository: IInterviewRepository,
     @inject(TYPES.InterviewFeedbackRepositoryPort)
-    private readonly interviewFeedbackRepository: IInterviewFeedbackRepository
+    private readonly _interviewFeedbackRepository: IInterviewFeedbackRepository
   ) {}
 
   async execute(input: IGetLatestInterviewerFeedbackInput) {
     const { companyId, jobId, applicationId } = input;
 
-    const app = await this.applicationRepository.findByIdAndJobId(applicationId, jobId, companyId);
+    const app = await this._applicationRepository.findByIdAndJobId(applicationId, jobId, companyId);
     if (!app) throw AppError.notFound('Application not found');
 
-    const lastCompleted = await this.interviewRepository.findLatestCompletedByApplicationId(applicationId);
+    const lastCompleted = await this._interviewRepository.findLatestCompletedByApplicationId(applicationId);
     if (!lastCompleted) throw AppError.notFound('No completed interview found');
     if (!lastCompleted.id) throw AppError.notFound('Interview not found');
 
-    const fb = await this.interviewFeedbackRepository.findLatestByInterviewId(lastCompleted.id);
+    const fb = await this._interviewFeedbackRepository.findLatestByInterviewId(lastCompleted.id);
     if (!fb) throw AppError.notFound('Interviewer feedback not submitted yet');
 
     return {

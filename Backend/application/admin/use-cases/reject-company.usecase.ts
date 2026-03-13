@@ -6,10 +6,10 @@ import type { IRejectCompanyUseCase } from "../ports/usecase/IRejectCompanyUseCa
 
 @injectable()
 export class RejectCompanyUseCase implements IRejectCompanyUseCase {
-  constructor(@inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository) {}
+  constructor(@inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository) {}
 
   async execute(approvalId: string, reason: string) {
-    const approval = await this.repo.findById(approvalId);
+    const approval = await this._repo.findById(approvalId);
 
     if (!approval) {
       throw  AppError.notFound("Company approval not found");
@@ -19,6 +19,6 @@ export class RejectCompanyUseCase implements IRejectCompanyUseCase {
     approval.reject(reason);
 
     
-    await this.repo.save(approval);
+    await this._repo.save(approval);
   }
 }

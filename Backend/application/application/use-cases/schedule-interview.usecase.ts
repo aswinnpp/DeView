@@ -29,15 +29,15 @@ export interface IScheduleInterviewUseCase {
 export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
   constructor(
     @inject(TYPES.ApplicationRepositoryPort)
-    private readonly applicationRepository: IApplicationRepository,
+    private readonly _applicationRepository: IApplicationRepository,
     @inject(TYPES.InterviewRepositoryPort)
-    private readonly interviewRepository: IInterviewRepository,
+    private readonly _interviewRepository: IInterviewRepository,
     @inject(TYPES.CompanyProfileRepositoryPort)
-    private readonly companyProfileRepository: ICompanyProfileRepository,
+    private readonly _companyProfileRepository: ICompanyProfileRepository,
     @inject(TYPES.JobRepositoryPort)
-    private readonly jobRepository: IJobRepository,
+    private readonly _jobRepository: IJobRepository,
     @inject(TYPES.SubscriptionRepositoryPort)
-    private readonly subscriptionRepository: ISubscriptionRepository
+    private readonly _subscriptionRepository: ISubscriptionRepository
   ) {}
 
   async execute(input: IScheduleInterviewInput): Promise<{ application: Application }> {
@@ -67,7 +67,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     const now = new Date();
 
     // ── Guard: company must have an active subscription with interview capacity ──
-    const company = await this.companyProfileRepository.findById(companyId);
+    const company = await this._companyProfileRepository.findById(companyId);
     if (!company) {
       throw AppError.forbidden(
         'Company profile not found. Please complete your company profile before scheduling interviews.',
@@ -75,7 +75,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     }
 
     company.refreshSubscriptions(now);
-    await this.companyProfileRepository.save(company);
+    await this._companyProfileRepository.save(company);
 
     const activeSub = company.activeSubscription;
     if (!activeSub) {
@@ -89,7 +89,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     let interviewLimit = activeSub.interviewLimit;
     let interviewUnlimited = activeSub.interviewUnlimited;
     if (interviewLimit === undefined || interviewUnlimited === undefined) {
-      const plan = await this.subscriptionRepository.findById(activeSub.planId);
+      const plan = await this._subscriptionRepository.findById(activeSub.planId);
       if (!plan) {
         throw AppError.forbidden(
           'Unable to resolve your subscription plan. Please contact support or upgrade your plan.',
@@ -102,14 +102,14 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       activeSub.interviewUnlimited = plan.interviewUnlimited;
       activeSub.jobPostLimit = plan.jobPostLimit;
       activeSub.jobUnlimited = plan.jobUnlimited;
-      await this.companyProfileRepository.save(company);
+      await this._companyProfileRepository.save(company);
     }
 
-    const existing = await this.interviewRepository.findActiveByApplicationId(applicationId);
+    const existing = await this._interviewRepository.findActiveByApplicationId(applicationId);
 
     // Guard: do not allow scheduling the next round until the last completed interview has feedback.
     if (!existing) {
-      const lastCompleted = await this.interviewRepository.findLatestCompletedByApplicationId(applicationId);
+      const lastCompleted = await this._interviewRepository.findLatestCompletedByApplicationId(applicationId);
       if (lastCompleted && !lastCompleted.feedbackSubmitted) {
         throw AppError.forbidden('Interviewer feedback PENDING');
       }
@@ -123,7 +123,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
         );
       }
 
-      const allCompanyInterviews = await this.interviewRepository.listByCompanyId(companyId);
+      const allCompanyInterviews = await this._interviewRepository.listByCompanyId(companyId);
       const totalInterviewsCount = allCompanyInterviews.length;
 
       if (totalInterviewsCount >= (interviewLimit ?? 0)) {
@@ -134,7 +134,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       }
     }
 
-    const updated = await this.applicationRepository.scheduleInterview({
+    const updated = await this._applicationRepository.scheduleInterview({
       applicationId,
       jobId,
       companyId,
@@ -151,25 +151,25 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       throw AppError.notFound('Application not found');
     }
 
-    const companyProfile = companyId ? await this.companyProfileRepository.findById(companyId) : null;
+    const companyProfile = companyId ? await this._companyProfileRepository.findById(companyId) : null;
     const companyName = companyProfile?.companyName ?? '';
-    const job = await this.jobRepository.findById(jobId);
+    const job = await this._jobRepository.findById(jobId);
     const jobTitle = job?.title ?? '';
 
     if (existing?.id) {
       const keepAccepted =
         existing.interviewerUserId === trimmedInterviewerUserId ? existing.interviewerAccepted : false;
-      await this.interviewRepository.rescheduleFromCompany(existing.id, {
+      await this._interviewRepository.rescheduleFromCompany(existing.id, {
         scheduledDate: trimmedDate,
         scheduledTime: trimmedTime,
         interviewerUserId: trimmedInterviewerUserId,
         interviewerName: trimmedInterviewerName,
         round: trimmedRound,
       });
-      await this.interviewRepository.setInterviewerAccepted(existing.id, keepAccepted);
+      await this._interviewRepository.setInterviewerAccepted(existing.id, keepAccepted);
     } else {
       const roomName = `deview-interview-${applicationId}-${Date.now()}`;
-      await this.interviewRepository.create(
+      await this._interviewRepository.create(
         new Interview(
           null,
           companyId,

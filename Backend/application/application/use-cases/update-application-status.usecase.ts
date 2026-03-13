@@ -15,20 +15,20 @@ import { AppError } from '../../../shared/errors/AppError.js';
 export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusUseCase {
   constructor(
     @inject(TYPES.ApplicationRepositoryPort)
-    private readonly applicationRepository: IApplicationRepository,
+    private readonly _applicationRepository: IApplicationRepository,
     @inject(TYPES.RejectionMailRepositoryPort)
-    private readonly rejectionMailRepository: IRejectionMailRepository
+    private readonly _rejectionMailRepository: IRejectionMailRepository
   ) {}
 
   async execute(input: IUpdateApplicationStatusInputDTO): Promise<IUpdateApplicationStatusResultDTO> {
-    const updated = await this.applicationRepository.updateStatus(input);
+    const updated = await this._applicationRepository.updateStatus(input);
 
     if (!updated) {
       throw AppError.notFound('Application not found');
     }
 
     if (updated.status === 'REJECTED' && input.rejectionEmailContent && input.rejectionEmailContent.trim().length > 0) {
-      await this.rejectionMailRepository.create({
+      await this._rejectionMailRepository.create({
         applicationId: updated.id || input.applicationId,
         jobId: updated.jobId,
         companyId: updated.companyId,

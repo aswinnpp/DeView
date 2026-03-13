@@ -13,10 +13,10 @@ import { RedisAccessTokenRepository } from "../persistence/redis/RedisAccessToke
 
 export class SecureJwtTokenService implements ITokenService {
   constructor(
-    private refreshRepo: RedisRefreshTokenRepository,
-    private accessRepo: RedisAccessTokenRepository,
-    private accessSecret: string,
-    private refreshSecret: string
+    private _refreshRepo: RedisRefreshTokenRepository,
+    private _accessRepo: RedisAccessTokenRepository,
+    private _accessSecret: string,
+    private _refreshSecret: string
   ) {}
 
   // ================= ACCESS TOKEN =================
@@ -26,17 +26,17 @@ export class SecureJwtTokenService implements ITokenService {
 
     const token = jwt.sign(
       { ...payload, jti },
-      this.accessSecret,
+      this._accessSecret,
       { expiresIn: "15m" }
     );
 
-    await this.accessRepo.save(jti, payload.userId);
+    await this._accessRepo.save(jti, payload.userId);
 
     return token;
   }
 
   verifyAccessToken(token: string): ITokenPayload {
-    return jwt.verify(token, this.accessSecret) as ITokenPayload;
+    return jwt.verify(token, this._accessSecret) as ITokenPayload;
   }
 
   // ================= REFRESH TOKEN =================
@@ -46,11 +46,11 @@ export class SecureJwtTokenService implements ITokenService {
 
     const token = jwt.sign(
       { userId, jti: tokenId },
-      this.refreshSecret,
+      this._refreshSecret,
       { expiresIn: "7d" }
     );
 
-    await this.refreshRepo.save(userId, tokenId);
+    await this._refreshRepo.save(userId, tokenId);
 
     return {
       token,
@@ -61,9 +61,9 @@ export class SecureJwtTokenService implements ITokenService {
 
   async verifyRefreshToken(token: string): Promise<IRefreshTokenPayload | null> {
     try {
-      const decoded = jwt.verify(token, this.refreshSecret) as IRefreshTokenPayload;
+      const decoded = jwt.verify(token, this._refreshSecret) as IRefreshTokenPayload;
 
-      const exists = await this.refreshRepo.exists(decoded.jti);
+      const exists = await this._refreshRepo.exists(decoded.jti);
       if (!exists) return null;
 
       return decoded;
@@ -76,7 +76,7 @@ export class SecureJwtTokenService implements ITokenService {
     const decoded = await this.verifyRefreshToken(oldToken);
     if (!decoded) return null;
 
-    await this.refreshRepo.delete(decoded.jti);
+    await this._refreshRepo.delete(decoded.jti);
 
     return this.generateRefreshToken(decoded.userId);
   }
@@ -87,7 +87,7 @@ export class SecureJwtTokenService implements ITokenService {
     try {
       const decoded = jwt.decode(token) as { jti?: string } | null;
       if (decoded?.jti) {
-        await this.accessRepo.delete(decoded.jti);
+        await this._accessRepo.delete(decoded.jti);
       }
     } catch {}
   }
@@ -96,13 +96,13 @@ export class SecureJwtTokenService implements ITokenService {
     try {
       const decoded = jwt.decode(token) as { jti?: string } | null;
       if (decoded?.jti) {
-        await this.refreshRepo.delete(decoded.jti);
+        await this._refreshRepo.delete(decoded.jti);
       }
     } catch {}
   }
 
   async revokeAllUserTokens(userId: string): Promise<void> {
-    await this.accessRepo.deleteAllForUser(userId);
-    await this.refreshRepo.deleteAllForUser(userId);
+    await this._accessRepo.deleteAllForUser(userId);
+    await this._refreshRepo.deleteAllForUser(userId);
   }
 }

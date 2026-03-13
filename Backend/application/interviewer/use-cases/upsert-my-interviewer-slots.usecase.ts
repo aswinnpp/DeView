@@ -14,7 +14,7 @@ import { isAllowedBookingDate ,DATE_RE ,isValidIsoDateTime ,toLocalDateKeyDDMMYY
 export class UpsertMyInterviewerSlotsUseCase implements IUpsertMyInterviewerSlotsUseCase {
   constructor(
     @inject(TYPES.InterviewerSlotsRepositoryPort)
-    private readonly repo: IInterviewerSlotsRepository,
+    private readonly _repo: IInterviewerSlotsRepository,
   ) {}
 
   async execute(input: {
@@ -56,7 +56,7 @@ export class UpsertMyInterviewerSlotsUseCase implements IUpsertMyInterviewerSlot
       }
     }
 
-    return this.repo.upsertForInterviewerDate({
+    return this._repo.upsertForInterviewerDate({
       interviewerId: input.interviewerId,
       companyId: input.companyId,
       slotDate: input.slotDate,

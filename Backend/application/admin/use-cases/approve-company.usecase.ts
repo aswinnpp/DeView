@@ -8,12 +8,12 @@ import type { IApproveCompanyUseCase } from "../ports/usecase/IApproveCompanyUse
 @injectable()
 export class ApproveCompanyUseCase implements IApproveCompanyUseCase {
   constructor(
-    @inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository,
-    @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository
+    @inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository,
+    @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository
   ) { }
 
   async execute(approvalId: string) {
-    const approval = await this.repo.findById(approvalId);
+    const approval = await this._repo.findById(approvalId);
 
     if (!approval) {
       throw AppError.notFound("Company approval not found");
@@ -23,12 +23,12 @@ export class ApproveCompanyUseCase implements IApproveCompanyUseCase {
 
     approval.approve();
 
-    await this.repo.save(approval);
+    await this._repo.save(approval);
 
-    const user = await this.userRepo.findById(approval.userId);
+    const user = await this._userRepo.findById(approval.userId);
     if (user) {
       user.companyId = approvalId;
-      await this.userRepo.save(user);
+      await this._userRepo.save(user);
     }
   }
 }

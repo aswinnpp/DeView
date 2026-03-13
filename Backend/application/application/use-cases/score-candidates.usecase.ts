@@ -18,13 +18,13 @@ import { AppError } from '../../../shared/errors/AppError.js';
 @injectable()
 export class ScoreCandidatesUseCase implements IScoreCandidatesUseCase {
   constructor(
-    @inject(TYPES.JobRepositoryPort) private readonly jobRepo: IJobRepository,
-    @inject(TYPES.ApplicationRepositoryPort) private readonly applicationRepo: IApplicationRepository,
-    @inject(TYPES.AiScoringServicePort) private readonly aiScoringService: IAiScoringService
+    @inject(TYPES.JobRepositoryPort) private readonly _jobRepo: IJobRepository,
+    @inject(TYPES.ApplicationRepositoryPort) private readonly _applicationRepo: IApplicationRepository,
+    @inject(TYPES.AiScoringServicePort) private readonly _aiScoringService: IAiScoringService
   ) {}
 
   async execute(input: IScoreCandidatesInputDTO): Promise<IScoreCandidatesResultDTO> {
-    const job = await this.jobRepo.findById(input.jobId);
+    const job = await this._jobRepo.findById(input.jobId);
     if (!job) {
       throw AppError.notFound('Job not found.');
     }
@@ -46,11 +46,11 @@ export class ScoreCandidatesUseCase implements IScoreCandidatesUseCase {
 
     for (const candidate of input.candidates) {
       const candidateText = buildCandidateProfileText(candidate);
-      const matchScore = await this.aiScoringService.getMatchScore(jobText, candidateText);
+      const matchScore = await this._aiScoringService.getMatchScore(jobText, candidateText);
       scores.push({ applicationId: candidate.applicationId, matchScore });
     }
 
-    await this.applicationRepo.updateAiScores(
+    await this._applicationRepo.updateAiScores(
       input.jobId,
       input.companyId,
       scores.map((s) => ({ applicationId: s.applicationId, aiScore: s.matchScore }))

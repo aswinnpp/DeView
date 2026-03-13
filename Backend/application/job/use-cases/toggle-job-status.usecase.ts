@@ -8,18 +8,18 @@ import { AppError } from '../../../shared/errors/AppError.js';
 @injectable()
 export class ToggleJobStatusUseCase implements IToggleJobStatusUseCase {
   constructor(
-    @inject(TYPES.JobRepositoryPort) private readonly repo: IJobRepository,
+    @inject(TYPES.JobRepositoryPort) private readonly _repo: IJobRepository,
   ) {}
 
   async execute(input: { jobId: string; companyId: string; status: JobStatus }) {
-    const job = await this.repo.findById(input.jobId);
+    const job = await this._repo.findById(input.jobId);
 
     if (!job || job.companyId !== input.companyId) {
       throw AppError.notFound('Job not found');
     }
 
     job.toggleStatus(input.status);
-    await this.repo.save(job);
+    await this._repo.save(job);
 
     return { job };
   }

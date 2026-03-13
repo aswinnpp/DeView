@@ -9,9 +9,9 @@ import type { IToggleTeamMemberStatusUseCase } from '../ports/usecase/IToggleTea
 @injectable()
 export class ToggleTeamMemberStatusUseCase implements IToggleTeamMemberStatusUseCase {
     constructor(
-        @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository,
-        @inject(TYPES.TokenServicePort) private readonly tokenService: ITokenService,
-        @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase
+        @inject(TYPES.UserRepositoryPort) private readonly _userRepository: IUserRepository,
+        @inject(TYPES.TokenServicePort) private readonly _tokenService: ITokenService,
+        @inject(ResolveCompanyForUserUseCase) private readonly _resolveCompany: ResolveCompanyForUserUseCase
     ) {}
 
     async execute(
@@ -19,9 +19,9 @@ export class ToggleTeamMemberStatusUseCase implements IToggleTeamMemberStatusUse
         userId: string,
         companyIdFromToken?: string
     ): Promise<{ message: string; isActive: boolean }> {
-        const companyId = await this.resolveCompany.execute(userId, companyIdFromToken);
+        const companyId = await this._resolveCompany.execute(userId, companyIdFromToken);
 
-        const user = await this.userRepository.findById(memberId);
+        const user = await this._userRepository.findById(memberId);
         if (!user) {
             throw AppError.notFound('Team member not found');
         }
@@ -37,12 +37,12 @@ export class ToggleTeamMemberStatusUseCase implements IToggleTeamMemberStatusUse
 
         if (user.isActive) {
             user.deactivate();
-            await this.tokenService.revokeAllUserTokens(memberId);
+            await this._tokenService.revokeAllUserTokens(memberId);
         } else {
             user.activate();
         }
 
-        await this.userRepository.save(user);
+        await this._userRepository.save(user);
 
         const roleLabel = role === 'hr' ? 'HR' : 'Interviewer';
         const message = user.isActive ? `${roleLabel} activated` : `${roleLabel} deactivated`;

@@ -10,8 +10,8 @@ import type { ISubmitCompanyApprovalUseCase } from "../ports/usecase/ISubmitComp
 @injectable()
 export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCase {
   constructor(
-    @inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository,
-    @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository
+    @inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository,
+    @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository
   ) { }
 
   async execute(dto: ISubmitCompanyApprovalDTO) {
@@ -19,7 +19,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       throw AppError.badRequest("UserId is required");
     }
 
-    const existing = await this.repo.findByUserId(dto.userId);
+    const existing = await this._repo.findByUserId(dto.userId);
 
    
     
@@ -32,7 +32,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       throw AppError.conflict("Company already approved");
     }
 
-    const user = await this.userRepo.findById(dto.userId);
+    const user = await this._userRepo.findById(dto.userId);
     if (!user) {
       throw AppError.badRequest("User not found");
     }
@@ -51,7 +51,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       existing.rejectionReason = undefined;
       existing.updatedAt = new Date();
 
-      await this.repo.save(existing);
+      await this._repo.save(existing);
 
       return { approvalId: existing.id };
     }
@@ -71,7 +71,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       dto.website
     );
 
-    await this.repo.save(approval);
+    await this._repo.save(approval);
     return { approvalId: approval.id ?? null };
   }
 }

@@ -1,9 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Background from "@components/Background/Background";
 import { useLogin } from "@/hooks/auth/useLogin";
 import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 import { Input, Button } from "../../components/common";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../context/store";
+import { APP_ROUTES } from "../../constants/routes";
 
 
 
@@ -16,8 +19,26 @@ const toggleClass = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-poi
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
-  
- 
+  const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  // If already logged in, never show login page (Back button, manual URL, etc.)
+  useEffect(() => {
+    if (!user) return;
+    const role = (user.role || "").toLowerCase();
+
+    if (role === "admin") {
+      navigate(APP_ROUTES.ADMIN_DASHBOARD, { replace: true });
+    } else if (role === "company") {
+      navigate(APP_ROUTES.COMPANY_DASHBOARD, { replace: true });
+    } else if (role === "hr") {
+      navigate(APP_ROUTES.HR_DASHBOARD, { replace: true });
+    } else if (role === "interviewer") {
+      navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS, { replace: true });
+    } else {
+      navigate(APP_ROUTES.CANDIDATE_INTERVIEWS, { replace: true });
+    }
+  }, [user, navigate]);
 
   const { isLoading, error, data } = useLogin();
   const { form, onSubmit } = data;
@@ -33,6 +54,10 @@ const LoginPage = () => {
     formState.errors.root?.message ||
     formState.errors.email?.message ||
     formState.errors.password?.message; 
+
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-center">

@@ -8,8 +8,8 @@ import type { IRefreshTokenUseCase } from "../ports/usecase/IRefreshTokenUseCase
 @injectable()
 export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   constructor(
-    @inject(TYPES.TokenServicePort) private tokenService: ITokenService,
-    @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository
+    @inject(TYPES.TokenServicePort) private _tokenService: ITokenService,
+    @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository
   ) {}
 
   async execute(refreshToken: string | undefined) {
@@ -17,19 +17,19 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
       throw AppError.unauthorized("Refresh token missing");
     }
 
-    const payload = await this.tokenService.verifyRefreshToken(refreshToken);
+    const payload = await this._tokenService.verifyRefreshToken(refreshToken);
 
     if (!payload) {
       throw AppError.unauthorized("Invalid or expired refresh token");
     }
 
-    const rotated = await this.tokenService.rotateRefreshToken(refreshToken);
+    const rotated = await this._tokenService.rotateRefreshToken(refreshToken);
 
     if (!rotated) {
       throw AppError.unauthorized("Refresh token rotation failed");
     }
 
-    const user = await this.userRepo.findById(payload.userId);
+    const user = await this._userRepo.findById(payload.userId);
 
     if (!user) {
       throw AppError.unauthorized("User not found");
@@ -39,7 +39,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
       throw AppError.forbidden("Account is deactivated");
     }
 
-    const accessToken = await this.tokenService.signAccessToken({
+    const accessToken = await this._tokenService.signAccessToken({
       userId: user.id!,
       role: user.role.getValue(),
       ...(user.companyId && { companyId: user.companyId }),

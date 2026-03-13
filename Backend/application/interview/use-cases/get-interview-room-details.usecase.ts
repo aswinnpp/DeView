@@ -26,13 +26,13 @@ export interface IGetInterviewRoomDetailsOutput {
 export class GetInterviewRoomDetailsUseCase {
   constructor(
     @inject(TYPES.InterviewRepositoryPort)
-    private readonly interviewRepository: IInterviewRepository
+    private readonly _interviewRepository: IInterviewRepository
   ) {}
 
   async execute(input: IGetInterviewRoomDetailsInput): Promise<IGetInterviewRoomDetailsOutput> {
     const { interviewId, userId, role, companyId } = input;
 
-    const interview = await this.interviewRepository.findById(interviewId);
+    const interview = await this._interviewRepository.findById(interviewId);
     if (!interview) {
       throw AppError.notFound('Interview not found');
     }

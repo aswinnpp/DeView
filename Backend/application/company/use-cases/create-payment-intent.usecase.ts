@@ -11,8 +11,8 @@ import { AppError } from '../../../shared/errors/AppError.js';
 @injectable()
 export class CreatePaymentIntentUseCase implements ICreatePaymentIntentUseCase {
   constructor(
-    @inject(TYPES.SubscriptionRepositoryPort) private readonly subscriptionRepository: ISubscriptionRepository,
-    @inject(TYPES.PaymentRepositoryPort) private readonly paymentRepository: IPaymentRepository,
+    @inject(TYPES.SubscriptionRepositoryPort) private readonly _subscriptionRepository: ISubscriptionRepository,
+    @inject(TYPES.PaymentRepositoryPort) private readonly _paymentRepository: IPaymentRepository,
   ) {}
 
   async execute(input: ICreatePaymentIntentInput): Promise<ICreatePaymentIntentResult> {
@@ -25,7 +25,7 @@ export class CreatePaymentIntentUseCase implements ICreatePaymentIntentUseCase {
       throw AppError.badRequest('Plan id is required');
     }
 
-    const plan = await this.subscriptionRepository.findById(planId);
+    const plan = await this._subscriptionRepository.findById(planId);
     if (!plan || !plan.isActive) {
       throw AppError.notFound('Subscription plan not found or inactive');
     }
@@ -58,7 +58,7 @@ export class CreatePaymentIntentUseCase implements ICreatePaymentIntentUseCase {
       new Date(),
       new Date(),
     );
-    await this.paymentRepository.save(payment);
+    await this._paymentRepository.save(payment);
 
     return { clientSecret: paymentIntent.client_secret };
   }

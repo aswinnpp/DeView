@@ -4,7 +4,6 @@ import OfferLetterModal from "../../components/applications/OfferLetterModal";
 import RejectionEmailModal from "../../components/applications/RejectionEmailModal";
 import Button from "../../components/common/Button";
 import Table from "../../components/common/Table";
-import SearchInput from "../../components/common/SearchInput";
 import Input from "../../components/common/Input";
 import { useApplication, COMPANY_PLACEHOLDER } from "../../hooks/application/useApplication";
 import Pagination from "../../components/common/Pagination";
@@ -119,8 +118,7 @@ const HRApplicationsPage = () => {
         pendingApplications,
         paginatedCandidates,
         selectedJob,
-        selectedCandidate,
-        handleSearch,
+        selectedCandidate,  
         handleViewApplications,
         handleReject,
         handleConfirmRejection,
@@ -597,14 +595,7 @@ const HRApplicationsPage = () => {
                         </div>
                     </div>
 
-                    {/* Search Input */}
-                    <div className="mb-5 max-w-md">
-                        <SearchInput
-                            placeholder="Search candidates by name or email..."
-                            onSearch={handleSearch}
-                        />
-                    </div>
-
+                 
                     {/* Workflow Tabs */}
                     <div className="flex gap-3 mb-6 flex-wrap">
                         {workflowTabs.map(tab => {

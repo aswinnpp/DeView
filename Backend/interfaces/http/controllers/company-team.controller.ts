@@ -37,10 +37,10 @@ interface IInterviewerSlotsQuery {
 @injectable()
 export class CompanyTeamController {
     constructor(
-        @inject(TYPES.CreateTeamMemberUseCasePort) private readonly createTeamMemberUseCase: ICreateTeamMemberUseCase,
-        @inject(TYPES.ListTeamMembersUseCasePort) private readonly listTeamMembersUseCase: IListTeamMembersUseCase,
-        @inject(TYPES.ToggleTeamMemberStatusUseCasePort) private readonly toggleTeamMemberStatusUseCase: IToggleTeamMemberStatusUseCase,
-        @inject(TYPES.GetMyInterviewerSlotsUseCasePort) private readonly getInterviewerSlotsUseCase: IGetMyInterviewerSlotsUseCase,
+        @inject(TYPES.CreateTeamMemberUseCasePort) private readonly _createTeamMemberUseCase: ICreateTeamMemberUseCase,
+        @inject(TYPES.ListTeamMembersUseCasePort) private readonly _listTeamMembersUseCase: IListTeamMembersUseCase,
+        @inject(TYPES.ToggleTeamMemberStatusUseCasePort) private readonly _toggleTeamMemberStatusUseCase: IToggleTeamMemberStatusUseCase,
+        @inject(TYPES.GetMyInterviewerSlotsUseCasePort) private readonly _getInterviewerSlotsUseCase: IGetMyInterviewerSlotsUseCase,
     ) {}
 
     listHRs = async (
@@ -49,7 +49,7 @@ export class CompanyTeamController {
     ) => {
         const { userId, companyId } = request.currentUser;
         const { search, status, page, limit } = request.query;
-        const result = await this.listTeamMembersUseCase.execute(userId, companyId, 'hr', search, status, page, limit);
+        const result = await this._listTeamMembersUseCase.execute(userId, companyId, 'hr', search, status, page, limit);
         reply.send(success(result));
     };
 
@@ -59,7 +59,7 @@ export class CompanyTeamController {
     ) => {
         const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
         const dto = CompanyTeamMapper.toCreateHRDTO(request.body, ctx);
-        const result = await this.createTeamMemberUseCase.execute(dto);
+        const result = await this._createTeamMemberUseCase.execute(dto);
         reply.code(HttpStatus.CREATED).send(success(result));
     };
 
@@ -70,7 +70,7 @@ export class CompanyTeamController {
         const { userId, companyId } = request.currentUser;
         
 
-        const result = await this.toggleTeamMemberStatusUseCase.execute(
+        const result = await this._toggleTeamMemberStatusUseCase.execute(
             request.params.id,
             userId,
             companyId
@@ -84,7 +84,7 @@ export class CompanyTeamController {
     ) => {
         const { userId, companyId } = request.currentUser;
         const { search, status, page, limit } = request.query;
-        const result = await this.listTeamMembersUseCase.execute(userId, companyId, 'interviewer', search, status, page, limit);
+        const result = await this._listTeamMembersUseCase.execute(userId, companyId, 'interviewer', search, status, page, limit);
         reply.send(success(result));
     };
 
@@ -94,7 +94,7 @@ export class CompanyTeamController {
     ) => {
         const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
         const dto = CompanyTeamMapper.toCreateInterviewerDTO(request.body, ctx);
-        const result = await this.createTeamMemberUseCase.execute(dto);
+        const result = await this._createTeamMemberUseCase.execute(dto);
         reply.code(HttpStatus.CREATED).send(success(result));
     };
 
@@ -103,7 +103,7 @@ export class CompanyTeamController {
         reply: FastifyReply
     ) => {
         const { userId, companyId } = request.currentUser;
-        const result = await this.toggleTeamMemberStatusUseCase.execute(
+        const result = await this._toggleTeamMemberStatusUseCase.execute(
             request.params.id,
             userId,
             companyId
@@ -119,7 +119,7 @@ export class CompanyTeamController {
         if (!companyId) throw AppError.forbidden("No company associated with this account");
         const interviewerId = request.params.id;
         const { slotDate } = request.query ?? {};
-        const result = await this.getInterviewerSlotsUseCase.execute({ interviewerId, companyId, slotDate });
+        const result = await this._getInterviewerSlotsUseCase.execute({ interviewerId, companyId, slotDate });
         reply.send(success(result));
     };
 }

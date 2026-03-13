@@ -17,8 +17,8 @@ export interface IRequestCandidateRescheduleUseCase {
 @injectable()
 export class RequestCandidateRescheduleUseCase implements IRequestCandidateRescheduleUseCase {
   constructor(
-    @inject(TYPES.InterviewRepositoryPort) private readonly interviewRepo: IInterviewRepository,
-    @inject(TYPES.ApplicationRepositoryPort) private readonly applicationRepo: IApplicationRepository
+    @inject(TYPES.InterviewRepositoryPort) private readonly _interviewRepo: IInterviewRepository,
+    @inject(TYPES.ApplicationRepositoryPort) private readonly _applicationRepo: IApplicationRepository
   ) {}
 
   async execute(input: {
@@ -32,7 +32,7 @@ export class RequestCandidateRescheduleUseCase implements IRequestCandidateResch
     if (!requestedDate) throw AppError.badRequest('requestedDate is required');
     if (!reason) throw AppError.badRequest('reason is required');
 
-    const interview = await this.interviewRepo.findById(input.interviewId);
+    const interview = await this._interviewRepo.findById(input.interviewId);
     if (!interview) throw AppError.notFound('Interview not found');
     if (interview.candidateUserId !== input.candidateUserId) {
       throw AppError.forbidden('You are not allowed to reschedule this interview');
@@ -41,13 +41,13 @@ export class RequestCandidateRescheduleUseCase implements IRequestCandidateResch
       throw AppError.badRequest('Cannot reschedule a completed or cancelled interview');
     }
 
-    const updatedInterview = await this.interviewRepo.setCandidateRejection(interview.id || input.interviewId, {
+    const updatedInterview = await this._interviewRepo.setCandidateRejection(interview.id || input.interviewId, {
       date: requestedDate,
       reason,
     });
     if (!updatedInterview) throw AppError.notFound('Interview not found');
 
-    await this.applicationRepo.setRescheduleRequest({
+    await this._applicationRepo.setRescheduleRequest({
       applicationId: interview.applicationId,
       jobId: interview.jobId,
       companyId: interview.companyId,

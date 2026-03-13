@@ -24,7 +24,7 @@ Return format example:
 
 @injectable()
 export class GoogleGenAiScoringService implements IAiScoringService {
-  private readonly ai: GoogleGenAI;
+  private readonly _ai: GoogleGenAI;
 
   constructor() {
     const apiKey = process.env.GOOGLE_AI_API_KEY;
@@ -33,7 +33,7 @@ export class GoogleGenAiScoringService implements IAiScoringService {
       throw AppError.badRequest('AI scoring is not configured. Set GOOGLE_AI_API_KEY.');
     }
 
-    this.ai = new GoogleGenAI({ apiKey });
+    this._ai = new GoogleGenAI({ apiKey });
   }
 
   async getMatchScore(jobText: string, candidateText: string): Promise<number> {
@@ -65,8 +65,8 @@ export class GoogleGenAiScoringService implements IAiScoringService {
       },
     };
 
-    const response = await this.ai.models.generateContent(
-      request as Parameters<(typeof this.ai.models.generateContent)>[0],
+    const response = await this._ai.models.generateContent(
+      request as Parameters<(typeof this._ai.models.generateContent)>[0],
     );
 
     const rawText =

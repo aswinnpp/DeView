@@ -5,10 +5,10 @@ import { ICandidateProfileDocument } from "../schemas/CandidateProfileDocument";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 
 export class MongoCandidateProfileRepository
-  extends BaseMongoRepository<CandidateProfile>
+  extends BaseMongoRepository<CandidateProfile, ICandidateProfileDocument>
   implements ICandidateProfileRepository {
-  constructor(collection: Collection<ICandidateProfileDocument>) {
-    super(collection);
+  constructor(_collection: Collection<ICandidateProfileDocument>) {
+    super(_collection);
   }
 
   async findByUserId(userId: string): Promise<CandidateProfile | null> {

@@ -8,8 +8,8 @@ import { AppError } from '../../../shared/errors/AppError.js';
 @injectable()
 export class ResolveCompanyForUserUseCase {
     constructor(
-@inject(TYPES.CompanyProfileRepositoryPort) private readonly companyProfileRepo: ICompanyProfileRepository,
-    @inject(TYPES.UserRepositoryPort) private readonly userRepo: IUserRepository
+@inject(TYPES.CompanyProfileRepositoryPort) private readonly _companyProfileRepo: ICompanyProfileRepository,
+    @inject(TYPES.UserRepositoryPort) private readonly _userRepo: IUserRepository
     ) {}
 
     async execute(userId: string, companyIdFromToken?: string): Promise<string> {
@@ -17,15 +17,15 @@ export class ResolveCompanyForUserUseCase {
             return companyIdFromToken;
         }
 
-        const approval = await this.companyProfileRepo.findByUserId(userId);
+    const approval = await this._companyProfileRepo.findByUserId(userId);
         if (!approval || approval.status !== 'approved' || !approval.id) {
             throw AppError.forbidden('No company associated with this account');
         }
 
-        const user = await this.userRepo.findById(userId);
+    const user = await this._userRepo.findById(userId);
         if (user) {
             user.companyId = approval.id;
-            await this.userRepo.save(user);
+            await this._userRepo.save(user);
         }
 
         return approval.id;

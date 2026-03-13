@@ -6,7 +6,7 @@ import type { IGenerateUploadSignatureUseCase } from '../../../application/uploa
 
 @injectable()
 export class UploadController {
-    constructor(@inject(TYPES.GenerateUploadSignatureUseCasePort) private readonly generateSignatureUseCase: IGenerateUploadSignatureUseCase) {}
+    constructor(@inject(TYPES.GenerateUploadSignatureUseCasePort) private readonly _generateSignatureUseCase: IGenerateUploadSignatureUseCase) {}
 
     generateSignature = async (
         request: FastifyRequest<{ Body: { category: string } }>,
@@ -15,7 +15,7 @@ export class UploadController {
         const user = request.currentUser;
         const { category } = request.body;
 
-        const result = await this.generateSignatureUseCase.execute({
+        const result = await this._generateSignatureUseCase.execute({
             category,
             userId: user.userId,
         });

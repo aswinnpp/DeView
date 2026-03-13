@@ -8,8 +8,8 @@ import type { IListTeamMembersUseCase, ITeamMemberResponse } from '../ports/usec
 @injectable()
 export class ListTeamMembersUseCase implements IListTeamMembersUseCase {
     constructor(
-        @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository,
-        @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase
+        @inject(TYPES.UserRepositoryPort) private readonly _userRepository: IUserRepository,
+        @inject(ResolveCompanyForUserUseCase) private readonly _resolveCompany: ResolveCompanyForUserUseCase
     ) {}
 
     async execute(
@@ -22,8 +22,8 @@ export class ListTeamMembersUseCase implements IListTeamMembersUseCase {
         limit?: string
     ): Promise<{ data: ITeamMemberResponse[]; total: number }> {
         const { page: parsedPage, limit: parsedLimit } = parseSearchParams({ page, limit });
-        const companyId = await this.resolveCompany.execute(userId, companyIdFromToken);
-        const { data: users, total } = await this.userRepository.findByCompanyIdAndRole(companyId, role, { search, status, page: parsedPage, limit: parsedLimit });
+        const companyId = await this._resolveCompany.execute(userId, companyIdFromToken);
+        const { data: users, total } = await this._userRepository.findByCompanyIdAndRole(companyId, role, { search, status, page: parsedPage, limit: parsedLimit });
         const data: ITeamMemberResponse[] = users.map((user) => ({
             id: user.id || '',
             fullName: user.fullName,

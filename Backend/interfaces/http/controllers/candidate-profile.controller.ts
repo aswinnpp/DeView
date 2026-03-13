@@ -39,16 +39,16 @@ interface IProfileBody {
 @injectable()
 export class CandidateProfileController {
     constructor(
-        @inject(TYPES.CreateCandidateProfileUseCasePort) private readonly createProfileUseCase: ICreateCandidateProfileUseCase,
-        @inject(TYPES.GetCandidateProfileUseCasePort) private readonly getProfileUseCase: IGetCandidateProfileUseCase,
-        @inject(TYPES.UpdateCandidateProfileUseCasePort) private readonly updateProfileUseCase: IUpdateCandidateProfileUseCase,
-        @inject(TYPES.GetAllCandidatesUseCasePort) private readonly getAllCandidatesUseCase: IGetAllCandidatesUseCase,
-        @inject(TYPES.ToggleCandidateStatusUseCasePort) private readonly toggleStatusUseCase: IToggleCandidateStatusUseCase
+        @inject(TYPES.CreateCandidateProfileUseCasePort) private readonly _createProfileUseCase: ICreateCandidateProfileUseCase,
+        @inject(TYPES.GetCandidateProfileUseCasePort) private readonly _getProfileUseCase: IGetCandidateProfileUseCase,
+        @inject(TYPES.UpdateCandidateProfileUseCasePort) private readonly _updateProfileUseCase: IUpdateCandidateProfileUseCase,
+        @inject(TYPES.GetAllCandidatesUseCasePort) private readonly _getAllCandidatesUseCase: IGetAllCandidatesUseCase,
+        @inject(TYPES.ToggleCandidateStatusUseCasePort) private readonly _toggleStatusUseCase: IToggleCandidateStatusUseCase
     ) { }
 
     getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
         const user = request.currentUser;
-        const profile = await this.getProfileUseCase.execute(user.userId);
+        const profile = await this._getProfileUseCase.execute(user.userId);
         reply.send(success({ profile: profile ?? null }));
     };
 
@@ -58,7 +58,7 @@ export class CandidateProfileController {
     ) => {
         const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
         const dto = CandidateProfileMapper.toCreateDTO(request.body, ctx);
-        const result = await this.createProfileUseCase.execute(dto);
+        const result = await this._createProfileUseCase.execute(dto);
         reply.code(HttpStatus.CREATED).send(success(result));
     };
 
@@ -68,7 +68,7 @@ export class CandidateProfileController {
     ) => {
         const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
         const dto = CandidateProfileMapper.toUpdateDTO(request.body, ctx);
-        const result = await this.updateProfileUseCase.execute(dto);
+        const result = await this._updateProfileUseCase.execute(dto);
         reply.send(success(result));
     };
 
@@ -77,7 +77,7 @@ export class CandidateProfileController {
         reply: FastifyReply
     ) => {
         const { search, status, sortOrder, page, limit } = request.query;
-        const result = await this.getAllCandidatesUseCase.execute(search, status, sortOrder, page, limit);
+        const result = await this._getAllCandidatesUseCase.execute(search, status, sortOrder, page, limit);
         reply.send(success(result));
     }
 

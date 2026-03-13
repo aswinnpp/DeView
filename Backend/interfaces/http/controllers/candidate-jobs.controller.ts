@@ -22,11 +22,11 @@ interface ApplyParams {
 export class CandidateJobsController {
   constructor(
     @inject(TYPES.ListAllJobsForCandidatesUseCasePort)
-    private readonly listAllJobsUseCase: IListAllJobsForCandidatesUseCase,
+    private readonly _listAllJobsUseCase: IListAllJobsForCandidatesUseCase,
     @inject(TYPES.ApplyForJobUseCasePort)
-    private readonly applyForJobUseCase: IApplyForJobUseCase,
+    private readonly _applyForJobUseCase: IApplyForJobUseCase,
     @inject(TYPES.ListMyApplicationsUseCasePort)
-    private readonly listMyApplicationsUseCase: IListMyApplicationsUseCase,
+    private readonly _listMyApplicationsUseCase: IListMyApplicationsUseCase,
   ) {}
 
   applyForJob = async (
@@ -37,7 +37,7 @@ export class CandidateJobsController {
     const body = request.body;
     const userId = request.currentUser.userId;
 
-    const result = await this.applyForJobUseCase.execute({
+    const result = await this._applyForJobUseCase.execute({
       jobId,
       candidateUserId: userId,
       useResumeFromProfile: body.useResumeFromProfile,
@@ -70,7 +70,7 @@ export class CandidateJobsController {
   ) => {
     const userId = request.currentUser.userId;
 
-    const result = await this.listMyApplicationsUseCase.execute(
+    const result = await this._listMyApplicationsUseCase.execute(
       ApplicationMapper.toListMyApplicationsInput({
         candidateUserId: userId,
         search: request.query.search,
@@ -92,7 +92,7 @@ export class CandidateJobsController {
     reply: FastifyReply
   ) => {
     const input = JobMapper.toListAllForCandidatesInput(request.query);
-    const result = await this.listAllJobsUseCase.execute(input);
+    const result = await this._listAllJobsUseCase.execute(input);
     reply.send(success(result));
   };
 }

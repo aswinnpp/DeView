@@ -18,15 +18,15 @@ export interface IGetResumeViewUrlUseCase {
 export class GetResumeViewUrlUseCase implements IGetResumeViewUrlUseCase {
   constructor(
     @inject(TYPES.ApplicationRepositoryPort)
-    private readonly applicationRepository: IApplicationRepository,
+    private readonly _applicationRepository: IApplicationRepository,
     @inject(TYPES.FileStoragePort)
-    private readonly fileStorage: IFileStorage
+    private readonly _fileStorage: IFileStorage
   ) {}
 
   async execute(input: IGetResumeViewUrlInput): Promise<{ url: string }> {
     const { companyId, jobId, applicationId } = input;
 
-    const application = await this.applicationRepository.findByIdAndJobId(
+    const application = await this._applicationRepository.findByIdAndJobId(
       applicationId,
       jobId,
       companyId
@@ -36,7 +36,7 @@ export class GetResumeViewUrlUseCase implements IGetResumeViewUrlUseCase {
       throw AppError.notFound('Application or resume not found');
     }
 
-    const url = await this.fileStorage.getSignedViewUrl(application.resumeUrl, 3600);
+    const url = await this._fileStorage.getSignedViewUrl(application.resumeUrl, 3600);
     return { url };
   }
 }

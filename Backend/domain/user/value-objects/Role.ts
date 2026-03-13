@@ -11,41 +11,41 @@ export const ALLOWED_ROLES = [
 export type RoleType = typeof ALLOWED_ROLES[number];
 
 export class Role {
-  private readonly value: RoleType;
+  private readonly _value: RoleType;
 
   constructor(role: string) {
     if (!ALLOWED_ROLES.includes(role as RoleType)) {
       throw new DomainError(`Invalid role: ${role}`);
     }
 
-    this.value = role as RoleType;
+    this._value = role as RoleType;
   }
 
   getValue(): RoleType {
-    return this.value;
+    return this._value;
   }
 
   isAdmin() {
-    return this.value === "admin";
+    return this._value === "admin";
   }
 
   isCompany() {
-    return this.value === "company";
+    return this._value === "company";
   }
 
   isHR() {
-    return this.value === "hr";
+    return this._value === "hr";
   }
 
   isInterviewer() {
-    return this.value === "interviewer";
+    return this._value === "interviewer";
   }
 
   isCandidate() {
-    return this.value === "candidate";
+    return this._value === "candidate";
   }
 
   equals(other: Role): boolean {
-    return this.value === other.value;
+    return this._value === other._value;
   }
 }

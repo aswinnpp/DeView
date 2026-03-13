@@ -22,22 +22,22 @@ interface ISubmitApprovalBody {
 @injectable()
 export class CompanyApprovalController {
   constructor(
-    @inject(TYPES.CheckCompanyStatusUseCasePort) private readonly checkStatusUseCase: ICheckCompanyStatusUseCase,
-    @inject(TYPES.SubmitCompanyApprovalUseCasePort) private readonly submitApprovalUseCase: ISubmitCompanyApprovalUseCase,
-    @inject(TYPES.GetMyCompanyApprovalUseCasePort) private readonly getMyApprovalUseCase: IGetMyCompanyApprovalUseCase,
+    @inject(TYPES.CheckCompanyStatusUseCasePort) private readonly _checkStatusUseCase: ICheckCompanyStatusUseCase,
+    @inject(TYPES.SubmitCompanyApprovalUseCasePort) private readonly _submitApprovalUseCase: ISubmitCompanyApprovalUseCase,
+    @inject(TYPES.GetMyCompanyApprovalUseCasePort) private readonly _getMyApprovalUseCase: IGetMyCompanyApprovalUseCase,
   ) {}
 
   checkStatus = async (request: FastifyRequest, reply: FastifyReply) => {
     const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
     const dto = CompanyApprovalMapper.toCheckStatusDTO(ctx);
-    const result = await this.checkStatusUseCase.execute(dto);
+    const result = await this._checkStatusUseCase.execute(dto);
     reply.send(success(result));
   };
 
   getMyApproval = async (request: FastifyRequest, reply: FastifyReply) => {
     const user = request.currentUser;
 
-    const approval = await this.getMyApprovalUseCase.execute(user.userId);
+    const approval = await this._getMyApprovalUseCase.execute(user.userId);
 
     reply.send(success(approval));
   };
@@ -48,7 +48,7 @@ export class CompanyApprovalController {
   ) => {
     const ctx = { userId: request.currentUser.userId, companyId: request.currentUser.companyId };
     const dto = CompanyApprovalMapper.toSubmitDTO(request.body, ctx);
-    const result = await this.submitApprovalUseCase.execute(dto);
+    const result = await this._submitApprovalUseCase.execute(dto);
     reply.code(HttpStatus.CREATED).send(success({
       message: "Approval submitted",
       approvalId: result.approvalId,

@@ -10,15 +10,15 @@ export interface IAcceptInterviewAssignmentUseCase {
 @injectable()
 export class AcceptInterviewAssignmentUseCase implements IAcceptInterviewAssignmentUseCase {
   constructor(
-    @inject(TYPES.InterviewRepositoryPort) private readonly repo: IInterviewRepository
+    @inject(TYPES.InterviewRepositoryPort) private readonly _repo: IInterviewRepository
   ) {}
 
   async execute(input: { interviewId: string; interviewerUserId: string }): Promise<{ data: Interview | null }> {
-    const interview = await this.repo.findById(input.interviewId);
+    const interview = await this._repo.findById(input.interviewId);
     if (!interview || interview.interviewerUserId !== input.interviewerUserId) {
       return { data: null };
     }
-    const updated = await this.repo.setInterviewerAccepted(input.interviewId, true);
+    const updated = await this._repo.setInterviewerAccepted(input.interviewId, true);
     return { data: updated };
   }
 }

@@ -28,7 +28,7 @@ export interface IListMyInterviewFeedbacksUseCase {
 export class ListMyInterviewFeedbacksUseCase implements IListMyInterviewFeedbacksUseCase {
   constructor(
     @inject(TYPES.InterviewFeedbackRepositoryPort)
-    private readonly feedbackRepo: IInterviewFeedbackRepository
+    private readonly _feedbackRepo: IInterviewFeedbackRepository
   ) {}
 
   async execute(input: IListMyInterviewFeedbacksInput): Promise<{
@@ -36,7 +36,7 @@ export class ListMyInterviewFeedbacksUseCase implements IListMyInterviewFeedback
     total: number;
   }> {
     const { candidateUserId, search, page, limit, sortOrder } = input;
-    const { data: feedbacks, total } = await this.feedbackRepo.listByCandidateUserId(candidateUserId, {
+    const { data: feedbacks, total } = await this._feedbackRepo.listByCandidateUserId(candidateUserId, {
       search,
       page,
       limit,

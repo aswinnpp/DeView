@@ -13,8 +13,8 @@ import {
 @injectable()
 export class GoogleAuthController {
   constructor(
-    @inject(TYPES.GoogleOAuthUseCasePort) private readonly googleOAuthUseCase: IGoogleOAuthUseCase,
-    @inject(TYPES.GoogleAuthPort) private readonly googleAuthService: IGoogleAuth
+    @inject(TYPES.GoogleOAuthUseCasePort) private readonly _googleOAuthUseCase: IGoogleOAuthUseCase,
+    @inject(TYPES.GoogleAuthPort) private readonly _googleAuthService: IGoogleAuth
   ) {}
 
   initiateAuth = async (
@@ -22,7 +22,7 @@ export class GoogleAuthController {
     reply: FastifyReply
   ) => {
     const { role, mode } = request.query ?? {};
-    const authUrl = this.googleAuthService.getAuthUrl(role, mode);
+    const authUrl = this._googleAuthService.getAuthUrl(role, mode);
     reply.redirect(authUrl);
   };
 
@@ -33,7 +33,7 @@ export class GoogleAuthController {
     const frontendUrl = env.FRONTEND_URL;
     const { code, state } = request.query;
 
-    const sessionId = await this.googleOAuthUseCase.handleCallback(code, state);
+    const sessionId = await this._googleOAuthUseCase.handleCallback(code, state);
     return reply.redirect(`${frontendUrl}/auth/callback?sessionId=${sessionId}`);
   };
 
@@ -41,7 +41,7 @@ export class GoogleAuthController {
     request: FastifyRequest<{ Querystring: { sessionId: string } }>,
     reply: FastifyReply
   ) => {
-    const result = await this.googleOAuthUseCase.exchange(
+    const result = await this._googleOAuthUseCase.exchange(
       request.query.sessionId
     );
 

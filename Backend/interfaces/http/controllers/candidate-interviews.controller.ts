@@ -11,11 +11,11 @@ import type { IListMyInterviewFeedbacksUseCase } from '../../../application/inte
 export class CandidateInterviewsController {
   constructor(
     @inject(TYPES.ListMyInterviewsUseCasePort)
-    private readonly listMyInterviewsUseCase: IListMyInterviewsUseCase,
+    private readonly _listMyInterviewsUseCase: IListMyInterviewsUseCase,
     @inject(TYPES.RequestCandidateRescheduleUseCasePort)
-    private readonly requestCandidateRescheduleUseCase: IRequestCandidateRescheduleUseCase,
+    private readonly _requestCandidateRescheduleUseCase: IRequestCandidateRescheduleUseCase,
     @inject(TYPES.ListMyInterviewFeedbacksUseCasePort)
-    private readonly listMyInterviewFeedbacksUseCase: IListMyInterviewFeedbacksUseCase
+    private readonly _listMyInterviewFeedbacksUseCase: IListMyInterviewFeedbacksUseCase
   ) {}
 
   listMy = async (
@@ -28,7 +28,7 @@ export class CandidateInterviewsController {
       request.query,
       request.currentUser.userId
     );
-    const result = await this.listMyInterviewsUseCase.execute(input);
+    const result = await this._listMyInterviewsUseCase.execute(input);
     reply.send(success({ data: result.data, total: result.total }));
   };
 
@@ -44,7 +44,7 @@ export class CandidateInterviewsController {
       request.body,
       request.currentUser.userId
     );
-    const result = await this.requestCandidateRescheduleUseCase.execute(input);
+    const result = await this._requestCandidateRescheduleUseCase.execute(input);
     reply.send(success({ interview: result.interview }));
   };
 
@@ -58,7 +58,7 @@ export class CandidateInterviewsController {
       request.query,
       request.currentUser.userId
     );
-    const result = await this.listMyInterviewFeedbacksUseCase.execute(input);
+    const result = await this._listMyInterviewFeedbacksUseCase.execute(input);
     reply.send(success({ data: result.data, total: result.total }));
   };
 }

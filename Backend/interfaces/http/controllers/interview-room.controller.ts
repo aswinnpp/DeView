@@ -20,9 +20,9 @@ type UpdateStatusBody = {
 export class InterviewRoomController {
   constructor(
     @inject(TYPES.GetInterviewRoomDetailsUseCasePort)
-    private readonly getInterviewRoomDetailsUseCase: IGetInterviewRoomDetailsUseCase,
+    private readonly _getInterviewRoomDetailsUseCase: IGetInterviewRoomDetailsUseCase,
     @inject(TYPES.UpdateInterviewStatusUseCasePort)
-    private readonly updateInterviewStatusUseCase: IUpdateInterviewStatusUseCase
+    private readonly _updateInterviewStatusUseCase: IUpdateInterviewStatusUseCase
   ) {}
 
   getRoomDetails = async (
@@ -32,7 +32,7 @@ export class InterviewRoomController {
     const { interviewId } = request.params;
     const { userId, role, companyId } = request.currentUser;
 
-    const result = await this.getInterviewRoomDetailsUseCase.execute({
+    const result = await this._getInterviewRoomDetailsUseCase.execute({
       interviewId,
       userId,
       role,
@@ -53,7 +53,7 @@ export class InterviewRoomController {
     const { status } = request.body;
     const { userId } = request.currentUser;
 
-    await this.updateInterviewStatusUseCase.execute({
+    await this._updateInterviewStatusUseCase.execute({
       interviewId,
       interviewerUserId: userId,
       status,

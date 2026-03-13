@@ -10,14 +10,14 @@ import { AppError } from "../../../shared/errors/AppError";
 export class CreateInterviewerProfileUseCase implements ICreateInterviewerProfileUseCase {
   constructor(
     @inject(TYPES.InterviewerProfileRepositoryPort)
-    private repo: IInterviewerProfileRepository
+    private readonly _repo: IInterviewerProfileRepository
   ) {}
 
   async execute(dto: CreateInterviewerProfileDTO): Promise<{ message: string }> {
     if (!dto.userId) {
       throw AppError.badRequest("UserId is required");
     }
-    const existing = await this.repo.findByUserId(dto.userId);
+    const existing = await this._repo.findByUserId(dto.userId);
     if (existing) {
       throw AppError.conflict("Interviewer profile already exists");
     }
@@ -38,7 +38,7 @@ export class CreateInterviewerProfileUseCase implements ICreateInterviewerProfil
       dto.linkedinUrl ?? "",
       dto.githubUrl ?? ""
     );
-    await this.repo.save(profile);
+    await this._repo.save(profile);
     return { message: "Profile created successfully" };
   }
 }

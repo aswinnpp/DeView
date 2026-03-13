@@ -19,12 +19,12 @@ export interface IListInterviewerAssignmentsUseCase {
 @injectable()
 export class ListInterviewerAssignmentsUseCase implements IListInterviewerAssignmentsUseCase {
   constructor(
-    @inject(TYPES.InterviewRepositoryPort) private readonly repo: IInterviewRepository
+    @inject(TYPES.InterviewRepositoryPort) private readonly _repo: IInterviewRepository
   ) {}
 
   async execute(input: IListInterviewerAssignmentsInput): Promise<{ data: Interview[]; total: number }> {
     const { interviewerUserId, search, page, limit, sortOrder, acceptedOnly } = input;
-    return this.repo.listByInterviewerUserId(interviewerUserId, {
+    return this._repo.listByInterviewerUserId(interviewerUserId, {
       search,
       page,
       limit,

@@ -6,11 +6,11 @@ import type { IGetApprovedCompaniesUseCase } from "../ports/usecase/IGetApproved
 
 @injectable()
 export class GetApprovedCompaniesUseCase implements IGetApprovedCompaniesUseCase {
-  constructor(@inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository) {}
+  constructor(@inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository) {}
 
   async execute(search?: string, status?: string, sortOrder?: 'asc' | 'desc', page?: string, limit?: string) {
     const { page: parsedPage, limit: parsedLimit } = parseSearchParams({ page, limit });
-    const { data, total } = await this.repo.findApproved({ search, status: status as 'active' | 'inactive' | undefined, sortOrder, page: parsedPage, limit: parsedLimit });
+    const { data, total } = await this._repo.findApproved({ search, status: status as 'active' | 'inactive' | undefined, sortOrder, page: parsedPage, limit: parsedLimit });
     return { approvals: data, total };
   }
 }

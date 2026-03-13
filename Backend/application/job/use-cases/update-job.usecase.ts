@@ -10,21 +10,21 @@ import { AppError } from '../../../shared/errors/AppError.js';
 @injectable()
 export class UpdateJobUseCase implements IUpdateJobUseCase {
   constructor(
-    @inject(TYPES.JobRepositoryPort) private readonly repo: IJobRepository,
+    @inject(TYPES.JobRepositoryPort) private readonly _repo: IJobRepository,
     @inject(TYPES.ApplicationRepositoryPort)
-    private readonly applicationRepo: IApplicationRepository,
+    private readonly _applicationRepo: IApplicationRepository,
     @inject(TYPES.CompanyProfileRepositoryPort)
-    private readonly companyRepo: ICompanyProfileRepository,
+    private readonly _companyRepo: ICompanyProfileRepository,
   ) {}
 
   async execute(dto: IUpdateJobDTO) {
-    const job = await this.repo.findById(dto.jobId);
+    const job = await this._repo.findById(dto.jobId);
 
     if (!job || job.companyId !== dto.companyId) {
       throw AppError.notFound('Job not found');
     }
 
-    const existingApplications = await this.applicationRepo.listByJobId(
+    const existingApplications = await this._applicationRepo.listByJobId(
       dto.jobId,
       dto.companyId,
     );
@@ -34,7 +34,7 @@ export class UpdateJobUseCase implements IUpdateJobUseCase {
       );
     }
 
-    const company = await this.companyRepo.findById(dto.companyId);
+    const company = await this._companyRepo.findById(dto.companyId);
     if (!company) {
       throw AppError.forbidden(
         'Company profile not found. Please contact support before editing jobs.',
@@ -43,7 +43,7 @@ export class UpdateJobUseCase implements IUpdateJobUseCase {
 
     const now = new Date();
     company.refreshSubscriptions(now);
-    await this.companyRepo.save(company);
+    await this._companyRepo.save(company);
 
     if (!company.activeSubscription) {
       throw AppError.forbidden(
@@ -52,7 +52,7 @@ export class UpdateJobUseCase implements IUpdateJobUseCase {
     }
 
     job.updateFields(dto.data);
-    await this.repo.save(job);
+    await this._repo.save(job);
 
     return { job };
   }

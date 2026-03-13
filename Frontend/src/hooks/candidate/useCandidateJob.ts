@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { candidateJobsService, type CandidateJob } from "../../services/candidateJobs.service";
 import { candidateService } from "../../services/candidate.service";
+
 import { useFileUpload } from "../useFileUpload";
 import { extractApiError } from "../../api/axios";
+
 
 const PAGE_SIZE = 2 ;
 
@@ -35,6 +37,8 @@ export function useCandidateJob() {
   const [jobTypeFilter, setJobTypeFilter] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
+
+  const [buttonn, setButton] = useState(true);
 
   const [rawJobs, setRawJobs] = useState<CandidateJob[]>([]);
   const [total, setTotal] = useState(0);
@@ -116,6 +120,30 @@ export function useCandidateJob() {
 
   const handleJobClick = useCallback((job: CandidateJob) => {
     setSelectedJob(job);
+
+
+    
+
+
+    async function fetch() {
+
+    
+      
+
+     const application = await candidateJobsService.listMyApplications()
+
+     for( const i of application.data){
+        if(job.id === i.jobId){
+          setButton(false)
+
+     }
+
+     
+  }
+}
+
+  fetch()
+
     setShowApplicationConfirm(false);
   }, []);
 
@@ -229,5 +257,6 @@ export function useCandidateJob() {
 
     // utils
     formatPostedTime,
+    buttonn
   };
 }

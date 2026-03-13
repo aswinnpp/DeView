@@ -17,16 +17,16 @@ import {
 export class InterviewerProfileController {
   constructor(
     @inject(TYPES.GetInterviewerProfileUseCasePort)
-    private readonly getProfileUseCase: IGetInterviewerProfileUseCase,
+    private readonly _getProfileUseCase: IGetInterviewerProfileUseCase,
     @inject(TYPES.CreateInterviewerProfileUseCasePort)
-    private readonly createProfileUseCase: ICreateInterviewerProfileUseCase,
+    private readonly _createProfileUseCase: ICreateInterviewerProfileUseCase,
     @inject(TYPES.UpdateInterviewerProfileUseCasePort)
-    private readonly updateProfileUseCase: IUpdateInterviewerProfileUseCase
+    private readonly _updateProfileUseCase: IUpdateInterviewerProfileUseCase
   ) {}
 
   getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
     const userId = request.currentUser!.userId;
-    const profile = await this.getProfileUseCase.execute(userId);
+    const profile = await this._getProfileUseCase.execute(userId);
     const hasProfile = profile !== null;
     const data = profile ? toView(profile) : undefined;
     reply.send(success({ hasProfile, data }));
@@ -38,7 +38,7 @@ export class InterviewerProfileController {
   ) => {
     const userId = request.currentUser!.userId;
     const dto = toCreateDTO(request.body, userId);
-    const result = await this.createProfileUseCase.execute(dto);
+    const result = await this._createProfileUseCase.execute(dto);
     reply.code(HttpStatus.CREATED).send(success(result));
   };
 
@@ -48,7 +48,7 @@ export class InterviewerProfileController {
   ) => {
     const userId = request.currentUser!.userId;
     const dto = toUpdateDTO(request.body, userId);
-    const result = await this.updateProfileUseCase.execute(dto);
+    const result = await this._updateProfileUseCase.execute(dto);
     reply.send(success(result));
   };
 }

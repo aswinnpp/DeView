@@ -2,10 +2,10 @@ import { IOAuthSession } from "../../../application/auth/ports/services/IOAuthSe
 import { RedisClientType } from "redis";
 
 export class RedisOAuthSessionRepository implements IOAuthSession {
-  constructor(private redis: RedisClientType) {}
+  constructor(private _redis: RedisClientType) {}
 
   async save(sessionId: string, payload: IOAuthSession["save"] extends (id: string, p: infer P) => Promise<void> ? P : never): Promise<void> {
-    await this.redis.setEx(
+    await this._redis.setEx(
       `oauth:session:${sessionId}`,
       900,
       JSON.stringify(payload)
@@ -13,10 +13,10 @@ export class RedisOAuthSessionRepository implements IOAuthSession {
   }
 
   async get(sessionId: string): Promise<string | null> {
-    return this.redis.get(`oauth:session:${sessionId}`);
+    return this._redis.get(`oauth:session:${sessionId}`);
   }
 
   async delete(sessionId: string): Promise<void> {
-    await this.redis.del(`oauth:session:${sessionId}`);
+    await this._redis.del(`oauth:session:${sessionId}`);
   }
 }

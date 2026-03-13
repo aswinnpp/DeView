@@ -3,6 +3,7 @@ import CandidateNavHeader from "./CandidateNavHeader";
 import { Button, SearchInput, Pagination } from "../../components/common";
 import { useCandidateJob } from "../../hooks/candidate/useCandidateJob";
 
+
 const CandidateJobsPage: React.FC = () => {
     const {
         selectedJob,
@@ -38,7 +39,14 @@ const CandidateJobsPage: React.FC = () => {
         handleSearch,
         handlePageChange,
         formatPostedTime,
+        buttonn
     } = useCandidateJob();
+
+
+
+
+
+
 
     if (selectedJob && showApplicationConfirm) {
         return (
@@ -213,13 +221,24 @@ const CandidateJobsPage: React.FC = () => {
                                             {selectedJob.title}
                                         </p>
                                     </div>
-                                    <Button
-                                        type="button"
-                                        onClick={handleApplyClick}
-                                        className="inline-flex items-center justify-center rounded-lg bg-linear-to-br from-brand-primary to-brand-secondary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(79,70,229,0.5)] hover:shadow-[0_14px_35px_rgba(79,70,229,0.7)] transition-all duration-150 w-full sm:w-auto self-end sm:self-center"
-                                    >
-                                        Apply Now
-                                    </Button>
+
+                                    {buttonn ?(
+
+                                        <Button
+                                            type="button"
+
+                                            onClick={handleApplyClick}
+                                            className="inline-flex items-center justify-center rounded-lg bg-linear-to-br from-brand-primary to-brand-secondary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(79,70,229,0.5)] hover:shadow-[0_14px_35px_rgba(79,70,229,0.7)] transition-all duration-150 w-full sm:w-auto self-end sm:self-center"
+                                        >
+                                            Apply Now
+                                        </Button>
+
+                                    ) :"Already applied"}
+
+
+
+
+
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-5 text-base text-[rgba(226,232,240,0.9)]">
@@ -477,7 +496,7 @@ const CandidateJobsPage: React.FC = () => {
                                             Based on your profile and preferences
                                         </p>
                                     </div>
-                                    
+
                                 </div>
 
                                 <div>
@@ -492,7 +511,7 @@ const CandidateJobsPage: React.FC = () => {
                                                 <div className="flex items-start justify-between gap-2">
                                                     <h4 className="m-0 text-[13px] sm:text-sm font-semibold text-indigo-200 group-hover:text-indigo-100">
                                                         {job.title}
-                                                        
+
                                                     </h4>
                                                 </div>
                                                 <p className="mt-0.5 mb-0 text-[12px] sm:text-xs text-slate-100">

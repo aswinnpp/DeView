@@ -12,22 +12,22 @@ import { AppError } from '../../../shared/errors/AppError.js';
 @injectable()
 export class CreateJobUseCase implements ICreateJobUseCase {
   constructor(
-    @inject(TYPES.JobRepositoryPort) private readonly repo: IJobRepository,
-    @inject(TYPES.CompanyProfileRepositoryPort) private readonly companyRepo: ICompanyProfileRepository,
-    @inject(TYPES.SubscriptionRepositoryPort) private readonly subscriptionRepo: ISubscriptionRepository,
+    @inject(TYPES.JobRepositoryPort) private readonly _repo: IJobRepository,
+    @inject(TYPES.CompanyProfileRepositoryPort) private readonly _companyRepo: ICompanyProfileRepository,
+    @inject(TYPES.SubscriptionRepositoryPort) private readonly _subscriptionRepo: ISubscriptionRepository,
   ) {}
 
   async execute(dto: ICreateJobDTO) {
     const now = new Date();
 
-    const company = await this.companyRepo.findById(dto.companyId);
+    const company = await this._companyRepo.findById(dto.companyId);
 
     if (!company) {
       throw AppError.forbidden('Company profile not found. Please complete your company profile before posting jobs.');
     }
 
     company.refreshSubscriptions(now);
-    await this.companyRepo.save(company);
+    await this._companyRepo.save(company);
 
     const activeSub = company.activeSubscription;
 
@@ -49,7 +49,7 @@ export class CreateJobUseCase implements ICreateJobUseCase {
       activeSub.interviewUnlimited = plan.interviewUnlimited;
       activeSub.jobPostLimit = plan.jobPostLimit;
       activeSub.jobUnlimited = plan.jobUnlimited;
-      await this.companyRepo.save(company);
+      await this._companyRepo.save(company);
     }
 
     if (!jobUnlimited) {
@@ -57,7 +57,7 @@ export class CreateJobUseCase implements ICreateJobUseCase {
         throw AppError.forbidden('Your current plan does not allow job postings. Please upgrade your plan.');
       }
 
-      const existingJobs = await this.repo.listByCompanyId(dto.companyId);
+      const existingJobs = await this._repo.listByCompanyId(dto.companyId);
       const activeJobsCount = existingJobs.length;
 
       if (activeJobsCount >= (jobPostLimit ?? 0)) {
@@ -96,7 +96,7 @@ export class CreateJobUseCase implements ICreateJobUseCase {
       now,
     );
 
-    await this.repo.save(job);
+    await this._repo.save(job);
 
     return { job };
   }

@@ -18,10 +18,10 @@ function toContext(user: { userId: string; companyId?: string }) {
 @injectable()
 export class JobsController {
   constructor(
-    @inject(TYPES.CreateJobUseCasePort) private readonly createJobUseCase: ICreateJobUseCase,
-    @inject(TYPES.UpdateJobUseCasePort) private readonly updateJobUseCase: IUpdateJobUseCase,
-    @inject(TYPES.ListJobsUseCasePort) private readonly listJobsUseCase: IListJobsUseCase,
-    @inject(TYPES.ToggleJobStatusUseCasePort) private readonly toggleJobStatusUseCase: IToggleJobStatusUseCase,
+    @inject(TYPES.CreateJobUseCasePort) private readonly _createJobUseCase: ICreateJobUseCase,
+    @inject(TYPES.UpdateJobUseCasePort) private readonly _updateJobUseCase: IUpdateJobUseCase,
+    @inject(TYPES.ListJobsUseCasePort) private readonly _listJobsUseCase: IListJobsUseCase,
+    @inject(TYPES.ToggleJobStatusUseCasePort) private readonly _toggleJobStatusUseCase: IToggleJobStatusUseCase,
   ) {}
 
   createJob = async (
@@ -30,7 +30,7 @@ export class JobsController {
   ) => {
     const ctx = toContext(request.currentUser);
     const dto = JobMapper.toCreateDTO(request.body, ctx);
-    const result = await this.createJobUseCase.execute(dto);
+    const result = await this._createJobUseCase.execute(dto);
 
     reply.code(HttpStatus.CREATED).send(success(result.job));
   };
@@ -41,7 +41,7 @@ export class JobsController {
   ) => {
     const ctx = toContext(request.currentUser);
     const dto = JobMapper.toUpdateDTO(request.params, request.body, ctx);
-    const result = await this.updateJobUseCase.execute(dto);
+    const result = await this._updateJobUseCase.execute(dto);
 
     reply.send(success(result.job));
   };
@@ -52,7 +52,7 @@ export class JobsController {
   ) => {
     const ctx = toContext(request.currentUser);
     const input = JobMapper.toToggleStatusInput(request.params, request.body, ctx);
-    const result = await this.toggleJobStatusUseCase.execute(input);
+    const result = await this._toggleJobStatusUseCase.execute(input);
 
     reply.send(success(result.job));
   };
@@ -65,7 +65,7 @@ export class JobsController {
   ) => {
     const ctx = toContext(request.currentUser);
     const input = JobMapper.toListInput(request.query, ctx);
-    const result = await this.listJobsUseCase.execute(input);
+    const result = await this._listJobsUseCase.execute(input);
 
 
     reply.send(success(result));

@@ -11,15 +11,15 @@ import type { ILoginUseCase } from "../ports/usecase/ILoginUseCase";
 @injectable()
 export class LoginUseCase implements ILoginUseCase {
   constructor(
-    @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository,
-    @inject(TYPES.CompanyProfileRepositoryPort) private companyRepo: ICompanyProfileRepository,
-    @inject(TYPES.PasswordHasherPort) private hasher: IPasswordHasher,
-    @inject(TYPES.TokenServicePort) private tokenService: ITokenService
+    @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository,
+    @inject(TYPES.CompanyProfileRepositoryPort) private _companyRepo: ICompanyProfileRepository,
+    @inject(TYPES.PasswordHasherPort) private _hasher: IPasswordHasher,
+    @inject(TYPES.TokenServicePort) private _tokenService: ITokenService
   ) { }
 
   async execute(emailStr: string, password: string) {
     const email = new Email(emailStr);
-    const user = await this.userRepo.findByEmail(email);
+    const user = await this._userRepo.findByEmail(email);
     if (!user || !user.passwordHash) {
       throw AppError.unauthorized("Invalid email or password");
     }
@@ -33,7 +33,7 @@ export class LoginUseCase implements ILoginUseCase {
       throw AppError.forbidden("Email not verified");
     }
 
-    const ok = await this.hasher.compare(password, user.passwordHash);
+    const ok = await this._hasher.compare(password, user.passwordHash);
     if (!ok) {
       throw AppError.unauthorized("Invalid email or password");
     }
@@ -47,13 +47,13 @@ export class LoginUseCase implements ILoginUseCase {
       throw AppError.internal("User ID is missing");
     }
 
-    const accessToken = await this.tokenService.signAccessToken({
+    const accessToken = await this._tokenService.signAccessToken({
       userId: user.id,
       role: user.role.getValue(),
       ...(user.companyId && { companyId: user.companyId }),
     });
 
-    const refresh = await this.tokenService.generateRefreshToken(user.id);
+    const refresh = await this._tokenService.generateRefreshToken(user.id);
 
     const userData = {
       id: user.id,

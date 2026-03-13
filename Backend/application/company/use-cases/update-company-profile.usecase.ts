@@ -7,14 +7,14 @@ import type { IUpdateCompanyProfileUseCase } from "../ports/usecase/IUpdateCompa
 
 @injectable()
 export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase {
-    constructor(@inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository) { }
+    constructor(@inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository) { }
 
     async execute(dto: IUpdateCompanyProfileDTO): Promise<{ message: string }> {
         if (!dto.userId) {
             throw AppError.badRequest("UserId is required");
         }
 
-        const profile = await this.repo.findByUserId(dto.userId);
+        const profile = await this._repo.findByUserId(dto.userId);
 
         if (!profile) {
             throw AppError.notFound("Company profile not found");
@@ -23,7 +23,7 @@ export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase
         const {  ...fields } = dto;
         profile.updateFields(fields);
 
-        await this.repo.save(profile);
+        await this._repo.save(profile);
 
         return { message: "Profile updated successfully" };
     }

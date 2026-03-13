@@ -1,7 +1,7 @@
   import { DomainError } from "../../../shared/errors/DomainError";
 
 export class Email {
-  private readonly value: string;
+  private readonly _value: string;
 
   constructor(email: string) {
     if (!email || typeof email !== "string") {
@@ -17,14 +17,14 @@ export class Email {
       throw new DomainError("Invalid email format");
     }
 
-    this.value = normalized;
+    this._value = normalized;
   }
 
   getValue(): string {
-    return this.value;
+    return this._value;
   }
 
   equals(other: Email): boolean {
-    return this.value === other.value;
+    return this._value === other._value;
   }
 }

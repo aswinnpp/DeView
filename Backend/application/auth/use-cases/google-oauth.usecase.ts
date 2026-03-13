@@ -28,11 +28,11 @@ function parseRoleFromState(state: string | undefined): string {
 @injectable()
 export class GoogleOAuthUseCase implements IGoogleOAuthUseCase {
   constructor(
-    @inject(TYPES.UserRepositoryPort) private readonly userRepo: IUserRepository,
-    @inject(TYPES.TokenServicePort) private readonly tokenService: ITokenService,
-    @inject(TYPES.OAuthSessionPort) private readonly sessionRepo: IOAuthSession,
-    @inject(TYPES.GoogleAuthPort) private readonly googleAuth: IGoogleAuth,
-    @inject(TYPES.CryptoRandomPort) private readonly cryptoRandom: ICryptoRandom
+    @inject(TYPES.UserRepositoryPort) private readonly _userRepo: IUserRepository,
+    @inject(TYPES.TokenServicePort) private readonly _tokenService: ITokenService,
+    @inject(TYPES.OAuthSessionPort) private readonly _sessionRepo: IOAuthSession,
+    @inject(TYPES.GoogleAuthPort) private readonly _googleAuth: IGoogleAuth,
+    @inject(TYPES.CryptoRandomPort) private readonly _cryptoRandom: ICryptoRandom
   ) {}
 
  
@@ -45,7 +45,7 @@ export class GoogleOAuthUseCase implements IGoogleOAuthUseCase {
     let googleUser: IGoogleUserDTO;
 
     try {
-      const verified = await this.googleAuth.verifyToken(code);
+      const verified = await this._googleAuth.verifyToken(code);
       googleUser = { email: verified.email, name: verified.name };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -62,7 +62,7 @@ export class GoogleOAuthUseCase implements IGoogleOAuthUseCase {
     const roleValue = role && ALLOWED_ROLES.includes(role) ? role : "candidate";
     const roleVO = new Role(roleValue);
 
-    let user = await this.userRepo.findByEmail(email);
+    let user = await this._userRepo.findByEmail(email);
 
     if (!user) {
       user = User.create({
@@ -72,21 +72,21 @@ export class GoogleOAuthUseCase implements IGoogleOAuthUseCase {
         authProvider: "google",
         createdAt: new Date(),
       });
-      await this.userRepo.save(user);
-      user = await this.userRepo.findByEmail(email);
+      await this._userRepo.save(user);
+      user = await this._userRepo.findByEmail(email);
       if (!user) throw AppError.internal("User creation failed");
     }
 
-    const accessToken = await this.tokenService.signAccessToken({
+    const accessToken = await this._tokenService.signAccessToken({
       userId: user.id!,
       role: user.role.getValue(),
     });
 
-    const refreshToken = await this.tokenService.generateRefreshToken(user.id!);
+    const refreshToken = await this._tokenService.generateRefreshToken(user.id!);
 
-    const sessionId = this.cryptoRandom.generateUUID();
+    const sessionId = this._cryptoRandom.generateUUID();
 
-    await this.sessionRepo.save(sessionId, {
+    await this._sessionRepo.save(sessionId, {
       accessToken,
       refreshToken: refreshToken.token,
       user: {
@@ -104,13 +104,13 @@ export class GoogleOAuthUseCase implements IGoogleOAuthUseCase {
 
     console.log("SESSION ID", sessionId);
     
-    const session = await this.sessionRepo.get(sessionId);
+    const session = await this._sessionRepo.get(sessionId);
 
     console.log("REDIS SESSION", session);
 
     if (!session) throw AppError.badRequest("Session expired");
 
-    await this.sessionRepo.delete(sessionId);
+    await this._sessionRepo.delete(sessionId);
 
     return JSON.parse(session);
   }

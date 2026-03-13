@@ -8,13 +8,13 @@ import type { IVerifyPasswordResetOtpUseCase } from "../ports/usecase/IVerifyPas
 
 @injectable()
 export class VerifyPasswordResetOTPUseCase implements IVerifyPasswordResetOtpUseCase {
-  constructor(@inject(TYPES.OTPRepositoryPort) private otpRepository: IOtpRepository) {}
+  constructor(@inject(TYPES.OTPRepositoryPort) private _otpRepository: IOtpRepository) {}
 
   async execute(emailStr: string, otpStr: string) {
     const email = new Email(emailStr);
     const otp = new OTPCode(otpStr);
 
-    const storedOTP = await this.otpRepository.find(email.getValue());
+    const storedOTP = await this._otpRepository.find(email.getValue());
 
     if (!storedOTP || !storedOTP.equals(otp)) {
       throw AppError.badRequest("Invalid or expired OTP");

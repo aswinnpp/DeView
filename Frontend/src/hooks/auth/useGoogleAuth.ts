@@ -17,7 +17,8 @@ export function useGoogleAuth() {
   const [isLoading, setIsLoading] = useState(false);
 
   const initiateGoogleAuth = useCallback((role = 'candidate') => {
-    window.location.href = `${API_BASE_URL}${API_ROUTES.AUTH.GOOGLE_BASE}?role=${role}`;
+    // Replace current history entry so Back won't return to /login
+    window.location.replace(`${API_BASE_URL}${API_ROUTES.AUTH.GOOGLE_BASE}?role=${role}`);
   }, []);
 
   const handleCallback = useCallback(async (): Promise<boolean> => {
@@ -54,23 +55,23 @@ export function useGoogleAuth() {
         try {
           const { data: statusResult } = await authService.checkCompanyStatus();
           if (!statusResult) {
-            navigate(APP_ROUTES.COMPANY_APPROVAL_FORM);
+            navigate(APP_ROUTES.COMPANY_APPROVAL_FORM, { replace: true });
             return;
           }
 
           switch (statusResult.status) {
             case 'approved':
-              navigate(APP_ROUTES.COMPANY_DASHBOARD);
+              navigate(APP_ROUTES.COMPANY_DASHBOARD, { replace: true });
               break;
             case 'pending':
             case 'rejected':
-              navigate(APP_ROUTES.COMPANY_APPROVAL_PENDING);
+              navigate(APP_ROUTES.COMPANY_APPROVAL_PENDING, { replace: true });
               break;
             default:
-              navigate(APP_ROUTES.COMPANY_APPROVAL_FORM);
+              navigate(APP_ROUTES.COMPANY_APPROVAL_FORM, { replace: true });
           }
         } catch {
-          navigate(APP_ROUTES.COMPANY_APPROVAL_FORM);
+          navigate(APP_ROUTES.COMPANY_APPROVAL_FORM, { replace: true });
         }
       };
 
@@ -78,17 +79,17 @@ export function useGoogleAuth() {
       const role = (user.role ?? "").toLowerCase();
 
       if (role === "candidate") {
-        navigate(APP_ROUTES.CANDIDATE_PROFILE);
+        navigate(APP_ROUTES.CANDIDATE_INTERVIEWS, { replace: true });
       } else if (role === "company") {
         await navigateCompanyUser();
       } else if (role === "hr") {
-        navigate(APP_ROUTES.HR_DASHBOARD);
+        navigate(APP_ROUTES.HR_DASHBOARD, { replace: true });
       } else if (role === "admin") {
-        navigate(APP_ROUTES.ADMIN_DASHBOARD);
+        navigate(APP_ROUTES.ADMIN_DASHBOARD, { replace: true });
       } else if (role === "interviewer") {
-        navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS);
+        navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS, { replace: true });
       } else {
-        navigate(APP_ROUTES.ROOT);
+        navigate(APP_ROUTES.ROOT, { replace: true });
       }
 
       return true;

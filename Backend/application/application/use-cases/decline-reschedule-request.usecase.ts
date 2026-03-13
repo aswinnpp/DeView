@@ -19,15 +19,15 @@ export interface IDeclineRescheduleRequestUseCase {
 export class DeclineRescheduleRequestUseCase implements IDeclineRescheduleRequestUseCase {
   constructor(
     @inject(TYPES.ApplicationRepositoryPort)
-    private readonly applicationRepository: IApplicationRepository,
+    private readonly _applicationRepository: IApplicationRepository,
     @inject(TYPES.InterviewRepositoryPort)
-    private readonly interviewRepository: IInterviewRepository
+    private readonly _interviewRepository: IInterviewRepository
   ) {}
 
   async execute(input: IDeclineRescheduleRequestInput): Promise<{ application: Application }> {
     const { companyId, jobId, applicationId } = input;
 
-    const updated = await this.applicationRepository.updateStatus({
+    const updated = await this._applicationRepository.updateStatus({
       applicationId,
       jobId,
       companyId,
@@ -38,9 +38,9 @@ export class DeclineRescheduleRequestUseCase implements IDeclineRescheduleReques
       throw AppError.notFound('Application not found');
     }
 
-    const existing = await this.interviewRepository.findActiveByApplicationId(applicationId);
+    const existing = await this._interviewRepository.findActiveByApplicationId(applicationId);
     if (existing?.id) {
-      await this.interviewRepository.declineCandidateRejection(existing.id);
+      await this._interviewRepository.declineCandidateRejection(existing.id);
     }
 
     return { application: updated };

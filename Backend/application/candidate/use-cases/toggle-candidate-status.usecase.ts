@@ -8,12 +8,12 @@ import type { IToggleCandidateStatusUseCase } from "../ports/usecase/IToggleCand
 @injectable()
 export class ToggleCandidateStatusUseCase implements IToggleCandidateStatusUseCase {
     constructor(
-        @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository,
-        @inject(TYPES.TokenServicePort) private readonly tokenService: ITokenService
+        @inject(TYPES.UserRepositoryPort) private readonly _userRepository: IUserRepository,
+        @inject(TYPES.TokenServicePort) private readonly _tokenService: ITokenService
     ) {}
 
     async execute(candidateId: string): Promise<{ message: string; isActive: boolean }> {
-        const user = await this.userRepository.findById(candidateId);
+        const user = await this._userRepository.findById(candidateId);
         
         if (!user) {
             throw AppError.notFound('Candidate not found');
@@ -26,12 +26,12 @@ export class ToggleCandidateStatusUseCase implements IToggleCandidateStatusUseCa
 
         if (user.isActive) {
             user.deactivate();
-            await this.tokenService.revokeAllUserTokens(candidateId);
+            await this._tokenService.revokeAllUserTokens(candidateId);
         } else {
             user.activate();
         }
 
-        await this.userRepository.save(user);
+        await this._userRepository.save(user);
 
         const message = user.isActive ? 'Candidate activated' : 'Candidate deactivated';
         return { message, isActive: user.isActive };

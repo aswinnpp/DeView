@@ -8,14 +8,14 @@ import type { ICreateCandidateProfileUseCase } from "../ports/usecase/ICreateCan
 
 @injectable()
 export class CreateCandidateProfileUseCase implements ICreateCandidateProfileUseCase {
-    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private repo: ICandidateProfileRepository) { }
+    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private _repo: ICandidateProfileRepository) { }
 
     async execute(dto: ICreateCandidateProfileDTO): Promise<{ message: string }> {
         if (!dto.userId) {
             throw AppError.badRequest("UserId is required");
         }
 
-        const existing = await this.repo.findByUserId(dto.userId);
+        const existing = await this._repo.findByUserId(dto.userId);
         if (existing) {
             throw AppError.conflict("Candidate profile already exists");
         }
@@ -48,7 +48,7 @@ export class CreateCandidateProfileUseCase implements ICreateCandidateProfileUse
             dto.resumeUrl
         );
 
-        await this.repo.save(profile);
+        await this._repo.save(profile);
 
         return { message: "Profile created successfully" };
     }

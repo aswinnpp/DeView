@@ -55,7 +55,6 @@ export class Application {
     public aiScore?: number,
     public interviewDetails?: InterviewDetails,
     public rescheduleRequest?: RescheduleRequest,
-    /** Rounds the candidate has already attempted/completed */
     public completedRounds: string[] = [],
     public rejectionEmailContent?: string,
     public rejectionSentAt?: Date,

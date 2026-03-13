@@ -14,20 +14,20 @@ import type { ICreateTeamMemberUseCase, ICreateTeamMemberDTO } from "../ports/us
 @injectable()
 export class CreateTeamMemberUseCase implements ICreateTeamMemberUseCase {
     constructor(
-        @inject(TYPES.UserRepositoryPort) private readonly userRepository: IUserRepository,
-        @inject(TYPES.PasswordHasherPort) private readonly passwordHasher: IPasswordHasher,
-        @inject(TYPES.EmailServicePort) private readonly emailService: IEmailService,
-        @inject(ResolveCompanyForUserUseCase) private readonly resolveCompany: ResolveCompanyForUserUseCase,
-        @inject(TYPES.CryptoRandomPort) private readonly cryptoRandom: ICryptoRandom
+        @inject(TYPES.UserRepositoryPort) private readonly _userRepository: IUserRepository,
+        @inject(TYPES.PasswordHasherPort) private readonly _passwordHasher: IPasswordHasher,
+        @inject(TYPES.EmailServicePort) private readonly _emailService: IEmailService,
+        @inject(ResolveCompanyForUserUseCase) private readonly _resolveCompany: ResolveCompanyForUserUseCase,
+        @inject(TYPES.CryptoRandomPort) private readonly _cryptoRandom: ICryptoRandom
     ) {}
 
     async execute(dto: ICreateTeamMemberDTO): Promise<{ message: string; userId: string }> {
-        const companyId = await this.resolveCompany.execute(dto.userId, dto.companyIdFromToken);
+        const companyId = await this._resolveCompany.execute(dto.userId, dto.companyIdFromToken);
 
         const email = new Email(dto.email);
         const role = new Role(dto.role as RoleType);
 
-        const existing = await this.userRepository.findByEmail(email);
+        const existing = await this._userRepository.findByEmail(email);
         if (existing) {
             throw AppError.conflict('A user with this email already exists');
         }
@@ -35,7 +35,7 @@ export class CreateTeamMemberUseCase implements ICreateTeamMemberUseCase {
           
 
         const temporaryPassword = this.generatePassword();
-        const passwordHash = await this.passwordHasher.hash(temporaryPassword);
+        const passwordHash = await this._passwordHasher.hash(temporaryPassword);
 
         const user = User.create({
             fullName: dto.fullName,
@@ -47,9 +47,9 @@ export class CreateTeamMemberUseCase implements ICreateTeamMemberUseCase {
         });
 
         user.markEmailAsVerified();
-        await this.userRepository.save(user);
+        await this._userRepository.save(user);
 
-        await this.emailService.sendWelcomeEmail(
+        await this._emailService.sendWelcomeEmail(
             dto.email,
             dto.fullName,
             dto.role,
@@ -67,6 +67,6 @@ export class CreateTeamMemberUseCase implements ICreateTeamMemberUseCase {
         const chars =
             "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%";
 
-        return this.cryptoRandom.generateRandomString(12, chars);
+        return this._cryptoRandom.generateRandomString(12, chars);
     }
 }

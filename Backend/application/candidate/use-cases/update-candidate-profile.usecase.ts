@@ -7,14 +7,14 @@ import type { IUpdateCandidateProfileUseCase } from "../ports/usecase/IUpdateCan
 
 @injectable()
 export class UpdateCandidateProfileUseCase implements IUpdateCandidateProfileUseCase {
-    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private repo: ICandidateProfileRepository) { }
+    constructor(@inject(TYPES.CandidateProfileRepositoryPort) private _repo: ICandidateProfileRepository) { }
 
     async execute(dto: IUpdateCandidateProfileDTO): Promise<{ message: string }> {
         if (!dto.userId) {
             throw AppError.badRequest("UserId is required");
         }
 
-        const profile = await this.repo.findByUserId(dto.userId);
+        const profile = await this._repo.findByUserId(dto.userId);
 
         if (!profile) {
             throw AppError.notFound("Complete your profile to continue");
@@ -23,7 +23,7 @@ export class UpdateCandidateProfileUseCase implements IUpdateCandidateProfileUse
         const {  ...fields } = dto;
         profile.updateFields(fields);
 
-        await this.repo.save(profile);
+        await this._repo.save(profile);
 
         return { message: "Profile updated successfully" };
     }

@@ -1,5 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../context/store';
+import { APP_ROUTES } from '../../constants/routes';
 import { useGoogleAuth } from '../../hooks/auth/useGoogleAuth';
 import { Button } from '../../components/common';
 
@@ -9,10 +12,29 @@ const AuthCallbackPage = () => {
     const { handleCallback } = data;
 
     const [isProcessing, setIsProcessing] = useState(true);
+    const user = useSelector((state: RootState) => state.auth.user);
 
     const hasRun = useRef(false);
 
     useEffect(() => {
+        // If already logged in (Back button to callback), redirect by role.
+        if (user) {
+            const role = (user.role || '').toLowerCase();
+
+            if (role === 'admin') {
+                navigate(APP_ROUTES.ADMIN_DASHBOARD, { replace: true });
+            } else if (role === 'company') {
+                navigate(APP_ROUTES.COMPANY_DASHBOARD, { replace: true });
+            } else if (role === 'hr') {
+                navigate(APP_ROUTES.HR_DASHBOARD, { replace: true });
+            } else if (role === 'interviewer') {
+                navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS, { replace: true });
+            } else {
+                navigate(APP_ROUTES.CANDIDATE_INTERVIEWS, { replace: true });
+            }
+            return;
+        }
+
         if (hasRun.current) return;
         hasRun.current = true;
 
@@ -26,7 +48,7 @@ const AuthCallbackPage = () => {
         };
 
         processCallback();
-    }, [handleCallback]);
+    }, [handleCallback, user, navigate]);
 
     if (error || !isProcessing) {
         return (
@@ -42,7 +64,7 @@ const AuthCallbackPage = () => {
                         </p>
                         <Button
                             variant="primary"
-                            onClick={() => navigate('/login')}
+                            onClick={() => navigate('/login', { replace: true })}
                             className="py-3 px-6 rounded-lg text-sm font-semibold mt-2"
                         >
                             Back to Login

@@ -3,7 +3,7 @@ import type { IInterviewerSlotsRepository } from "../../../../application/interv
 import type { IInterviewerSlotsDocument } from "../schemas/InterviewerSlotsDocument.js";
 
 export class MongoInterviewerSlotsRepository implements IInterviewerSlotsRepository {
-  constructor(private readonly collection: Collection<IInterviewerSlotsDocument>) {}
+  constructor(private readonly _collection: Collection<IInterviewerSlotsDocument>) {}
 
   async listByInterviewer(input: {
     interviewerId: string;
@@ -16,7 +16,7 @@ export class MongoInterviewerSlotsRepository implements IInterviewerSlotsReposit
     };
     if (input.slotDate) filter.slotDate = input.slotDate;
 
-    return this.collection.find(filter).sort({ slotDate: 1, updatedAt: -1 }).toArray();
+    return this._collection.find(filter).sort({ slotDate: 1, updatedAt: -1 }).toArray();
   }
 
   async upsertForInterviewerDate(input: {
@@ -28,7 +28,7 @@ export class MongoInterviewerSlotsRepository implements IInterviewerSlotsReposit
   }): Promise<IInterviewerSlotsDocument> {
     const now = new Date();
 
-    await this.collection.updateOne(
+    await this._collection.updateOne(
       { interviewerId: input.interviewerId, companyId: input.companyId, slotDate: input.slotDate },
       {
         $set: {
@@ -46,7 +46,7 @@ export class MongoInterviewerSlotsRepository implements IInterviewerSlotsReposit
       { upsert: true },
     );
 
-    const doc = await this.collection.findOne({
+    const doc = await this._collection.findOne({
       interviewerId: input.interviewerId,
       companyId: input.companyId,
       slotDate: input.slotDate,

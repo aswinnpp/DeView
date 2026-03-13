@@ -6,17 +6,17 @@ import type { IMarkDocumentUseCase } from "../ports/usecase/IMarkDocumentUseCase
 
 @injectable()
 export class MarkDocumentUseCase implements IMarkDocumentUseCase {
-  constructor(@inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository) { }
+  constructor(@inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository) { }
 
     async execute(companyId: string, documentKey: Parameters<IMarkDocumentUseCase["execute"]>[1], verified: boolean) {
-        const company = await this.repo.findById(companyId);
+        const company = await this._repo.findById(companyId);
 
         if (!company) {
             throw AppError.notFound("Company approval not found");
         }
 
         company.markDocument(documentKey, verified);
-        await this.repo.save(company);
+        await this._repo.save(company);
 
         return { documentKey, marked: verified };
     }

@@ -11,12 +11,12 @@ import type {
 export class ListMyApplicationsUseCase implements IListMyApplicationsUseCase {
   constructor(
     @inject(TYPES.ApplicationRepositoryPort)
-    private readonly applicationRepo: IApplicationRepository,
+    private readonly _applicationRepo: IApplicationRepository,
   ) {}
 
   async execute(input: IListMyApplicationsInput): Promise<IListMyApplicationsResult> {
     const { candidateUserId, status, search, page, limit, sortOrder } = input;
-    const { data, total } = await this.applicationRepo.listByCandidateUserId(candidateUserId, {
+    const { data, total } = await this._applicationRepo.listByCandidateUserId(candidateUserId, {
       status,
       search,
       page,

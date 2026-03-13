@@ -47,8 +47,8 @@ function toDomain(doc: IApplicationDocument): Application {
 
 export class MongoApplicationRepository implements IApplicationRepository {
   constructor(
-    private collection: Collection<IApplicationDocument>,
-    private jobsCollection: Collection<IJobDocument>
+    private _collection: Collection<IApplicationDocument>,
+    private _jobsCollection: Collection<IJobDocument>
   ) {}
 
   async listByJobId(
@@ -59,7 +59,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
     const filter: Filter<IApplicationDocument> = { jobId, companyId };
     if (status) filter.status = status;
 
-    const docs = await this.collection
+    const docs = await this._collection
       .find(filter)
       .sort({ createdAt: -1 })
       .toArray();
@@ -68,7 +68,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
   }
 
   async listPendingByJobId(jobId: string, companyId: string): Promise<Application[]> {
-    return this.listByJobId(jobId, companyId, 'PENDING');
+      return this.listByJobId(jobId, companyId, 'PENDING');
   }
 
   async listByCandidateUserId(
@@ -107,7 +107,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
         { $match: filter },
         {
           $lookup: {
-            from: this.jobsCollection.collectionName,
+            from: this._jobsCollection.collectionName,
             let: {
               jid: { $convert: { input: '$jobId', to: 'objectId', onError: null, onNull: null } },
             },
@@ -121,7 +121,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
       ];
 
       const countPipeline = [...pipeline, { $count: 'total' }];
-      const countResult = await this.collection.aggregate<{ total: number }>(countPipeline).toArray();
+      const countResult = await this._collection.aggregate<{ total: number }>(countPipeline).toArray();
       const total = countResult[0]?.total ?? 0;
 
       const dataPipeline = [
@@ -130,7 +130,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
         { $skip: skip },
         { $limit: safeLimit },
       ];
-      const docs = await this.collection.aggregate<IApplicationDocument>(dataPipeline).toArray();
+      const docs = await this._collection.aggregate<IApplicationDocument>(dataPipeline).toArray();
 
       return {
         data: docs.map((doc) => toDomain(doc)),
@@ -138,8 +138,8 @@ export class MongoApplicationRepository implements IApplicationRepository {
       };
     }
 
-    const total = await this.collection.countDocuments(filter);
-    const docs = await this.collection
+    const total = await this._collection.countDocuments(filter);
+    const docs = await this._collection
       .find(filter)
       .sort(sort)
       .skip(skip)
@@ -163,7 +163,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
     } catch {
       return null;
     }
-    const doc = await this.collection.findOne({
+    const doc = await this._collection.findOne({
       _id,
       jobId,
       companyId,
@@ -192,7 +192,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
       }
     }
     if (bulkOps.length > 0) {
-      await this.collection.bulkWrite(bulkOps);
+      await this._collection.bulkWrite(bulkOps);
     }
   }
 
@@ -223,7 +223,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
     }
 
     // First perform the update
-    const updateResult = await this.collection.updateOne(
+    const updateResult = await this._collection.updateOne(
       { _id, jobId },
       { $set: setUpdate }
     );
@@ -234,7 +234,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
     }
 
   
-    const doc = await this.collection.findOne({ _id, jobId });
+    const doc = await this._collection.findOne({ _id, jobId });
     if (!doc) return null;
     return toDomain(doc);
   }
@@ -252,7 +252,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
     } catch {
       return null;
     }
-    const result = await this.collection.findOneAndUpdate(
+    const result = await this._collection.findOneAndUpdate(
       { _id, jobId, companyId },
       {
         $addToSet: { completedRounds: round },
@@ -278,7 +278,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
       return null;
     }
 
-    const updateResult = await this.collection.updateOne(
+    const updateResult = await this._collection.updateOne(
       { _id, jobId, companyId },
       {
         $set: {
@@ -293,7 +293,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
     );
 
     if (!updateResult.matchedCount) return null;
-    const doc = await this.collection.findOne({ _id, jobId, companyId });
+    const doc = await this._collection.findOne({ _id, jobId, companyId });
     return doc ? toDomain(doc) : null;
   }
 
@@ -312,7 +312,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
       return null;
     }
 
-    const updateResult = await this.collection.updateOne(
+    const updateResult = await this._collection.updateOne(
       { _id, jobId, companyId },
       {
         $set: {
@@ -324,7 +324,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
     );
 
     if (!updateResult.matchedCount) return null;
-    const doc = await this.collection.findOne({ _id, jobId, companyId });
+    const doc = await this._collection.findOne({ _id, jobId, companyId });
     return doc ? toDomain(doc) : null;
   }
 }

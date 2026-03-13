@@ -3,26 +3,26 @@ import { IGoogleAuth } from '../../application/auth/ports/services/IGoogleAuth.j
 import { IGoogleUserDTO } from '../../application/auth/dtos/GoogleUserDTO.js';
 
 export class GoogleAuthService implements IGoogleAuth {
-    private client: OAuth2Client | null;
-    private clientId: string;
-    private clientSecret: string;
-    private redirectUri: string;
+    private _client: OAuth2Client | null;
+    private _clientId: string;
+    private _clientSecret: string;
+    private _redirectUri: string;
 
     constructor(clientId: string, clientSecret: string, redirectUri: string) {
-        this.clientId = clientId || '';
-        this.clientSecret = clientSecret || '';
-        this.redirectUri = redirectUri || '';
-        const hasCredentials = Boolean(this.clientId && this.clientSecret && this.redirectUri);
-        this.client = hasCredentials ? new OAuth2Client(this.clientId, this.clientSecret, this.redirectUri) : null;
+        this._clientId = clientId || '';
+        this._clientSecret = clientSecret || '';
+        this._redirectUri = redirectUri || '';
+        const hasCredentials = Boolean(this._clientId && this._clientSecret && this._redirectUri);
+        this._client = hasCredentials ? new OAuth2Client(this._clientId, this._clientSecret, this._redirectUri) : null;
     }
 
     private getClient(): OAuth2Client {
-        if (!this.client) {
+        if (!this._client) {
             throw new Error(
                 'Google OAuth is not configured. Add GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_CALLBACK_URL to your .env file.'
             );
         }
-        return this.client;
+        return this._client;
     }
 
 
@@ -60,7 +60,7 @@ export class GoogleAuthService implements IGoogleAuth {
                 throw new Error('Invalid token payload from Google');
             }
 
-            if (payload.aud !== this.clientId) {
+            if (payload.aud !== this._clientId) {
                 throw new Error('Token audience mismatch');
             }
 

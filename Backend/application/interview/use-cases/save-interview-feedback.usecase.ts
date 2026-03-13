@@ -17,9 +17,9 @@ export interface ISaveInterviewFeedbackUseCase {
 @injectable()
 export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCase {
   constructor(
-    @inject(TYPES.InterviewRepositoryPort) private readonly interviewRepo: IInterviewRepository,
+    @inject(TYPES.InterviewRepositoryPort) private readonly _interviewRepo: IInterviewRepository,
     @inject(TYPES.InterviewFeedbackRepositoryPort)
-    private readonly feedbackRepo: IInterviewFeedbackRepository
+    private readonly _feedbackRepo: IInterviewFeedbackRepository
   ) {}
 
   async execute(input: {
@@ -38,7 +38,7 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
       throw AppError.badRequest('Total score must be between 1 and 5');
     }
 
-    const interview = await this.interviewRepo.findById(interviewId);
+    const interview = await this._interviewRepo.findById(interviewId);
     if (!interview) {
       throw AppError.notFound('Interview not found');
     }
@@ -64,8 +64,8 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
       now
     );
 
-    await this.feedbackRepo.create(feedbackEntity);
-    await this.interviewRepo.setFeedbackSubmitted(interview.id ?? interviewId, true);
+    await this._feedbackRepo.create(feedbackEntity);
+    await this._interviewRepo.setFeedbackSubmitted(interview.id ?? interviewId, true);
 
     return { success: true };
   }

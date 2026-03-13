@@ -33,12 +33,12 @@ interface IApprovedQuery {
 @injectable()
 export class AdminCompanyApprovalController {
   constructor(
-    @inject(TYPES.GetPendingCompaniesUseCasePort) private readonly getPendingUseCase: IGetPendingCompaniesUseCase,
-    @inject(TYPES.ApproveCompanyUseCasePort) private readonly approveUseCase: IApproveCompanyUseCase,
-    @inject(TYPES.RejectCompanyUseCasePort) private readonly rejectUseCase: IRejectCompanyUseCase,
-    @inject(TYPES.MarkDocumentUseCasePort) private readonly markDocumentUseCase: IMarkDocumentUseCase,
-    @inject(TYPES.GetApprovedCompaniesUseCasePort) private readonly getApprovedUseCase: IGetApprovedCompaniesUseCase,
-    @inject(TYPES.ToggleCompanyActiveUseCasePort) private readonly toggleActiveUseCase: IAdminToggleActivityUseCase
+    @inject(TYPES.GetPendingCompaniesUseCasePort) private readonly _getPendingUseCase: IGetPendingCompaniesUseCase,
+    @inject(TYPES.ApproveCompanyUseCasePort) private readonly _approveUseCase: IApproveCompanyUseCase,
+    @inject(TYPES.RejectCompanyUseCasePort) private readonly _rejectUseCase: IRejectCompanyUseCase,
+    @inject(TYPES.MarkDocumentUseCasePort) private readonly _markDocumentUseCase: IMarkDocumentUseCase,
+    @inject(TYPES.GetApprovedCompaniesUseCasePort) private readonly _getApprovedUseCase: IGetApprovedCompaniesUseCase,
+    @inject(TYPES.ToggleCompanyActiveUseCasePort) private readonly _toggleActiveUseCase: IAdminToggleActivityUseCase
   ) { }
 
   getPending = async (
@@ -46,7 +46,7 @@ export class AdminCompanyApprovalController {
     reply: FastifyReply
   ) => {
     const { search, sortOrder, page, limit } = request.query;
-    const result = await this.getPendingUseCase.execute(search, sortOrder, page, limit);
+    const result = await this._getPendingUseCase.execute(search, sortOrder, page, limit);
     reply.status(HttpStatus.OK).send(success(result));
   };
 
@@ -55,7 +55,7 @@ export class AdminCompanyApprovalController {
     reply: FastifyReply
   ) => {
     const { search, status, sortOrder, page, limit } = request.query;
-    const result = await this.getApprovedUseCase.execute(search, status, sortOrder, page, limit);
+    const result = await this._getApprovedUseCase.execute(search, status, sortOrder, page, limit);
     reply.status(HttpStatus.OK).send(success(result));
   };
 
@@ -63,7 +63,7 @@ export class AdminCompanyApprovalController {
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
   ) => {
-    await this.approveUseCase.execute(request.params.id);
+    await this._approveUseCase.execute(request.params.id);
 
     reply.status(HttpStatus.OK).send(success({ message: "Company approved successfully" }));
   };
@@ -75,7 +75,7 @@ export class AdminCompanyApprovalController {
     const { id } = request.params;
     const { reason } = request.body;
 
-    await this.rejectUseCase.execute(id, reason);
+    await this._rejectUseCase.execute(id, reason);
 
     reply.status(HttpStatus.OK).send(success({ message: "Company rejected successfully" }));
   };
@@ -85,7 +85,7 @@ export class AdminCompanyApprovalController {
     reply: FastifyReply
   ) => {
     const { id } = request.params;
-    const result = await this.toggleActiveUseCase.execute(id);
+    const result = await this._toggleActiveUseCase.execute(id);
 
     reply.status(HttpStatus.OK).send(success({
       message: "Company status toggled successfully",
@@ -100,7 +100,7 @@ export class AdminCompanyApprovalController {
     const { id, key } = request.params;
     const { verified } = request.body;
 
-    const result = await this.markDocumentUseCase.execute(id, key as Parameters<IMarkDocumentUseCase["execute"]>[1], verified);
+    const result = await this._markDocumentUseCase.execute(id, key as Parameters<IMarkDocumentUseCase["execute"]>[1], verified);
 
     reply.status(HttpStatus.OK).send(success(result));
   };

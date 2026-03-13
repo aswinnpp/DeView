@@ -9,20 +9,20 @@ import { AppError } from "../../../shared/errors/AppError";
 export class UpdateInterviewerProfileUseCase implements IUpdateInterviewerProfileUseCase {
   constructor(
     @inject(TYPES.InterviewerProfileRepositoryPort)
-    private repo: IInterviewerProfileRepository
+    private readonly _repo: IInterviewerProfileRepository
   ) {}
 
   async execute(dto: UpdateInterviewerProfileDTO): Promise<{ message: string }> {
     if (!dto.userId) {
       throw AppError.badRequest("UserId is required");
     }
-    const profile = await this.repo.findByUserId(dto.userId);
+    const profile = await this._repo.findByUserId(dto.userId);
     if (!profile) {
       throw AppError.notFound("Interviewer profile not found");
     }
     const { userId: _u, ...fields } = dto;
     profile.updateFields(fields);
-    await this.repo.save(profile);
+    await this._repo.save(profile);
     return { message: "Profile updated successfully" };
   }
 }

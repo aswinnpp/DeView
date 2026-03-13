@@ -11,17 +11,17 @@ export class AdminToggleSubscriptionStatusUsecase
 {
   constructor(
     @inject(TYPES.SubscriptionRepositoryPort)
-    private readonly repo: ISubscriptionRepository
+    private readonly _repo: ISubscriptionRepository
   ) {}
 
   async execute(id: string): Promise<IToggleStatusResultDTO> {
-    const plan = await this.repo.findById(id);
+    const plan = await this._repo.findById(id);
     if (!plan) {
       throw AppError.notFound("Subscription plan not found");
     }
 
     plan.isActive = !plan.isActive;
-    await this.repo.save(plan);
+    await this._repo.save(plan);
 
     return { isActive: plan.isActive };
   }

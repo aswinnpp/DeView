@@ -13,7 +13,7 @@ import { isAllowedBookingDate ,DATE_RE } from "../../shared/utils/parseDate.js";
 export class GetMyInterviewerSlotsUseCase implements IGetMyInterviewerSlotsUseCase {
   constructor(
     @inject(TYPES.InterviewerSlotsRepositoryPort)
-    private readonly repo: IInterviewerSlotsRepository,
+    private readonly _repo: IInterviewerSlotsRepository,
   ) {}
 
   async execute(input: {
@@ -30,7 +30,7 @@ export class GetMyInterviewerSlotsUseCase implements IGetMyInterviewerSlotsUseCa
       throw AppError.badRequest("slotDate is only allowed for the next 3 days starting tomorrow");
     }
 
-    return this.repo.listByInterviewer({
+    return this._repo.listByInterviewer({
       interviewerId: input.interviewerId,
       companyId: input.companyId,
       slotDate: input.slotDate,

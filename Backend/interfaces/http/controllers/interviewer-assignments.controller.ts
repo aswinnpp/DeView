@@ -13,15 +13,15 @@ import type { ISaveInterviewFeedbackUseCase } from '../../../application/intervi
 export class InterviewerAssignmentsController {
   constructor(
     @inject(TYPES.ListInterviewerAssignmentsUseCasePort)
-    private readonly listAssignmentsUseCase: IListInterviewerAssignmentsUseCase,
+    private readonly _listAssignmentsUseCase: IListInterviewerAssignmentsUseCase,
     @inject(TYPES.AcceptInterviewAssignmentUseCasePort)
-    private readonly acceptAssignmentUseCase: IAcceptInterviewAssignmentUseCase,
+    private readonly _acceptAssignmentUseCase: IAcceptInterviewAssignmentUseCase,
     @inject(TYPES.RejectInterviewAssignmentUseCasePort)
-    private readonly rejectAssignmentUseCase: IRejectInterviewAssignmentUseCase,
+    private readonly _rejectAssignmentUseCase: IRejectInterviewAssignmentUseCase,
     @inject(TYPES.ListCompletedInterviewsForInterviewerUseCasePort)
-    private readonly listCompletedUseCase: IListCompletedInterviewsForInterviewerUseCase,
+    private readonly _listCompletedUseCase: IListCompletedInterviewsForInterviewerUseCase,
     @inject(TYPES.SaveInterviewFeedbackUseCasePort)
-    private readonly saveFeedbackUseCase: ISaveInterviewFeedbackUseCase
+    private readonly _saveFeedbackUseCase: ISaveInterviewFeedbackUseCase
   ) {}
 
   list = async (
@@ -34,7 +34,7 @@ export class InterviewerAssignmentsController {
       request.query,
       request.currentUser.userId
     );
-    const result = await this.listAssignmentsUseCase.execute(input);
+    const result = await this._listAssignmentsUseCase.execute(input);
     reply.send(success({ data: result.data, total: result.total }));
   };
 
@@ -48,7 +48,7 @@ export class InterviewerAssignmentsController {
       request.query,
       request.currentUser.userId
     );
-    const result = await this.listCompletedUseCase.execute(input);
+    const result = await this._listCompletedUseCase.execute(input);
     reply.send(success({ data: result.data, total: result.total }));
   };
 
@@ -57,7 +57,7 @@ export class InterviewerAssignmentsController {
       request.params,
       request.currentUser.userId
     );
-    const result = await this.acceptAssignmentUseCase.execute(input);
+    const result = await this._acceptAssignmentUseCase.execute(input);
     reply.send(success({ data: result.data }));
   };
 
@@ -73,7 +73,7 @@ export class InterviewerAssignmentsController {
       request.body ?? {},
       request.currentUser.userId
     );
-    const result = await this.rejectAssignmentUseCase.execute(input);
+    const result = await this._rejectAssignmentUseCase.execute(input);
     reply.send(success({ data: result.data }));
   };
 
@@ -89,7 +89,7 @@ export class InterviewerAssignmentsController {
       request.body ?? {},
       request.currentUser.userId
     );
-    const result = await this.saveFeedbackUseCase.execute(input);
+    const result = await this._saveFeedbackUseCase.execute(input);
     reply.send(success({ data: result }));
   };
 }

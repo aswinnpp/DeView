@@ -68,7 +68,7 @@ import { RejectInterviewAssignmentUseCase } from '../../application/interview/us
 import { UpdateInterviewStatusUseCase } from '../../application/interview/use-cases/update-interview-status.usecase.js';
 import { RequestCandidateRescheduleUseCase } from '../../application/interview/use-cases/request-candidate-reschedule.usecase.js';
 import { ListCompletedInterviewsForInterviewerUseCase } from '../../application/interview/use-cases/list-completed-interviews-for-interviewer.usecase.js';
-import { SaveInterviewFeedbackUseCase } from '../../application/interview/use-cases/save-interview-feedback.usecase.ts';
+import { SaveInterviewFeedbackUseCase } from '../../application/interview/use-cases/save-interview-feedback.usecase';
 import { ListMyInterviewFeedbacksUseCase } from '../../application/interview/use-cases/list-my-interview-feedbacks.usecase.js';
 import { GetInterviewerProfileUseCase } from '../../application/interviewer/use-cases/get-interviewer-profile.usecase.js';
 import { CreateInterviewerProfileUseCase } from '../../application/interviewer/use-cases/create-interviewer-profile.usecase.js';

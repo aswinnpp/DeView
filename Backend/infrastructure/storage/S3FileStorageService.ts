@@ -9,10 +9,10 @@ import { env } from '../config/env.js';
 
 @injectable()
 export class S3FileStorageService implements IFileStorage {
-  private readonly s3: S3Client;
+  private readonly _s3: S3Client;
 
   constructor() {
-    this.s3 = new S3Client({
+    this._s3 = new S3Client({
       region: env.AWS_REGION,
       credentials: env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY
         ? {
@@ -39,14 +39,14 @@ export class S3FileStorageService implements IFileStorage {
       Key: key,
     });
 
-    const uploadUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 * 5 });
+    const uploadUrl = await getSignedUrl(this._s3, command, { expiresIn: 60 * 5 });
 
     const getCommand = new GetObjectCommand({
       Bucket: env.AWS_S3_BUCKET,
       Key: key,
     });
 
-    const fileUrl = await getSignedUrl(this.s3, getCommand, { expiresIn: 60 * 5 });
+    const fileUrl = await getSignedUrl(this._s3, getCommand, { expiresIn: 60 * 5 });
 
     return {
       uploadUrl,
@@ -70,7 +70,7 @@ export class S3FileStorageService implements IFileStorage {
       Bucket: env.AWS_S3_BUCKET,
       Key: key,
     });
-    return getSignedUrl(this.s3, command, { expiresIn: expiresInSeconds });
+    return getSignedUrl(this._s3, command, { expiresIn: expiresInSeconds });
   }
 
   getPublicUrl(storedName: string): string {

@@ -9,34 +9,34 @@ import type { IAdminToggleActivityUseCase } from "../ports/usecase/IAdminToggleA
 @injectable()
 export class AdminToggleActivityUseCase implements IAdminToggleActivityUseCase {
     constructor(
-        @inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository,
-        @inject(TYPES.UserRepositoryPort) private userRepo: IUserRepository,
-        @inject(TYPES.TokenServicePort) private tokenService: ITokenService
+        @inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository,
+        @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository,
+        @inject(TYPES.TokenServicePort) private _tokenService: ITokenService
     ) { }
 
     async execute(id: string) {
 
-        const user = await this.userRepo.findById(id);
+        const user = await this._userRepo.findById(id);
 
         if (!user) {
             throw new DomainError("User not found");
         }
 
-        const company = await this.repo.findByUserId(id);
+        const company = await this._repo.findByUserId(id);
 
 
         user.isActive = !user.isActive;
 
         if (company) {
             company.isActive = user.isActive;
-            await this.repo.save(company);
+            await this._repo.save(company);
         }
 
         if (!user.isActive && user.id) {
-            await this.tokenService.revokeAllUserTokens(user.id);
+            await this._tokenService.revokeAllUserTokens(user.id);
         }
 
-        await this.userRepo.save(user);
+        await this._userRepo.save(user);
 
 
         return { isActive: user.isActive };

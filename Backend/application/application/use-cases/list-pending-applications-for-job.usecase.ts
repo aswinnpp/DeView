@@ -11,11 +11,11 @@ export class ListPendingApplicationsForJobUseCase
   implements IListPendingApplicationsForJobUseCase
 {
   constructor(
-    @inject(TYPES.ApplicationRepositoryPort) private readonly repo: IApplicationRepository
+    @inject(TYPES.ApplicationRepositoryPort) private readonly _repo: IApplicationRepository
   ) {}
 
   async execute(input: IListPendingApplicationsForJobInput) {
-    const data = await this.repo.listByJobId(input.jobId, input.companyId, input.status);
+    const data = await this._repo.listByJobId(input.jobId, input.companyId, input.status);
     return { data };
   }
 }

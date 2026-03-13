@@ -6,14 +6,14 @@ import type { IGetMyCompanyApprovalUseCase } from "../ports/usecase/IGetMyCompan
 
 @injectable()
 export class GetMyCompanyApprovalUseCase implements IGetMyCompanyApprovalUseCase {
-  constructor(@inject(TYPES.CompanyProfileRepositoryPort) private repo: ICompanyProfileRepository) {}
+  constructor(@inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository) {}
 
   async execute(userId: string) {
     if (!userId) {
       throw AppError.badRequest("UserId is required");
     }
 
-    const approval = await this.repo.findByUserId(userId);
+    const approval = await this._repo.findByUserId(userId);
 
     if (!approval) {
       throw AppError.notFound("Company approval needed");

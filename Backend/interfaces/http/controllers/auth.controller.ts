@@ -37,15 +37,15 @@ interface IEmailBody {
 @injectable()
 export class AuthController {
   constructor(
-    @inject(TYPES.RegisterUserUseCasePort) private readonly registerUserUseCase: IRegisterUserUseCase,
-    @inject(TYPES.VerifyOTPUseCasePort) private readonly verifyOTPUseCase: IVerifyOtpUseCase,
-    @inject(TYPES.LoginUseCasePort) private readonly loginUseCase: ILoginUseCase,
-    @inject(TYPES.ResendOTPUseCasePort) private readonly resendOTPUseCase: IResendOtpUseCase,
-    @inject(TYPES.RefreshTokenUseCasePort) private readonly refreshTokenUseCase: IRefreshTokenUseCase,
-    @inject(TYPES.LogoutUseCasePort) private readonly logoutUseCase: ILogoutUseCase,
-    @inject(TYPES.ForgotPasswordUseCasePort) private readonly forgotPasswordUseCase: IForgotPasswordUseCase,
-    @inject(TYPES.VerifyPasswordResetOTPUseCasePort) private readonly verifyPasswordResetOTPUseCase: IVerifyPasswordResetOtpUseCase,
-    @inject(TYPES.ResetPasswordUseCasePort) private readonly resetPasswordUseCase: IResetPasswordUseCase
+    @inject(TYPES.RegisterUserUseCasePort) private readonly _registerUserUseCase: IRegisterUserUseCase,
+    @inject(TYPES.VerifyOTPUseCasePort) private readonly _verifyOTPUseCase: IVerifyOtpUseCase,
+    @inject(TYPES.LoginUseCasePort) private readonly _loginUseCase: ILoginUseCase,
+    @inject(TYPES.ResendOTPUseCasePort) private readonly _resendOTPUseCase: IResendOtpUseCase,
+    @inject(TYPES.RefreshTokenUseCasePort) private readonly _refreshTokenUseCase: IRefreshTokenUseCase,
+    @inject(TYPES.LogoutUseCasePort) private readonly _logoutUseCase: ILogoutUseCase,
+    @inject(TYPES.ForgotPasswordUseCasePort) private readonly _forgotPasswordUseCase: IForgotPasswordUseCase,
+    @inject(TYPES.VerifyPasswordResetOTPUseCasePort) private readonly _verifyPasswordResetOTPUseCase: IVerifyPasswordResetOtpUseCase,
+    @inject(TYPES.ResetPasswordUseCasePort) private readonly _resetPasswordUseCase: IResetPasswordUseCase
   ) {}
 
   // ---------------- REGISTER ----------------
@@ -54,7 +54,7 @@ export class AuthController {
     request: FastifyRequest<{ Body: IRegisterUserRequestDTO }>,
     reply: FastifyReply
   ) => {
-    const result = await this.registerUserUseCase.execute(request.body);
+    const result = await this._registerUserUseCase.execute(request.body);
     reply.code(HttpStatus.CREATED).send(success(result));
   };
 
@@ -64,7 +64,7 @@ export class AuthController {
     request: FastifyRequest<{ Body: IVerifyOtpBody }>,
     reply: FastifyReply
   ) => {
-    await this.verifyOTPUseCase.execute(
+    await this._verifyOTPUseCase.execute(
       request.body.email,
       request.body.otp
     );
@@ -76,7 +76,7 @@ export class AuthController {
     request: FastifyRequest<{ Body: IEmailBody }>,
     reply: FastifyReply
   ) => {
-    const result = await this.resendOTPUseCase.execute(request.body);
+    const result = await this._resendOTPUseCase.execute(request.body);
     reply.send(success(result));
   };
 
@@ -87,7 +87,7 @@ export class AuthController {
     reply: FastifyReply
   ) => {
     const { email, password } = request.body;
-    const result = await this.loginUseCase.execute(email, password);
+    const result = await this._loginUseCase.execute(email, password);
 
     setAccessTokenCookie(request, reply, result.accessToken);
     setRefreshTokenCookie(request, reply, result.refreshToken);
@@ -99,7 +99,7 @@ export class AuthController {
 
   refresh = async (request: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = getCookie(request, "refreshToken");
-    const result = await this.refreshTokenUseCase.execute(refreshToken);
+    const result = await this._refreshTokenUseCase.execute(refreshToken);
 
     setAccessTokenCookie(request, reply, result.accessToken);
     setRefreshTokenCookie(request, reply, result.newRefreshToken);
@@ -111,7 +111,7 @@ export class AuthController {
     const refreshToken = getCookie(request, "refreshToken");
     const accessToken = getCookie(request, "accessToken");
 
-    const result = await this.logoutUseCase.execute(refreshToken, accessToken);
+    const result = await this._logoutUseCase.execute(refreshToken, accessToken);
 
     clearCookie(request, reply, "accessToken");
     clearCookie(request, reply, "refreshToken");
@@ -125,7 +125,7 @@ export class AuthController {
     request: FastifyRequest<{ Body: IEmailBody }>,
     reply: FastifyReply
   ) => {
-    await this.forgotPasswordUseCase.execute(request.body.email);
+    await this._forgotPasswordUseCase.execute(request.body.email);
     reply.send(success({ success: true }));
   };
 
@@ -133,7 +133,7 @@ export class AuthController {
     request: FastifyRequest<{ Body: IVerifyOtpBody }>,
     reply: FastifyReply
   ) => {
-    await this.verifyPasswordResetOTPUseCase.execute(
+    await this._verifyPasswordResetOTPUseCase.execute(
       request.body.email,
       request.body.otp
     );
@@ -147,7 +147,7 @@ export class AuthController {
   ) => {
     const { email, otp, newPassword } = request.body;
 
-    await this.resetPasswordUseCase.execute(email, otp, newPassword);
+    await this._resetPasswordUseCase.execute(email, otp, newPassword);
 
     reply.send(success({ success: true }));
   };
