@@ -1,8 +1,9 @@
 import { NavLink, Outlet, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { APP_ROUTES } from "../../constants/routes";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../context/store";
+import { interviewerProfileService } from "../../services/interviewerProfile.service";
 
 interface Notification {
   id: number;
@@ -13,6 +14,7 @@ interface Notification {
 const InterviewerLayout: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const user = useSelector((state: RootState) => state.auth.user);
+  const [profilePicViewUrl, setProfilePicViewUrl] = useState<string>("");
 
   const role = (user?.role || "").toLowerCase();
 
@@ -47,6 +49,29 @@ const InterviewerLayout: React.FC = () => {
         : "text-white/70 hover:text-white hover:bg-white/10 hover:-translate-y-0.5"
     }`;
 
+  useEffect(() => {
+    let cancelled = false;
+    interviewerProfileService
+      .getProfilePicViewUrl()
+      .then((res) => {
+        if (!cancelled) setProfilePicViewUrl(res.url);
+      })
+      .catch(() => {
+        if (!cancelled) setProfilePicViewUrl("");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const initials =
+    (user?.fullName || "I")
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((p) => p.charAt(0).toUpperCase())
+      .join("") || "I";
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 to-slate-800 font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] relative overflow-x-auto">
       <div className="w-full min-h-screen bg-[rgba(10,10,18,0.95)] backdrop-blur-[20px] border border-white/10 relative overflow-auto">
@@ -66,8 +91,20 @@ const InterviewerLayout: React.FC = () => {
             <NavLink to={APP_ROUTES.INTERVIEWER_SLOTS} className={({ isActive }) => navLinkClass(isActive)}>
               Slots
             </NavLink>
-            <NavLink to={APP_ROUTES.INTERVIEWER_PROFILE} className={({ isActive }) => navLinkClass(isActive)}>
-              Profile
+            <NavLink
+              to={APP_ROUTES.INTERVIEWER_PROFILE}
+              className={({ isActive }) =>
+                `no-underline ${isActive ? "ring-2 ring-blue-500/60 rounded-full" : ""}`
+              }
+              title="Profile"
+            >
+              <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-violet-500 border border-white/10 flex items-center justify-center text-white text-xs font-bold">
+                {profilePicViewUrl ? (
+                  <img src={profilePicViewUrl} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
+              </div>
             </NavLink>
 
             <div className="relative">
