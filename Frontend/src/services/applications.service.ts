@@ -36,7 +36,6 @@ export interface ApplicationItem {
     | "REJECTED"
     | "RESCHEDULE_REQUESTED";
   aiScore?: number;
-  /** @deprecated Use interviewRounds. Last round for backward compat. */
   interviewDetails?: {
     round: string;
     interviewer: string;
@@ -46,7 +45,6 @@ export interface ApplicationItem {
     feedback?: string;
     totalScore?: number;
   };
-  /** All rounds attempted (schedule + feedback per round) */
   interviewRounds?: Array<{
     round: string;
     interviewer: string;
