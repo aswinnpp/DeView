@@ -1,6 +1,8 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, Navigate } from "react-router-dom";
 import { useState } from "react";
 import { APP_ROUTES } from "../../constants/routes";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../context/store";
 
 interface Notification {
   id: number;
@@ -10,6 +12,28 @@ interface Notification {
 
 const InterviewerLayout: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const role = (user?.role || "").toLowerCase();
+
+  if (!user) {
+    return <Navigate to={APP_ROUTES.LOGIN} replace />;
+  }
+
+  if (role !== "interviewer") {
+    switch (role) {
+      case "candidate":
+        return <Navigate to="/candidate" replace />;
+      case "admin":
+        return <Navigate to={APP_ROUTES.ADMIN_DASHBOARD} replace />;
+      case "company":
+        return <Navigate to={APP_ROUTES.COMPANY_DASHBOARD} replace />;
+      case "hr":
+        return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
+      default:
+        return <Navigate to={APP_ROUTES.ROOT} replace />;
+    }
+  }
 
   const notifications: Notification[] = [
     { id: 1, text: "Interview #123 starts in 15 mins", time: "Just now" },

@@ -1,7 +1,7 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, Navigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../../context/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../context/store";
 import { SystemDataProvider } from "../../context/SystemDataContext";
 import { logout } from "../../context/authSlice";
 import { authService } from "../../services/auth.service";
@@ -12,6 +12,29 @@ const AdminLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
+    const user = useSelector((state: RootState) => state.auth.user);
+
+    const role = (user?.role || "").toLowerCase();
+
+    if (!user) {
+        return <Navigate to={APP_ROUTES.LOGIN} replace />;
+    }
+
+    if (role !== "admin") {
+        // Redirect users with other roles back to their home areas
+        switch (role) {
+            case "candidate":
+                return <Navigate to="/candidate" replace />;
+            case "company":
+                return <Navigate to={APP_ROUTES.COMPANY_DASHBOARD} replace />;
+            case "hr":
+                return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
+            case "interviewer":
+                return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
+            default:
+                return <Navigate to={APP_ROUTES.ROOT} replace />;
+        }
+    }
 
     useEffect(() => {
         if (sidebarOpen) {

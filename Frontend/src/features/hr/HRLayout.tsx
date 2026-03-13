@@ -1,10 +1,11 @@
-import { NavLink, Outlet,useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
 import { useState, useEffect ,useCallback} from 'react';
 import { Button } from '../../components/common';
 import { APP_ROUTES } from '../../constants/routes';
 import { logout } from "../../context/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { authService } from "../../services/auth.service";
+import type { RootState } from "../../context/store";
 
 
 
@@ -15,6 +16,28 @@ const HRLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const user = useSelector((state: RootState) => state.auth.user);
+
+    const role = (user?.role || "").toLowerCase();
+
+    if (!user) {
+        return <Navigate to={APP_ROUTES.LOGIN} replace />;
+    }
+
+    if (role !== "hr") {
+        switch (role) {
+            case "candidate":
+                return <Navigate to="/candidate" replace />;
+            case "admin":
+                return <Navigate to={APP_ROUTES.ADMIN_DASHBOARD} replace />;
+            case "company":
+                return <Navigate to={APP_ROUTES.COMPANY_DASHBOARD} replace />;
+            case "interviewer":
+                return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
+            default:
+                return <Navigate to={APP_ROUTES.ROOT} replace />;
+        }
+    }
 
     useEffect(() => {
         if (sidebarOpen) {

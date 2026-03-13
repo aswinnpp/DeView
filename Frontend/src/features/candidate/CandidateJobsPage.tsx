@@ -212,149 +212,112 @@ const CandidateJobsPage: React.FC = () => {
                 <div className="w-full min-h-screen bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px] overflow-hidden">
                     <CandidateNavHeader title="JOB DETAILS" currentPage="jobs" />
 
-                    <div className="pt-[72px] py-7 px-4 sm:px-6 lg:px-12 pb-20 max-md:pb-12">
-                        <div className="">
-                            <div className="rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.85)]/90 px-4 py-5 sm:px-6 sm:py-6 shadow-[0_18px_45px_rgba(0,0,0,0.6)]">
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                    <div className="pt-[72px] py-7 px-4 sm:px-6 lg:px-8 pb-20 max-md:pb-12">
+                        <div className="w-full max-w-3xl mx-auto">
+                            {/* Header */}
+                            <header className="text-center">
+                                <p className="m-0 text-xs font-semibold tracking-wide uppercase text-[rgba(148,163,184,0.85)]">
+                                    {selectedJob.companyName || "Company"}
+                                </p>
+                                <h1 className="m-0 mt-2 text-[28px] sm:text-[32px] md:text-[36px] font-extrabold text-[rgba(226,232,240,0.98)] leading-tight tracking-tight">
+                                    {selectedJob.title}
+                                </h1>
+                                <p className="mt-3 mb-1 text-[13px] sm:text-sm text-[rgba(148,163,184,0.9)] flex flex-wrap gap-x-3 gap-y-1 items-center justify-center">
+                                    <span>{selectedJob.location}</span>
+                                    {selectedJob.jobType && (
+                                        <>
+                                            <span className="text-[rgba(148,163,184,0.7)]">•</span>
+                                            <span>{selectedJob.jobType}</span>
+                                        </>
+                                    )}
+                                    {selectedJob.workMode && (
+                                        <>
+                                            <span className="text-[rgba(148,163,184,0.7)]">•</span>
+                                            <span>{selectedJob.workMode}</span>
+                                        </>
+                                    )}
+                                </p>
+                                <p className="m-0 text-[11px] text-[rgba(148,163,184,0.8)]">
+                                    Posted on {new Date(selectedJob.createdAt).toLocaleDateString()}
+                                    {selectedJob.applicationDeadline && (
+                                        <>
+                                            {" "}• Apply by{" "}
+                                            {new Date(selectedJob.applicationDeadline).toLocaleDateString()}
+                                        </>
+                                    )}
+                                </p>
+                            </header>
+
+                            {/* Meta row */}
+                            <section className="mt-8">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center text-sm text-[rgba(226,232,240,0.9)]">
                                     <div>
-                                        <p className="m-0 text-[rgba(226,232,240,0.9)] text-3xl sm:text-4xl font-bold">
-                                            {selectedJob.title}
+                                        <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.8)] mb-1">
+                                            Experience
                                         </p>
-                                    </div>
-
-                                    {buttonn ?(
-
-                                        <Button
-                                            type="button"
-
-                                            onClick={handleApplyClick}
-                                            className="inline-flex items-center justify-center rounded-lg bg-linear-to-br from-brand-primary to-brand-secondary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(79,70,229,0.5)] hover:shadow-[0_14px_35px_rgba(79,70,229,0.7)] transition-all duration-150 w-full sm:w-auto self-end sm:self-center"
-                                        >
-                                            Apply Now
-                                        </Button>
-
-                                    ) :"Already applied"}
-
-
-
-
-
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-5 text-base text-[rgba(226,232,240,0.9)]">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[rgba(148,163,184,0.85)] text-sm">Location</span>
-                                        <span className="inline-flex items-center rounded-full bg-[rgba(15,23,42,0.9)] px-2.5 py-1.5 text-base">
-                                            {selectedJob.location}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[rgba(148,163,184,0.85)] text-sm">Type</span>
-                                        <span className="inline-flex items-center rounded-full bg-[rgba(15,23,42,0.9)] px-2.5 py-1.5 text-sm">
-                                            {selectedJob.jobType}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[rgba(148,163,184,0.85)] text-sm">Work mode</span>
-                                        <span className="inline-flex items-center rounded-full bg-[rgba(15,23,42,0.9)] px-2.5 py-1.5 text-sm">
-                                            {selectedJob.workMode}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[rgba(148,163,184,0.85)] text-sm">Experience</span>
-                                        <span className="inline-flex items-center rounded-full bg-[rgba(15,23,42,0.9)] px-2.5 py-1.5 text-sm">
+                                        <p className="m-0 text-[13px] text-[rgba(226,232,240,0.9)]">
                                             {selectedJob.experienceLevel}
                                             {(selectedJob.minExperience || selectedJob.maxExperience) &&
                                                 ` • ${[selectedJob.minExperience, selectedJob.maxExperience].filter(Boolean).join("–")} yrs`}
-                                        </span>
+                                        </p>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[rgba(148,163,184,0.85)] text-sm">Posted</span>
-                                        <span className="inline-flex items-center rounded-full bg-[rgba(15,23,42,0.9)] px-2.5 py-1.5 text-sm">
-                                            {new Date(selectedJob.createdAt).toLocaleDateString()}
-                                        </span>
+
+                                    <div>
+                                        <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.8)] mb-1">
+                                            Positions
+                                        </p>
+                                        <p className="m-0 text-[13px] text-[rgba(226,232,240,0.9)]">
+                                            {selectedJob.numberOfPositions ?? "-"}
+                                        </p>
                                     </div>
-                                    {!selectedJob.salaryNonDisclosure && selectedJob.salary && (
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[rgba(148,163,184,0.85)] text-sm">Salary</span>
-                                            <span className="inline-flex items-center rounded-full bg-[rgba(22,163,74,0.16)] px-2.5 py-1.5 text-sm font-semibold text-emerald-400 border border-[rgba(22,163,74,0.45)]">
-                                                {selectedJob.salary}
-                                            </span>
-                                        </div>
-                                    )}
-                                    {selectedJob.salaryNonDisclosure && (
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[rgba(148,163,184,0.85)] text-sm">Salary</span>
-                                            <span className="inline-flex items-center rounded-full bg-[rgba(15,23,42,0.9)] px-2.5 py-1.5 text-sm text-[rgba(148,163,184,0.9)]">
-                                                Not disclosed
-                                            </span>
-                                        </div>
-                                    )}
-                                    {selectedJob.applicationDeadline && (
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[rgba(148,163,184,0.85)] text-sm">Apply by</span>
-                                            <span className="inline-flex items-center rounded-full bg-[rgba(15,23,42,0.9)] px-2.5 py-1.5 text-sm">
-                                                {new Date(selectedJob.applicationDeadline).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                    )}
-                                    {selectedJob.numberOfPositions != null && (
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[rgba(148,163,184,0.85)] text-sm">Positions</span>
-                                            <span className="inline-flex items-center rounded-full bg-[rgba(15,23,42,0.9)] px-2.5 py-1.5 text-sm">
-                                                {selectedJob.numberOfPositions}
-                                            </span>
-                                        </div>
-                                    )}
+
+                                    <div>
+                                        <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.8)] mb-1">
+                                            Salary
+                                        </p>
+                                        <p className="m-0 text-[13px] text-[rgba(226,232,240,0.9)]">
+                                            {selectedJob.salaryNonDisclosure
+                                                ? "Not disclosed"
+                                                : selectedJob.salary || "-"}
+                                        </p>
+                                    </div>
                                 </div>
+                            </section>
 
-                                {selectedJob.interviewRounds && selectedJob.interviewRounds.length > 0 && (
-                                    <div className="mt-4">
-                                        <h4 className="m-0 text-base font-semibold text-slate-100 mb-2">
-                                            Interview rounds
-                                        </h4>
-                                        <ul className="m-0 pl-5 space-y-1 text-base text-[rgba(148,163,184,0.95)]">
-                                            {selectedJob.interviewRounds.map((round, idx) => (
-                                                <li key={idx}>{round}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
+                            {/* Primary action */}
+                            <section className="mt-8 flex justify-center">
+                                {buttonn ? (
+                                    <Button
+                                        type="button"
+                                        onClick={handleApplyClick}
+                                        className="inline-flex items-center justify-center rounded-full bg-linear-to-br from-brand-primary to-brand-secondary px-8 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(79,70,229,0.5)] hover:shadow-[0_14px_35px_rgba(79,70,229,0.7)] transition-all duration-150"
+                                    >
+                                        Apply Now
+                                    </Button>
+                                ) : (
+                                    <span className="inline-flex items-center rounded-full border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.9)] px-5 py-2 text-xs font-medium text-[rgba(148,163,184,0.95)]">
+                                        Already applied
+                                    </span>
                                 )}
+                            </section>
 
-                                {selectedJob.skills && (
-                                    <div className="mt-4">
-                                        <h4 className="m-0 text-base font-semibold text-slate-100 mb-2">
-                                            Required skills
-                                        </h4>
-                                        <div className="flex flex-wrap gap-2">
-                                            {selectedJob.skills.split(",").map((skill: string, idx: number) => (
-                                                <span
-                                                    key={idx}
-                                                    className="inline-flex items-center rounded-full bg-[rgba(129,140,248,0.16)] px-3 py-1.5 text-sm font-semibold text-indigo-200 border border-[rgba(129,140,248,0.45)]"
-                                                >
-                                                    {skill.trim()}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="mt-5 space-y-4 text-base leading-relaxed">
+                            {/* Content sections */}
+                            <div className="mt-10 space-y-8 text-[15px] leading-relaxed text-[rgba(148,163,184,0.96)] text-left">
                                     <section>
-                                        <h4 className="m-0 text-base font-semibold text-slate-100 mb-1.5">
-                                            Job description
-                                        </h4>
-                                        <p className="m-0 whitespace-pre-wrap text-[rgba(148,163,184,0.95)]">
+                                        <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
+                                            Job Description
+                                        </h2>
+                                        <p className="m-0 whitespace-pre-wrap">
                                             {selectedJob.description || "No description available."}
                                         </p>
                                     </section>
 
                                     {selectedJob.responsibilities && (
                                         <section>
-                                            <h4 className="m-0 text-base font-semibold text-slate-100 mb-1.5">
-                                                Responsibilities
-                                            </h4>
-                                            <p className="m-0 whitespace-pre-wrap text-[rgba(148,163,184,0.95)]">
+                                            <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
+                                                Key Responsibilities
+                                            </h2>
+                                            <p className="m-0 whitespace-pre-wrap">
                                                 {selectedJob.responsibilities}
                                             </p>
                                         </section>
@@ -362,27 +325,65 @@ const CandidateJobsPage: React.FC = () => {
 
                                     {selectedJob.qualifications && (
                                         <section>
-                                            <h4 className="m-0 text-base font-semibold text-slate-100 mb-1.5">
+                                            <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
                                                 Qualifications
-                                            </h4>
-                                            <p className="m-0 whitespace-pre-wrap text-[rgba(148,163,184,0.95)]">
+                                            </h2>
+                                            <p className="m-0 whitespace-pre-wrap">
                                                 {selectedJob.qualifications}
                                             </p>
                                         </section>
                                     )}
 
+                                    {selectedJob.skills && (
+                                        <section>
+                                            <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
+                                                Required Skills
+                                            </h2>
+                                            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                                {(Array.isArray(selectedJob.skills)
+                                                    ? selectedJob.skills
+                                                    : String(selectedJob.skills).split(",")
+                                                )
+                                                    .map((skill: string, idx: number) => {
+                                                        const label = skill.trim();
+                                                        if (!label) return null;
+                                                        return (
+                                                            <span
+                                                                key={idx}
+                                                                className="inline-flex items-center rounded-full bg-[rgba(129,140,248,0.16)] px-3 py-1.5 text-xs font-semibold text-indigo-200 border border-[rgba(129,140,248,0.45)]"
+                                                            >
+                                                                {label}
+                                                            </span>
+                                                        );
+                                                    })}
+                                            </div>
+                                        </section>
+                                    )}
+
                                     {selectedJob.benefits && (
                                         <section>
-                                            <h4 className="m-0 text-base font-semibold text-slate-100 mb-1.5">
+                                            <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
                                                 Benefits
-                                            </h4>
-                                            <p className="m-0 whitespace-pre-wrap text-[rgba(148,163,184,0.95)]">
+                                            </h2>
+                                            <p className="m-0 whitespace-pre-wrap">
                                                 {selectedJob.benefits}
                                             </p>
                                         </section>
                                     )}
+
+                                    {selectedJob.interviewRounds && selectedJob.interviewRounds.length > 0 && (
+                                        <section>
+                                            <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
+                                                Interview Rounds
+                                            </h2>
+                                            <ul className="m-0 pl-5 space-y-1 text-[15px] text-left">
+                                                {selectedJob.interviewRounds.map((round, idx) => (
+                                                    <li key={idx}>{round}</li>
+                                                ))}
+                                            </ul>
+                                        </section>
+                                    )}
                                 </div>
-                            </div>
                         </div>
                     </div>
                 </div>
