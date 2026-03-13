@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Input } from "../../components/common";
 import { useInterviewerProfile } from "../../hooks/interviewer";
+import { useFileUpload } from "../../hooks/useFileUpload";
+import { interviewerProfileService } from "../../services/interviewerProfile.service";
 
 const inputClass =
   "w-full bg-white/5 border border-white/15 rounded-lg text-slate-100 py-3 px-4 text-sm placeholder:text-slate-500 focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.08] transition";
@@ -22,9 +24,67 @@ const InterviewerProfileSettings: React.FC = () => {
     handleArrayInput,
     onSubmit,
     getInitials,
+    fetchProfile,
   } = useInterviewerProfile();
 
   const { register, handleSubmit, formState: { errors } } = form;
+  const { upload: uploadProfilePic, isUploading: isProfilePicUploading } = useFileUpload();
+  const [profilePicPreviewUrl, setProfilePicPreviewUrl] = useState<string | null>(null);
+  const [profilePicViewUrl, setProfilePicViewUrl] = useState<string>("");
+  const lastUploadedKeyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const keyOrUrl = formValues.profilePicUrl?.trim();
+    if (!keyOrUrl || profilePicPreviewUrl) return;
+    if (lastUploadedKeyRef.current && keyOrUrl === lastUploadedKeyRef.current && profilePicViewUrl) return;
+
+    let cancelled = false;
+    interviewerProfileService
+      .getProfilePicViewUrl()
+      .then((res) => {
+        if (!cancelled) setProfilePicViewUrl(res.url);
+      })
+      .catch(() => {
+        if (!cancelled) setProfilePicViewUrl("");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [formValues.profilePicUrl, profilePicPreviewUrl, profilePicViewUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (profilePicPreviewUrl) URL.revokeObjectURL(profilePicPreviewUrl);
+    };
+  }, [profilePicPreviewUrl]);
+
+  const handleProfilePicSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const nextPreview = URL.createObjectURL(file);
+    setProfilePicPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return nextPreview;
+    });
+    e.target.value = "";
+
+    const res = await uploadProfilePic(file, "interviewerProfilePic");
+    if (!res?.key && !res?.url) return;
+
+    const stored = res.key ?? res.url;
+    lastUploadedKeyRef.current = stored;
+    if (res.url) setProfilePicViewUrl(res.url);
+    setProfilePicPreviewUrl(null);
+
+    form.setValue("profilePicUrl", stored, { shouldDirty: true });
+    try {
+      // autosave even without clicking Edit/Save
+      await interviewerProfileService.updateProfilePartial({ profilePicUrl: stored });
+      await fetchProfile();
+    } catch {
+      // ignore; user can save via form submit
+    }
+  };
 
   if (profileLoading) {
     return (
@@ -39,30 +99,52 @@ const InterviewerProfileSettings: React.FC = () => {
       {!isEditing && profileData?.hasProfile ? (
         <>
           {/* Hero */}
-          <div className="bg-gradient-to-br from-blue-500/10 to-violet-500/10 border border-white/10 rounded-2xl p-8 md:p-10 mb-6">
+          <div className="bg-gradient-to-br from-slate-900/60 via-slate-900/40 to-slate-950/60 border border-white/10 rounded-2xl p-8 md:p-10 mb-6 shadow-[0_18px_50px_rgba(0,0,0,0.45)]">
             <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
               <div className="flex flex-col sm:flex-row gap-6 items-start flex-1">
-                <div className="w-[70px] h-[70px] rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-2xl font-bold text-white border-[3px] border-white/20 shadow-lg shadow-blue-500/25 shrink-0">
-                  {getInitials(formValues.fullName)}
+                <div className="relative group w-[84px] h-[84px] shrink-0">
+                  <div className="w-full h-full rounded-2xl overflow-hidden bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-2xl font-bold text-white border border-white/15 shadow-[0_12px_32px_rgba(37,99,235,0.25)]">
+                    {profilePicPreviewUrl || profilePicViewUrl ? (
+                      <img
+                        src={profilePicPreviewUrl ?? profilePicViewUrl}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      getInitials(formValues.fullName)
+                    )}
+                  </div>
+                  <label className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfilePicSelect}
+                      disabled={isProfilePicUploading}
+                      className="hidden"
+                    />
+                    <span className="text-white text-[11px] font-semibold px-2.5 py-1 bg-white/15 rounded-md border border-white/20">
+                      {isProfilePicUploading ? "Uploading…" : "Change photo"}
+                    </span>
+                  </label>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl md:text-3xl font-bold text-slate-50 m-0 mb-1.5">
+                  <h1 className="text-2xl md:text-3xl font-extrabold text-slate-50 m-0 mb-1">
                     {formValues.fullName}
                   </h1>
-                  <p className="text-slate-400 text-base m-0 mb-3.5 font-medium">
+                  <p className="text-slate-300/80 text-base m-0 mb-3 font-semibold">
                     {formValues.title}
                   </p>
                   <div className="flex flex-wrap gap-4">
                     {formValues.currentCompany && (
-                      <span className="text-slate-300 text-sm font-medium py-1.5 px-3.5 bg-white/5 rounded-full border border-white/10">
+                      <span className="text-slate-200 text-sm font-semibold py-1.5 px-3.5 bg-white/5 rounded-full border border-white/10">
                         {formValues.currentCompany}
                       </span>
                     )}
-                    <span className="text-slate-300 text-sm font-medium py-1.5 px-3.5 bg-white/5 rounded-full border border-white/10">
+                    <span className="text-slate-200 text-sm font-semibold py-1.5 px-3.5 bg-white/5 rounded-full border border-white/10">
                       {formValues.yearsOfExperience} years experience
                     </span>
                     {formValues.location && (
-                      <span className="text-slate-300 text-sm font-medium py-1.5 px-3.5 bg-white/5 rounded-full border border-white/10">
+                      <span className="text-slate-200 text-sm font-semibold py-1.5 px-3.5 bg-white/5 rounded-full border border-white/10">
                         {formValues.location}
                       </span>
                     )}
@@ -70,7 +152,7 @@ const InterviewerProfileSettings: React.FC = () => {
                 </div>
               </div>
               <div className="flex gap-3 shrink-0">
-                <Button variant="ghostOutline" onClick={() => setIsEditing(true)} className="!py-3 !px-6">
+                <Button variant="ghostOutline" onClick={() => setIsEditing(true)} className="!py-3 !px-6 !font-semibold">
                   Edit Profile
                 </Button>
                 <Button variant="danger" onClick={handleLogout}>

@@ -16,6 +16,7 @@ export interface InterviewerProfileView {
   university: string;
   linkedinUrl: string;
   githubUrl: string;
+  profilePicUrl: string;
 }
 
 export function toView(profile: InterviewerProfile): InterviewerProfileView {
@@ -33,6 +34,7 @@ export function toView(profile: InterviewerProfile): InterviewerProfileView {
     university: profile.university,
     linkedinUrl: profile.linkedinUrl,
     githubUrl: profile.githubUrl,
+    profilePicUrl: profile.profilePicUrl,
   };
 }
 
@@ -55,6 +57,7 @@ export function toCreateDTO(
     university: body.university ?? "",
     linkedinUrl: body.linkedinUrl ?? "",
     githubUrl: body.githubUrl ?? "",
+    profilePicUrl: body.profilePicUrl ?? "",
   };
 }
 

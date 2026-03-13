@@ -7,6 +7,7 @@ export const generateSignatureSchema = {
                 type: 'string',
                 enum: [
                     'profilePic',
+                    'interviewerProfilePic',
                     'companyLogo',
                     'resume',
                     'certificateOfIncorporation',

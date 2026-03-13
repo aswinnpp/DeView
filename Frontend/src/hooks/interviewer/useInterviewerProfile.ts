@@ -33,6 +33,7 @@ const defaultValues: InterviewerProfileFormValues = {
   university: "",
   linkedinUrl: "",
   githubUrl: "",
+  profilePicUrl: "",
 };
 
 function toFormValues(data: ProfileData): InterviewerProfileFormValues {
@@ -42,6 +43,7 @@ function toFormValues(data: ProfileData): InterviewerProfileFormValues {
     languages: data.languages?.length ? data.languages : ["English"],
     linkedinUrl: data.linkedinUrl ?? "",
     githubUrl: data.githubUrl ?? "",
+    profilePicUrl: data.profilePicUrl ?? "",
   };
 }
 
@@ -60,6 +62,7 @@ function toProfileData(values: InterviewerProfileFormValues): ProfileData {
     university: values.university ?? "",
     linkedinUrl: values.linkedinUrl ?? "",
     githubUrl: values.githubUrl ?? "",
+    profilePicUrl: values.profilePicUrl ?? "",
   };
 }
 

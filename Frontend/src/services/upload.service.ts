@@ -2,6 +2,7 @@ import { api } from '../api/axios';
 
 export type UploadCategory =
     | 'profilePic'
+    | 'interviewerProfilePic'
     | 'companyLogo'
     | 'resume'
     | 'certificateOfIncorporation'

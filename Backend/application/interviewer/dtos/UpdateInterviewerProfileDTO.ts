@@ -13,4 +13,5 @@ export interface UpdateInterviewerProfileDTO {
   university?: string;
   linkedinUrl?: string;
   githubUrl?: string;
+  profilePicUrl?: string;
 }

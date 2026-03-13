@@ -16,6 +16,7 @@ export interface IInterviewerProfileDocument {
   university: string;
   linkedinUrl: string;
   githubUrl: string;
+  profilePicUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }

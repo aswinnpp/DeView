@@ -17,6 +17,11 @@ export async function interviewerProfileRoutes(
     handler: controller.getProfile,
   });
 
+  fastify.get("/profile/profile-pic-view-url", {
+    preHandler: requireRoles("interviewer"),
+    handler: controller.getProfilePicViewUrl,
+  });
+
   fastify.post("/profile", {
     preHandler: requireRoles("interviewer"),
     schema: createInterviewerProfileSchema,

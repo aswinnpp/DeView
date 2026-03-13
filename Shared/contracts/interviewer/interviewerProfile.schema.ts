@@ -16,6 +16,7 @@ export const interviewerProfileSchema = z.object({
   university: z.string().trim().optional(),
   linkedinUrl: optionalUrl.optional(),
   githubUrl: optionalUrl.optional(),
+  profilePicUrl: z.string().trim().optional(),
 });
 
 export type InterviewerProfileFormValues = z.infer<typeof interviewerProfileSchema>;

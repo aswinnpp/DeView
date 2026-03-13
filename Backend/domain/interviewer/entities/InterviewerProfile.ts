@@ -15,6 +15,7 @@ export class InterviewerProfile {
     public university: string,
     public linkedinUrl: string,
     public githubUrl: string,
+    public profilePicUrl: string,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) {}
@@ -40,6 +41,7 @@ export class InterviewerProfile {
     if (fields.university !== undefined) this.university = fields.university;
     if (fields.linkedinUrl !== undefined) this.linkedinUrl = fields.linkedinUrl;
     if (fields.githubUrl !== undefined) this.githubUrl = fields.githubUrl;
+    if (fields.profilePicUrl !== undefined) this.profilePicUrl = fields.profilePicUrl;
     this.updatedAt = new Date();
   }
 }

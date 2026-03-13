@@ -85,11 +85,7 @@ export class CompanyApproval {
     if (!this.subscriptionHistory) this.subscriptionHistory = [];
   }
 
-  /**
-   * Refresh subscription state based on current time:
-   * - Move expired active subscriptions to history
-   * - Promote pending subscriptions when appropriate
-   */
+
   refreshSubscriptions(now: Date): void {
     this.ensureSubscriptionArraysInitialized();
 
@@ -117,10 +113,7 @@ export class CompanyApproval {
     }
   }
 
-  /**
-   * Enqueue a newly purchased subscription, activating immediately if there is no active plan.
-   * Embeds plan limits so admin edits to the plan do not affect existing subscribers.
-   */
+
   addPurchasedPlanAsActiveOrPending(
     input: {
       planId: string;
@@ -171,9 +164,7 @@ export class CompanyApproval {
     }
   }
 
-  /**
-   * Manually activate a pending subscription immediately.
-   */
+  
   activatePendingNow(pendingId: string, now: Date): void {
     this.ensureSubscriptionArraysInitialized();
     this.refreshSubscriptions(now);

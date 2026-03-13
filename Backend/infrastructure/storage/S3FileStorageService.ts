@@ -32,6 +32,8 @@ export class S3FileStorageService implements IFileStorage {
         ? `resumes/${userId}`
         : category === 'profilePic'
           ? `profile-pics/${userId}`
+          : category === 'interviewerProfilePic'
+            ? `interviewer-profile-pics/${userId}`
           : category === 'companyLogo'
             ? `company-logos/${userId}`
           : `company-docs/${userId}/${category}`;
@@ -51,7 +53,10 @@ export class S3FileStorageService implements IFileStorage {
     });
 
     
-    const viewExpiresIn = category === 'profilePic' ? 60 * 60 * 24 * 7 : 60 * 5;
+    const viewExpiresIn =
+      category === 'profilePic' || category === 'interviewerProfilePic'
+        ? 60 * 60 * 24 * 7
+        : 60 * 5;
     const fileUrl = await getSignedUrl(this._s3, getCommand, { expiresIn: viewExpiresIn });
 
     return {

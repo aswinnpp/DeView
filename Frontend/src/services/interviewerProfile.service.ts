@@ -15,6 +15,7 @@ export interface ProfileData {
   university: string;
   linkedinUrl: string;
   githubUrl: string;
+  profilePicUrl: string;
 }
 
 export interface GetProfileResponse {
@@ -33,4 +34,12 @@ export const interviewerProfileService = {
 
   updateProfile: (data: ProfileData) =>
     api.patch(API_ROUTES.INTERVIEWER.PROFILE, data),
+
+  updateProfilePartial: (data: Partial<ProfileData>) =>
+    api.patch(API_ROUTES.INTERVIEWER.PROFILE, data),
+
+  getProfilePicViewUrl: () =>
+    api
+      .get<{ url: string }>(`${API_ROUTES.INTERVIEWER.PROFILE}/profile-pic-view-url`)
+      .then((res) => res.data),
 };

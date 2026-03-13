@@ -57,6 +57,7 @@ export class MongoInterviewerProfileRepository
       doc.university ?? "",
       doc.linkedinUrl ?? "",
       doc.githubUrl ?? "",
+      doc.profilePicUrl ?? "",
       doc.createdAt,
       doc.updatedAt
     );
@@ -79,6 +80,7 @@ export class MongoInterviewerProfileRepository
       university: entity.university,
       linkedinUrl: entity.linkedinUrl,
       githubUrl: entity.githubUrl,
+      profilePicUrl: entity.profilePicUrl,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };
