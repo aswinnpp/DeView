@@ -36,13 +36,9 @@ type ApiEnvelope<T> = { success: boolean; data?: T };
 
 api.interceptors.response.use(
     (response) => {
-        const originalData = response.data;
         const body = response.data as ApiEnvelope<unknown> | undefined;
         
-        if (response.config?.url?.includes('/auth/login')) {
-            console.log('LOGIN REQUEST - Original response.data:', JSON.stringify(originalData, null, 2));
-            console.log('LOGIN REQUEST - Parsed body:', body);
-        }
+       
         
         if (body && body.success === true && 'data' in body) {
             if (body.data !== undefined && body.data !== null) {
@@ -69,7 +65,7 @@ api.interceptors.response.use(
         if (isBlocked && !isLoginRequest) {
             store.dispatch(logout());
             api.post(API_ROUTES.AUTH.LOGOUT).catch(() => {});
-            window.location.href = APP_ROUTES.LOGIN;
+            window.location.replace(APP_ROUTES.LOGIN);
             return Promise.reject(error);
         }
 
@@ -104,7 +100,10 @@ api.interceptors.response.use(
 
             store.dispatch(logout());
 
-            window.location.href = APP_ROUTES.LOGIN;
+            // Ensure server-side session/cookie is cleared as well
+            api.post(API_ROUTES.AUTH.LOGOUT).catch(() => {});
+
+            window.location.replace(APP_ROUTES.LOGIN);
 
             return Promise.reject(refreshError);
         } finally {

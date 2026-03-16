@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Input, Button } from '../../components/common';
 import CandidateNavHeader from './CandidateNavHeader';
 import { useCandidateProfile } from '../../hooks/candidate/useCandidateProfile';
@@ -8,6 +9,7 @@ import { candidateService } from '../../services/candidate.service';
 
 
 const Profile = () => {
+    const navigate = useNavigate();
     const errorBannerRef = useRef<HTMLDivElement>(null);
     const [profilePicPreviewUrl, setProfilePicPreviewUrl] = useState<string | null>(null);
     const [profilePicViewUrl, setProfilePicViewUrl] = useState<string>('');
@@ -121,6 +123,12 @@ const Profile = () => {
     const { register } = form;
 
 
+    const handleChangePassword = async () => {
+        await handleLogout();
+        navigate('/forgot-password');
+    }
+
+
     const errorBorderStyle = (fieldError?: string): React.CSSProperties =>
         fieldError ? { borderColor: '#ef4444', boxShadow: '0 0 0 1px rgba(239, 68, 68, 0.3)' } : {};
 
@@ -154,7 +162,7 @@ const Profile = () => {
                         </div>
                     )}
 
-                  
+
 
                     <form
                         id="candidate-profile-form"
@@ -174,16 +182,16 @@ const Profile = () => {
                                         )}
                                     </div>
                                     <label className="absolute inset-0 flex items-center justify-center rounded-[14px] bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                            <input
-                                                type="file"
-                                                accept="image/jpeg,image/jpg,image/png,image/webp"
-                                                onChange={handleProfilePicSelect}
-                                                disabled={isProfilePicUploading}
-                                                className="hidden"
-                                            />
-                                            <span className="text-white text-xs font-medium px-2 py-1 bg-white/20 rounded">
-                                                {isProfilePicUploading ? 'Uploading…' : 'Change photo'}
-                                            </span>
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/jpg,image/png,image/webp"
+                                            onChange={handleProfilePicSelect}
+                                            disabled={isProfilePicUploading}
+                                            className="hidden"
+                                        />
+                                        <span className="text-white text-xs font-medium px-2 py-1 bg-white/20 rounded">
+                                            {isProfilePicUploading ? 'Uploading…' : 'Change photo'}
+                                        </span>
                                     </label>
                                 </div>
                                 <div className="flex flex-col gap-1.5 min-w-0 flex-1">
@@ -197,9 +205,19 @@ const Profile = () => {
                             <div className="flex gap-3 max-md:gap-2 items-center max-[900px]:w-full max-[900px]:justify-end max-md:flex-wrap">
                                 {!isEditing ? (
                                     <>
+
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            className="py-2.5 px-4 max-md:py-2 max-md:px-3 max-md:text-sm rounded-[10px] font-bold"
+                                            onClick={handleChangePassword}
+                                        >
+                                            Change Password
+                                        </Button>
                                         <Button type="button" variant="primary" className="py-2.5 px-4 max-md:py-2 max-md:px-3 max-md:text-sm rounded-[10px] font-bold" onClick={handleEditClick}>
                                             Edit Profile
                                         </Button>
+
                                         <Button
                                             type="button"
                                             variant="danger"
@@ -433,7 +451,7 @@ const Profile = () => {
                                 <div className="py-4 max-md:py-3">
                                     {profileData.resumeUrl || isResumeUploading ? (
                                         <div className="flex flex-wrap items-center gap-3 p-4 bg-[rgba(102,126,234,0.1)] border border-[rgba(102,126,234,0.2)] rounded-[10px]">
-                                           
+
                                             {profileData.resumeUrl && (
                                                 <button
                                                     type="button"

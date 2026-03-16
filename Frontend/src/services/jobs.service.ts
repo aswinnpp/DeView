@@ -81,7 +81,7 @@ export const jobsService = {
       })
       .then((res) => toPaginatedResult(res.data)),
 
-  create: (payload: JobCreatePayload) =>
+  create: (payload ?: JobCreatePayload ) =>
     api.post<{ data: Job }>(API_ROUTES.JOB.JOB_CREATE, payload),
 
   update: (id: string, payload: Partial<JobCreatePayload>) =>

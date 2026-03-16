@@ -39,17 +39,17 @@ export function useLogin() {
 
       switch (result.status) {
         case 'approved':
-          navigate(APP_ROUTES.COMPANY_DASHBOARD);
+          navigate(APP_ROUTES.COMPANY_DASHBOARD, { replace: true });
           break;
         case 'pending':
         case 'rejected':
-          navigate(APP_ROUTES.COMPANY_APPROVAL_PENDING);
+          navigate(APP_ROUTES.COMPANY_APPROVAL_PENDING, { replace: true });
           break;
         default:
-          navigate(APP_ROUTES.COMPANY_APPROVAL_FORM);
+          navigate(APP_ROUTES.COMPANY_APPROVAL_FORM, { replace: true });
       }
     } catch {
-      navigate(APP_ROUTES.ROOT);
+      navigate(APP_ROUTES.ROOT, { replace: true });
     }
   };
 
@@ -76,20 +76,20 @@ export function useLogin() {
       if (role === "candidate") {
         const { data } = await candidateService.getProfile();
         if (data?.profile) {
-          navigate(APP_ROUTES.CANDIDATE_INTERVIEWS);
+          navigate(APP_ROUTES.CANDIDATE_INTERVIEWS, { replace: true });
         } else {
-          navigate(APP_ROUTES.CANDIDATE_PROFILE);
+          navigate(APP_ROUTES.CANDIDATE_PROFILE, { replace: true });
         }
       } else if (role === "company") {
         await navigateCompanyUser();
       } else if (role === "hr") {
-        navigate(APP_ROUTES.HR_DASHBOARD);
+        navigate(APP_ROUTES.HR_DASHBOARD, { replace: true });
       } else if (role === "admin") {
-        navigate(APP_ROUTES.ADMIN_DASHBOARD);
+        navigate(APP_ROUTES.ADMIN_DASHBOARD, { replace: true });
       } else if (role === "interviewer") {
-        navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS);
+        navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS, { replace: true });
       } else {
-        navigate(APP_ROUTES.ROOT);
+        navigate(APP_ROUTES.ROOT, { replace: true });
       }
     } catch (err) {
       setError(extractApiError(err));

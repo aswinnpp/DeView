@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Input } from "../../components/common";
 import { useInterviewerProfile } from "../../hooks/interviewer";
 import { useFileUpload } from "../../hooks/useFileUpload";
@@ -11,6 +12,7 @@ const wrapperClass = "flex flex-col gap-2";
 const errorClass = "text-red-400 text-xs mt-1";
 
 const InterviewerProfileSettings: React.FC = () => {
+  const navigate = useNavigate();
   const {
     form,
     profileData,
@@ -86,6 +88,12 @@ const InterviewerProfileSettings: React.FC = () => {
     }
   };
 
+
+  const handleChangePassword = async () => {
+    await handleLogout();
+    navigate('/forgot-password');
+}
+
   if (profileLoading) {
     return (
       <div className="max-w-[1000px] mx-auto py-6 text-slate-300">
@@ -152,9 +160,18 @@ const InterviewerProfileSettings: React.FC = () => {
                 </div>
               </div>
               <div className="flex gap-3 shrink-0">
+
+              <Button
+                  variant="secondary"
+                  onClick={handleChangePassword}
+                  className="!py-3 !px-6 !font-semibold"
+                >
+                  Change Password
+                </Button>
                 <Button variant="ghostOutline" onClick={() => setIsEditing(true)} className="!py-3 !px-6 !font-semibold">
                   Edit Profile
                 </Button>
+              
                 <Button variant="danger" onClick={handleLogout}>
                   Logout
                 </Button>

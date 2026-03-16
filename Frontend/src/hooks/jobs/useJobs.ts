@@ -142,13 +142,14 @@ export function useJobs() {
         form.reset(defaultJobFormValues);
       } catch (err) {
         setJobCreateError(extractApiError(err));
-        // Close the edit/create modal on error so only the error modal is visible
         setEditingJob(null);
         setIsCreating(false);
       }
     },
     [isActive, editingJob, fetchJobs, form, setEditingJob, setIsCreating, setJobCreateError]
   );
+
+
 
   const handleCloseModal = useCallback(() => {
     setIsCreating(false);
@@ -159,6 +160,10 @@ export function useJobs() {
   const openCreateModal = useCallback(() => {
     setEditingJob(null);
     form.reset(defaultJobFormValues);
+
+   
+
+   
     setIsCreating(true);
   }, [form]);
 

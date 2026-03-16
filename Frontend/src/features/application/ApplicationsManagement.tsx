@@ -143,7 +143,6 @@ const HRApplicationsPage = () => {
         }
     };
 
-    // View states
     const [activeTab, setActiveTab] = useState<WorkflowTab>('PENDING');
 
     // Modal states (pure UI)
