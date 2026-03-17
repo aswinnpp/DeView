@@ -2,6 +2,7 @@ import type { Server as HTTPServer } from 'http';
 import type { FastifyInstance } from 'fastify';
 import { Server as SocketIOServer } from 'socket.io';
 import { signalingController } from '../../interfaces/http/controllers/signaling-Controller.js';
+import { setSocketServer } from './socketContext.js';
 
 export interface InterviewSocketContext {
   io: SocketIOServer;
@@ -33,6 +34,7 @@ export function createInterviewSocketServer(
     signalingController(io, socket);
   });
 
+  setSocketServer(io);
   return { io };
 }
 

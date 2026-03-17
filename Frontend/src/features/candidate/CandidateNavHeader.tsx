@@ -2,16 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { candidateService } from '../../services/candidate.service';
 import { Button, NotificationBell } from '../../components/common';
+import { useNotifications } from "../../hooks/notifications/useNotifications";
 
 interface ICandidateNavHeaderProps {
     title: string;
     currentPage?: 'jobs' | 'dashboard' | 'profile' | 'mails' | 'interviews' | 'applied';
-}
-
-interface INotification {
-    id: number;
-    text: string;
-    time: string;
 }
 
 const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) => {
@@ -20,6 +15,7 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
     const notificationRef = useRef<HTMLDivElement>(null);
     const [candidateName, setCandidateName] = useState<string>(localStorage.getItem('userName') || '');
     const [candidateProfilePicUrl, setCandidateProfilePicUrl] = useState<string>('');
+    const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("candidate");
 
     useEffect(() => {
         if (sidebarOpen) {
@@ -74,10 +70,10 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
         };
     }, [showNotifications]);
 
-    const notifications: INotification[] = [
-        { id: 1, text: "New job opportunity available", time: "5m ago" },
-        { id: 2, text: "Interview scheduled for tomorrow", time: "1h ago" },
-    ];
+    useEffect(() => {
+        if (!showNotifications) return;
+        refresh().catch(() => {});
+    }, [showNotifications, refresh]);
 
     return (
         <>
@@ -142,7 +138,7 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
                         onClick={() => setShowNotifications((v) => !v)}
                         aria-expanded={showNotifications}
                         aria-controls="notification-list"
-                        count={notifications.length}
+                        count={unreadCount}
                         badgeClassName="-top-1 -right-1.5 bg-linear-to-br from-brand-pink to-brand-pink-dark text-[11px]"
                     />
 
@@ -170,13 +166,17 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
                                     </div>
                                 ) : (
                                     notifications.map((n) => (
-                                        <div key={n.id} className="flex items-start gap-3 p-4 border-b border-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.02)]">
-                                            <div className="text-lg">📣</div>
-                                            <div>
-                                                <div className="text-white text-sm">{n.text}</div>
-                                                <div className="text-[rgba(255,255,255,0.5)] text-xs mt-1">{n.time}</div>
+                                        <button
+                                            key={n.id}
+                                            type="button"
+                                            className="w-full text-left flex items-start gap-3 p-4 border-none border-b border-[rgba(255,255,255,0.03)] bg-transparent hover:bg-[rgba(255,255,255,0.02)] cursor-pointer"
+                                            onClick={() => markRead(n.id)}
+                                        >
+                                            <div className="min-w-0">
+                                                <div className="text-white text-sm truncate">{n.message || n.title}</div>
+                                                <div className="text-[rgba(255,255,255,0.5)] text-xs mt-1">{formatTime(n.createdAt)}</div>
                                             </div>
-                                        </div>
+                                        </button>
                                     ))
                                 )}
                             </div>

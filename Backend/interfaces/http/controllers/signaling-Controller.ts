@@ -1,6 +1,16 @@
 import type { Server as SocketIOServer, Socket } from 'socket.io';
 
 export const signalingController = (io: SocketIOServer, socket: Socket): void => {
+  socket.on('join-company-notifications', ({ companyId }: { companyId: string }) => {
+    if (!companyId) return;
+    socket.join(`company:${companyId}`);
+  });
+
+  socket.on('join-user-notifications', ({ userId }: { userId: string }) => {
+    if (!userId) return;
+    socket.join(`user:${userId}`);
+  });
+
   socket.on('join-room', ({ roomId, displayName }: { roomId: string; displayName?: string }) => {
     if (!roomId) return;
 

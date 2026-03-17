@@ -79,6 +79,13 @@ export class MongoUserRepository
     return { data: docs.map(doc => this.toDomain(doc as IUserDocument)), total };
   }
 
+  async listActiveUserIdsByRole(role: string): Promise<string[]> {
+    const docs = await this.collection
+      .find({ role, isActive: true }, { projection: { _id: 1 } })
+      .toArray();
+    return docs.map((d) => d._id?.toString()).filter((id): id is string => !!id);
+  }
+
   protected toDomain(doc: IUserDocument): User {
     return new User(
       doc._id?.toString() || null,

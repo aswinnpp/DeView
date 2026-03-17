@@ -139,7 +139,7 @@ const InterviewerLayout: React.FC = () => {
                   <div className="max-h-[300px] overflow-y-auto">
                     {notifications.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-8 px-4 text-white/70">
-                        <span className="text-2xl mb-2">🔕</span>
+                        <span className="text-2xl mb-2">No notifications</span>
                         <p className="m-0 text-sm">You're all caught up</p>
                       </div>
                     ) : (
@@ -148,7 +148,6 @@ const InterviewerLayout: React.FC = () => {
                           key={n.id}
                           className="flex items-start gap-3 py-4 px-5 border-b border-white/[0.05] transition-colors duration-300 hover:bg-white/[0.03]"
                         >
-                          <div className="text-lg w-6 text-center shrink-0">📣</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-white text-sm leading-snug m-0 mb-1">{n.text}</p>
                             <p className="text-white/60 text-xs m-0">{n.time}</p>

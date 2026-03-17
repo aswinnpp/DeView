@@ -6,6 +6,9 @@ import type { ICreateJobUseCase } from '../ports/usecase/ICreateJobUseCase.js';
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
 import { Job } from '../../../domain/job/entities/Job.js';
 import { AppError } from '../../../shared/errors/AppError.js';
+import type { IUserRepository } from '../../shared/ports/repository/IUserRepository.js';
+import type { INotificationRepository } from '../../notification/ports/repository/INotificationRepository.js';
+import type { INotificationPublisher } from '../../notification/ports/service/INotificationPublisher.js';
 
 
 @injectable()
@@ -13,6 +16,9 @@ export class CreateJobUseCase implements ICreateJobUseCase {
   constructor(
     @inject(TYPES.JobRepositoryPort) private readonly _repo: IJobRepository,
     @inject(TYPES.CompanyProfileRepositoryPort) private readonly _companyRepo: ICompanyProfileRepository,
+    @inject(TYPES.UserRepositoryPort) private readonly _userRepo: IUserRepository,
+    @inject(TYPES.NotificationRepositoryPort) private readonly _notificationRepo: INotificationRepository,
+    @inject(TYPES.NotificationPublisherPort) private readonly _notificationPublisher: INotificationPublisher,
   ) {}
 
   async execute(dto: ICreateJobDTO) {
@@ -56,6 +62,27 @@ export class CreateJobUseCase implements ICreateJobUseCase {
     );
 
     await this._repo.save(job);
+
+    //
+      const candidateIds = await this._userRepo.listActiveUserIdsByRole('candidate');
+      await Promise.all(
+        candidateIds.map(async (candidateUserId) => {
+          const notification = await this._notificationRepo.create({
+            recipientType: 'USER',
+            recipientId: candidateUserId,
+            type: 'NEW_JOB',
+            title: 'New job posted',
+            message: `A new job has been posted: ${job.title}`,
+            data: { jobId: job.id, companyId: dto.companyId },
+          });
+          await this._notificationPublisher.publish({
+            recipientType: 'USER',
+            recipientId: candidateUserId,
+            notification,
+          });
+        }),
+      );
+   
 
     return { job };
   }

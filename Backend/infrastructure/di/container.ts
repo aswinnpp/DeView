@@ -29,6 +29,7 @@ import { ApplicationsController } from '../../interfaces/http/controllers/applic
 import { InterviewerAssignmentsController } from '../../interfaces/http/controllers/interviewer-assignments.controller.js';
 import { InterviewerProfileController } from '../../interfaces/http/controllers/interviewer-profile.controller.js';
 import { InterviewerSlotsController } from "../../interfaces/http/controllers/interviewer-slots.controller.js";
+import { NotificationsController } from "../../interfaces/http/controllers/notifications.controller.js";
 
 export function createContainer(db: Db) {
   const container = new Container();
@@ -64,6 +65,7 @@ export function getControllers(container: ContainerType) {
     interviewerAssignmentsController: container.get(InterviewerAssignmentsController),
     interviewerProfileController: container.get(InterviewerProfileController),
     interviewerSlotsController: container.get(InterviewerSlotsController),
+    notificationsController: container.get(NotificationsController),
   };
 }
 

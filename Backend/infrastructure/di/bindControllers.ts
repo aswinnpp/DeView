@@ -18,6 +18,7 @@ import { ApplicationsController } from '../../interfaces/http/controllers/applic
 import { InterviewerAssignmentsController } from '../../interfaces/http/controllers/interviewer-assignments.controller.js';
 import { InterviewerProfileController } from '../../interfaces/http/controllers/interviewer-profile.controller.js';
 import { InterviewerSlotsController } from '../../interfaces/http/controllers/interviewer-slots.controller.js';
+import { NotificationsController } from "../../interfaces/http/controllers/notifications.controller.js";
 
 export function bindControllers(container: Container): void {
   container.bind(AuthController).toSelf();
@@ -38,5 +39,6 @@ export function bindControllers(container: Container): void {
   container.bind(InterviewerAssignmentsController).toSelf();
   container.bind(InterviewerProfileController).toSelf();
   container.bind(InterviewerSlotsController).toSelf();
+  container.bind(NotificationsController).toSelf();
   
 }

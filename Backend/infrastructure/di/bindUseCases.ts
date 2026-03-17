@@ -77,6 +77,9 @@ import { CreateInterviewerProfileUseCase } from '../../application/interviewer/u
 import { UpdateInterviewerProfileUseCase } from '../../application/interviewer/use-cases/update-interviewer-profile.usecase.js';
 import { GetMyInterviewerSlotsUseCase } from "../../application/interviewer/use-cases/get-my-interviewer-slots.usecase.js";
 import { UpsertMyInterviewerSlotsUseCase } from "../../application/interviewer/use-cases/upsert-my-interviewer-slots.usecase.js";
+import { ListNotificationsUseCase } from "../../application/notification/use-cases/list-notifications.usecase.js";
+import { MarkNotificationReadUseCase } from "../../application/notification/use-cases/mark-notification-read.usecase.js";
+import { DeleteNotificationUseCase } from "../../application/notification/use-cases/delete-notification.usecase.js";
 
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
@@ -185,4 +188,9 @@ export function bindUseCases(container: Container): void {
 
   // Job use cases
   container.bind(TYPES.SubscriptionUseCasePort).to(SubscriptionUseCase);
+
+  // Notifications (company)
+  container.bind(TYPES.ListNotificationsUseCasePort).to(ListNotificationsUseCase);
+  container.bind(TYPES.MarkNotificationReadUseCasePort).to(MarkNotificationReadUseCase);
+  container.bind(TYPES.DeleteNotificationUseCasePort).to(DeleteNotificationUseCase);
 }

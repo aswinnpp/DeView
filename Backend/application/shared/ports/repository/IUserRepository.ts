@@ -21,5 +21,8 @@ export interface IUserRepository {
     role: string,
     options?: IUserSearchOptions
   ): Promise<{ data: User[]; total: number }>;
+
+  /** Lightweight list of active user IDs for broadcasting notifications. */
+  listActiveUserIdsByRole(role: string): Promise<string[]>;
   save(user: User): Promise<void>;
 }

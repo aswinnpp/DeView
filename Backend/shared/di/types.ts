@@ -108,4 +108,11 @@ export const TYPES = {
   GetMyInterviewerSlotsUseCasePort: Symbol("GetMyInterviewerSlotsUseCasePort"),
   UpsertMyInterviewerSlotsUseCasePort: Symbol("UpsertMyInterviewerSlotsUseCasePort"),
   SubscriptionUseCasePort: Symbol("SubscriptionUseCasePort"),
+
+  // Notifications (company)
+  NotificationRepositoryPort: Symbol("NotificationRepositoryPort"),
+  NotificationPublisherPort: Symbol("NotificationPublisherPort"),
+  ListNotificationsUseCasePort: Symbol("ListNotificationsUseCasePort"),
+  MarkNotificationReadUseCasePort: Symbol("MarkNotificationReadUseCasePort"),
+  DeleteNotificationUseCasePort: Symbol("DeleteNotificationUseCasePort"),
 } as const;

@@ -5,6 +5,8 @@ import type { ICandidateProfileRepository } from '../ports/repository/ICandidate
 import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
 import type { IJobApplicationRepository } from '../ports/repository/IJobApplicationRepository.js';
 import type { IApplyForJobInput, IApplyForJobUseCase } from '../ports/usecase/IApplyForJobUseCase.js';
+import type { INotificationRepository } from '../../notification/ports/repository/INotificationRepository.js';
+import type { INotificationPublisher } from '../../notification/ports/service/INotificationPublisher.js';
 
 @injectable()
 export class ApplyForJobUseCase implements IApplyForJobUseCase {
@@ -15,6 +17,10 @@ export class ApplyForJobUseCase implements IApplyForJobUseCase {
     private readonly _jobRepo: IJobRepository,
     @inject(TYPES.JobApplicationRepositoryPort)
     private readonly _applicationRepo: IJobApplicationRepository,
+    @inject(TYPES.NotificationRepositoryPort)
+    private readonly _notificationRepo: INotificationRepository,
+    @inject(TYPES.NotificationPublisherPort)
+    private readonly _notificationPublisher: INotificationPublisher,
   ) {}
 
   async execute(input: IApplyForJobInput): Promise<{ applicationId: string }> {
@@ -87,6 +93,20 @@ export class ApplyForJobUseCase implements IApplyForJobUseCase {
       },
     ];
     await this._jobRepo.save(job);
+
+    const notification = await this._notificationRepo.create({
+      recipientType: "COMPANY",
+      recipientId: job.companyId,
+      type: "NEW_APPLICATION",
+      title: "New application",
+      message: `New application received for ${job.title}`,
+      data: { jobId: job.id, applicationId, candidateUserId },
+    });
+    await this._notificationPublisher.publish({
+      recipientType: "COMPANY",
+      recipientId: job.companyId,
+      notification,
+    });
 
     return { applicationId };
   }

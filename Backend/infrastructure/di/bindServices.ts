@@ -12,6 +12,7 @@ import { RedisAccessTokenRepository } from '../persistence/redis/RedisAccessToke
 import { RedisRefreshTokenRepository } from '../persistence/redis/RedisRefreshTokenRepository.js';
 import { env } from '../config/env.js';
 import { GoogleGenAiScoringService } from '../ai/GoogleGenAiScoringService.js';
+import { SocketIoNotificationPublisher } from "../notifications/SocketIoNotificationPublisher.js";
 
 
 export function bindServices(container: Container): void {
@@ -21,6 +22,7 @@ export function bindServices(container: Container): void {
   container.bind(TYPES.FileStoragePort).to(S3FileStorageService);
   container.bind(TYPES.CryptoRandomPort).to(NodeCryptoRandomService);
   container.bind(TYPES.AiScoringServicePort).to(GoogleGenAiScoringService);
+  container.bind(TYPES.NotificationPublisherPort).to(SocketIoNotificationPublisher);
 
   container.bind(TYPES.GoogleAuthPort).toConstantValue(
     new GoogleAuthService(

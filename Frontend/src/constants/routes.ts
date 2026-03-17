@@ -29,6 +29,11 @@ export const API_ROUTES = {
         INTERVIEWER_CREATE: '/company/interviewer/create',
         INTERVIEWER_TOGGLE_STATUS: (id: string) => `/company/interviewer/${id}/toggle-status`,
         INTERVIEWER_SLOTS: (id: string) => `/company/interviewer/${id}/slots`,
+        NOTIFICATIONS: {
+            LIST: '/company/notifications',
+            MARK_READ: (notificationId: string) => `/company/notifications/${notificationId}/read`,
+            DELETE: (notificationId: string) => `/company/notifications/${notificationId}`,
+        },
     },
     JOB: {
         JOBS_LIST: '/jobs',
@@ -89,6 +94,11 @@ export const API_ROUTES = {
         MY_INTERVIEWS: '/candidate/interviews/my',
         REQUEST_RESCHEDULE: (interviewId: string) => `/candidate/interviews/${interviewId}/reschedule`,
         INTERVIEW_FEEDBACKS: '/candidate/interviews/feedbacks',
+        NOTIFICATIONS: {
+            LIST: '/candidate/notifications',
+            MARK_READ: (notificationId: string) => `/candidate/notifications/${notificationId}/read`,
+            DELETE: (notificationId: string) => `/candidate/notifications/${notificationId}`,
+        },
     },
 } as const;
 
