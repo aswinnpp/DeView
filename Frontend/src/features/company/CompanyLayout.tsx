@@ -1,6 +1,6 @@
 import { NavLink, Outlet, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Button } from '../../components/common';
+import { Button, NotificationBell } from '../../components/common';
 import { SystemDataProvider } from '../../context/SystemDataContext';
 import { APP_ROUTES } from '../../constants/routes';
 import { useSelector } from 'react-redux';
@@ -15,25 +15,6 @@ const CompanyLayout = () => {
     const user = useSelector((state: RootState) => state.auth.user);
 
     const role = (user?.role || "").toLowerCase();
-
-    if (!user) {
-        return <Navigate to={APP_ROUTES.LOGIN} replace />;
-    }
-
-    if (role !== "company") {
-        switch (role) {
-            case "candidate":
-                return <Navigate to="/candidate" replace />;
-            case "admin":
-                return <Navigate to={APP_ROUTES.ADMIN_DASHBOARD} replace />;
-            case "hr":
-                return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
-            case "interviewer":
-                return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
-            default:
-                return <Navigate to={APP_ROUTES.ROOT} replace />;
-        }
-    }
 
     useEffect(() => {
         if (sidebarOpen) {
@@ -59,6 +40,25 @@ const CompanyLayout = () => {
     }, []);
 
     const companyInitial = (user as { companyName?: string } | null)?.companyName?.trim()?.charAt(0)?.toUpperCase() || 'C';
+
+    if (!user) {
+        return <Navigate to={APP_ROUTES.LOGIN} replace />;
+    }
+
+    if (role !== "company") {
+        switch (role) {
+            case "candidate":
+                return <Navigate to="/candidate" replace />;
+            case "admin":
+                return <Navigate to={APP_ROUTES.ADMIN_DASHBOARD} replace />;
+            case "hr":
+                return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
+            case "interviewer":
+                return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
+            default:
+                return <Navigate to={APP_ROUTES.ROOT} replace />;
+        }
+    }
 
     const notifications = [
         { id: 1, text: 'Welcome to Intervu for Business!', time: 'Just now' },
@@ -98,15 +98,11 @@ const CompanyLayout = () => {
                     </div>
                     <div className="flex gap-4 items-center">
                         <div className="relative">
-                            <Button variant="secondary" className="!bg-none !border-none cursor-pointer text-xl text-[rgba(255,255,255,0.95)] relative p-2 rounded-lg hover:bg-[rgba(255,255,255,0.08)]" onClick={() => setShowNotifications((v) => !v)}>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                                </svg>
-                                {notifications.length > 0 && (
-                                    <span className="absolute top-0 right-0 bg-[#ef4444] text-white px-1.5 py-0.5 text-[10px] font-bold rounded-full">{notifications.length}</span>
-                                )}
-                            </Button>
+                            <NotificationBell
+                                className="!bg-none !border-none cursor-pointer text-xl text-[rgba(255,255,255,0.95)] relative p-2 rounded-lg hover:bg-[rgba(255,255,255,0.08)]"
+                                onClick={() => setShowNotifications((v) => !v)}
+                                count={notifications.length}
+                            />
                             {showNotifications && (
                                 <div className="absolute top-[110%] right-0 w-80 max-w-[calc(100vw-2rem)] bg-[rgba(12,12,18,0.98)] border border-[rgba(255,255,255,0.03)] rounded-xl shadow-[0_12px_30px_rgba(0,0,0,0.5)] z-[2000]">
                                     <div className="flex justify-between items-center py-3.5 px-4 border-b border-[rgba(255,255,255,0.04)]">

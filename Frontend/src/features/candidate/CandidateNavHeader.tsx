@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { candidateService } from '../../services/candidate.service';
-import { Button } from '../../components/common';
+import { Button, NotificationBell } from '../../components/common';
 
 interface ICandidateNavHeaderProps {
     title: string;
@@ -137,23 +137,14 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
                 <div className="flex gap-3 max-md:gap-2 items-center">
 
                 <div className="relative" ref={notificationRef}>
-                    <Button
-                        variant="secondary"
+                    <NotificationBell
                         className="!bg-none !border-none cursor-pointer text-xl text-[rgba(255,255,255,0.95)] relative"
                         onClick={() => setShowNotifications((v) => !v)}
                         aria-expanded={showNotifications}
                         aria-controls="notification-list"
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                        </svg>
-                        {notifications.length > 0 && (
-                            <span className="absolute -top-1 -right-1.5 bg-linear-to-br from-brand-pink to-brand-pink-dark text-white px-1.5 py-0.5 text-[11px] font-bold rounded-full">
-                                {notifications.length}
-                            </span>
-                        )}
-                    </Button>
+                        count={notifications.length}
+                        badgeClassName="-top-1 -right-1.5 bg-linear-to-br from-brand-pink to-brand-pink-dark text-[11px]"
+                    />
 
                     {showNotifications && (
                         <div
