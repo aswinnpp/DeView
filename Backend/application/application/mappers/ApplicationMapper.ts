@@ -8,6 +8,30 @@ import type { CallerContext } from '../../shared/types/CallerContext.js';
 import type { IScheduleInterviewInput } from '../use-cases/schedule-interview.usecase.js';
 import type { IDeclineRescheduleRequestInput } from '../use-cases/decline-reschedule-request.usecase.js';
 import type { IGetResumeViewUrlInput } from '../use-cases/get-resume-view-url.usecase.js';
+import type { IPrecheckScheduleInterviewInput } from '../use-cases/precheck-schedule-interview.usecase.js';
+
+type CandidatePipelineTab =
+  | 'pending'
+  | 'shortlist'
+  | 'interview'
+  | 'interview_complete'
+  | 'complete';
+
+function statusesForPipelineTab(tab: CandidatePipelineTab): ApplicationStatus[] {
+  switch (tab) {
+    case 'pending':
+      return ['PENDING'];
+    case 'shortlist':
+      return ['SHORTLISTED'];
+    case 'interview_complete':
+      return ['COMPLETED', 'INTERVIEW_COMPLETE'];
+    case 'interview':
+      return ['INTERVIEW_SCHEDULED', 'RESCHEDULE_REQUESTED', 'INTERVIEW_COMPLETE', 'COMPLETED', 'HIRED'];
+    case 'complete':
+      // UI uses "complete" tab for rejected candidates
+      return ['REJECTED'];
+  }
+}
 
 export const ApplicationMapper = {
   toView(app: Application): ApplicationView {
@@ -77,13 +101,17 @@ export const ApplicationMapper = {
         | 'HIRED'
         | 'REJECTED'
         | 'RESCHEDULE_REQUESTED';
+      pipelineTab?: CandidatePipelineTab;
     },
     context: CallerContext
   ): IListPendingApplicationsForJobInput {
+    const pipelineTab = query?.pipelineTab;
+    const statuses = pipelineTab ? statusesForPipelineTab(pipelineTab) : undefined;
     return {
       jobId: params.jobId,
       companyId: context.companyId || '',
       status: query?.status as ApplicationStatus | undefined,
+      statuses,
     };
   },
 
@@ -196,6 +224,7 @@ export const ApplicationMapper = {
       interviewerEmail?: string;
       scheduledDate: string;
       scheduledTime: string;
+      slotStartIso?: string;
     },
     context: CallerContext
   ): IScheduleInterviewInput {
@@ -209,6 +238,7 @@ export const ApplicationMapper = {
       interviewerEmail: body.interviewerEmail,
       scheduledDate: body.scheduledDate,
       scheduledTime: body.scheduledTime,
+      slotStartIso: body.slotStartIso,
     };
   },
 
@@ -231,6 +261,19 @@ export const ApplicationMapper = {
       companyId: context.companyId || '',
       jobId: params.jobId,
       applicationId: params.applicationId,
+    };
+  },
+
+  toPrecheckScheduleInterviewInput(
+    params: { jobId: string; applicationId: string },
+    query: { scheduledDate?: string },
+    context: CallerContext
+  ): IPrecheckScheduleInterviewInput {
+    return {
+      companyId: context.companyId || '',
+      jobId: params.jobId,
+      applicationId: params.applicationId,
+      scheduledDate: query?.scheduledDate,
     };
   },
 };

@@ -19,6 +19,28 @@ export class MongoInterviewRepository
     return this.toDomain({ ...doc, _id: res.insertedId });
   }
 
+  async countByCandidateUserIdAndScheduledDate(
+    candidateUserId: string,
+    scheduledDate: string,
+    options?: { excludeInterviewId?: string }
+  ): Promise<number> {
+    const filter: Filter<IInterviewDocument> = {
+      candidateUserId,
+      scheduledDate,
+      status: { $ne: 'CANCELLED' },
+    };
+
+    if (options?.excludeInterviewId) {
+      try {
+        filter._id = { $ne: new ObjectId(options.excludeInterviewId) };
+      } catch {
+        // ignore invalid id
+      }
+    }
+
+    return this.collection.countDocuments(filter);
+  }
+
   async listByCandidateUserId(
     candidateUserId: string,
     options?: { search?: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }

@@ -4,7 +4,7 @@ import type { IApplicationRepository } from '../ports/repository/IApplicationRep
 import type { IInterviewRepository } from '../../interview/ports/repository/IInterviewRepository.js';
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
 import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
-import type { ISubscriptionRepository } from '../../admin/ports/repository/ISubscriptionRepository.js';
+import type { IInterviewerSlotsRepository } from '../../interviewer/ports/repository/IInterviewerSlotsRepository.js';
 import type { Application } from '../../../domain/application/entities/Application.js';
 import { Interview } from '../../../domain/interview/entities/Interview.js';
 import { AppError } from '../../../shared/errors/AppError.js';
@@ -19,6 +19,8 @@ export interface IScheduleInterviewInput {
   interviewerEmail?: string;
   scheduledDate: string;
   scheduledTime: string;
+  /** ISO start time string for slot reservation (used to remove booked slot) */
+  slotStartIso?: string;
 }
 
 export interface IScheduleInterviewUseCase {
@@ -36,8 +38,8 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     @inject(TYPES.JobRepositoryPort)
     private readonly _jobRepository: IJobRepository,
-    @inject(TYPES.SubscriptionRepositoryPort)
-    private readonly _subscriptionRepository: ISubscriptionRepository
+    @inject(TYPES.InterviewerSlotsRepositoryPort)
+    private readonly _interviewerSlotsRepository: IInterviewerSlotsRepository
   ) {}
 
   async execute(input: IScheduleInterviewInput): Promise<{ application: Application }> {
@@ -51,6 +53,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       interviewerEmail,
       scheduledDate,
       scheduledTime,
+      slotStartIso,
     } = input;
 
     const trimmedRound = String(round ?? '').trim();
@@ -59,79 +62,62 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     const trimmedInterviewerEmail = interviewerEmail ? String(interviewerEmail).trim() : undefined;
     const trimmedDate = String(scheduledDate ?? '').trim();
     const trimmedTime = String(scheduledTime ?? '').trim();
+    const trimmedSlotStartIso = slotStartIso ? String(slotStartIso).trim() : undefined;
 
     if (!companyId) {
       throw AppError.badRequest('companyId is required to schedule an interview');
     }
 
-    const now = new Date();
-
-    // ── Guard: company must have an active subscription with interview capacity ──
-    const company = await this._companyProfileRepository.findById(companyId);
-    if (!company) {
-      throw AppError.forbidden(
-        'Company profile not found. Please complete your company profile before scheduling interviews.',
-      );
-    }
-
-    company.refreshSubscriptions(now);
-    await this._companyProfileRepository.save(company);
-
-    const activeSub = company.activeSubscription;
-    if (!activeSub) {
-      throw AppError.forbidden(
-        'Your subscription has expired or is missing. Please upgrade your plan to schedule interviews.',
-      );
-    }
-
-    // Use embedded limits from company profile (admin plan edits do not affect subscribers).
-    // Fallback to plan table for legacy records missing embedded limits.
-    let interviewLimit = activeSub.interviewLimit;
-    let interviewUnlimited = activeSub.interviewUnlimited;
-    if (interviewLimit === undefined || interviewUnlimited === undefined) {
-      const plan = await this._subscriptionRepository.findById(activeSub.planId);
-      if (!plan) {
-        throw AppError.forbidden(
-          'Unable to resolve your subscription plan. Please contact support or upgrade your plan.',
-        );
-      }
-      interviewLimit = plan.interviewLimit;
-      interviewUnlimited = plan.interviewUnlimited;
-      // Backfill embedded limits for legacy records
-      activeSub.interviewLimit = plan.interviewLimit;
-      activeSub.interviewUnlimited = plan.interviewUnlimited;
-      activeSub.jobPostLimit = plan.jobPostLimit;
-      activeSub.jobUnlimited = plan.jobUnlimited;
-      await this._companyProfileRepository.save(company);
-    }
-
     const existing = await this._interviewRepository.findActiveByApplicationId(applicationId);
 
-    // Guard: do not allow scheduling the next round until the last completed interview has feedback.
-    if (!existing) {
-      const lastCompleted = await this._interviewRepository.findLatestCompletedByApplicationId(applicationId);
-      if (lastCompleted && !lastCompleted.feedbackSubmitted) {
-        throw AppError.forbidden('Interviewer feedback PENDING');
-      }
+    // Note: subscription/feedback/limits validations are handled by precheck endpoint.
+
+    // ── Guard: a candidate can attend max 4 interviews per day ──
+    // Always enforce during actual scheduling (authoritative).
+    const app = await this._applicationRepository.findByIdAndJobId(applicationId, jobId, companyId);
+    if (!app) {
+      throw AppError.notFound('Application not found');
+    }
+    const count = await this._interviewRepository.countByCandidateUserIdAndScheduledDate(
+      app.candidateUserId,
+      trimmedDate,
+      { excludeInterviewId: existing?.id ?? undefined }
+    );
+    if (count >= 1) {
+      throw AppError.forbidden("Candidate has reached today's interview limit (4).");
     }
 
-    // Only enforce interview count limit when creating a brand new interview record.
-    if (!existing && !interviewUnlimited) {
-      if (!Number.isFinite(interviewLimit) || (interviewLimit ?? 0) <= 0) {
-        throw AppError.forbidden(
-          'Your current plan does not allow interview scheduling. Please upgrade your plan.',
-        );
-      }
+    // ── Reserve (remove) the selected interviewer slot so it can't be double-booked ──
+    // This is best-effort for legacy clients that don't send slotStartIso.
+    if (trimmedSlotStartIso) {
+      const asDDMMYYYY = (s: string) => {
+        // Accept both YYYY-MM-DD and DD-MM-YYYY
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+          const [yyyy, mm, dd] = s.split('-');
+          return `${dd}-${mm}-${yyyy}`;
+        }
+        return s;
+      };
+      const slotDate = asDDMMYYYY(trimmedDate);
 
-      const allCompanyInterviews = await this._interviewRepository.listByCompanyId(companyId);
-      const totalInterviewsCount = allCompanyInterviews.length;
-
-      if (totalInterviewsCount >= (interviewLimit ?? 0)) {
-        // Frontend can map this specific message to a "limit reached" modal.
-        throw AppError.forbidden(
-          'You have reached the interview scheduling limit for your current plan. Please upgrade your plan to schedule more interviews.',
-        );
+      const docs = await this._interviewerSlotsRepository.listByInterviewer({
+        interviewerId: trimmedInterviewerUserId,
+        companyId,
+        slotDate,
+      });
+      const doc = docs?.[0];
+      const currentTimes = Array.isArray(doc?.times) ? doc!.times : [];
+      if (!currentTimes.includes(trimmedSlotStartIso)) {
+        throw AppError.conflict('This slot is already booked. Please choose another time.');
       }
+      const nextTimes = currentTimes.filter((t) => t !== trimmedSlotStartIso);
+      await this._interviewerSlotsRepository.upsertForInterviewerDate({
+        interviewerId: trimmedInterviewerUserId,
+        companyId,
+        slotDate,
+        times: nextTimes,
+        booked: nextTimes.length === 0,
+      });
     }
 
     const updated = await this._applicationRepository.scheduleInterview({

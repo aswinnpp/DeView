@@ -74,8 +74,7 @@ const CompanyPaymentCheckout: React.FC<{
         setIsConfirming(false);
     };
 
-    // Custom dark appearance for Stripe PaymentElement
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const paymentElementOptions: any = {
         layout: "tabs",
         appearance: {

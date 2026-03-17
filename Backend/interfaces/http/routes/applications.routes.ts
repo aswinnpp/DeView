@@ -20,6 +20,10 @@ export async function applicationsRoutes(
     handler: controller.getResumeViewUrl,
   });
 
+  fastify.get('/jobs/:jobId/applications/:applicationId/interview/precheck', {
+    handler: controller.precheckScheduleInterview,
+  });
+
   fastify.post('/jobs/:jobId/score-candidates', {
     handler: controller.scoreCandidates,
   });

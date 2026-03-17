@@ -10,8 +10,10 @@ import type { IScheduleInterviewUseCase } from '../../../application/application
 import type { IDeclineRescheduleRequestUseCase } from '../../../application/application/use-cases/decline-reschedule-request.usecase.js';
 import type { IGetResumeViewUrlUseCase } from '../../../application/application/use-cases/get-resume-view-url.usecase.js';
 import type { IGetLatestInterviewerFeedbackUseCase } from '../../../application/application/use-cases/get-latest-interviewer-feedback.usecase.js';
+import type { IPrecheckScheduleInterviewUseCase } from '../../../application/application/ports/usecase/IPrecheckScheduleInterviewUseCase';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ApplicationMapper } from '../../../application/application/mappers/ApplicationMapper.js';
+import { applicationsListQuerySchema } from '../schemas/applications.schema.js';
 
 function toContext(user: { userId: string; companyId?: string }) {
   return { userId: user.userId, companyId: user.companyId };
@@ -29,6 +31,8 @@ export class ApplicationsController {
     private readonly _updateApplicationStatusUseCase: IUpdateApplicationStatusUseCase,
     @inject(TYPES.ScheduleInterviewUseCasePort)
     private readonly _scheduleInterviewUseCase: IScheduleInterviewUseCase,
+    @inject(TYPES.PrecheckScheduleInterviewUseCasePort)
+    private readonly _precheckScheduleInterviewUseCase: IPrecheckScheduleInterviewUseCase,
     @inject(TYPES.DeclineRescheduleRequestUseCasePort)
     private readonly _declineRescheduleRequestUseCase: IDeclineRescheduleRequestUseCase,
     @inject(TYPES.GetResumeViewUrlUseCasePort)
@@ -62,19 +66,21 @@ export class ApplicationsController {
           | 'HIRED'
           | 'REJECTED'
           | 'RESCHEDULE_REQUESTED';
+        pipelineTab?: 'pending' | 'shortlist' | 'interview' | 'interview_complete' | 'complete';
       };
     }>,
     reply: FastifyReply
   ) => {
+    const query = applicationsListQuerySchema.parse(request.query);
     const ctx = toContext(request.currentUser);
     const input = ApplicationMapper.toListPendingInput(
       request.params,
-      request.query,
+      query,
       ctx
     );
     const result = await this._listPendingApplicationsUseCase.execute(input);
     const data = ApplicationMapper.toListView(result.data);
-    reply.send(success({ data }));
+    reply.send(success({ data, counts: result.counts }));
   };
 
   getResumeViewUrl = async (
@@ -85,6 +91,23 @@ export class ApplicationsController {
     const input = ApplicationMapper.toGetResumeViewUrlInput(request.params, ctx);
     const result = await this._getResumeViewUrlUseCase.execute(input);
     reply.send(success(result));
+  };
+
+  precheckScheduleInterview = async (
+    request: FastifyRequest<{
+      Params: { jobId: string; applicationId: string };
+      Querystring: { scheduledDate?: string };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const ctx = toContext(request.currentUser);
+    const input = ApplicationMapper.toPrecheckScheduleInterviewInput(
+      request.params,
+      request.query ?? {},
+      ctx
+    );
+    await this._precheckScheduleInterviewUseCase.execute(input);
+    reply.send(success({ ok: true }));
   };
 
   scoreCandidates = async (
@@ -143,6 +166,7 @@ export class ApplicationsController {
         interviewerEmail?: string;
         scheduledDate: string;
         scheduledTime: string;
+        slotStartIso?: string;
       };
     }>,
     reply: FastifyReply

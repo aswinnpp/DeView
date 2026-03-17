@@ -31,6 +31,7 @@ import { CreateJobUseCase } from '../../application/job/use-cases/create-job.use
 import { UpdateJobUseCase } from '../../application/job/use-cases/update-job.usecase.js';
 import { ListJobsUseCase } from '../../application/job/use-cases/list-jobs.usecase.js';
 import { ToggleJobStatusUseCase } from '../../application/job/use-cases/toggle-job-status.usecase.js';
+import { SubscriptionUseCase } from '../../application/job/use-cases/Subscription.usecase.js';
 
 // Admin use cases
 import { GetPendingCompaniesUseCase } from '../../application/admin/use-cases/get-pending-companies.usecase.js';
@@ -57,6 +58,7 @@ import { ListPendingApplicationsForJobUseCase } from '../../application/applicat
 import { ScoreCandidatesUseCase } from '../../application/application/use-cases/score-candidates.usecase.js';
 import { UpdateApplicationStatusUseCase } from '../../application/application/use-cases/update-application-status.usecase.js';
 import { ScheduleInterviewUseCase } from '../../application/application/use-cases/schedule-interview.usecase.js';
+import { PrecheckScheduleInterviewUseCase } from '../../application/application/use-cases/precheck-schedule-interview.usecase.js';
 import { DeclineRescheduleRequestUseCase } from '../../application/application/use-cases/decline-reschedule-request.usecase.js';
 import { GetResumeViewUrlUseCase } from '../../application/application/use-cases/get-resume-view-url.usecase.js';
 import { GetLatestInterviewerFeedbackUseCase } from '../../application/application/use-cases/get-latest-interviewer-feedback.usecase.js';
@@ -139,6 +141,7 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ScoreCandidatesUseCasePort).to(ScoreCandidatesUseCase);
   container.bind(TYPES.UpdateApplicationStatusUseCasePort).to(UpdateApplicationStatusUseCase);
   container.bind(TYPES.ScheduleInterviewUseCasePort).to(ScheduleInterviewUseCase);
+  container.bind(TYPES.PrecheckScheduleInterviewUseCasePort).to(PrecheckScheduleInterviewUseCase);
   container.bind(TYPES.DeclineRescheduleRequestUseCasePort).to(DeclineRescheduleRequestUseCase);
   container.bind(TYPES.GetResumeViewUrlUseCasePort).to(GetResumeViewUrlUseCase);
   container.bind(TYPES.GetLatestInterviewerFeedbackUseCasePort).to(GetLatestInterviewerFeedbackUseCase);
@@ -178,4 +181,8 @@ export function bindUseCases(container: Container): void {
   container
     .bind(TYPES.ActivatePendingSubscriptionNowUseCasePort)
     .to(ActivatePendingSubscriptionNowUseCase);
+
+
+  // Job use cases
+  container.bind(TYPES.SubscriptionUseCasePort).to(SubscriptionUseCase);
 }

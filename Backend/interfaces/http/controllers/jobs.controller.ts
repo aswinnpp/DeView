@@ -10,6 +10,7 @@ import type { IToggleJobStatusUseCase } from '../../../application/job/ports/use
 import type { JobFormValues } from '../../../../Shared/contracts/job/form.js';
 import type { JobStatus } from '../../../domain/job/entities/Job.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
+import { ISubscriptionUseCase } from '../../../application/job/ports/usecase/ISubscription';
 
 function toContext(user: { userId: string; companyId?: string }) {
   return { userId: user.userId, companyId: user.companyId };
@@ -22,6 +23,7 @@ export class JobsController {
     @inject(TYPES.UpdateJobUseCasePort) private readonly _updateJobUseCase: IUpdateJobUseCase,
     @inject(TYPES.ListJobsUseCasePort) private readonly _listJobsUseCase: IListJobsUseCase,
     @inject(TYPES.ToggleJobStatusUseCasePort) private readonly _toggleJobStatusUseCase: IToggleJobStatusUseCase,
+    @inject(TYPES.SubscriptionUseCasePort) private readonly _subscriptionUseCase: ISubscriptionUseCase,
   ) {}
 
   createJob = async (
@@ -68,6 +70,15 @@ export class JobsController {
     const result = await this._listJobsUseCase.execute(input);
 
 
+    reply.send(success(result));
+  };
+
+  subscription = async (
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) => {
+    const ctx = toContext(request.currentUser);
+    const result = await this._subscriptionUseCase.execute({ companyId: ctx.companyId ?? '' });
     reply.send(success(result));
   };
 }

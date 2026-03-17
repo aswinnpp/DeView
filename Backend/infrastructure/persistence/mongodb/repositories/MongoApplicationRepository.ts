@@ -62,10 +62,12 @@ export class MongoApplicationRepository implements IApplicationRepository {
   async listByJobId(
     jobId: string,
     companyId: string,
-    status?: ApplicationStatus
+    status?: ApplicationStatus | ApplicationStatus[]
   ): Promise<Application[]> {
     const filter: Filter<IApplicationDocument> = { jobId, companyId };
-    if (status) filter.status = status;
+    if (status) {
+      filter.status = Array.isArray(status) ? { $in: status } : status;
+    }
 
     const docs = await this._collection
       .find(filter)
@@ -73,6 +75,19 @@ export class MongoApplicationRepository implements IApplicationRepository {
       .toArray();
 
     return docs.map((doc) => toDomain(doc));
+  }
+
+  async countByJobId(jobId: string, companyId: string): Promise<Record<ApplicationStatus, number>> {
+    const rows = await this._collection
+      .aggregate<{ _id: ApplicationStatus; count: number }>([
+        { $match: { jobId, companyId } },
+        { $group: { _id: '$status', count: { $sum: 1 } } },
+      ])
+      .toArray();
+
+    const out = {} as Record<ApplicationStatus, number>;
+    for (const r of rows) out[r._id] = r.count;
+    return out;
   }
 
   async listPendingByJobId(jobId: string, companyId: string): Promise<Application[]> {
@@ -340,11 +355,14 @@ export class MongoApplicationRepository implements IApplicationRepository {
       const doc = await this._collection.findOne({ _id, jobId, companyId });
       const hasLegacyOnly = doc?.interviewDetails && !doc?.interviewRounds?.length;
       if (hasLegacyOnly) {
+        const legacy = doc!.interviewDetails!;
+        const canPromoteLegacy =
+          !!legacy.round && !!legacy.interviewer && !!legacy.scheduledDate && !!legacy.scheduledTime;
         await this._collection.updateOne(
           { _id, jobId, companyId },
           {
             $set: {
-              interviewRounds: [{ ...doc!.interviewDetails }],
+              ...(canPromoteLegacy ? { interviewRounds: [{ ...legacy }] } : {}),
               updatedAt: new Date(),
             },
           }
@@ -428,7 +446,7 @@ export class MongoApplicationRepository implements IApplicationRepository {
     if (!updateResult.matchedCount) {
       const docForLegacy = await this._collection.findOne({ _id, jobId, companyId });
       const hasLegacyDetails =
-        docForLegacy?.interviewDetails && (!docForLegacy.interviewRounds?.length ?? true);
+        !!docForLegacy?.interviewDetails && !docForLegacy.interviewRounds?.length;
       if (hasLegacyDetails) {
         await this._collection.updateOne(
           { _id, jobId, companyId },

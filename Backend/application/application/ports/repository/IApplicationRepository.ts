@@ -2,7 +2,13 @@ import type { Application } from '../../../../domain/application/entities/Applic
 import type { ApplicationStatus } from '../../../../domain/application/entities/Application.js';
 
 export interface IApplicationRepository {
-  listByJobId(jobId: string, companyId: string, status?: ApplicationStatus): Promise<Application[]>;
+  listByJobId(
+    jobId: string,
+    companyId: string,
+    status?: ApplicationStatus | ApplicationStatus[]
+  ): Promise<Application[]>;
+
+  countByJobId(jobId: string, companyId: string): Promise<Record<ApplicationStatus, number>>;
 
   listPendingByJobId(jobId: string, companyId: string): Promise<Application[]>;
 

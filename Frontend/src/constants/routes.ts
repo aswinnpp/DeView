@@ -35,6 +35,7 @@ export const API_ROUTES = {
         JOB_CREATE: '/jobs',
         JOB_UPDATE: (id: string) => `/jobs/${id}`,
         JOB_TOGGLE_STATUS: (id: string) => `/jobs/${id}/status`,
+        JOB_SUBSCRIPTION: '/jobs/subscription',
     },
     /** Applications API – company/HR only, independent prefix like jobs */
     APPLICATIONS: {
@@ -42,6 +43,8 @@ export const API_ROUTES = {
         PENDING_APPLICATIONS: (jobId: string) => `/applications/jobs/${jobId}/applications`,
         RESUME_VIEW_URL: (jobId: string, applicationId: string) =>
             `/applications/jobs/${jobId}/applications/${applicationId}/resume-view-url`,
+        INTERVIEW_PRECHECK: (jobId: string, applicationId: string) =>
+            `/applications/jobs/${jobId}/applications/${applicationId}/interview/precheck`,
         LATEST_INTERVIEWER_FEEDBACK: (jobId: string, applicationId: string) =>
             `/applications/jobs/${jobId}/applications/${applicationId}/interviewer-feedback`,
         SCORE_CANDIDATES: (jobId: string) => `/applications/jobs/${jobId}/score-candidates`,

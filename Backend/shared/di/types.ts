@@ -80,6 +80,7 @@ export const TYPES = {
   ScoreCandidatesUseCasePort: Symbol('ScoreCandidatesUseCasePort'),
   UpdateApplicationStatusUseCasePort: Symbol('UpdateApplicationStatusUseCasePort'),
   ScheduleInterviewUseCasePort: Symbol('ScheduleInterviewUseCasePort'),
+  PrecheckScheduleInterviewUseCasePort: Symbol('PrecheckScheduleInterviewUseCasePort'),
   DeclineRescheduleRequestUseCasePort: Symbol('DeclineRescheduleRequestUseCasePort'),
   GetResumeViewUrlUseCasePort: Symbol('GetResumeViewUrlUseCasePort'),
   GetLatestInterviewerFeedbackUseCasePort: Symbol('GetLatestInterviewerFeedbackUseCasePort'),
@@ -106,4 +107,5 @@ export const TYPES = {
   UpdateInterviewerProfileUseCasePort: Symbol('UpdateInterviewerProfileUseCasePort'),
   GetMyInterviewerSlotsUseCasePort: Symbol("GetMyInterviewerSlotsUseCasePort"),
   UpsertMyInterviewerSlotsUseCasePort: Symbol("UpsertMyInterviewerSlotsUseCasePort"),
+  SubscriptionUseCasePort: Symbol("SubscriptionUseCasePort"),
 } as const;

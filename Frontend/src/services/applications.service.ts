@@ -67,6 +67,15 @@ export interface ApplicationItem {
   updatedAt: string;
 }
 
+export type CandidatePipelineTab =
+  | "pending"
+  | "shortlist"
+  | "interview"
+  | "interview_complete"
+  | "complete";
+
+export type ApplicationCounts = Record<CandidatePipelineTab, number>;
+
 export interface JobApplicantDoc {
   applicationId: string;
   candidateUserId: string;
@@ -111,6 +120,27 @@ function toApplicationsResult(data: unknown): ApplicationItem[] {
   return [];
 }
 
+function toApplicationsCounts(data: unknown): ApplicationCounts {
+  const empty: ApplicationCounts = {
+    pending: 0,
+    shortlist: 0,
+    interview: 0,
+    interview_complete: 0,
+    complete: 0,
+  };
+  if (!data || typeof data !== "object" || !("counts" in data)) return empty;
+  const counts = (data as { counts?: unknown }).counts;
+  if (!counts || typeof counts !== "object") return empty;
+  const c = counts as Partial<Record<CandidatePipelineTab, unknown>>;
+  return {
+    pending: typeof c.pending === "number" ? c.pending : 0,
+    shortlist: typeof c.shortlist === "number" ? c.shortlist : 0,
+    interview: typeof c.interview === "number" ? c.interview : 0,
+    interview_complete: typeof c.interview_complete === "number" ? c.interview_complete : 0,
+    complete: typeof c.complete === "number" ? c.complete : 0,
+  };
+}
+
 export const applicationsService = {
   listJobs: (params?: { search?: string; status?: "OPEN" | "CLOSED"; page?: number; limit?: number }) =>
     api
@@ -126,20 +156,30 @@ export const applicationsService = {
 
   listApplications: (
     jobId: string,
-    status?:
-      | "PENDING"
-      | "SHORTLISTED"
-      | "INTERVIEW_SCHEDULED"
-      | "INTERVIEW_COMPLETE"
-      | "HIRED"
-      | "REJECTED"
-      | "RESCHEDULE_REQUESTED"
+    params?: {
+      status?:
+        | "PENDING"
+        | "SHORTLISTED"
+        | "INTERVIEW_SCHEDULED"
+        | "INTERVIEW_COMPLETE"
+        | "COMPLETED"
+        | "HIRED"
+        | "REJECTED"
+        | "RESCHEDULE_REQUESTED";
+      pipelineTab?: CandidatePipelineTab;
+    }
   ) =>
     api
       .get<{ data: ApplicationItem[] }>(API_ROUTES.APPLICATIONS.PENDING_APPLICATIONS(jobId), {
-        params: status ? { status } : undefined,
+        params:
+          params?.pipelineTab || params?.status
+            ? { pipelineTab: params.pipelineTab, status: params.status }
+            : undefined,
       })
-      .then((res) => toApplicationsResult(res.data)),
+      .then((res) => ({
+        data: toApplicationsResult(res.data),
+        counts: toApplicationsCounts(res.data),
+      })),
 
   getResumeViewUrl: async (jobId: string, applicationId: string): Promise<string> => {
     const res = await api.get<{ url?: string }>(
@@ -276,6 +316,7 @@ export const applicationsService = {
       interviewerEmail?: string;
       scheduledDate: string;
       scheduledTime: string;
+      slotStartIso?: string;
     }
   ): Promise<ApplicationItem> => {
     const res = await api.post<{ application?: ApplicationItem }>(
@@ -285,6 +326,16 @@ export const applicationsService = {
     const app = (res.data as { application?: ApplicationItem })?.application;
     if (!app) throw new Error("No application returned");
     return app;
+  },
+
+  precheckScheduleInterview: async (
+    jobId: string,
+    applicationId: string,
+    params?: { scheduledDate?: string }
+  ): Promise<void> => {
+    await api.get(API_ROUTES.APPLICATIONS.INTERVIEW_PRECHECK(jobId, applicationId), {
+      params: { scheduledDate: params?.scheduledDate },
+    });
   },
 
   /** Decline a candidate reschedule request (keeps original schedule). */

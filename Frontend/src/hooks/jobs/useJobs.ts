@@ -158,13 +158,30 @@ export function useJobs() {
   }, [form]);
 
   const openCreateModal = useCallback(() => {
-    setEditingJob(null);
+    
+
+
+    const f = async () => {
+
+
+      try {
+        setEditingJob(null);
     form.reset(defaultJobFormValues);
+         await jobsService.subscribtion();
+        
+        
+        setIsCreating(true);
+      } catch (error) {
+        setJobCreateError(extractApiError(error));
+      }
 
    
 
    
-    setIsCreating(true);
+    }
+    f()
+   
+   
   }, [form]);
 
   const openEditModal = useCallback(

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { applicationsService, type ApplicationItem } from "../../services/applications.service";
 import { showToast } from "../../components/common/toastService";
 
-
 export type ApplicantStatus = "PENDING" | "SHORTLISTED" | "REJECTED";
 export type ExtendedApplicantStatus =
   | ApplicantStatus
@@ -12,20 +11,12 @@ export type ExtendedApplicantStatus =
   | "HIRED"
   | "RESCHEDULE_REQUESTED";
 
-export interface Job {
-  id: string;
-  title: string;
-  location: string;
-  type: string;
-  status: string;
-  department?: string;
-  salary?: string;
-  jobType?: string;
-  applicantCount?: number;
-  interviewRounds?: string[];
-}
-
-export type CandidatePipelineTab = "pending" | "shortlist" | "interview" | "interview_complete" | "complete";
+export type CandidatePipelineTab =
+  | "pending"
+  | "shortlist"
+  | "interview"
+  | "interview_complete"
+  | "complete";
 
 export interface Candidate {
   id: string;
@@ -62,7 +53,6 @@ export interface Candidate {
   resumeUrl?: string;
   aiScore?: number;
   currentRound?: string;
-  /** Round names the candidate has already attempted (for filtering next round) */
   attemptedRounds?: string[];
   completedRounds?: Array<{
     roundName: string;
@@ -83,6 +73,19 @@ export interface Candidate {
   interviewDetails?: ApplicationItem["interviewDetails"];
 }
 
+export interface Job {
+  id: string;
+  title: string;
+  location: string;
+  type: string;
+  status: string;
+  department?: string;
+  salary?: string;
+  jobType?: string;
+  applicantCount?: number;
+  interviewRounds?: string[];
+}
+
 
 export const COMPANY_PLACEHOLDER = {
   name: "Company",
@@ -91,9 +94,8 @@ export const COMPANY_PLACEHOLDER = {
   contactPerson: "HR",
 };
 
-const JOBS_PER_PAGE = 10;
-const CANDIDATES_PER_PAGE = 10;
-
+const JOBS_PER_PAGE = 3;
+const CANDIDATES_PER_PAGE = 3;
 
 function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): Candidate {
   const appliedDate = apiApp.createdAt
@@ -108,12 +110,12 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
   const skillsStr = skillsArray.join(", ");
 
   return {
-    id: apiApp.id,
-    applicationId: apiApp.id,
+    id: String(apiApp.id ?? ""),
+    applicationId: String(apiApp.id ?? ""),
     jobId,
-    candidateId: apiApp.candidateUserId,
-    name: apiApp.fullName,
-    email: apiApp.email,
+    candidateId: String(apiApp.candidateUserId ?? ""),
+    name: String(apiApp.fullName ?? ""),
+    email: String(apiApp.email ?? ""),
     phone: apiApp.phone ?? "",
     location: apiApp.location ?? "",
     experience: apiApp.experience ?? "-",
@@ -140,7 +142,7 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     interviewDetails: apiApp.interviewDetails,
     rescheduleRequest: apiApp.rescheduleRequest,
     attemptedRounds: apiApp.completedRounds ?? [],
-    completedRounds: [], // Detailed round info for display (populated separately if needed)
+    completedRounds: [],
   };
 }
 
@@ -165,6 +167,12 @@ export function useApplication() {
   const [isScoringPendingCandidates, setIsScoringPendingCandidates] = useState(false);
   const [scoredCandidateIds, setScoredCandidateIds] = useState<Set<string>>(new Set());
   const [candidateScores, setCandidateScores] = useState<Record<string, number>>({});
+
+  const [candidateCounts, setCandidateCounts] = useState({
+    pending: 0,
+    shortlist: 0,
+    complete: 0,
+  });
 
   useEffect(() => {
     let isCancelled = false;
@@ -213,10 +221,17 @@ export function useApplication() {
 
     const load = async () => {
       try {
-        const apps = await applicationsService.listApplications(selectedJob.id);
+        const res = await applicationsService.listApplications(selectedJob.id, {
+          pipelineTab: candidatePipelineTab,
+        });
         if (isCancelled) return;
-        const candidates = apps.map((a) => mapApiApplicationToCandidate(a, selectedJob.id));
+        const candidates = res.data.map((a) => mapApiApplicationToCandidate(a, selectedJob.id));
         setPendingApplications(candidates);
+        setCandidateCounts({
+          pending: res.counts.pending,
+          shortlist: res.counts.shortlist,
+          complete: res.counts.complete,
+        });
       } catch {
         if (!isCancelled) setPendingApplications([]);
       } finally {
@@ -229,28 +244,9 @@ export function useApplication() {
     return () => {
       isCancelled = true;
     };
-  }, [selectedJob]);
-
-  const pendingCount = pendingApplications.filter((c) => c.status === "PENDING").length;
-  const shortlistCount = pendingApplications.filter((c) => c.status === "SHORTLISTED").length;
-  const completeCount = pendingApplications.filter((c) => c.status === "REJECTED").length;
+  }, [selectedJob, candidatePipelineTab]);
 
   const filteredCandidates = pendingApplications.filter((c) => {
-    const matchesTab =
-      candidatePipelineTab === "pending"
-        ? c.status === "PENDING"
-        : candidatePipelineTab === "shortlist"
-          ? c.status === "SHORTLISTED"
-          : candidatePipelineTab === "interview_complete"
-            ? (c.status === "COMPLETED" || c.status === "INTERVIEW_COMPLETE")
-            : candidatePipelineTab === "interview"
-              ? (c.status === "INTERVIEW_SCHEDULED" ||
-                  c.status === "RESCHEDULE_REQUESTED" ||
-                  c.status === "INTERVIEW_COMPLETE" ||
-                  c.status === "COMPLETED" ||
-                  c.status === "HIRED")
-              : c.status === "REJECTED";
-    if (!matchesTab) return false;
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q);
@@ -368,8 +364,8 @@ export function useApplication() {
         scores.forEach((s) => next.add(s.applicationId));
         return next;
       });
-      await applicationsService.listApplications(selectedJob.id).then((apps) => {
-        const candidates = apps.map((a) => mapApiApplicationToCandidate(a, selectedJob.id));
+      await applicationsService.listApplications(selectedJob.id, { pipelineTab: candidatePipelineTab }).then((res) => {
+        const candidates = res.data.map((a) => mapApiApplicationToCandidate(a, selectedJob.id));
         setPendingApplications(candidates);
       });
     } catch {
@@ -400,8 +396,8 @@ export function useApplication() {
   async function refreshSelectedJobApplications() {
     if (!selectedJob) return;
     try {
-      const apps = await applicationsService.listApplications(selectedJob.id);
-      const candidates = apps.map((a) => mapApiApplicationToCandidate(a, selectedJob.id));
+      const res = await applicationsService.listApplications(selectedJob.id, { pipelineTab: candidatePipelineTab });
+      const candidates = res.data.map((a) => mapApiApplicationToCandidate(a, selectedJob.id));
       setPendingApplications(candidates);
     } catch {
       // ignore; keep last state
@@ -415,7 +411,7 @@ export function useApplication() {
     jobs: paginatedJobs,
     candidatePipelineTab,
     setCandidatePipelineTab: handleSetCandidatePipelineTab,
-    candidateCounts: { pending: pendingCount, shortlist: shortlistCount, complete: completeCount },
+    candidateCounts,
     jobsLoading,
     jobsPage,
     jobsTotalPages,

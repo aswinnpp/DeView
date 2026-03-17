@@ -4,7 +4,6 @@ import type { IJobRepository } from '../ports/repository/IJobRepository.js';
 import type { ICreateJobDTO } from '../dtos/CreateJobDTO.js';
 import type { ICreateJobUseCase } from '../ports/usecase/ICreateJobUseCase.js';
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
-import type { ISubscriptionRepository } from '../../admin/ports/repository/ISubscriptionRepository.js';
 import { Job } from '../../../domain/job/entities/Job.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
@@ -14,7 +13,6 @@ export class CreateJobUseCase implements ICreateJobUseCase {
   constructor(
     @inject(TYPES.JobRepositoryPort) private readonly _repo: IJobRepository,
     @inject(TYPES.CompanyProfileRepositoryPort) private readonly _companyRepo: ICompanyProfileRepository,
-    @inject(TYPES.SubscriptionRepositoryPort) private readonly _subscriptionRepo: ISubscriptionRepository,
   ) {}
 
   async execute(dto: ICreateJobDTO) {
@@ -26,46 +24,7 @@ export class CreateJobUseCase implements ICreateJobUseCase {
       throw AppError.forbidden('Company profile not found. Please complete your company profile before posting jobs.');
     }
 
-    company.refreshSubscriptions(now);
-    await this._companyRepo.save(company);
-
-    const activeSub = company.activeSubscription;
-
-    if (!activeSub) {
-      throw AppError.forbidden('Your subscription has expired or is missing. Please upgrade your plan to post jobs.');
-    }
-
-    
-    let jobPostLimit = activeSub.jobPostLimit;
-    let jobUnlimited = activeSub.jobUnlimited;
-    if (jobPostLimit === undefined || jobUnlimited === undefined) {
-      const plan = await this.subscriptionRepo.findById(activeSub.planId);
-      if (!plan) {
-        throw AppError.forbidden('Unable to resolve your subscription plan. Please contact support or upgrade your plan.');
-      }
-      jobPostLimit = plan.jobPostLimit;
-      jobUnlimited = plan.jobUnlimited;
-      activeSub.interviewLimit = plan.interviewLimit;
-      activeSub.interviewUnlimited = plan.interviewUnlimited;
-      activeSub.jobPostLimit = plan.jobPostLimit;
-      activeSub.jobUnlimited = plan.jobUnlimited;
-      await this._companyRepo.save(company);
-    }
-
-    if (!jobUnlimited) {
-      if (!Number.isFinite(jobPostLimit) || (jobPostLimit ?? 0) <= 0) {
-        throw AppError.forbidden('Your current plan does not allow job postings. Please upgrade your plan.');
-      }
-
-      const existingJobs = await this._repo.listByCompanyId(dto.companyId);
-      const activeJobsCount = existingJobs.length;
-
-      if (activeJobsCount >= (jobPostLimit ?? 0)) {
-        throw AppError.forbidden(
-          'You have reached the job posting limit for your current plan. Please upgrade your plan to post more jobs.',
-        );
-      }
-    }
+   
 
     const job = new Job(
       null,

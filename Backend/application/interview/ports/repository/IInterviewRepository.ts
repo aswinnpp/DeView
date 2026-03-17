@@ -9,6 +9,11 @@ export interface ListByCandidateUserIdOptions {
 
 export interface IInterviewRepository {
   create(interview: Interview): Promise<Interview>;
+  countByCandidateUserIdAndScheduledDate(
+    candidateUserId: string,
+    scheduledDate: string,
+    options?: { excludeInterviewId?: string }
+  ): Promise<number>;
   listByCandidateUserId(
     candidateUserId: string,
     options?: ListByCandidateUserIdOptions

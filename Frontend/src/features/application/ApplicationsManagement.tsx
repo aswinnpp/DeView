@@ -153,6 +153,7 @@ const HRApplicationsPage = () => {
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [showInterviewLimitModal, setShowInterviewLimitModal] = useState(false);
     const [showFeedbackPendingModal, setShowFeedbackPendingModal] = useState(false);
+    const [showCandidateDailyLimitModal, setShowCandidateDailyLimitModal] = useState(false);
     const [showScheduleSuccessModal, setShowScheduleSuccessModal] = useState(false);
     const [scheduleSuccessMessage, setScheduleSuccessMessage] = useState<string>("");
     const [latestInterviewerFeedback, setLatestInterviewerFeedback] = useState<{
@@ -171,6 +172,7 @@ const HRApplicationsPage = () => {
     const [selectedRound, setSelectedRound] = useState('HR Screening');
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
+    const [selectedTimeIso, setSelectedTimeIso] = useState<string>('');
 
     // Legacy states (kept for compatibility)
     const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
@@ -207,11 +209,50 @@ const HRApplicationsPage = () => {
         setShowOfferModal(true);
     };
 
-    const handleScheduleInterview = (candidate: Candidate) => {
+    const handleScheduleInterview = async (candidate: Candidate) => {
         handleSelectCandidate(candidate);
         setSelectedInterviewer(null);
         setSelectedDate('');
         setSelectedTime('');
+        setSelectedTimeIso('');
+
+        // Precheck (limit/feedback pending) immediately on click
+        try {
+            if (!selectedJob) return;
+            await applicationsService.precheckScheduleInterview(selectedJob.id, candidate.applicationId);
+        } catch (e: unknown) {
+            const msg = extractApiError(e);
+            const normalized = msg.toLowerCase();
+            const isCandidateDailyLimit =
+                normalized.includes("today's interview limit") ||
+                normalized.includes('daily interview limit') ||
+                normalized.includes('limit (4)') ||
+                normalized.includes('candidate has reached');
+            const isLimit =
+                normalized.includes('interview scheduling limit') ||
+                // keep this strict so candidate daily limit doesn't match
+                normalized.includes('schedule more interviews') ||
+                normalized.includes('schedule more interviews');
+            const isFeedbackPending =
+                normalized.includes('interviewer feedback pending') ||
+                normalized.includes('feedback pending');
+
+            if (isCandidateDailyLimit) {
+                setShowCandidateDailyLimitModal(true);
+                return;
+            }
+            if (isLimit) {
+                setShowInterviewLimitModal(true);
+                return;
+            }
+            if (isFeedbackPending) {
+                setShowFeedbackPendingModal(true);
+                return;
+            }
+            alert(msg);
+            return;
+        }
+
         const jobRounds = selectedJob?.interviewRounds ?? ['HR Screening'];
         const attempted = candidate.attemptedRounds ?? [];
         const available = jobRounds.filter((r: string) => !attempted.includes(r));
@@ -286,7 +327,7 @@ const HRApplicationsPage = () => {
                 });
                 const doc = docs?.[0] ?? null;
                 if (cancelled) return;
-                setInterviewerSlotTimes(doc?.times ?? []);
+                setInterviewerSlotTimes(doc?.booked ? [] : (doc?.times ?? []));
             } catch (e) {
                 if (cancelled) return;
                 setInterviewerSlotTimes([]);
@@ -1410,6 +1451,7 @@ const HRApplicationsPage = () => {
                                         onChange={(e) => {
                                             setSelectedDate(e.target.value);
                                             setSelectedTime('');
+                                            setSelectedTimeIso('');
                                         }}
                                         className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-[15px] cursor-pointer focus:outline-none focus:border-indigo-500 focus:shadow-[0_0_0_2px_rgba(79,70,229,0.4)]"
                                     />
@@ -1446,7 +1488,10 @@ const HRApplicationsPage = () => {
                                                         return (
                                                             <div
                                                                 key={key}
-                                                                onClick={() => setSelectedTime(value)}
+                                                                onClick={() => {
+                                                                    setSelectedTime(value);
+                                                                    setSelectedTimeIso(startIso);
+                                                                }}
                                                                 style={{
                                                                     padding: '14px 16px',
                                                                     backgroundColor: selectedTime === value ? '#334155' : '#0f172a',
@@ -1513,6 +1558,11 @@ const HRApplicationsPage = () => {
                                                     return;
                                                 }
 
+                                                // Precheck with date to enforce candidate daily limit (max 4/day)
+                                                await applicationsService.precheckScheduleInterview(selectedJob.id, selectedCandidate.applicationId, {
+                                                    scheduledDate: selectedDate,
+                                                });
+
                                                 await applicationsService.scheduleInterview(
                                                     selectedJob.id,
                                                     selectedCandidate.applicationId,
@@ -1523,6 +1573,7 @@ const HRApplicationsPage = () => {
                                                         interviewerEmail: selectedInterviewer.email,
                                                         scheduledDate: selectedDate,
                                                         scheduledTime: selectedTime,
+                                                        slotStartIso: selectedTimeIso || undefined,
                                                     }
                                                 );
 
@@ -1550,20 +1601,38 @@ const HRApplicationsPage = () => {
                                                             : 'Failed to schedule interview';
 
                                                 const normalized = rawMsg.toLowerCase();
+                                                const isCandidateDailyLimit =
+                                                    normalized.includes("today's interview limit") ||
+                                                    normalized.includes('daily interview limit') ||
+                                                    normalized.includes('limit (4)') ||
+                                                    normalized.includes('candidate has reached');
                                                 const isLimit =
                                                     normalized.includes('interview scheduling limit') ||
-                                                    normalized.includes('interview limit') ||
                                                     normalized.includes('schedule more interviews');
                                                 const isFeedbackPending =
                                                     normalized.includes('interviewer feedback pending') ||
                                                     normalized.includes('feedback pending');
 
-                                                if (isLimit) {
+                                                const isBooked =
+                                                    normalized.includes('already booked') ||
+                                                    normalized.includes('slot is already booked') ||
+                                                    normalized.includes('booked');
+
+                                                if (isCandidateDailyLimit) {
+                                                    setShowInterviewerModal(false);
+                                                    setSelectedInterviewer(null);
+                                                    setSelectedDate('');
+                                                    setSelectedTime('');
+                                                    setSelectedTimeIso('');
+                                                    setScheduleStep(1);
+                                                    setShowCandidateDailyLimitModal(true);
+                                                } else if (isLimit) {
                                                     // Close schedule modal and reset its state, then show limit modal
                                                     setShowInterviewerModal(false);
                                                     setSelectedInterviewer(null);
                                                     setSelectedDate('');
                                                     setSelectedTime('');
+                                                    setSelectedTimeIso('');
                                                     setScheduleStep(1);
                                                     setShowInterviewLimitModal(true);
                                                 } else if (isFeedbackPending) {
@@ -1572,8 +1641,14 @@ const HRApplicationsPage = () => {
                                                     setSelectedInterviewer(null);
                                                     setSelectedDate('');
                                                     setSelectedTime('');
+                                                    setSelectedTimeIso('');
                                                     setScheduleStep(1);
                                                     setShowFeedbackPendingModal(true);
+                                                } else if (isBooked) {
+                                                    // Keep modal open, refresh slots and prompt user
+                                                    setSelectedTime('');
+                                                    setSelectedTimeIso('');
+                                                    setInterviewerSlotsError('This slot is already booked. Please choose another time.');
                                                 } else {
                                                     alert(rawMsg);
                                                 }
@@ -1729,6 +1804,65 @@ const HRApplicationsPage = () => {
                                 }}
                             >
                                 Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* CANDIDATE DAILY LIMIT MODAL */}
+            {showCandidateDailyLimitModal && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        backgroundColor: 'rgba(15,23,42,0.8)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 60,
+                    }}
+                >
+                    <div
+                        style={{
+                            width: '100%',
+                            maxWidth: 520,
+                            borderRadius: 16,
+                            backgroundColor: '#0b1220',
+                            border: '1px solid #334155',
+                            padding: 22,
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
+                        }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <h3 style={{ margin: 0, color: '#e2e8f0', fontSize: 16, fontWeight: 700 }}>
+                                Today limit reached
+                            </h3>
+                            <button
+                                onClick={() => setShowCandidateDailyLimitModal(false)}
+                                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 22 }}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <p style={{ color: '#94a3b8', margin: '10px 0 18px', fontSize: 14, lineHeight: 1.5 }}>
+                            This candidate already has 4 interviews scheduled for the selected date. Please choose another day.
+                        </p>
+                        <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                            <button
+                                onClick={() => setShowCandidateDailyLimitModal(false)}
+                                style={{
+                                    padding: '10px 16px',
+                                    backgroundColor: '#334155',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: 10,
+                                    cursor: 'pointer',
+                                    fontWeight: 700,
+                                    fontSize: 13,
+                                }}
+                            >
+                                OK
                             </button>
                         </div>
                     </div>

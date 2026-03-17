@@ -89,4 +89,7 @@ export const jobsService = {
 
   toggleStatus: (id: string, status: "OPEN" | "CLOSED") =>
     api.put<{ data: Job }>(API_ROUTES.JOB.JOB_TOGGLE_STATUS(id), { status }),
+
+  subscribtion: () =>
+    api.post(API_ROUTES.JOB.JOB_SUBSCRIPTION),
 };

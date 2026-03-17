@@ -38,4 +38,5 @@ export function bindControllers(container: Container): void {
   container.bind(InterviewerAssignmentsController).toSelf();
   container.bind(InterviewerProfileController).toSelf();
   container.bind(InterviewerSlotsController).toSelf();
+  
 }

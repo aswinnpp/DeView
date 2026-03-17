@@ -31,4 +31,8 @@ export async function jobRoutes(
     schema: toggleJobStatusSchema,
     handler: controller.toggleStatus,
   });
+
+  fastify.post('/subscription', {
+    handler: controller.subscription,
+  });
 }
