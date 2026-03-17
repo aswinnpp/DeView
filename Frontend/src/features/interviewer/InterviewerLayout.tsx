@@ -4,6 +4,7 @@ import { APP_ROUTES } from "../../constants/routes";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../context/store";
 import { interviewerProfileService } from "../../services/interviewerProfile.service";
+import { NotificationBell } from "../../components/common";
 
 interface Notification {
   id: number;
@@ -108,20 +109,15 @@ const InterviewerLayout: React.FC = () => {
             </NavLink>
 
             <div className="relative">
-              <button
-                type="button"
+              <NotificationBell
+                as="native"
                 className="relative bg-transparent border-none text-white/70 text-xl cursor-pointer p-2 rounded-lg transition-all duration-300 hover:text-white hover:bg-white/10 hover:scale-110"
                 onClick={() => setShowNotifications((v) => !v)}
                 aria-expanded={showNotifications}
                 aria-controls="notification-list"
-              >
-                🔔
-                {notifications.length > 0 && (
-                  <span className="absolute top-0 right-0 bg-gradient-to-br from-pink-500 to-pink-700 text-white text-[10px] font-semibold py-0.5 px-1.5 rounded-full min-w-4 text-center leading-none">
-                    {notifications.length}
-                  </span>
-                )}
-              </button>
+                count={notifications.length}
+                badgeClassName="bg-gradient-to-br from-pink-500 to-pink-700 text-[10px] font-semibold py-0.5 px-1.5 rounded-full min-w-4 text-center leading-none"
+              />
 
               {showNotifications && (
                 <div
