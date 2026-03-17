@@ -19,7 +19,6 @@ export interface IScheduleInterviewInput {
   interviewerEmail?: string;
   scheduledDate: string;
   scheduledTime: string;
-  /** ISO start time string for slot reservation (used to remove booked slot) */
   slotStartIso?: string;
 }
 
@@ -70,10 +69,6 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
 
     const existing = await this._interviewRepository.findActiveByApplicationId(applicationId);
 
-    // Note: subscription/feedback/limits validations are handled by precheck endpoint.
-
-    // ── Guard: a candidate can attend max 4 interviews per day ──
-    // Always enforce during actual scheduling (authoritative).
     const app = await this._applicationRepository.findByIdAndJobId(applicationId, jobId, companyId);
     if (!app) {
       throw AppError.notFound('Application not found');
@@ -83,15 +78,13 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       trimmedDate,
       { excludeInterviewId: existing?.id ?? undefined }
     );
-    if (count >= 1) {
+    if (count >= 4) {
       throw AppError.forbidden("Candidate has reached today's interview limit (4).");
     }
 
-    // ── Reserve (remove) the selected interviewer slot so it can't be double-booked ──
-    // This is best-effort for legacy clients that don't send slotStartIso.
+
     if (trimmedSlotStartIso) {
       const asDDMMYYYY = (s: string) => {
-        // Accept both YYYY-MM-DD and DD-MM-YYYY
         if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
           const [yyyy, mm, dd] = s.split('-');
           return `${dd}-${mm}-${yyyy}`;
