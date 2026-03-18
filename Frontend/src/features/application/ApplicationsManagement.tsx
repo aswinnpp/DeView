@@ -107,6 +107,9 @@ type WorkflowTab = 'PENDING' | 'SHORTLISTED' | 'INTERVIEW_ATTENDEES' | 'INTERVIE
 
 
 // ==================== MAIN COMPONENT ====================
+import { useCompanyProfile } from "../../hooks/company/useCompanyProfile";
+import { useCompanySubscription } from "../../hooks/company";
+
 const HRApplicationsPage = () => {
     const {
         jobs,
@@ -133,6 +136,15 @@ const HRApplicationsPage = () => {
         setCandidatesPage,
         refreshSelectedJobApplications,
     } = useApplication();
+
+    const { companyData } = useCompanyProfile();
+    const { plans: subscriptionPlans } = useCompanySubscription();
+
+    const hasAIFeature =
+        !!companyData?.activeSubscription &&
+        subscriptionPlans.some(
+            (plan) => plan.id === companyData.activeSubscription?.planId && plan.hasAI,
+        );
 
     const handleViewResume = async (jobId: string, applicationId: string) => {
         try {
@@ -663,8 +675,14 @@ const HRApplicationsPage = () => {
                     {/* Main Content Area */}
                     <div>
 
-                        {/* AI Score Button - show only when there are unscored pending candidates */}
-                        {activeTab === 'PENDING' && pendingApplications.some(c => c.status === 'PENDING' && (c.aiScore == null || c.aiScore === undefined)) && (
+                        {/* AI Score Button - show only when there are unscored pending candidates and company has AI in subscription */}
+                        {hasAIFeature &&
+                            activeTab === 'PENDING' &&
+                            pendingApplications.some(
+                                (c) =>
+                                    c.status === 'PENDING' &&
+                                    (c.aiScore == null || c.aiScore === undefined),
+                            ) && (
                             <div className="mb-4 flex justify-end">
                                 <Button
                                     onClick={handleAIScorePendingCandidates}

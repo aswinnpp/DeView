@@ -256,10 +256,8 @@ export function useApplication() {
   const jobsTotalPages = Math.max(1, Math.ceil(jobsTotal / JOBS_PER_PAGE));
   const candidatesTotalPages = Math.max(1, Math.ceil(filteredCandidates.length / CANDIDATES_PER_PAGE));
 
-  // --- SLICE for current page ---
-  const jobsStart = (jobsPage - 1) * JOBS_PER_PAGE;
-  const jobsEnd = jobsPage * JOBS_PER_PAGE;
-  const paginatedJobs = jobs.slice(jobsStart, jobsEnd);
+  // --- JOBS: backend already paginates, so use as-is ---
+  const paginatedJobs = jobs;
 
   const start = (candidatesPage - 1) * CANDIDATES_PER_PAGE;
   const end = candidatesPage * CANDIDATES_PER_PAGE;
