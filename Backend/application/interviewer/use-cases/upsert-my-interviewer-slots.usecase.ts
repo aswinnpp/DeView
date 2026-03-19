@@ -52,7 +52,7 @@ export class UpsertMyInterviewerSlotsUseCase implements IUpsertMyInterviewerSlot
       }
       const localKey = toLocalDateKeyDDMMYYYY(dt);
       if (localKey !== input.slotDate) {
-        throw AppError.badRequest("All times must match slotDate");
+        throw AppError.badRequest("already selected dates includes");
       }
     }
 

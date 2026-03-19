@@ -5,14 +5,7 @@ import type { InterviewerAssignmentItem } from "../../services/interviewerAssign
 const selectClass =
   "w-full py-2 px-3.5 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer";
 
-const statusStyles: Record<string, { bg: string; text: string }> = {
-  pending: { bg: "bg-amber-500/20", text: "text-amber-400" },
-  accepted: { bg: "bg-emerald-500/20", text: "text-emerald-400" },
-  rejected: { bg: "bg-red-500/20", text: "text-red-400" },
-  scheduled: { bg: "bg-blue-500/20", text: "text-blue-400" },
-  completed: { bg: "bg-green-500/20", text: "text-green-400" },
-  cancelled: { bg: "bg-slate-500/20", text: "text-slate-400" },
-};
+
 
 const InterviewerAssignments = () => {
   const {
@@ -22,13 +15,11 @@ const InterviewerAssignments = () => {
     totalPages,
     page,
     setPage,
-    assignments: _assignments,
     emptyMessage,
     isLoading,
     error,
     isAccepting,
     isRejecting,
-    searchQuery: _searchQuery,
     setSearchQuery,
     sortOrder,
     setSortOrder,
@@ -83,18 +74,7 @@ const InterviewerAssignments = () => {
         </span>
       ),
     },
-    {
-      header: "Status",
-      render: (item: InterviewerAssignmentItem) => {
-        const s = statusStyles[item.status] || statusStyles.pending;
-        const label = item.status.charAt(0).toUpperCase() + item.status.slice(1);
-        return (
-          <span className={`inline-block py-1 px-2.5 rounded text-xs font-semibold ${s.bg} ${s.text}`}>
-            {label}
-          </span>
-        );
-      },
-    },
+    
     {
       header: "Actions",
       render: (item: InterviewerAssignmentItem) => {

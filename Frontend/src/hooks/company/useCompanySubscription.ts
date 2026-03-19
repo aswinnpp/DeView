@@ -20,7 +20,7 @@ export function useCompanySubscription(opts?: {
 
   const activePlans = useMemo(() => plans.filter((p) => p.isActive), [plans]);
 
-  const SUBSCRIPTIONS_LIMIT = 2;
+  const SUBSCRIPTIONS_LIMIT = 4;
   const [subscriptionsPage, setSubscriptionsPage] = useState(1);
   const [subscriptionActionLoadingId, setSubscriptionActionLoadingId] =
     useState<string | null>(null);

@@ -67,7 +67,7 @@ export function useCompanyProfile() {
             const response = await api.get<{ data: ICompanyProfileData }>('/company/profile', {
                 params: {
                     page: opts?.page ?? 1,
-                    limit: opts?.limit ?? 3,
+                    limit: opts?.limit ?? 4,
                 },
             });
             if (response.data?.data) {

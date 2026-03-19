@@ -21,7 +21,6 @@ const AdminLayout = () => {
     }
 
     if (role !== "admin") {
-        // Redirect users with other roles back to their home areas
         switch (role) {
             case "candidate":
                 return <Navigate to="/candidate" replace />;

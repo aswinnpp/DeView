@@ -75,7 +75,7 @@ const CompanyPaymentCheckout: React.FC<{
     };
 
 
-    const paymentElementOptions: any = {
+    const paymentElementOptions: Record<string, unknown> = {
         layout: "tabs",
         appearance: {
             theme: "night",
@@ -189,9 +189,8 @@ const CompanyProfilePage = () => {
         activePlanId,
     } = useCompanySubscription({
         onPaymentSucceeded: async () => {
-            // Webhook runs async; retry profile fetch so pending subscription appears in table
             for (let i = 0; i < 4; i++) {
-                await fetchProfile({ page: 1, limit: 8, silent: i > 0 });
+                await fetchProfile({ page: 1, limit: 4, silent: i > 0 });
                 if (i < 3) await new Promise((r) => setTimeout(r, 1000));
             }
         },
