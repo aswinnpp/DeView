@@ -1,8 +1,8 @@
 import { Collection, ObjectId, type Filter } from "mongodb";
 import type { IUserRepository, IUserSearchOptions } from "../../../../application/shared/ports/repository/IUserRepository";
-import { User } from "../../../../domain/user/entities/User";
-import { Email } from "../../../../domain/user/value-objects/Email";
-import { Role } from "../../../../domain/user/value-objects/Role";
+import { User } from "../../../../domain/entities/User";
+import { Email } from "../../../../domain/value-objects/Email";
+import { Role } from "../../../../domain/value-objects/Role";
 import { IUserDocument } from "../schemas/UserDocument";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 

@@ -3,7 +3,7 @@ import { IAdminCreateSubscription } from "../ports/usecase/IAdmin-CreateSubscrip
 import type { ICreateSubscriptionInputDTO } from "../dtos/CreateSubscriptionDTO.js";
 import { TYPES } from "../../../shared/di/types";
 import { ISubscriptionRepository } from "../ports/repository/ISubscriptionRepository";
-import { Subscription } from "../../../domain/admin/entities/Subscription";
+import { Subscription } from "../../../domain/entities/Subscription";
 import { AppError } from "../../../shared/errors/AppError";
 
 @injectable()

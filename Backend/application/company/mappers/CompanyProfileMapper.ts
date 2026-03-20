@@ -1,5 +1,5 @@
 import type { IUpdateCompanyProfileDTO } from '../dtos/UpdateCompanyProfileDTO.js';
-import type { CompanyApproval } from '../../../domain/company/entities/CompanyApprovalEntitie.js';
+import type { CompanyApproval } from '../../../domain/entities/CompanyApprovalEntitie.js';
 import type { CallerContext } from '../../shared/types/CallerContext.js';
 
 export interface IUpdateProfileBody {

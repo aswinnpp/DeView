@@ -1,5 +1,5 @@
-import type { Application } from '../../../../domain/application/entities/Application.js';
-import type { ApplicationStatus } from '../../../../domain/application/entities/Application.js';
+import type { Application } from '../../../../domain/entities/Application.js';
+import type { ApplicationStatus } from '../../../../domain/entities/Application.js';
 
 export interface IApplicationRepository {
   listByJobId(

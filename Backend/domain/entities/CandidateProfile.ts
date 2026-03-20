@@ -1,4 +1,4 @@
-import { DomainError } from "../../../shared/errors/DomainError";
+import { DomainError } from "../../shared/errors/DomainError";
 
 export class CandidateProfile {
     constructor(

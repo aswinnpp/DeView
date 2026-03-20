@@ -1,5 +1,5 @@
-import { User } from "../../../../domain/user/entities/User";
-import { Email } from "../../../../domain/user/value-objects/Email";
+import { User } from "../../../../domain/entities/User";
+import { Email } from "../../../../domain/value-objects/Email";
 
 export interface IUserSearchOptions {
   search?: string;

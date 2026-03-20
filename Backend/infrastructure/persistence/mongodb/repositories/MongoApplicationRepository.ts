@@ -1,9 +1,9 @@
 import type { AnyBulkWriteOperation, Filter } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import type { Collection } from 'mongodb';
-import { Application } from '../../../../domain/application/entities/Application.js';
-import type { ApplicationStatus } from '../../../../domain/application/entities/Application.js';
-import type { IApplicationRepository } from '../../../../application/application/ports/repository/IApplicationRepository.js';
+import { Application } from '../../../../domain/entities/Application.js';
+import type { ApplicationStatus } from '../../../../domain/entities/Application.js';
+import type { IApplicationRepository } from '../../../../application/job-application/ports/repository/IApplicationRepository.js';
 import type { IApplicationDocument } from '../schemas/ApplicationDocument.js';
 import type { IJobDocument } from '../schemas/JobDocument.js';
 

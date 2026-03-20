@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
-import type { IApplicationRepository } from '../../application/ports/repository/IApplicationRepository.js';
+import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository.js';
 import type {
   IListMyApplicationsInput,
   IListMyApplicationsResult,

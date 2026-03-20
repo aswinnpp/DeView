@@ -1,4 +1,4 @@
-import { DomainError } from '../../../shared/errors/DomainError.js';
+import { DomainError } from '../../shared/errors/DomainError.js';
 import type { IJobApplicantDetail } from './JobApplicant.js';
 
 export type JobStatus = 'OPEN' | 'CLOSED';

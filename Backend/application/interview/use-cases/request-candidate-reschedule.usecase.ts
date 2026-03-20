@@ -2,8 +2,8 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import type { IInterviewRepository } from '../ports/repository/IInterviewRepository.js';
-import type { IApplicationRepository } from '../../application/ports/repository/IApplicationRepository.js';
-import type { Interview } from '../../../domain/interview/entities/Interview.js';
+import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository.js';
+import type { Interview } from '../../../domain/entities/Interview.js';
 
 export interface IRequestCandidateRescheduleUseCase {
   execute(input: {

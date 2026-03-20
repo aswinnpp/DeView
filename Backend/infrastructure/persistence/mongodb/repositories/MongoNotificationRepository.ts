@@ -1,7 +1,7 @@
 import type { Collection, Filter } from "mongodb";
 import { ObjectId } from "mongodb";
 import type { INotificationRepository } from "../../../../application/notification/ports/repository/INotificationRepository.js";
-import { Notification } from "../../../../domain/notification/entities/Notification.js";
+import { Notification } from "../../../../domain/entities/Notification.js";
 import type { INotificationDocument } from "../schemas/NotificationDocument.js";
 
 function toDomain(doc: INotificationDocument): Notification {

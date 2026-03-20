@@ -6,7 +6,7 @@ import type {
 import {
   CompanyApproval,
   type CompanySubscriptionRecord,
-} from "../../../../domain/company/entities/CompanyApprovalEntitie";
+} from "../../../../domain/entities/CompanyApprovalEntitie";
 import {
   type ICompanyApprovalDocument,
   type ICompanySubscriptionRecord,

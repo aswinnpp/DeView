@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
 import { ICandidateProfileRepository } from "../ports/repository/ICandidateProfileRepository";
-import { CandidateProfile } from "../../../domain/candidate/entities/CandidateProfile";
+import { CandidateProfile } from "../../../domain/entities/CandidateProfile";
 import { AppError } from "../../../shared/errors/AppError";
 import type { IGetCandidateProfileUseCase } from "../ports/usecase/IGetCandidateProfileUseCase";
 

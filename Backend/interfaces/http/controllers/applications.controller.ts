@@ -3,16 +3,16 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { success } from '../../../shared/http/apiResponse';
 import { TYPES } from '../../../infrastructure/di/types.js';
 import type { IListJobsUseCase } from '../../../application/job/ports/usecase/IListJobsUseCase.js';
-import type { IListPendingApplicationsForJobUseCase } from '../../../application/application/ports/usecase/IListPendingApplicationsForJobUseCase.js';
-import type { IScoreCandidatesUseCase } from '../../../application/application/ports/usecase/IScoreCandidatesUseCase.js';
-import type { IUpdateApplicationStatusUseCase } from '../../../application/application/ports/usecase/IUpdateApplicationStatusUseCase.js';
-import type { IScheduleInterviewUseCase } from '../../../application/application/use-cases/schedule-interview.usecase.js';
-import type { IDeclineRescheduleRequestUseCase } from '../../../application/application/use-cases/decline-reschedule-request.usecase.js';
-import type { IGetResumeViewUrlUseCase } from '../../../application/application/use-cases/get-resume-view-url.usecase.js';
-import type { IGetLatestInterviewerFeedbackUseCase } from '../../../application/application/use-cases/get-latest-interviewer-feedback.usecase.js';
-import type { IPrecheckScheduleInterviewUseCase } from '../../../application/application/ports/usecase/IPrecheckScheduleInterviewUseCase';
+import type { IListPendingApplicationsForJobUseCase } from '../../../application/job-application/ports/usecase/IListPendingApplicationsForJobUseCase.js';
+import type { IScoreCandidatesUseCase } from '../../../application/job-application/ports/usecase/IScoreCandidatesUseCase.js';
+import type { IUpdateApplicationStatusUseCase } from '../../../application/job-application/ports/usecase/IUpdateApplicationStatusUseCase.js';
+import type { IScheduleInterviewUseCase } from '../../../application/job-application/use-cases/schedule-interview.usecase.js';
+import type { IDeclineRescheduleRequestUseCase } from '../../../application/job-application/use-cases/decline-reschedule-request.usecase.js';
+import type { IGetResumeViewUrlUseCase } from '../../../application/job-application/use-cases/get-resume-view-url.usecase.js';
+import type { IGetLatestInterviewerFeedbackUseCase } from '../../../application/job-application/use-cases/get-latest-interviewer-feedback.usecase.js';
+import type { IPrecheckScheduleInterviewUseCase } from '../../../application/job-application/ports/usecase/IPrecheckScheduleInterviewUseCase';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
-import { ApplicationMapper } from '../../../application/application/mappers/ApplicationMapper.js';
+import { ApplicationMapper } from '../../../application/job-application/mappers/ApplicationMapper.js';
 import { applicationsListQuerySchema } from '../schemas/applications.schema.js';
 
 function toContext(user: { userId: string; companyId?: string }) {

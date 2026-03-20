@@ -1,7 +1,7 @@
 import type { Collection, InsertOneResult } from 'mongodb';
 import { ObjectId } from 'mongodb';
-import { RejectionMail } from '../../../../domain/application/entities/RejectionMail.js';
-import type { IRejectionMailRepository } from '../../../../application/application/ports/repository/IRejectionMailRepository.js';
+import { RejectionMail } from '../../../../domain/entities/RejectionMail.js';
+import type { IRejectionMailRepository } from '../../../../application/job-application/ports/repository/IRejectionMailRepository.js';
 import type { IRejectionMailDocument } from '../schemas/RejectionMailDocument.js';
 
 function toDomain(doc: IRejectionMailDocument): RejectionMail {

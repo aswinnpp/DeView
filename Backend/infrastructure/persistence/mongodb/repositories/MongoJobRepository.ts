@@ -1,7 +1,7 @@
 import type { Collection, Filter } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import { BaseMongoRepository } from './BaseMongoRepository.js';
-import { Job } from '../../../../domain/job/entities/Job.js';
+import { Job } from '../../../../domain/entities/Job.js';
 import type {
   IJobRepository,
   IListJobsOptions,

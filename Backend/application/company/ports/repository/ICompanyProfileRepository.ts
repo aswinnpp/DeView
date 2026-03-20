@@ -1,4 +1,4 @@
-import { CompanyApproval } from "../../../../domain/company/entities/CompanyApprovalEntitie";
+import { CompanyApproval } from "../../../../domain/entities/CompanyApprovalEntitie";
 
 export interface ICompanyProfileSearchOptions {
   search?: string;

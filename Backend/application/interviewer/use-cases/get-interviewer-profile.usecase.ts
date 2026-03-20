@@ -2,7 +2,7 @@ import { injectable, inject } from "inversify";
 import { TYPES } from "../../../shared/di/types";
 import type { IInterviewerProfileRepository } from "../ports/repository/IInterviewerProfileRepository";
 import type { IGetInterviewerProfileUseCase } from "../ports/usecase/IGetInterviewerProfileUseCase";
-import type { InterviewerProfile } from "../../../domain/interviewer/entities/InterviewerProfile";
+import type { InterviewerProfile } from "../../../domain/entities/InterviewerProfile";
 import { AppError } from "../../../shared/errors/AppError";
 
 @injectable()

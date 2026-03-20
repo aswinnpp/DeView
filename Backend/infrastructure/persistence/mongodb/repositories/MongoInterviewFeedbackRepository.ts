@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { BaseMongoRepository } from './BaseMongoRepository.js';
 import type { IInterviewFeedbackRepository } from '../../../../application/interview/ports/repository/IInterviewFeedbackRepository.js';
 import type { IInterviewFeedbackDocument } from '../schemas/InterviewFeedbackDocument.js';
-import { InterviewFeedback } from '../../../../domain/interview/entities/InterviewFeedback.js';
+import { InterviewFeedback } from '../../../../domain/entities/InterviewFeedback.js';
 
 export class MongoInterviewFeedbackRepository
   extends BaseMongoRepository<InterviewFeedback, IInterviewFeedbackDocument>

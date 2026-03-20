@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types';
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository';
 import type { IInterviewRepository } from '../../interview/ports/repository/IInterviewRepository';
-import type { IApplicationRepository } from '../../application/ports/repository/IApplicationRepository';
+import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository';
 import type { IGetLandingStatsUseCase } from '../ports/usecase/IGetLandingStatsUseCase';
 
 @injectable()

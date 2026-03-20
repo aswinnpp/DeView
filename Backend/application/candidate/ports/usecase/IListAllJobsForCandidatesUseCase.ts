@@ -1,5 +1,5 @@
-import type { JobStatus } from '../../../../domain/job/entities/Job.js';
-import type { IJobApplicantDetail } from '../../../../domain/job/entities/JobApplicant.js';
+import type { JobStatus } from '../../../../domain/entities/Job.js';
+import type { IJobApplicantDetail } from '../../../../domain/entities/JobApplicant.js';
 
 export interface IListAllJobsForCandidatesInput {
   search?: string;

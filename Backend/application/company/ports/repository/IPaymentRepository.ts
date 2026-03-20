@@ -1,4 +1,4 @@
-import { Payment } from '../../../../domain/payment/entities/Payment.js';
+import { Payment } from '../../../../domain/entities/Payment.js';
 
 export interface IPaymentRepository {
   save(payment: Payment): Promise<void>;

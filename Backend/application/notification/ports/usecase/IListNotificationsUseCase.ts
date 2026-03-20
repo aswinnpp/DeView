@@ -1,4 +1,4 @@
-import type { Notification } from "../../../../domain/notification/entities/Notification.js";
+import type { Notification } from "../../../../domain/entities/Notification.js";
 
 export interface IListNotificationsUseCase {
   execute(input: {

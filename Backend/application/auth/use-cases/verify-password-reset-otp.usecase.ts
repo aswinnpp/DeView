@@ -1,8 +1,8 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
 import { IOtpRepository } from "../ports/repository/IOtpRepository";
-import { Email } from "../../../domain/user/value-objects/Email";
-import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
+import { Email } from "../../../domain/value-objects/Email";
+import { OTPCode } from "../../../domain/value-objects/OTPCode";
 import { AppError } from "../../../shared/errors/AppError";
 import type { IVerifyPasswordResetOtpUseCase } from "../ports/usecase/IVerifyPasswordResetOtpUseCase";
 

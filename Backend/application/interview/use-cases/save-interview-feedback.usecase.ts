@@ -2,9 +2,9 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IInterviewRepository } from '../ports/repository/IInterviewRepository.js';
 import type { IInterviewFeedbackRepository } from '../ports/repository/IInterviewFeedbackRepository.js';
-import type { IApplicationRepository } from '../../application/ports/repository/IApplicationRepository.js';
+import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
-import { InterviewFeedback } from '../../../domain/interview/entities/InterviewFeedback.js';
+import { InterviewFeedback } from '../../../domain/entities/InterviewFeedback.js';
 
 export interface ISaveInterviewFeedbackUseCase {
   execute(input: {

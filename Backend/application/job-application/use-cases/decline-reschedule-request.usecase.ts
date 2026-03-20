@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IApplicationRepository } from '../ports/repository/IApplicationRepository.js';
 import type { IInterviewRepository } from '../../interview/ports/repository/IInterviewRepository.js';
-import type { Application } from '../../../domain/application/entities/Application.js';
+import type { Application } from '../../../domain/entities/Application.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 export interface IDeclineRescheduleRequestInput {

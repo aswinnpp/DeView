@@ -1,5 +1,5 @@
 import { CompanyStatus } from "../value-objects/CompanyStatus";
-import { DomainError } from "../../../shared/errors/DomainError";
+import { DomainError } from "../../shared/errors/DomainError";
 
 export interface CompanyDocumentUpload {
   fileName: string;

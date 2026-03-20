@@ -1,6 +1,6 @@
 import { RedisClientType } from "redis";
 import { IOtpRepository } from "../../../application/auth/ports/repository/IOtpRepository";
-import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
+import { OTPCode } from "../../../domain/value-objects/OTPCode";
 
 export class RedisOTPRepository implements IOtpRepository {
   private readonly _PREFIX = "otp:";

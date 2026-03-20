@@ -1,4 +1,4 @@
-import type { InterviewFeedback } from '../../../../domain/interview/entities/InterviewFeedback.js';
+import type { InterviewFeedback } from '../../../../domain/entities/InterviewFeedback.js';
 
 export interface ListByCandidateUserIdOptions {
   search?: string;

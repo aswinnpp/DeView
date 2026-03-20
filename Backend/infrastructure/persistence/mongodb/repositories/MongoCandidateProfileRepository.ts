@@ -1,6 +1,6 @@
 import { Collection, ObjectId } from "mongodb";
 import { ICandidateProfileRepository } from "../../../../application/candidate/ports/repository/ICandidateProfileRepository";
-import { CandidateProfile } from "../../../../domain/candidate/entities/CandidateProfile";
+import { CandidateProfile } from "../../../../domain/entities/CandidateProfile";
 import { ICandidateProfileDocument } from "../schemas/CandidateProfileDocument";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 

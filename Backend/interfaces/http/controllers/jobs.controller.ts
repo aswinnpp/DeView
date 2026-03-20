@@ -8,7 +8,7 @@ import type { IUpdateJobUseCase } from '../../../application/job/ports/usecase/I
 import type { IListJobsUseCase } from '../../../application/job/ports/usecase/IListJobsUseCase.js';
 import type { IToggleJobStatusUseCase } from '../../../application/job/ports/usecase/IToggleJobStatusUseCase.js';
 import type { JobFormValues } from '../../../../Shared/contracts/job/form.js';
-import type { JobStatus } from '../../../domain/job/entities/Job.js';
+import type { JobStatus } from '../../../domain/entities/Job.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ISubscriptionUseCase } from '../../../application/job/ports/usecase/ISubscription';
 

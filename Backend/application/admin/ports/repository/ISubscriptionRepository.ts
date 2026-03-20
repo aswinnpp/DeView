@@ -1,4 +1,4 @@
-import { Subscription } from "../../../../domain/admin/entities/Subscription";
+import { Subscription } from "../../../../domain/entities/Subscription";
 
 export interface ISubscriptionListOptions {
   search?: string;

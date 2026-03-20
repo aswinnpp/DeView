@@ -1,4 +1,4 @@
-import type { Application, ApplicationStatus } from '../../../domain/application/entities/Application.js';
+import type { Application, ApplicationStatus } from '../../../domain/entities/Application.js';
 
 export interface IListPendingApplicationsForJobInput {
   jobId: string;

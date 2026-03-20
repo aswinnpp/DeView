@@ -5,8 +5,8 @@ import type { IInterviewRepository } from '../../interview/ports/repository/IInt
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
 import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
 import type { IInterviewerSlotsRepository } from '../../interviewer/ports/repository/IInterviewerSlotsRepository.js';
-import type { Application } from '../../../domain/application/entities/Application.js';
-import { Interview } from '../../../domain/interview/entities/Interview.js';
+import type { Application } from '../../../domain/entities/Application.js';
+import { Interview } from '../../../domain/entities/Interview.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 export interface IScheduleInterviewInput {

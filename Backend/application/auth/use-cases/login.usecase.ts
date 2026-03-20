@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
 import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
-import { Email } from "../../../domain/user/value-objects/Email";
+import { Email } from "../../../domain/value-objects/Email";
 import { IPasswordHasher } from "../ports/services/IPasswordHasher";
 import { ITokenService } from "../ports/services/ITokenService";
 import { AppError } from "../../../shared/errors/AppError";

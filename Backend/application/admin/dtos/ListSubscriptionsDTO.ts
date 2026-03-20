@@ -1,4 +1,4 @@
-import type { Subscription } from '../../../domain/admin/entities/Subscription.js';
+import type { Subscription } from '../../../domain/entities/Subscription.js';
 
 export interface IListSubscriptionsInputDTO {
   search?: string;

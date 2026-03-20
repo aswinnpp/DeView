@@ -1,7 +1,7 @@
 import type { Collection, Filter } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import { BaseMongoRepository } from './BaseMongoRepository.js';
-import { Interview } from '../../../../domain/interview/entities/Interview.js';
+import { Interview } from '../../../../domain/entities/Interview.js';
 import type { IInterviewRepository } from '../../../../application/interview/ports/repository/IInterviewRepository.js';
 import type { IInterviewDocument } from '../schemas/InterviewDocument.js';
 

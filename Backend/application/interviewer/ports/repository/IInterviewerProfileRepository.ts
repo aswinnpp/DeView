@@ -1,4 +1,4 @@
-import { InterviewerProfile } from "../../../../domain/interviewer/entities/InterviewerProfile";
+import { InterviewerProfile } from "../../../../domain/entities/InterviewerProfile";
 
 export interface IInterviewerProfileRepository {
   findByUserId(userId: string): Promise<InterviewerProfile | null>;

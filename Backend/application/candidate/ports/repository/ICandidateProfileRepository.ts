@@ -1,4 +1,4 @@
-import { CandidateProfile } from "../../../../domain/candidate/entities/CandidateProfile";
+import { CandidateProfile } from "../../../../domain/entities/CandidateProfile";
 
 export interface ICandidateProfileRepository {
   findByUserId(userId: string): Promise<CandidateProfile | null>;

@@ -2,7 +2,7 @@ import type { JobFormValues } from '../../../../Shared/contracts/job/form.js';
 import type { ICreateJobDTO } from '../dtos/CreateJobDTO.js';
 import type { IUpdateJobDTO } from '../dtos/UpdateJobDTO.js';
 import type { IListJobsInput } from '../ports/usecase/IListJobsUseCase.js';
-import type { JobStatus } from '../../../domain/job/entities/Job.js';
+import type { JobStatus } from '../../../domain/entities/Job.js';
 import type { CallerContext } from '../../shared/types/CallerContext.js';
 
 export interface IJobListQuery {

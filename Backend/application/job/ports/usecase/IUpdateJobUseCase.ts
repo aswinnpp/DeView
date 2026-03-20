@@ -1,4 +1,4 @@
-import type { Job } from '../../../../domain/job/entities/Job.js';
+import type { Job } from '../../../../domain/entities/Job.js';
 import type { IUpdateJobDTO } from '../../dtos/UpdateJobDTO.js';
 
 export interface IUpdateJobUseCase {

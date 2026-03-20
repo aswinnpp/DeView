@@ -1,4 +1,4 @@
-import type { Interview } from '../../../../domain/interview/entities/Interview.js';
+import type { Interview } from '../../../../domain/entities/Interview.js';
 
 export interface IListMyInterviewsInput {
   candidateUserId: string;

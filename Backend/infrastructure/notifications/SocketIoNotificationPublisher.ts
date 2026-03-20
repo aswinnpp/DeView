@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import type { INotificationPublisher } from "../../application/notification/ports/service/INotificationPublisher.js";
-import type { Notification } from "../../domain/notification/entities/Notification.js";
+import type { Notification } from "../../domain/entities/Notification.js";
 import { getSocketServer } from "../socket/socketContext.js";
 
 @injectable()

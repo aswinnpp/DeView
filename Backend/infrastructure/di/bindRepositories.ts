@@ -11,8 +11,8 @@ import type { ISubscriptionRepository } from '../../application/admin/ports/repo
 import type { IPaymentRepository } from '../../application/company/ports/repository/IPaymentRepository.js';
 import type { IJobRepository } from '../../application/job/ports/repository/IJobRepository.js';
 import type { IJobApplicationRepository } from '../../application/candidate/ports/repository/IJobApplicationRepository.js';
-import type { IApplicationRepository } from '../../application/application/ports/repository/IApplicationRepository.js';
-import type { IRejectionMailRepository } from '../../application/application/ports/repository/IRejectionMailRepository.js';
+import type { IApplicationRepository } from '../../application/job-application/ports/repository/IApplicationRepository.js';
+import type { IRejectionMailRepository } from '../../application/job-application/ports/repository/IRejectionMailRepository.js';
 import type { IInterviewRepository } from '../../application/interview/ports/repository/IInterviewRepository.js';
 import type { IInterviewFeedbackRepository } from '../../application/interview/ports/repository/IInterviewFeedbackRepository.js';
 import type { IInterviewerProfileRepository } from '../../application/interviewer/ports/repository/IInterviewerProfileRepository.js';

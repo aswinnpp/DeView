@@ -3,7 +3,7 @@ import { TYPES } from '../../../shared/di/types.js';
 import type { IJobRepository } from '../ports/repository/IJobRepository.js';
 import type { IUpdateJobUseCase } from '../ports/usecase/IUpdateJobUseCase.js';
 import type { IUpdateJobDTO } from '../dtos/UpdateJobDTO.js';
-import type { IApplicationRepository } from '../../application/ports/repository/IApplicationRepository.js';
+import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository.js';
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 

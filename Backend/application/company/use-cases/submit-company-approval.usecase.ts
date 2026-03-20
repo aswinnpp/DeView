@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
 import { ICompanyProfileRepository } from "../ports/repository/ICompanyProfileRepository";
 import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
-import { CompanyApproval } from "../../../domain/company/entities/CompanyApprovalEntitie";
+import { CompanyApproval } from "../../../domain/entities/CompanyApprovalEntitie";
 import { ISubmitCompanyApprovalDTO } from "../dtos/SubmitCompanyApprovalDTO";
 import { AppError } from "../../../shared/errors/AppError";
 import type { ISubmitCompanyApprovalUseCase } from "../ports/usecase/ISubmitCompanyApprovalUseCase";

@@ -1,6 +1,6 @@
 import { Collection, ObjectId } from "mongodb";
 import type { IInterviewerProfileRepository } from "../../../../application/interviewer/ports/repository/IInterviewerProfileRepository";
-import { InterviewerProfile } from "../../../../domain/interviewer/entities/InterviewerProfile";
+import { InterviewerProfile } from "../../../../domain/entities/InterviewerProfile";
 import type { IInterviewerProfileDocument } from "../schemas/InterviewerProfileDocument";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 

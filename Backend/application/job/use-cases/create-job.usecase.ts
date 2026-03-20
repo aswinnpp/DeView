@@ -4,7 +4,7 @@ import type { IJobRepository } from '../ports/repository/IJobRepository.js';
 import type { ICreateJobDTO } from '../dtos/CreateJobDTO.js';
 import type { ICreateJobUseCase } from '../ports/usecase/ICreateJobUseCase.js';
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
-import { Job } from '../../../domain/job/entities/Job.js';
+import { Job } from '../../../domain/entities/Job.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import type { IUserRepository } from '../../shared/ports/repository/IUserRepository.js';
 import type { INotificationRepository } from '../../notification/ports/repository/INotificationRepository.js';

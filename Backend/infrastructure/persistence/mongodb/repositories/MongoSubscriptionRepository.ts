@@ -1,7 +1,7 @@
 import { Collection, ObjectId, type Filter } from "mongodb";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 import { ISubscription } from "../schemas/subscription";
-import { Subscription } from "../../../../domain/admin/entities/Subscription";
+import { Subscription } from "../../../../domain/entities/Subscription";
 import {
   type ISubscriptionListOptions,
   ISubscriptionRepository,

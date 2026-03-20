@@ -1,4 +1,4 @@
-import type { Interview, InterviewStatus } from '../../../../domain/interview/entities/Interview.js';
+import type { Interview, InterviewStatus } from '../../../../domain/entities/Interview.js';
 
 export interface ListByCandidateUserIdOptions {
   search?: string;

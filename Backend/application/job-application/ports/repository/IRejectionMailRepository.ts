@@ -1,4 +1,4 @@
-import type { RejectionMail } from '../../../../domain/application/entities/RejectionMail.js';
+import type { RejectionMail } from '../../../../domain/entities/RejectionMail.js';
 
 export interface IRejectionMailRepository {
   create(input: {

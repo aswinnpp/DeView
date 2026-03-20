@@ -5,7 +5,7 @@ import type { ISubscriptionRepository } from '../../admin/ports/repository/ISubs
 import type { IPaymentRepository } from '../ports/repository/IPaymentRepository.js';
 import { stripe } from '../../../infrastructure/payments/stripeClient.js';
 import { env } from '../../../infrastructure/config/env.js';
-import { Payment } from '../../../domain/payment/entities/Payment.js';
+import { Payment } from '../../../domain/entities/Payment.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 @injectable()

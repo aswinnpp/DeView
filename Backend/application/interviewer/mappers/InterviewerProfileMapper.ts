@@ -1,4 +1,4 @@
-import type { InterviewerProfile } from "../../../domain/interviewer/entities/InterviewerProfile";
+import type { InterviewerProfile } from "../../../domain/entities/InterviewerProfile";
 import type { CreateInterviewerProfileDTO } from "../dtos/CreateInterviewerProfileDTO";
 import type { UpdateInterviewerProfileDTO } from "../dtos/UpdateInterviewerProfileDTO";
 

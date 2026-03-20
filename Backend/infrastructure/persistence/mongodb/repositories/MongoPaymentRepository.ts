@@ -1,6 +1,6 @@
 import { Collection, ObjectId } from 'mongodb';
 import { BaseMongoRepository } from './BaseMongoRepository.js';
-import { Payment } from '../../../../domain/payment/entities/Payment.js';
+import { Payment } from '../../../../domain/entities/Payment.js';
 import type { IPaymentRepository } from '../../../../application/company/ports/repository/IPaymentRepository.js';
 import type { IPaymentDocument } from '../schemas/payment.js';
 

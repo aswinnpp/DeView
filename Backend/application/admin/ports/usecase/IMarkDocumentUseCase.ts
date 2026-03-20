@@ -1,4 +1,4 @@
-import type { CompanyDocuments } from "../../../../domain/company/entities/CompanyApprovalEntitie";
+import type { CompanyDocuments } from "../../../../domain/entities/CompanyApprovalEntitie";
 
 export interface IMarkDocumentUseCase {
   execute(

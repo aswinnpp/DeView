@@ -3,7 +3,7 @@ import { TYPES } from "../../../shared/di/types";
 import type { IInterviewerProfileRepository } from "../ports/repository/IInterviewerProfileRepository";
 import type { ICreateInterviewerProfileUseCase } from "../ports/usecase/ICreateInterviewerProfileUseCase";
 import type { CreateInterviewerProfileDTO } from "../dtos/CreateInterviewerProfileDTO";
-import { InterviewerProfile } from "../../../domain/interviewer/entities/InterviewerProfile";
+import { InterviewerProfile } from "../../../domain/entities/InterviewerProfile";
 import { AppError } from "../../../shared/errors/AppError";
 
 @injectable()

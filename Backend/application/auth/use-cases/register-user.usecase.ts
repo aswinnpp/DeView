@@ -1,10 +1,10 @@
 import { injectable, inject } from 'inversify';
 import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
 import { IOtpRepository } from "../ports/repository/IOtpRepository";
-import { User } from "../../../domain/user/entities/User";
-import { Email } from "../../../domain/user/value-objects/Email";
-import { Role } from "../../../domain/user/value-objects/Role";
-import { OTPCode } from "../../../domain/otp/value-objects/OTPCode";
+import { User } from "../../../domain/entities/User";
+import { Email } from "../../../domain/value-objects/Email";
+import { Role } from "../../../domain/value-objects/Role";
+import { OTPCode } from "../../../domain/value-objects/OTPCode";
 import { IPasswordHasher } from "../ports/services/IPasswordHasher";
 import { IEmailService } from "../ports/services/IEmailService";
 import { AppError } from "../../../shared/errors/AppError";

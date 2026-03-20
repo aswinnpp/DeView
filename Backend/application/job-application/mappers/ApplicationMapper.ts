@@ -1,4 +1,4 @@
-import type { Application, ApplicationStatus } from '../../../domain/application/entities/Application.js';
+import type { Application, ApplicationStatus } from '../../../domain/entities/Application.js';
 import type { ApplicationView } from '../dtos/ApplicationView.js';
 import type { IListPendingApplicationsForJobInput } from '../dtos/ListPendingApplicationsForJobDTO.js';
 import type { IScoreCandidatesInputDTO, IScoreCandidateInputDTO } from '../dtos/ScoreCandidatesDTO.js';
