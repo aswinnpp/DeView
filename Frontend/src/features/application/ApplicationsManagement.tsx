@@ -391,12 +391,12 @@ const HRApplicationsPage = () => {
         return () => {
             cancelled = true;
         };
-    }, [showCandidateDetail, selectedJob?.id, selectedCandidate?.applicationId, selectedCandidate?.status]);
+    }, [showCandidateDetail, selectedJob?.id, selectedCandidate?.applicationId, selectedCandidate?.status, selectedCandidate,selectedJob]);
 
     // Helper function to format slot date
  
 
-    const handleConfirmOffer = async (data: unknown) => {
+    const handleConfirmOffer = async () => {
      
         alert(`Offer letter sent to ${selectedCandidate?.name}!`);
         setShowOfferModal(false);
