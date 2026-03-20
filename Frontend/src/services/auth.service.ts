@@ -26,8 +26,14 @@ export type ResendOtpResponse = { message: string; email?: string };
 export type ForgotPasswordPayload = { email: string };
 export type ForgotPasswordResponse = { message: string };
 
+export type VerifyOldPasswordPayload = { oldPassword: string };
+export type VerifyOldPasswordResponse = { message?: string };
+
 export type ResetPasswordPayload = { email: string; otp: string; newPassword: string };
 export type ResetPasswordResponse = { message: string };
+
+export type ChangePasswordPayload = { oldPassword: string; newPassword: string };
+export type ChangePasswordResponse = { message?: string };
 
 export type GoogleExchangeResponse = {
     user: { id: string; fullName: string; email: string; role: string };
@@ -64,8 +70,19 @@ export const authService = {
         return api.post<ForgotPasswordResponse>(API_ROUTES.AUTH.FORGOT_PASSWORD, data);
     },
 
+    verifyOldPassword(data: VerifyOldPasswordPayload) {
+        return api.post<VerifyOldPasswordResponse>(
+            API_ROUTES.AUTH.VERIFY_OLD_PASSWORD,
+            data
+        );
+    },
+
     resetPassword(data: ResetPasswordPayload) {
         return api.post<ResetPasswordResponse>(API_ROUTES.AUTH.RESET_PASSWORD, data);
+    },
+
+    changePassword(data: ChangePasswordPayload) {
+        return api.post<ChangePasswordResponse>(API_ROUTES.AUTH.CHANGE_PASSWORD, data);
     },
 
     googleExchange(sessionId: string) {

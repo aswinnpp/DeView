@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Input, Button } from '../../components/common';
+import { ChangePasswordModal } from '../../components/auth/ChangePasswordModal';
 import CandidateNavHeader from './CandidateNavHeader';
 import { useCandidateProfile } from '../../hooks/candidate/useCandidateProfile';
 import { useFileUpload } from '../../hooks/useFileUpload';
@@ -13,13 +13,13 @@ import "cropperjs/dist/cropper.css";
 
 
 const Profile = () => {
-    const navigate = useNavigate();
     const errorBannerRef = useRef<HTMLDivElement>(null);
     const [profilePicPreviewUrl, setProfilePicPreviewUrl] = useState<string | null>(null);
     const [profilePicViewUrl, setProfilePicViewUrl] = useState<string>('');
     const lastUploadedProfilePicKeyRef = useRef<string | null>(null);
     const [isCropModalOpen, setIsCropModalOpen] = useState(false);
     const [cropSrc, setCropSrc] = useState<string | null>(null);
+    const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
 
     const {
         form,
@@ -160,9 +160,8 @@ const Profile = () => {
     const { register } = form;
 
 
-    const handleChangePassword = async () => {
-        await handleLogout();
-        navigate('/forgot-password');
+    const handleChangePassword = () => {
+        setIsChangePasswordModalOpen(true);
     }
 
 
@@ -614,6 +613,11 @@ const Profile = () => {
                             </div>
                         </div>
                     )}
+
+                    <ChangePasswordModal
+                      isOpen={isChangePasswordModalOpen}
+                      onClose={() => setIsChangePasswordModalOpen(false)}
+                    />
                 </div>
             </div>
         </div>

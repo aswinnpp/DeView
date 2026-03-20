@@ -11,6 +11,8 @@ import { LogoutUseCase } from '../../application/auth/use-cases/logout.usecase.j
 import { ForgotPasswordUseCase } from '../../application/auth/use-cases/forgot-password.usecase.js';
 import { VerifyPasswordResetOTPUseCase } from '../../application/auth/use-cases/verify-password-reset-otp.usecase.js';
 import { ResetPasswordUseCase } from '../../application/auth/use-cases/reset-password.usecase.js';
+import { VerifyOldPasswordUseCase } from '../../application/auth/use-cases/verify-old-password.usecase.js';
+import { ChangePasswordUseCase } from '../../application/auth/use-cases/change-password.usecase.js';
 import { GoogleOAuthUseCase } from '../../application/auth/use-cases/google-oauth.usecase.js';
 
 // Company use cases
@@ -103,6 +105,8 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ForgotPasswordUseCasePort).to(ForgotPasswordUseCase);
   container.bind(TYPES.VerifyPasswordResetOTPUseCasePort).to(VerifyPasswordResetOTPUseCase);
   container.bind(TYPES.ResetPasswordUseCasePort).to(ResetPasswordUseCase);
+  container.bind(TYPES.VerifyOldPasswordUseCasePort).to(VerifyOldPasswordUseCase);
+  container.bind(TYPES.ChangePasswordUseCasePort).to(ChangePasswordUseCase);
   container.bind(TYPES.GoogleOAuthUseCasePort).to(GoogleOAuthUseCase);
 
   // Company use cases

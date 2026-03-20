@@ -13,6 +13,8 @@ import type { ILogoutUseCase } from "../../../application/auth/ports/usecase/ILo
 import type { IForgotPasswordUseCase } from "../../../application/auth/ports/usecase/IForgotPasswordUseCase";
 import type { IVerifyPasswordResetOtpUseCase } from "../../../application/auth/ports/usecase/IVerifyPasswordResetOtpUseCase";
 import type { IResetPasswordUseCase } from "../../../application/auth/ports/usecase/IResetPasswordUseCase";
+import type { IVerifyOldPasswordUseCase } from "../../../application/auth/ports/usecase/IVerifyOldPasswordUseCase";
+import type { IChangePasswordUseCase } from "../../../application/auth/ports/usecase/IChangePasswordUseCase";
 
 import {
   getCookie,
@@ -24,6 +26,8 @@ import {
 import type { IRegisterUserRequestDTO } from "../../../application/auth/dtos/RegisterUserRequestDTO";
 import type { ILoginRequestDTO } from "../../../application/auth/dtos/LoginRequestDTO";
 import type { ResetPasswordRequest } from "../../../../Shared/contracts/auth/resetPassword";
+import type { VerifyOldPasswordRequest } from "../../../../Shared/contracts/auth/changePassword";
+import type { ChangePasswordRequest } from "../../../../Shared/contracts/auth/changePassword";
 
 interface IVerifyOtpBody {
   email: string;
@@ -45,7 +49,9 @@ export class AuthController {
     @inject(TYPES.LogoutUseCasePort) private readonly _logoutUseCase: ILogoutUseCase,
     @inject(TYPES.ForgotPasswordUseCasePort) private readonly _forgotPasswordUseCase: IForgotPasswordUseCase,
     @inject(TYPES.VerifyPasswordResetOTPUseCasePort) private readonly _verifyPasswordResetOTPUseCase: IVerifyPasswordResetOtpUseCase,
-    @inject(TYPES.ResetPasswordUseCasePort) private readonly _resetPasswordUseCase: IResetPasswordUseCase
+    @inject(TYPES.ResetPasswordUseCasePort) private readonly _resetPasswordUseCase: IResetPasswordUseCase,
+    @inject(TYPES.VerifyOldPasswordUseCasePort) private readonly _verifyOldPasswordUseCase: IVerifyOldPasswordUseCase,
+    @inject(TYPES.ChangePasswordUseCasePort) private readonly _changePasswordUseCase: IChangePasswordUseCase
   ) {}
 
   // ---------------- REGISTER ----------------
@@ -117,6 +123,32 @@ export class AuthController {
     clearCookie(request, reply, "refreshToken");
 
     reply.send(success(result));
+  };
+
+  // ---------------- CHANGE PASSWORD ----------------
+  verifyOldPassword = async (
+    request: FastifyRequest<{ Body: VerifyOldPasswordRequest }>,
+    reply: FastifyReply
+  ) => {
+    await this._verifyOldPasswordUseCase.execute(
+      request.currentUser.userId,
+      request.body.oldPassword
+    );
+
+    reply.send(success({ success: true }));
+  };
+
+  changePassword = async (
+    request: FastifyRequest<{ Body: ChangePasswordRequest }>,
+    reply: FastifyReply
+  ) => {
+    await this._changePasswordUseCase.execute(
+      request.currentUser.userId,
+      request.body.oldPassword,
+      request.body.newPassword
+    );
+
+    reply.send(success({ success: true }));
   };
 
   // ---------------- PASSWORD RESET ----------------

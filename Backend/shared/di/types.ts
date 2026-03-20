@@ -26,8 +26,10 @@ export const TYPES = {
   RefreshTokenUseCasePort: Symbol('RefreshTokenUseCasePort'),
   LogoutUseCasePort: Symbol('LogoutUseCasePort'),
   ForgotPasswordUseCasePort: Symbol('ForgotPasswordUseCasePort'),
+  VerifyOldPasswordUseCasePort: Symbol('VerifyOldPasswordUseCasePort'),
   VerifyPasswordResetOTPUseCasePort: Symbol('VerifyPasswordResetOTPUseCasePort'),
   ResetPasswordUseCasePort: Symbol('ResetPasswordUseCasePort'),
+  ChangePasswordUseCasePort: Symbol('ChangePasswordUseCasePort'),
   GoogleOAuthUseCasePort: Symbol('GoogleOAuthUseCasePort'),
 
   CheckCompanyStatusUseCasePort: Symbol('CheckCompanyStatusUseCasePort'),

@@ -7,6 +7,8 @@ export const API_ROUTES = {
         REFRESH: '/auth/refresh',
         FORGOT_PASSWORD: '/auth/forgot-password',
         RESET_PASSWORD: '/auth/reset-password',
+        VERIFY_OLD_PASSWORD: '/auth/verify-old-password',
+        CHANGE_PASSWORD: '/auth/change-password',
         VERIFY_OTP: '/auth/verify-otp',
         VERIFY_PASSWORD_RESET_OTP: '/auth/verify-password-reset-otp',
         RESEND_OTP: '/auth/resend-otp',

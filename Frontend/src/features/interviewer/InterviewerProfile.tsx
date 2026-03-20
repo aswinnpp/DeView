@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button, Input } from "../../components/common";
+import { ChangePasswordModal } from "../../components/auth/ChangePasswordModal";
 import { useInterviewerProfile } from "../../hooks/interviewer";
 import { useFileUpload } from "../../hooks/useFileUpload";
 import { interviewerProfileService } from "../../services/interviewerProfile.service";
@@ -14,7 +14,6 @@ const wrapperClass = "flex flex-col gap-2";
 const errorClass = "text-red-400 text-xs mt-1";
 
 const InterviewerProfileSettings: React.FC = () => {
-  const navigate = useNavigate();
   const {
     form,
     profileData,
@@ -38,6 +37,7 @@ const InterviewerProfileSettings: React.FC = () => {
   const lastUploadedKeyRef = useRef<string | null>(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const cropperRef = useRef<ReactCropperElement>(null);
 
   useEffect(() => {
@@ -126,10 +126,9 @@ const InterviewerProfileSettings: React.FC = () => {
   };
 
 
-  const handleChangePassword = async () => {
-    await handleLogout();
-    navigate('/forgot-password');
-}
+  const handleChangePassword = () => {
+    setIsChangePasswordModalOpen(true);
+  };
 
   if (profileLoading) {
     return (
@@ -638,6 +637,11 @@ const InterviewerProfileSettings: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ChangePasswordModal
+        isOpen={isChangePasswordModalOpen}
+        onClose={() => setIsChangePasswordModalOpen(false)}
+      />
     </div>
   );
 };

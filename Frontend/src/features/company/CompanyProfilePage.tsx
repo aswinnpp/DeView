@@ -5,8 +5,8 @@ import type { SubscriptionPlan } from "../../services/adminSubscription.service"
 import type { ICompanySubscriptionView } from "../../hooks/company/useCompanyProfile";
 import { useCompanyProfile, useCompanySubscription } from "../../hooks/company";
 import { Button, Input, Table, Pagination } from "../../components/common";
+import { ChangePasswordModal } from "../../components/auth/ChangePasswordModal";
 import { useFileUpload } from "../../hooks/useFileUpload";
-import { useNavigate } from "react-router-dom";
 import { api } from "../../api/axios";
 import Cropper, { type ReactCropperElement } from "react-cropper";
 import "cropperjs/dist/cropper.css";
@@ -173,8 +173,8 @@ const CompanyProfilePage = () => {
     const lastUploadedCompanyLogoKeyRef = useRef<string | null>(null);
     const [isCropModalOpen, setIsCropModalOpen] = useState(false);
     const [cropSrc, setCropSrc] = useState<string | null>(null);
+    const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
     const cropperRef = useRef<ReactCropperElement>(null);
-    const navigate = useNavigate();
 
     const {
         plans: subscription,
@@ -417,9 +417,8 @@ const CompanyProfilePage = () => {
             },
         ];
 
-        const handleChangePassword = async () => {
-            await handleLogout();
-            navigate('/forgot-password');
+        const handleChangePassword = () => {
+            setIsChangePasswordModalOpen(true);
         }
 
     return (
@@ -1149,6 +1148,11 @@ const CompanyProfilePage = () => {
                     </div>
                 </div>
             )}
+
+            <ChangePasswordModal
+                isOpen={isChangePasswordModalOpen}
+                onClose={() => setIsChangePasswordModalOpen(false)}
+            />
         </div>
     );
 };

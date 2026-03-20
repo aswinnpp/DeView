@@ -7,6 +7,9 @@ import { loginSchema } from '../schemas/login.schema.js';
 import { forgotPasswordSchema } from '../schemas/forgot-password.schema.js';
 import { resetPasswordSchema } from '../schemas/reset-password.schema.js';
 import { verifyPasswordResetOTPSchema } from '../schemas/verify-password-reset-otp.schema.js';
+import { verifyOldPasswordSchema } from '../schemas/verify-old-password.schema.js';
+import { changePasswordSchema } from '../schemas/change-password.schema.js';
+import { requireAuth } from '../middleware/authMiddleware.js';
 
 export async function authRoutes(
     fastify: FastifyInstance,
@@ -38,6 +41,18 @@ export async function authRoutes(
 
     fastify.post('/logout', {
         handler: controller.logout,
+    });
+
+    fastify.post('/verify-old-password', {
+        schema: verifyOldPasswordSchema,
+        preHandler: requireAuth,
+        handler: controller.verifyOldPassword,
+    });
+
+    fastify.post('/change-password', {
+        schema: changePasswordSchema,
+        preHandler: requireAuth,
+        handler: controller.changePassword,
     });
 
     fastify.post('/forgot-password', {
