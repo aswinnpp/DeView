@@ -76,9 +76,7 @@ export function requireRoles(...roles: string[]) {
     _reply: FastifyReply
   ) => {
     const user = await attachUser(request);
-    console.log("requireRoles",roles);
-    
-    console.log(user);
+   
     
 
     if (!roles.includes(user.role)) {

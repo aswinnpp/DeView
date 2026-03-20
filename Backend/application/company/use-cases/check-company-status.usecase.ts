@@ -16,8 +16,7 @@ export class CheckCompanyStatusUseCase implements ICheckCompanyStatusUseCase {
 
     const approval = await this._repo.findByUserId(dto.userId);
 
-    console.log(approval, "approval");
-    console.log("dto", dto.userId);
+
 
 
 

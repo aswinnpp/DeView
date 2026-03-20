@@ -397,7 +397,7 @@ const HRApplicationsPage = () => {
  
 
     const handleConfirmOffer = async (data: unknown) => {
-        console.log('Sending offer:', data);
+     
         alert(`Offer letter sent to ${selectedCandidate?.name}!`);
         setShowOfferModal(false);
     };

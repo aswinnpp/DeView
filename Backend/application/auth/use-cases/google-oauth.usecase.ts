@@ -102,11 +102,11 @@ export class GoogleOAuthUseCase implements IGoogleOAuthUseCase {
 
   async exchange(sessionId: string) {
 
-    console.log("SESSION ID", sessionId);
+ 
     
     const session = await this._sessionRepo.get(sessionId);
 
-    console.log("REDIS SESSION", session);
+    
 
     if (!session) throw AppError.badRequest("Session expired");
 

@@ -38,7 +38,7 @@ export const adminSubscriptionService = {
   },
 
   list(params?: GetSubscriptionsParams) {
-    console.log('list', params);
+   
     
     const searchParams = new URLSearchParams();
     if (params?.search) searchParams.set('search', params.search);

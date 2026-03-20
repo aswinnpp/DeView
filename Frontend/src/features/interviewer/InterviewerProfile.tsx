@@ -4,6 +4,8 @@ import { Button, Input } from "../../components/common";
 import { useInterviewerProfile } from "../../hooks/interviewer";
 import { useFileUpload } from "../../hooks/useFileUpload";
 import { interviewerProfileService } from "../../services/interviewerProfile.service";
+import Cropper, { type ReactCropperElement } from "react-cropper";
+import "cropperjs/dist/cropper.css";
 
 const inputClass =
   "w-full bg-white/5 border border-white/15 rounded-lg text-slate-100 py-3 px-4 text-sm placeholder:text-slate-500 focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.08] transition";
@@ -34,6 +36,9 @@ const InterviewerProfileSettings: React.FC = () => {
   const [profilePicPreviewUrl, setProfilePicPreviewUrl] = useState<string | null>(null);
   const [profilePicViewUrl, setProfilePicViewUrl] = useState<string>("");
   const lastUploadedKeyRef = useRef<string | null>(null);
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const cropperRef = useRef<ReactCropperElement>(null);
 
   useEffect(() => {
     const keyOrUrl = formValues.profilePicUrl?.trim();
@@ -60,18 +65,48 @@ const InterviewerProfileSettings: React.FC = () => {
     };
   }, [profilePicPreviewUrl]);
 
-  const handleProfilePicSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const closeCropModal = () => {
+    setIsCropModalOpen(false);
+    setCropSrc((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setProfilePicPreviewUrl(null);
+  };
+
+  const handleProfilePicSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const nextPreview = URL.createObjectURL(file);
     setProfilePicPreviewUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return nextPreview;
     });
+    setCropSrc(nextPreview);
+    setIsCropModalOpen(true);
     e.target.value = "";
+  };
 
+  const handleCropAndUploadProfilePic = async () => {
+    const cropper = cropperRef.current?.cropper;
+    if (!cropper) return;
+
+    const canvas = cropper.getCroppedCanvas({
+      width: 512,
+      height: 512,
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: "high",
+    });
+
+    const blob: Blob | null = await new Promise((resolve) =>
+      canvas.toBlob((b) => resolve(b), "image/webp", 0.92)
+    );
+    if (!blob) return;
+
+    const file = new File([blob], "profile.webp", { type: "image/webp" });
     const res = await uploadProfilePic(file, "interviewerProfilePic");
-    if (!res?.key && !res?.url) return;
+    if (!(res?.key || res?.url)) return;
 
     const stored = res.key ?? res.url;
     lastUploadedKeyRef.current = stored;
@@ -85,6 +120,8 @@ const InterviewerProfileSettings: React.FC = () => {
       await fetchProfile();
     } catch {
       // ignore; user can save via form submit
+    } finally {
+      closeCropModal();
     }
   };
 
@@ -543,6 +580,62 @@ const InterviewerProfileSettings: React.FC = () => {
               )}
             </div>
           </form>
+        </div>
+      )}
+      {isCropModalOpen && cropSrc && (
+        <div className="fixed inset-0 z-[1250] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-slate-900 rounded-2xl max-w-2xl w-full border border-slate-700 shadow-2xl shadow-black/60 overflow-hidden">
+            <div className="px-6 pt-6 pb-4 border-b border-slate-800">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-lg font-bold text-slate-50 m-0">Crop profile photo</h3>
+                <Button
+                  type="button"
+                  variant="ghostOutline"
+                  onClick={closeCropModal}
+                  disabled={isProfilePicUploading}
+                  className="!py-2 !px-3"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+
+            <div className="p-4">
+              <Cropper
+                src={cropSrc}
+                style={{ height: 420, width: "100%" }}
+                aspectRatio={1}
+                viewMode={1}
+                guides={false}
+                background={false}
+                responsive={true}
+                autoCropArea={1}
+                checkOrientation={false}
+                ref={cropperRef}
+              />
+            </div>
+
+            <div className="px-6 pb-6 pt-2 flex gap-3 justify-end border-t border-slate-800">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={closeCropModal}
+                disabled={isProfilePicUploading}
+                className="bg-slate-800/80 text-slate-300 border border-slate-600 hover:bg-slate-700 hover:text-slate-100 hover:border-slate-500 py-2.5 px-5 rounded-xl text-sm font-semibold transition"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="violet"
+                onClick={handleCropAndUploadProfilePic}
+                disabled={isProfilePicUploading}
+                className="!py-2.5 !px-6 rounded-xl text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isProfilePicUploading ? "Uploading…" : "Save photo"}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

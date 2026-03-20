@@ -6,6 +6,10 @@ import { useCandidateProfile } from '../../hooks/candidate/useCandidateProfile';
 import { useFileUpload } from '../../hooks/useFileUpload';
 import { candidateService } from '../../services/candidate.service';
 
+import Cropper, { type ReactCropperElement } from "react-cropper";
+import "cropperjs/dist/cropper.css";
+
+
 
 
 const Profile = () => {
@@ -14,6 +18,8 @@ const Profile = () => {
     const [profilePicPreviewUrl, setProfilePicPreviewUrl] = useState<string | null>(null);
     const [profilePicViewUrl, setProfilePicViewUrl] = useState<string>('');
     const lastUploadedProfilePicKeyRef = useRef<string | null>(null);
+    const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+    const [cropSrc, setCropSrc] = useState<string | null>(null);
 
     const {
         form,
@@ -36,6 +42,8 @@ const Profile = () => {
 
     const { upload: uploadResume, isUploading: isResumeUploading } = useFileUpload();
     const { upload: uploadProfilePic, isUploading: isProfilePicUploading } = useFileUpload();
+
+    const cropperRef = useRef<ReactCropperElement>(null);
 
     useEffect(() => {
         // When profilePicUrl is an S3 key (stable), get a fresh signed URL for viewing.
@@ -80,25 +88,54 @@ const Profile = () => {
         const file = e.target.files?.[0];
         if (!file) return;
         const nextPreview = URL.createObjectURL(file);
-        setProfilePicPreviewUrl((prev) => {
+        setCropSrc((prev) => {
             if (prev) URL.revokeObjectURL(prev);
             return nextPreview;
         });
+        setIsCropModalOpen(true);
         e.target.value = '';
+    };
+
+    const closeCropModal = () => {
+        setIsCropModalOpen(false);
+        setCropSrc((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+    };
+
+    const handleCropAndUploadProfilePic = async () => {
+        const cropper = cropperRef.current?.cropper;
+        if (!cropper) return;
+
+        const canvas = cropper.getCroppedCanvas({
+            width: 512,
+            height: 512,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+
+        const blob: Blob | null = await new Promise((resolve) =>
+            canvas.toBlob((b) => resolve(b), 'image/webp', 0.92)
+        );
+        if (!blob) return;
+
+        const file = new File([blob], 'profile.webp', { type: 'image/webp' });
         const res = await uploadProfilePic(file, 'profilePic');
-        if (res?.key || res?.url) {
-            const stored = res.key ?? res.url;
-            form.setValue('profilePicUrl', stored, { shouldDirty: true, shouldValidate: true });
-            lastUploadedProfilePicKeyRef.current = stored;
-            // Prefer showing the just-uploaded URL immediately to avoid flashing old image
-            // while the DB is being updated / read back.
-            if (res.url) setProfilePicViewUrl(res.url);
-            setProfilePicPreviewUrl(null);
-            try {
-                await candidateService.updateProfile({ profilePicUrl: stored });
-            } catch {
-                // If autosave fails, user can still save via full form.
-            }
+        if (!(res?.key || res?.url)) return;
+
+        const stored = res.key ?? res.url;
+        form.setValue('profilePicUrl', stored, { shouldDirty: true, shouldValidate: true });
+        lastUploadedProfilePicKeyRef.current = stored;
+        if (res.url) setProfilePicViewUrl(res.url);
+        setProfilePicPreviewUrl(null);
+
+        try {
+            await candidateService.updateProfile({ profilePicUrl: stored });
+        } catch {
+            // If autosave fails, user can still save via full form.
+        } finally {
+            closeCropModal();
         }
     };
 
@@ -192,6 +229,8 @@ const Profile = () => {
                                         <span className="text-white text-xs font-medium px-2 py-1 bg-white/20 rounded">
                                             {isProfilePicUploading ? 'Uploading…' : 'Change photo'}
                                         </span>
+
+
                                     </label>
                                 </div>
                                 <div className="flex flex-col gap-1.5 min-w-0 flex-1">
@@ -523,6 +562,58 @@ const Profile = () => {
                             </div>
                         )}
                     </form>
+
+                    {isCropModalOpen && cropSrc && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+                            <div className="w-full max-w-[720px] rounded-xl bg-[#0f1220] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden">
+                                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                                    <div className="text-white font-bold">Crop profile photo</div>
+                                    <button
+                                        type="button"
+                                        className="text-white/70 hover:text-white text-sm"
+                                        onClick={closeCropModal}
+                                        disabled={isProfilePicUploading}
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                                <div className="p-4">
+                                    <Cropper
+                                        src={cropSrc}
+                                        style={{ height: 420, width: "100%" }}
+                                        aspectRatio={1}
+                                        viewMode={1}
+                                        guides={false}
+                                        background={false}
+                                        responsive={true}
+                                        autoCropArea={1}
+                                        checkOrientation={false}
+                                        ref={cropperRef}
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-3 px-4 pb-4">
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        className="py-2.5 px-4 rounded-[10px] font-bold"
+                                        onClick={closeCropModal}
+                                        disabled={isProfilePicUploading}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="primary"
+                                        className="py-2.5 px-4 rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed"
+                                        onClick={handleCropAndUploadProfilePic}
+                                        disabled={isProfilePicUploading}
+                                    >
+                                        {isProfilePicUploading ? 'Uploading…' : 'Save photo'}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

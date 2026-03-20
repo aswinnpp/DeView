@@ -8,6 +8,8 @@ import { Button, Input, Table, Pagination } from "../../components/common";
 import { useFileUpload } from "../../hooks/useFileUpload";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/axios";
+import Cropper, { type ReactCropperElement } from "react-cropper";
+import "cropperjs/dist/cropper.css";
 
 type PaymentResult = {
     open: boolean;
@@ -169,6 +171,9 @@ const CompanyProfilePage = () => {
     const [companyLogoPreviewUrl, setCompanyLogoPreviewUrl] = useState<string | null>(null);
     const [companyLogoViewUrl, setCompanyLogoViewUrl] = useState<string>("");
     const lastUploadedCompanyLogoKeyRef = useRef<string | null>(null);
+    const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+    const [cropSrc, setCropSrc] = useState<string | null>(null);
+    const cropperRef = useRef<ReactCropperElement>(null);
     const navigate = useNavigate();
 
     const {
@@ -236,28 +241,63 @@ const CompanyProfilePage = () => {
         };
     }, [companyLogoPreviewUrl]);
 
-    const handleCompanyLogoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const closeCropModal = () => {
+        setIsCropModalOpen(false);
+        // revoke object URL used for cropper
+        setCropSrc((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+        setCompanyLogoPreviewUrl(null);
+    };
+
+    const handleCompanyLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
         const nextPreview = URL.createObjectURL(file);
         setCompanyLogoPreviewUrl((prev) => {
             if (prev) URL.revokeObjectURL(prev);
             return nextPreview;
         });
-        e.target.value = "";
+        setCropSrc(nextPreview);
+        setIsCropModalOpen(true);
 
+        e.target.value = "";
+    };
+
+    const handleCropAndUploadCompanyLogo = async () => {
+        const cropper = cropperRef.current?.cropper;
+        if (!cropper) return;
+
+        const canvas = cropper.getCroppedCanvas({
+            width: 512,
+            height: 512,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: "high",
+        });
+
+        const blob: Blob | null = await new Promise((resolve) =>
+            canvas.toBlob((b) => resolve(b), "image/webp", 0.92)
+        );
+        if (!blob) return;
+
+        const file = new File([blob], "company.webp", { type: "image/webp" });
         const res = await uploadCompanyLogo(file, "companyLogo");
-        if (!res?.key && !res?.url) return;
+        if (!(res?.key || res?.url)) return;
+
         const stored = res.key ?? res.url;
         lastUploadedCompanyLogoKeyRef.current = stored;
         if (res.url) setCompanyLogoViewUrl(res.url);
         setCompanyLogoPreviewUrl(null);
 
-        // autosave (no need to click Edit/Save)
         try {
+            // autosave (no need to click Edit/Save)
             await updateProfile({ logoUrl: stored });
         } catch {
             // ignore; user can retry via edit-save if needed
+        } finally {
+            closeCropModal();
         }
     };
     const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -1045,6 +1085,65 @@ const CompanyProfilePage = () => {
                                 className="bg-slate-800/80 text-slate-300 border border-slate-600 hover:bg-slate-700 hover:text-slate-100 hover:border-slate-500 py-2.5 px-6 rounded-xl text-sm font-semibold transition"
                             >
                                 Close
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {isCropModalOpen && cropSrc && (
+                <div className="fixed inset-0 z-[1250] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-slate-900 rounded-2xl max-w-2xl w-full border border-slate-700 shadow-2xl shadow-black/60 overflow-hidden">
+                        <div className="px-6 pt-6 pb-4 border-b border-slate-800">
+                            <div className="flex items-center justify-between gap-3">
+                                <h3 className="text-lg font-bold text-slate-50 m-0">
+                                    Crop company logo
+                                </h3>
+                                <Button
+                                    type="button"
+                                    variant="ghostOutline"
+                                    onClick={closeCropModal}
+                                    disabled={isCompanyLogoUploading}
+                                    className="!py-2 !px-3"
+                                >
+                                    Close
+                                </Button>
+                            </div>
+                        </div>
+
+                        <div className="p-4">
+                            <Cropper
+                                src={cropSrc}
+                                style={{ height: 420, width: "100%" }}
+                                aspectRatio={1}
+                                viewMode={1}
+                                guides={false}
+                                background={false}
+                                responsive={true}
+                                autoCropArea={1}
+                                checkOrientation={false}
+                                ref={cropperRef}
+                            />
+                        </div>
+
+                        <div className="px-6 pb-6 pt-2 flex gap-3 justify-end border-t border-slate-800">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={closeCropModal}
+                                disabled={isCompanyLogoUploading}
+                                className="bg-slate-800/80 text-slate-300 border border-slate-600 hover:bg-slate-700 hover:text-slate-100 hover:border-slate-500 py-2.5 px-5 rounded-xl text-sm font-semibold transition"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="primary"
+                                onClick={handleCropAndUploadCompanyLogo}
+                                disabled={isCompanyLogoUploading}
+                                className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-none py-2.5 px-6 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/30 hover:opacity-95 disabled:opacity-60 disabled:shadow-none transition"
+                            >
+                                {isCompanyLogoUploading ? "Uploading…" : "Save logo"}
                             </Button>
                         </div>
                     </div>

@@ -10,7 +10,7 @@ const LandingPage = () => {
             {/* Header */}
             <header className="fixed top-0 left-0 right-0 z-[100] flex justify-between items-center py-5 px-15 bg-[rgba(15,15,25,0.9)] backdrop-blur-[10px] border-b border-[rgba(255,255,255,0.1)] max-md:px-4 max-md:py-3">
                 <div className="flex items-center gap-2.5 max-md:gap-2 min-w-0">
-                    <div className="w-10 h-10 max-md:w-9 max-md:h-9 bg-linear-to-br from-brand-primary to-brand-secondary rounded-[10px] flex items-center justify-center text-xl max-md:text-lg font-bold shrink-0">D</div>
+                   
                     <h1 className="text-[22px] max-md:text-lg font-bold tracking-[2px] m-0 truncate">DEVIEW</h1>
                 </div>
                 <nav className="flex items-center gap-4 max-md:gap-3 shrink-0">
@@ -184,7 +184,6 @@ const LandingPage = () => {
                     { number: '0', label: 'Companies' },
                     { number: '0', label: 'Interviews Conducted' },
                     { number: '0', label: 'Developers Hired' },
-                    { number: '0%', label: 'Satisfaction Rate' }
                 ].map((stat, i) => (
                     <div key={i} className="text-center max-md:flex-[1_1_45%] max-sm:flex-[1_1_100%]">
                         <span className="block text-[42px] max-md:text-3xl max-sm:text-2xl font-extrabold bg-linear-to-br from-brand-primary to-brand-pink bg-clip-text text-transparent">{stat.number}</span>
@@ -192,8 +191,8 @@ const LandingPage = () => {
                     </div>
                 ))}
             </section>
+            
 
-            {/* Use Cases */}
             <section className="py-25 px-15 max-md:py-12 max-md:px-4">
                 <h2 className="text-center text-4xl font-bold mb-4 max-md:text-2xl max-sm:text-xl">Built for Technical Hiring</h2>
                 <p className="text-center text-lg text-[rgba(255,255,255,0.6)] max-w-[600px] mx-auto mb-[50px] max-md:mb-8 leading-relaxed max-md:text-base max-sm:text-sm">
@@ -226,16 +225,12 @@ const LandingPage = () => {
 
             {/* Footer */}
             <footer className="py-10 px-15 border-t border-[rgba(255,255,255,0.1)] bg-[rgba(15,15,25,0.9)] max-md:py-6 max-md:px-4">
-                <div className="max-w-[1200px] mx-auto flex justify-between items-center max-md:flex-col max-md:gap-5 max-md:text-center">
-                    <div className="flex items-center gap-2.5 text-lg font-semibold">
-                        <div className="w-8 h-8 text-base font-bold bg-linear-to-br from-brand-primary to-brand-secondary rounded-lg flex items-center justify-center">D</div>
-                        <span>DEVIEW</span>
-                    </div>
-                    
+                   
+
                     <p className="text-[rgba(255,255,255,0.4)] text-sm max-md:text-xs max-md:order-3">
                         © 2024 DEVIEW - Developer Interview Platform. All rights reserved.
                     </p>
-                </div>
+               
             </footer>
         </div>
     );
