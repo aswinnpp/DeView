@@ -1,8 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Background from '@components/Background/Background';
+import { api } from '../../api/axios';
+
+type LandingStats = {
+    companies: number;
+    interviewsConducted: number;
+    developersHired: number;
+};
 
 const LandingPage = () => {
+    const [stats, setStats] = useState({
+        companies: 0,
+        interviewsConducted: 0,
+        developersHired: 0,
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let isCancelled = false;
+
+        async function fetchStats() {
+            setLoading(true);
+            try {
+                const { data: result } = await api.get<LandingStats>('/public/stats');
+                if (isCancelled) return;
+
+                setStats({
+                    companies: Number(result?.companies ?? 0) || 0,
+                    interviewsConducted: Number(result?.interviewsConducted ?? 0) || 0,
+                    developersHired: Number(result?.developersHired ?? 0) || 0,
+                });
+            } catch (err) {
+                if (isCancelled) return;
+                // Keep default 0 values on error.
+                console.error(err);
+            } finally {
+                if (!isCancelled) setLoading(false);
+            }
+        }
+
+        fetchStats();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, []);
+
     return (
         <div className="min-h-screen relative font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-white overflow-x-hidden">
             <Background />
@@ -181,9 +225,9 @@ const LandingPage = () => {
             {/* Stats Section */}
             <section className="py-20 px-15 bg-linear-to-br from-[rgba(102,126,234,0.08)] to-[rgba(118,75,162,0.08)] flex justify-center gap-20 max-lg:gap-10 max-md:flex-wrap max-md:gap-6 max-md:py-10 max-md:px-4">
                 {[
-                    { number: '0', label: 'Companies' },
-                    { number: '0', label: 'Interviews Conducted' },
-                    { number: '0', label: 'Developers Hired' },
+                    { number: (loading ? 0 : stats.companies).toLocaleString('en-US'), label: 'Companies' },
+                    { number: (loading ? 0 : stats.interviewsConducted).toLocaleString('en-US'), label: 'Interviews Conducted' },
+                    { number: (loading ? 0 : stats.developersHired).toLocaleString('en-US'), label: 'Developers Hired' },
                 ].map((stat, i) => (
                     <div key={i} className="text-center max-md:flex-[1_1_45%] max-sm:flex-[1_1_100%]">
                         <span className="block text-[42px] max-md:text-3xl max-sm:text-2xl font-extrabold bg-linear-to-br from-brand-primary to-brand-pink bg-clip-text text-transparent">{stat.number}</span>

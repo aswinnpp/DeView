@@ -81,6 +81,9 @@ import { ListNotificationsUseCase } from "../../application/notification/use-cas
 import { MarkNotificationReadUseCase } from "../../application/notification/use-cases/mark-notification-read.usecase.js";
 import { DeleteNotificationUseCase } from "../../application/notification/use-cases/delete-notification.usecase.js";
 
+// Public use cases
+import { GetLandingStatsUseCase } from '../../application/public/use-cases/get-landing-stats.usecase.js';
+
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
 import { ActivatePendingSubscriptionNowUseCase } from '../../application/company/use-cases/activate-pending-subscription-now.usecase.js';
@@ -193,4 +196,7 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ListNotificationsUseCasePort).to(ListNotificationsUseCase);
   container.bind(TYPES.MarkNotificationReadUseCasePort).to(MarkNotificationReadUseCase);
   container.bind(TYPES.DeleteNotificationUseCasePort).to(DeleteNotificationUseCase);
+
+  // Public
+  container.bind(TYPES.GetLandingStatsUseCasePort).to(GetLandingStatsUseCase);
 }

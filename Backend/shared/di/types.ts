@@ -115,4 +115,7 @@ export const TYPES = {
   ListNotificationsUseCasePort: Symbol("ListNotificationsUseCasePort"),
   MarkNotificationReadUseCasePort: Symbol("MarkNotificationReadUseCasePort"),
   DeleteNotificationUseCasePort: Symbol("DeleteNotificationUseCasePort"),
+
+  // Public
+  GetLandingStatsUseCasePort: Symbol('GetLandingStatsUseCasePort'),
 } as const;

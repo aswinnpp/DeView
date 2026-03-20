@@ -9,6 +9,7 @@ export interface IApplicationRepository {
   ): Promise<Application[]>;
 
   countByJobId(jobId: string, companyId: string): Promise<Record<ApplicationStatus, number>>;
+  countByStatus(status: ApplicationStatus): Promise<number>;
 
   listPendingByJobId(jobId: string, companyId: string): Promise<Application[]>;
 

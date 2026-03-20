@@ -21,6 +21,7 @@ import { interviewerAssignmentsRoutes } from '../../interfaces/http/routes/inter
 import { interviewerProfileRoutes } from '../../interfaces/http/routes/interviewer-profile.routes.js';
 import { interviewerSlotsRoutes } from "../../interfaces/http/routes/interviewer-slots.routes.js";
 import { notificationsRoutes } from "../../interfaces/http/routes/notifications.routes.js";
+import { landingStatsRoutes } from "../../interfaces/http/routes/landing-stats.routes.js";
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     await fastify.register(
@@ -69,6 +70,14 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
         async (instance) => {
             await uploadRoutes(instance, controllers.uploadController);
         },
+    );
+
+    // Public routes (no auth)
+    await fastify.register(
+        async (instance) => {
+            await landingStatsRoutes(instance, controllers.landingStatsController);
+        },
+        { prefix: '/public' }
     );
 
     // Candidate routes (profile + jobs)

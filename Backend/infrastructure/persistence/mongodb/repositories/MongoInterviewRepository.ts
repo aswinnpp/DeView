@@ -41,6 +41,10 @@ export class MongoInterviewRepository
     return this.collection.countDocuments(filter);
   }
 
+  async countByStatus(): Promise<number> {
+    return this.collection.countDocuments();
+  }
+
   async listByCandidateUserId(
     candidateUserId: string,
     options?: { search?: string; page?: number; limit?: number; sortOrder?: 'asc' | 'desc' }

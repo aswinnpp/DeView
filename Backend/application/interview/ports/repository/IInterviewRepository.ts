@@ -14,6 +14,7 @@ export interface IInterviewRepository {
     scheduledDate: string,
     options?: { excludeInterviewId?: string }
   ): Promise<number>;
+  countByStatus(): Promise<number>;
   listByCandidateUserId(
     candidateUserId: string,
     options?: ListByCandidateUserIdOptions

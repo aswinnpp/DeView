@@ -90,6 +90,10 @@ export class MongoApplicationRepository implements IApplicationRepository {
     return out;
   }
 
+  async countByStatus(status: ApplicationStatus): Promise<number> {
+    return this._collection.countDocuments({ status });
+  }
+
   async listPendingByJobId(jobId: string, companyId: string): Promise<Application[]> {
       return this.listByJobId(jobId, companyId, 'PENDING');
   }
