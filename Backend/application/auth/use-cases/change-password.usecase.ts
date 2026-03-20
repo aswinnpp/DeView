@@ -37,8 +37,7 @@ export class ChangePasswordUseCase implements IChangePasswordUseCase {
     user.passwordHash = await this._hasher.hash(newPassword);
     await this._userRepo.save(user);
 
-    // Invalidate all existing access + refresh tokens for this user
-    // so they must re-login with the new credentials.
+  
     await this._tokenService.revokeAllUserTokens(user.id!);
   }
 }
