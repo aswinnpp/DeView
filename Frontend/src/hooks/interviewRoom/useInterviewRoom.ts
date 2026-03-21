@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import { io, type Socket } from "socket.io-client";
+import {
+  interviewsService,
+  type InterviewRoomDetails,
+} from "../../services/interviews.service";
 
 type Nullable<T> = T | null;
 
@@ -49,7 +53,69 @@ interface UseInterviewRoomResult {
   leaveRoom: () => void;
 }
 
+interface UseInterviewRoomDetailsResult {
+  details: InterviewRoomDetails | null;
+  error: string | null;
+  isLoading: boolean;
+  roomId: string | undefined;
+}
+
 const getSocketUrl = () => window.location.origin;
+
+export function useInterviewRoomDetails(
+  interviewId: string | undefined
+): UseInterviewRoomDetailsResult {
+  const [details, setDetails] = useState<InterviewRoomDetails | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [roomId, setRoomId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!interviewId) {
+      setError("Invalid interview");
+      setIsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const roomDetails = await interviewsService.getRoomDetails(interviewId);
+        if (!roomDetails) {
+          if (!cancelled) {
+            setError("Interview not found");
+          }
+          return;
+        }
+        if (!cancelled) {
+          setDetails(roomDetails);
+        }
+      } catch (err: unknown) {
+        console.error(err);
+        if (!cancelled) {
+          setError("You are not allowed to join this interview yet.");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    load().then(() => {
+      if (!cancelled) {
+        setRoomId(interviewId);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [interviewId]);
+
+  return { details, error, isLoading, roomId };
+}
 
 export function useInterviewRoom(roomId: string | undefined, displayName: string): UseInterviewRoomResult {
   const localVideoRef = useRef<Nullable<HTMLVideoElement>>(null);
