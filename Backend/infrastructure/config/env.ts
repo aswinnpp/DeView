@@ -12,6 +12,8 @@ export interface IEnvConfig {
     NODE_ENV: string;
     FRONTEND_URL: string;
     REDIS_URL: string;
+    COMPILER_URL: string;
+    COMPILER_AUTH_TOKEN?: string;
     GOOGLE_CLIENT_ID?: string;
     GOOGLE_CLIENT_SECRET?: string;
     GOOGLE_CALLBACK_URL?: string;
@@ -47,6 +49,8 @@ function validateEnv(): IEnvConfig {
         NODE_ENV: process.env.NODE_ENV || 'development',
         FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5174',
         REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
+        COMPILER_URL: process.env.COMPILER_URL || process.env.JUDGE0_URL || 'https://ce.judge0.com',
+        COMPILER_AUTH_TOKEN: process.env.COMPILER_AUTH_TOKEN,
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
         GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,

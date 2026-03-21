@@ -22,6 +22,7 @@ import { interviewerProfileRoutes } from '../../interfaces/http/routes/interview
 import { interviewerSlotsRoutes } from "../../interfaces/http/routes/interviewer-slots.routes.js";
 import { notificationsRoutes } from "../../interfaces/http/routes/notifications.routes.js";
 import { landingStatsRoutes } from "../../interfaces/http/routes/landing-stats.routes.js";
+import { compilerRoutes } from "../../interfaces/http/routes/compiler.routes.js";
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     await fastify.register(
@@ -78,6 +79,14 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
             await landingStatsRoutes(instance, controllers.landingStatsController);
         },
         { prefix: '/public' }
+    );
+
+    // Compiler (code execution via Judge0 API)
+    await fastify.register(
+        async (instance) => {
+            await compilerRoutes(instance, controllers.compilerController);
+        },
+        { prefix: '/compiler' }
     );
 
     // Candidate routes (profile + jobs)

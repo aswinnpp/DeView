@@ -86,6 +86,10 @@ import { DeleteNotificationUseCase } from "../../application/notification/use-ca
 // Public use cases
 import { GetLandingStatsUseCase } from '../../application/public/use-cases/get-landing-stats.usecase.js';
 
+// Compiler use cases
+import { GetCompilerLanguagesUseCase } from '../../application/compiler/use-cases/get-compiler-languages.usecase.js';
+import { ExecuteCodeUseCase } from '../../application/compiler/use-cases/execute-code.usecase.js';
+
 // Upload use cases
 import { GenerateUploadSignatureUseCase } from '../../application/upload/use-cases/generate-upload-signature.usecase.js';
 import { ActivatePendingSubscriptionNowUseCase } from '../../application/company/use-cases/activate-pending-subscription-now.usecase.js';
@@ -203,4 +207,8 @@ export function bindUseCases(container: Container): void {
 
   // Public
   container.bind(TYPES.GetLandingStatsUseCasePort).to(GetLandingStatsUseCase);
+
+  // Compiler
+  container.bind(TYPES.GetCompilerLanguagesUseCasePort).to(GetCompilerLanguagesUseCase);
+  container.bind(TYPES.ExecuteCodeUseCasePort).to(ExecuteCodeUseCase);
 }

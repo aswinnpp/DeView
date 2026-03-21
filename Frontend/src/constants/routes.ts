@@ -78,6 +78,10 @@ export const API_ROUTES = {
         ROOM: (interviewId: string) => `/interviews/${interviewId}/room`,
         UPDATE_STATUS: (interviewId: string) => `/interviews/${interviewId}/status`,
     },
+    COMPILER: {
+        LANGUAGES: "/compiler/languages",
+        EXECUTE: "/compiler/execute",
+    },
     INTERVIEWER: {
         PROFILE: '/interviewer/profile',
         ASSIGNMENTS: '/interviewer/assignments',

@@ -120,4 +120,8 @@ export const TYPES = {
 
   // Public
   GetLandingStatsUseCasePort: Symbol('GetLandingStatsUseCasePort'),
+
+  // Compiler (code execution via Judge0 API)
+  GetCompilerLanguagesUseCasePort: Symbol('GetCompilerLanguagesUseCasePort'),
+  ExecuteCodeUseCasePort: Symbol('ExecuteCodeUseCasePort'),
 } as const;

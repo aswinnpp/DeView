@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { interviewsService, type InterviewRoomDetails } from "../../services/interviews.service";
+import {
+  judge0Service,
+  FALLBACK_LANGUAGES as JUDGE0_FALLBACK_LANGUAGES,
+  type Judge0Language,
+} from "../../services/judge0.service";
 import { selectUser } from "../../context/authSlice";
 import { APP_ROUTES } from "../../constants/routes";
 import { useInterviewRoom } from "../../hooks/useInterviewRoom";
@@ -49,6 +54,8 @@ function solution() {
   );
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState("");
+  const [languages, setLanguages] = useState<Judge0Language[]>([]);
+  const [selectedLanguageId, setSelectedLanguageId] = useState<number | null>(null);
   const [isLocalPrimary, setIsLocalPrimary] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
   const [chatMessage, setChatMessage] = useState("");
@@ -94,17 +101,69 @@ function solution() {
     };
   }, [interviewId]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadLanguages = async () => {
+      try {
+        const langs = await judge0Service.getLanguages();
+        if (cancelled) return;
+
+        setLanguages(langs);
+
+        const preferred =
+          langs.find((l) => /python/i.test(l.name)) ??
+          langs.find((l) => /javascript/i.test(l.name)) ??
+          langs[0];
+
+        setSelectedLanguageId(preferred?.id ?? null);
+      } catch (err) {
+        console.error("Failed to load Judge0 languages:", err);
+        if (!cancelled) {
+          setLanguages(JUDGE0_FALLBACK_LANGUAGES);
+          setSelectedLanguageId(null);
+        }
+      }
+    };
+
+    loadLanguages();
+    return () => {
+      cancelled = true;
+    };
+  }, [interviewId]);
+
   const runCode = () => {
+    if (!selectedLanguageId) {
+      setOutput("Select a language first, then run your code.");
+      return;
+    }
+
     setIsRunning(true);
-    setTimeout(() => {
-      const preview = code.split("\n").slice(0, 4).join("\n");
-      setOutput(
-        preview
-          ? `Previewing your code (first lines):\n${preview}`
-          : "No code yet. Start typing above to see a preview here."
-      );
-      setIsRunning(false);
-    }, 500);
+    setOutput("Running...");
+
+    void (async () => {
+      try {
+        const result = await judge0Service.executeCode({
+          code,
+          languageId: selectedLanguageId,
+        });
+
+        console.log("result", result);
+        
+        setOutput(result.output || "");
+      } catch (err) {
+        console.log("err", err);
+        console.error("Judge0 execution failed:", err);
+        // axios error => show backend message (if provided)
+        const message =
+          (err as any)?.response?.data?.message ??
+          (err as any)?.message ??
+          "Execution failed. Please try again.";
+        setOutput(String(message));
+      } finally {
+        setIsRunning(false);
+      }
+    })();
   };
 
   const handleTogglePrimary = () => {
@@ -233,10 +292,30 @@ function solution() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
+                <select
+                  value={selectedLanguageId ?? ""}
+                  onChange={(e) => {
+                    const next = Number(e.target.value);
+                    setSelectedLanguageId(Number.isFinite(next) ? next : null);
+                  }}
+                  disabled={languages.length === 0}
+                  className="h-9 rounded-lg border border-slate-600 bg-slate-950 px-2 text-xs text-slate-100 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/70 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {languages.length === 0 ? (
+                    <option value="" disabled>
+                      Loading languages...
+                    </option>
+                  ) : null}
+                  {languages.map((lang) => (
+                    <option key={lang.id} value={lang.id}>
+                      {lang.name}
+                    </option>
+                  ))}
+                </select>
                 <button
                   type="button"
                   onClick={runCode}
-                  disabled={isRunning}
+                  disabled={isRunning || !selectedLanguageId}
                   className="inline-flex h-9 gap-1 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-emerald-500/40 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isRunning ? "Running..." : "▶ Run code"}
@@ -569,10 +648,30 @@ function solution() {
                           Code Editor
                         </h4>
                         <div className="flex items-center gap-2">
+                          <select
+                            value={selectedLanguageId ?? ""}
+                            onChange={(e) => {
+                              const next = Number(e.target.value);
+                              setSelectedLanguageId(Number.isFinite(next) ? next : null);
+                            }}
+                            disabled={languages.length === 0}
+                            className="h-8 rounded-lg border border-slate-600 bg-slate-950 px-2 text-[11px] text-slate-100 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/70 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {languages.length === 0 ? (
+                              <option value="" disabled>
+                                Loading languages...
+                              </option>
+                            ) : null}
+                            {languages.map((lang) => (
+                              <option key={lang.id} value={lang.id}>
+                                {lang.name}
+                              </option>
+                            ))}
+                          </select>
                           <button
                             type="button"
                             onClick={runCode}
-                            disabled={isRunning}
+                            disabled={isRunning || !selectedLanguageId}
                             className="inline-flex h-8 gap-1 rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm shadow-emerald-500/40 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             {isRunning ? "Running..." : "▶ Run code"}
