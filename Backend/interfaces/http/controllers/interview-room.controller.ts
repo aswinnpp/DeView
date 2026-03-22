@@ -4,6 +4,7 @@ import { success } from '../../../shared/http/apiResponse.js';
 import { TYPES } from '../../../infrastructure/di/types.js';
 import type { IGetInterviewRoomDetailsUseCase } from '../../../application/interview/ports/usecase/IGetInterviewRoomDetailsUseCase.js';
 import type { IUpdateInterviewStatusUseCase } from '../../../application/interview/ports/usecase/IUpdateInterviewStatusUseCase.js';
+import { InterviewMapper } from '../../../application/interview/mappers/InterviewMapper.js';
 type GetRoomParams = {
   interviewId: string;
 };
@@ -29,15 +30,9 @@ export class InterviewRoomController {
     request: FastifyRequest<{ Params: GetRoomParams }>,
     reply: FastifyReply
   ) => {
-    const { interviewId } = request.params;
-    const { userId, role, companyId } = request.currentUser;
-
-    const result = await this._getInterviewRoomDetailsUseCase.execute({
-      interviewId,
-      userId,
-      role,
-      companyId,
-    });
+    const result = await this._getInterviewRoomDetailsUseCase.execute(
+      InterviewMapper.toGetInterviewRoomDetailsInput(request.params, request.currentUser),
+    );
 
     reply.send(success({ data: result }));
   };
@@ -49,17 +44,15 @@ export class InterviewRoomController {
     }>,
     reply: FastifyReply
   ) => {
-    const { interviewId } = request.params;
-    const { status } = request.body;
-    const { userId } = request.currentUser;
+    await this._updateInterviewStatusUseCase.execute(
+      InterviewMapper.toUpdateInterviewStatusInput(
+        request.params,
+        request.body,
+        request.currentUser.userId,
+      ),
+    );
 
-    await this._updateInterviewStatusUseCase.execute({
-      interviewId,
-      interviewerUserId: userId,
-      status,
-    });
-
-    reply.send(success({ data: { status } }));
+    reply.send(success({ data: { status: request.body.status } }));
   };
 }
 

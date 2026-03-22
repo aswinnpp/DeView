@@ -7,6 +7,7 @@ import type { InterviewerSlotsUpsertBody } from "../../../../Shared/contracts/in
 import type { IGetMyInterviewerSlotsUseCase } from "../../../application/interviewer/ports/usecase/IGetMyInterviewerSlotsUseCase.js";
 import type { IUpsertMyInterviewerSlotsUseCase } from "../../../application/interviewer/ports/usecase/IUpsertMyInterviewerSlotsUseCase.js";
 import { AppError } from "../../../shared/errors/AppError.js";
+import { InterviewerSlotsMapper } from "../../../application/interviewer/mappers/InterviewerSlotsMapper.js";
 
 @injectable()
 export class InterviewerSlotsController {
@@ -22,8 +23,9 @@ export class InterviewerSlotsController {
     const companyId = request.currentUser!.companyId;
     if (!companyId) throw AppError.forbidden("No company associated with this account");
 
-    const { slotDate } = (request.query ?? {}) as { slotDate?: string };
-    const docs = await this._getMySlotsUseCase.execute({ interviewerId, companyId, slotDate });
+    const docs = await this._getMySlotsUseCase.execute(
+      InterviewerSlotsMapper.toGetMySlotsInput(interviewerId, companyId, request.query ?? {}),
+    );
     reply.send(success(docs));
   };
 
@@ -32,17 +34,13 @@ export class InterviewerSlotsController {
     reply: FastifyReply,
   ) => {
     const interviewerId = request.currentUser!.userId;
-    const companyId = request.currentUser!.companyId ?? request.body.companyId;
-    if (!companyId) throw AppError.badRequest("companyId is required");
-    const { slotDate, times } = request.body;
-    const booked = request.body.booked ?? false;
-    const doc = await this._upsertMySlotsUseCase.execute({
-      interviewerId,
-      companyId,
-      slotDate,
-      times,
-      booked,
-    });
+    const doc = await this._upsertMySlotsUseCase.execute(
+      InterviewerSlotsMapper.toUpsertInput(
+        interviewerId,
+        request.body,
+        request.currentUser!.companyId,
+      ),
+    );
     reply.code(HttpStatus.CREATED).send(success(doc));
   };
 }
