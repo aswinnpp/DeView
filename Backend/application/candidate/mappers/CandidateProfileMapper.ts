@@ -1,5 +1,7 @@
-import type { ICreateCandidateProfileDTO } from '../dtos/CreateCandidateProfileDTO.js';
-import type { IUpdateCandidateProfileDTO } from '../dtos/UpdateCandidateProfileDTO.js';
+import type {
+  ICreateCandidateProfileInputDTO,
+  IUpdateCandidateProfileInputDTO,
+} from '../dtos/CandidateProfileDTO.js';
 import type { CallerContext } from '../../shared/types/CallerContext.js';
 
 export interface ICreateProfileBody {
@@ -32,14 +34,14 @@ export interface ICreateProfileBody {
 export type IUpdateProfileBody = Partial<ICreateProfileBody>;
 
 export const CandidateProfileMapper = {
-  toCreateDTO(body: ICreateProfileBody, context: CallerContext): ICreateCandidateProfileDTO {
+  toCreateDTO(body: ICreateProfileBody, context: CallerContext): ICreateCandidateProfileInputDTO {
     return {
       ...body,
       userId: context.userId,
     };
   },
 
-  toUpdateDTO(body: IUpdateProfileBody, context: CallerContext): IUpdateCandidateProfileDTO {
+  toUpdateDTO(body: IUpdateProfileBody, context: CallerContext): IUpdateCandidateProfileInputDTO {
     return {
       userId: context.userId,
       ...body,

@@ -1,3 +1,5 @@
+/** AI score candidates — input + output in one module. */
+
 export interface IScoreCandidateInputDTO {
   applicationId: string;
   name: string;
@@ -32,7 +34,6 @@ export interface IScoreResultDTO {
   matchScore: number;
 }
 
-export interface IScoreCandidatesResultDTO {
+export interface IScoreCandidatesOutputDTO {
   scores: IScoreResultDTO[];
 }
-

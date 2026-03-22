@@ -150,7 +150,7 @@ const CompanyLayout = () => {
                     {/* Desktop Sidebar */}
                     <aside className="flex flex-col justify-start py-5 px-4 gap-3 min-w-[220px] box-border bg-[rgba(255,255,255,0.03)] border-r border-[rgba(255,255,255,0.08)] h-[calc(100vh-73px)] sticky top-[73px] max-md:hidden">
                         <nav className="flex flex-col gap-2 mb-3">
-                            <NavLink to="/company/dashboard" className={({ isActive }) => navTabClass(isActive)}>
+                            <NavLink to={APP_ROUTES.EMPLOYER_DASHBOARD('company')} className={({ isActive }) => navTabClass(isActive)}>
                                 Dashboard
                             </NavLink>
                             <NavLink to={APP_ROUTES.JOBS_PATH('company')} className={({ isActive }) => navTabClass(isActive)}>
@@ -209,7 +209,7 @@ const CompanyLayout = () => {
                             </Button>
                         </div>
                         <nav className="flex flex-col gap-2 flex-1 min-h-0 overflow-hidden" onClick={() => setSidebarOpen(false)}>
-                            <NavLink to="/company/dashboard" className={({ isActive }) => navTabClass(isActive)}>
+                            <NavLink to={APP_ROUTES.EMPLOYER_DASHBOARD('company')} className={({ isActive }) => navTabClass(isActive)}>
                                 Dashboard
                             </NavLink>
                             <NavLink to={APP_ROUTES.JOBS_PATH('company')} className={({ isActive }) => navTabClass(isActive)}>

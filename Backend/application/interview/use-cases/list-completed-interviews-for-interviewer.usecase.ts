@@ -1,19 +1,11 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IInterviewRepository } from '../ports/repository/IInterviewRepository.js';
-import type { Interview } from '../../../domain/entities/Interview.js';
-
-export interface IListCompletedInterviewsForInterviewerInput {
-  interviewerUserId: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface IListCompletedInterviewsForInterviewerUseCase {
-  execute(input: IListCompletedInterviewsForInterviewerInput): Promise<{ data: Interview[]; total: number }>;
-}
+import type { IListCompletedInterviewsForInterviewerUseCase } from '../ports/usecase/IListCompletedInterviewsForInterviewerUseCase.js';
+import type {
+  IListCompletedInterviewsForInterviewerInputDTO,
+  IListCompletedInterviewsForInterviewerOutputDTO,
+} from '../dtos/InterviewListDTO.js';
 
 @injectable()
 export class ListCompletedInterviewsForInterviewerUseCase
@@ -23,7 +15,9 @@ export class ListCompletedInterviewsForInterviewerUseCase
     @inject(TYPES.InterviewRepositoryPort) private readonly _repo: IInterviewRepository
   ) {}
 
-  async execute(input: IListCompletedInterviewsForInterviewerInput): Promise<{ data: Interview[]; total: number }> {
+  async execute(
+    input: IListCompletedInterviewsForInterviewerInputDTO
+  ): Promise<IListCompletedInterviewsForInterviewerOutputDTO> {
     const { interviewerUserId, search, page, limit, sortOrder } = input;
     return this._repo.listCompletedByInterviewerUserId(interviewerUserId, {
       search,
@@ -33,4 +27,3 @@ export class ListCompletedInterviewsForInterviewerUseCase
     });
   }
 }
-

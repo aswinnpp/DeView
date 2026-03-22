@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
 import { ICompanyProfileRepository } from "../ports/repository/ICompanyProfileRepository";
-import { IUpdateCompanyProfileDTO } from "../dtos/UpdateCompanyProfileDTO";
+import type { IUpdateCompanyProfileInputDTO } from '../dtos/CompanyProfileDTO.js';
 import { AppError } from "../../../shared/errors/AppError";
 import type { IUpdateCompanyProfileUseCase } from "../ports/usecase/IUpdateCompanyProfileUseCase";
 
@@ -9,7 +9,7 @@ import type { IUpdateCompanyProfileUseCase } from "../ports/usecase/IUpdateCompa
 export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase {
     constructor(@inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository) { }
 
-    async execute(dto: IUpdateCompanyProfileDTO): Promise<{ message: string }> {
+    async execute(dto: IUpdateCompanyProfileInputDTO): Promise<{ message: string }> {
         if (!dto.userId) {
             throw AppError.badRequest("UserId is required");
         }

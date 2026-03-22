@@ -1,5 +1,8 @@
-import type { ICreateCandidateProfileDTO } from "../../dtos/CreateCandidateProfileDTO";
+import type {
+  ICreateCandidateProfileInputDTO,
+  ICreateCandidateProfileOutputDTO,
+} from '../../dtos/CandidateProfileDTO.js';
 
 export interface ICreateCandidateProfileUseCase {
-  execute(dto: ICreateCandidateProfileDTO): Promise<{ message: string }>;
+  execute(dto: ICreateCandidateProfileInputDTO): Promise<ICreateCandidateProfileOutputDTO>;
 }

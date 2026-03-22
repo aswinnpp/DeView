@@ -1,3 +1,8 @@
+import type {
+  IApproveCompanyInputDTO,
+  IApproveCompanyOutputDTO,
+} from '../../dtos/AdminCompanyMutationsDTO.js';
+
 export interface IApproveCompanyUseCase {
-  execute(approvalId: string): Promise<void>;
+  execute(input: IApproveCompanyInputDTO): Promise<IApproveCompanyOutputDTO>;
 }

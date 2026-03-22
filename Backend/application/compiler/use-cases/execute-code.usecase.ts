@@ -1,7 +1,8 @@
 import { injectable } from 'inversify';
 import { env } from '../../../infrastructure/config/env.js';
 import { AppError } from '../../../shared/errors/AppError.js';
-import type { ExecuteCodeResult, IExecuteCodeUseCase } from '../ports/usecase/IExecuteCodeUseCase.js';
+import type { IExecuteCodeUseCase } from '../ports/usecase/IExecuteCodeUseCase.js';
+import type { IExecuteCodeInputDTO, IExecuteCodeOutputDTO } from '../dtos/CompilerDTO.js';
 import { mapSubmissionToExecuteResult, type CompilerSubmission } from '../mappers/compiler.mapper.js';
 
 const MAX_POLLS = 60;
@@ -39,7 +40,7 @@ async function compilerFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
 @injectable()
 export class ExecuteCodeUseCase implements IExecuteCodeUseCase {
-  async execute(params: { code: string; languageId: number; stdin?: string }): Promise<ExecuteCodeResult> {
+  async execute(params: IExecuteCodeInputDTO): Promise<IExecuteCodeOutputDTO> {
     const { code, languageId, stdin } = params;
 
     const create = await compilerFetch<{ token?: string }>('/submissions?base64_encoded=false&wait=false', {

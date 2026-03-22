@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
 import { ICandidateProfileRepository } from "../ports/repository/ICandidateProfileRepository";
 import { CandidateProfile } from "../../../domain/entities/CandidateProfile";
-import { ICreateCandidateProfileDTO } from "../dtos/CreateCandidateProfileDTO";
+import type { ICreateCandidateProfileInputDTO } from '../dtos/CandidateProfileDTO.js';
 import { AppError } from "../../../shared/errors/AppError";
 import type { ICreateCandidateProfileUseCase } from "../ports/usecase/ICreateCandidateProfileUseCase";
 
@@ -10,7 +10,7 @@ import type { ICreateCandidateProfileUseCase } from "../ports/usecase/ICreateCan
 export class CreateCandidateProfileUseCase implements ICreateCandidateProfileUseCase {
     constructor(@inject(TYPES.CandidateProfileRepositoryPort) private _repo: ICandidateProfileRepository) { }
 
-    async execute(dto: ICreateCandidateProfileDTO): Promise<{ message: string }> {
+    async execute(dto: ICreateCandidateProfileInputDTO): Promise<{ message: string }> {
         if (!dto.userId) {
             throw AppError.badRequest("UserId is required");
         }

@@ -1,5 +1,7 @@
-import type { ICheckCompanyStatusDTO } from '../dtos/CheckCompanyStatusDTO.js';
-import type { ISubmitCompanyApprovalDTO } from '../dtos/SubmitCompanyApprovalDTO.js';
+import type {
+  ICheckCompanyStatusInputDTO,
+  ISubmitCompanyApprovalInputDTO,
+} from '../dtos/CompanyApprovalDTO.js';
 import type { CallerContext } from '../../shared/types/CallerContext.js';
 
 export interface ISubmitApprovalBody {
@@ -14,11 +16,11 @@ export interface ISubmitApprovalBody {
 }
 
 export const CompanyApprovalMapper = {
-  toCheckStatusDTO(context: CallerContext): ICheckCompanyStatusDTO {
+  toCheckStatusDTO(context: CallerContext): ICheckCompanyStatusInputDTO {
     return { userId: context.userId };
   },
 
-  toSubmitDTO(body: ISubmitApprovalBody, context: CallerContext): ISubmitCompanyApprovalDTO {
+  toSubmitDTO(body: ISubmitApprovalBody, context: CallerContext): ISubmitCompanyApprovalInputDTO {
     return {
       userId: context.userId,
       ...body,

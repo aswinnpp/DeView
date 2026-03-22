@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
-import { useState, useEffect ,useCallback} from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button, NotificationBell } from '../../components/common';
 import { APP_ROUTES } from '../../constants/routes';
 import { logout } from "../../context/authSlice";
@@ -11,33 +11,11 @@ import type { RootState } from "../../context/store";
 
 
 const HRLayout = () => {
-    
     const [showNotifications, setShowNotifications] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector((state: RootState) => state.auth.user);
-
-    const role = (user?.role || "").toLowerCase();
-
-    if (!user) {
-        return <Navigate to={APP_ROUTES.LOGIN} replace />;
-    }
-
-    if (role !== "hr") {
-        switch (role) {
-            case "candidate":
-                return <Navigate to="/candidate" replace />;
-            case "admin":
-                return <Navigate to={APP_ROUTES.ADMIN_DASHBOARD} replace />;
-            case "company":
-                return <Navigate to={APP_ROUTES.COMPANY_DASHBOARD} replace />;
-            case "interviewer":
-                return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
-            default:
-                return <Navigate to={APP_ROUTES.ROOT} replace />;
-        }
-    }
 
     useEffect(() => {
         if (sidebarOpen) {
@@ -50,21 +28,39 @@ const HRLayout = () => {
         };
     }, [sidebarOpen]);
 
+    const handleLogout = useCallback(async () => {
+        await authService.logout();
+        dispatch(logout());
+        navigate(APP_ROUTES.LOGIN, { replace: true });
+    }, [dispatch, navigate]);
+
+    const role = (user?.role || '').toLowerCase();
+
+    if (!user) {
+        return <Navigate to={APP_ROUTES.LOGIN} replace />;
+    }
+
+    if (role !== 'hr') {
+        switch (role) {
+            case 'candidate':
+                return <Navigate to="/candidate" replace />;
+            case 'admin':
+                return <Navigate to={APP_ROUTES.ADMIN_DASHBOARD} replace />;
+            case 'company':
+                return <Navigate to={APP_ROUTES.COMPANY_DASHBOARD} replace />;
+            case 'interviewer':
+                return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
+            default:
+                return <Navigate to={APP_ROUTES.ROOT} replace />;
+        }
+    }
+
     const navTabClass = (isActive: boolean) =>
         `block py-2.5 px-3 rounded-lg no-underline font-semibold text-sm transition-all duration-200 ${
             isActive
                 ? 'bg-[rgba(255,255,255,0.03)] text-white'
                 : 'text-[#cbd5e1] hover:bg-[rgba(255,255,255,0.06)] hover:text-white'
         }`;
-
-
-    const handleLogout = useCallback(async () => {
-        
-      await authService.logout();
-      dispatch(logout());
-      navigate(APP_ROUTES.LOGIN, { replace: true });
-  
-}, [dispatch, navigate]);
 
     return (
         <div className="hr-theme min-h-screen w-full bg-linear-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)] box-border">
@@ -128,7 +124,7 @@ const HRLayout = () => {
                     {/* ── Desktop Sidebar ── */}
                     <aside className="flex flex-col justify-start py-5 px-4 gap-3 min-w-[220px] box-border bg-[rgba(255,255,255,0.03)] border-r border-[rgba(255,255,255,0.08)] h-[calc(100vh-73px)] sticky top-[73px] max-md:hidden">
                         <nav className="flex flex-col gap-2 mb-3">
-                            <NavLink to="/hr/dashboard" className={({ isActive }) => navTabClass(isActive)}>
+                            <NavLink to={APP_ROUTES.EMPLOYER_DASHBOARD('hr')} className={({ isActive }) => navTabClass(isActive)}>
                                 Dashboard
                             </NavLink>
                             <NavLink to={APP_ROUTES.JOBS_PATH('hr')} className={({ isActive }) => navTabClass(isActive)}>
@@ -173,7 +169,7 @@ const HRLayout = () => {
                             </Button>
                         </div>
                         <nav className="flex flex-col gap-2 flex-1 min-h-0 overflow-hidden" onClick={() => setSidebarOpen(false)}>
-                            <NavLink to="/hr/dashboard" className={({ isActive }) => navTabClass(isActive)}>
+                            <NavLink to={APP_ROUTES.EMPLOYER_DASHBOARD('hr')} className={({ isActive }) => navTabClass(isActive)}>
                                 Dashboard
                             </NavLink>
                             <NavLink to={APP_ROUTES.JOBS_PATH('hr')} className={({ isActive }) => navTabClass(isActive)}>
@@ -187,7 +183,10 @@ const HRLayout = () => {
                             </NavLink>
                         </nav>
                         <button
-                            onClick={() => { setSidebarOpen(false); logout(); }}
+                            onClick={() => {
+                                setSidebarOpen(false);
+                                void handleLogout();
+                            }}
                             className="mt-auto shrink-0 flex items-center gap-3 py-2.5 px-3 rounded-xl cursor-pointer select-none transition-all duration-150 bg-linear-to-b from-[rgba(255,255,255,0.02)] to-[rgba(255,255,255,0.01)] self-stretch shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] text-left"
                         >
                             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-linear-to-br from-[#8b5cf6] to-[#06b6d4] overflow-hidden shrink-0">

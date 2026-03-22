@@ -5,7 +5,8 @@ import { IOtpRepository } from "../ports/repository/IOtpRepository";
 import { Email } from "../../../domain/value-objects/Email";
 import { OTPCode } from "../../../domain/value-objects/OTPCode";
 import { AppError } from "../../../shared/errors/AppError";
-import type { IVerifyOtpUseCase } from "../ports/usecase/IVerifyOtpUseCase";
+import type { IVerifyOtpInputDTO, IVerifyOtpOutputDTO } from '../dtos/VerifyOtpDTO.js';
+import type { IVerifyOtpUseCase } from '../ports/usecase/IVerifyOtpUseCase';
 
 @injectable()
 export class VerifyOTPUseCase implements IVerifyOtpUseCase {
@@ -14,7 +15,8 @@ export class VerifyOTPUseCase implements IVerifyOtpUseCase {
     @inject(TYPES.OTPRepositoryPort) private _otpRepo: IOtpRepository
   ) {}
 
-  async execute(emailStr: string, otpStr: string) {
+  async execute(input: IVerifyOtpInputDTO): Promise<IVerifyOtpOutputDTO> {
+    const { email: emailStr, otp: otpStr } = input;
     const email = new Email(emailStr);
     const otp = new OTPCode(otpStr);
 

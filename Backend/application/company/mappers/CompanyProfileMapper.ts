@@ -1,4 +1,4 @@
-import type { IUpdateCompanyProfileDTO } from '../dtos/UpdateCompanyProfileDTO.js';
+import type { IUpdateCompanyProfileInputDTO } from '../dtos/CompanyProfileDTO.js';
 import type { CompanyApproval } from '../../../domain/entities/CompanyApprovalEntitie.js';
 import type { CallerContext } from '../../shared/types/CallerContext.js';
 
@@ -16,7 +16,7 @@ export interface IUpdateProfileBody {
 }
 
 export const CompanyProfileMapper = {
-  toUpdateDTO(body: IUpdateProfileBody, context: CallerContext): IUpdateCompanyProfileDTO {
+  toUpdateDTO(body: IUpdateProfileBody, context: CallerContext): IUpdateCompanyProfileInputDTO {
     return {
       userId: context.userId,
       ...body,

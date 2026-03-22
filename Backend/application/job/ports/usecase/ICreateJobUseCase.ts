@@ -1,7 +1,5 @@
-import type { Job } from '../../../../domain/entities/Job.js';
-import type { ICreateJobDTO } from '../../dtos/CreateJobDTO.js';
+import type { ICreateJobInputDTO, ICreateJobOutputDTO } from '../../dtos/JobDTO.js';
 
 export interface ICreateJobUseCase {
-  execute(dto: ICreateJobDTO): Promise<{ job: Job }>;
+  execute(dto: ICreateJobInputDTO): Promise<ICreateJobOutputDTO>;
 }
-

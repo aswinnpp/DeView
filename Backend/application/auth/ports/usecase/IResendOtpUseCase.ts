@@ -1,6 +1,5 @@
-import type { IResendOtpRequestDTO } from "../../dtos/ResendOTPRequestDTO";
-import type { IResendOtpResponseDTO } from "../../dtos/ResendOTPResponseDTO";
+import type { IResendOtpInputDTO, IResendOtpOutputDTO } from '../../dtos/ResendOtpDTO.js';
 
 export interface IResendOtpUseCase {
-  execute(dto: IResendOtpRequestDTO): Promise<IResendOtpResponseDTO>;
+  execute(dto: IResendOtpInputDTO): Promise<IResendOtpOutputDTO>;
 }

@@ -4,17 +4,11 @@ import type { IInterviewRepository } from '../../interview/ports/repository/IInt
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
 import type { ISubscriptionRepository } from '../../admin/ports/repository/ISubscriptionRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
-
-export interface IPrecheckScheduleInterviewInput {
-  companyId: string;
-  jobId: string;
-  applicationId: string;
-  scheduledDate?: string;
-}
-
-export interface IPrecheckScheduleInterviewUseCase {
-  execute(input: IPrecheckScheduleInterviewInput): Promise<{ ok: true }>;
-}
+import type { IPrecheckScheduleInterviewUseCase } from '../ports/usecase/IPrecheckScheduleInterviewUseCase.js';
+import type {
+  IPrecheckScheduleInterviewInputDTO,
+  IPrecheckScheduleInterviewOutputDTO,
+} from '../dtos/PrecheckScheduleInterviewDTO.js';
 
 @injectable()
 export class PrecheckScheduleInterviewUseCase implements IPrecheckScheduleInterviewUseCase {
@@ -27,7 +21,7 @@ export class PrecheckScheduleInterviewUseCase implements IPrecheckScheduleInterv
     private readonly _subscriptionRepository: ISubscriptionRepository
   ) {}
 
-  async execute(input: IPrecheckScheduleInterviewInput): Promise<{ ok: true }> {
+  async execute(input: IPrecheckScheduleInterviewInputDTO): Promise<IPrecheckScheduleInterviewOutputDTO> {
     const companyId = String(input.companyId ?? '').trim();
     const jobId = String(input.jobId ?? '').trim();
     const applicationId = String(input.applicationId ?? '').trim();

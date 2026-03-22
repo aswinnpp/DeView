@@ -1,6 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
 import { IGoogleAuth } from '../../application/auth/ports/services/IGoogleAuth.js';
-import { IGoogleUserDTO } from '../../application/auth/dtos/GoogleUserDTO.js';
+import type { IGoogleOAuthUserDTO } from '../../application/auth/dtos/GoogleOAuthDTO.js';
 
 export class GoogleAuthService implements IGoogleAuth {
     private _client: OAuth2Client | null;
@@ -42,7 +42,7 @@ export class GoogleAuthService implements IGoogleAuth {
         });
     }
 
-    async verifyToken(code: string): Promise<IGoogleUserDTO> {
+    async verifyToken(code: string): Promise<IGoogleOAuthUserDTO> {
         const client = this.getClient();
         try {
             const { tokens } = await client.getToken(code);

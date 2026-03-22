@@ -1,6 +1,8 @@
-import type { Interview } from '../../../../domain/entities/Interview.js';
+import type {
+  IAcceptInterviewAssignmentInputDTO,
+  IAcceptInterviewAssignmentOutputDTO,
+} from '../../dtos/InterviewCommandDTO.js';
 
 export interface IAcceptInterviewAssignmentUseCase {
-  execute(input: { interviewId: string; interviewerUserId: string }): Promise<{ data: Interview | null }>;
+  execute(input: IAcceptInterviewAssignmentInputDTO): Promise<IAcceptInterviewAssignmentOutputDTO>;
 }
-

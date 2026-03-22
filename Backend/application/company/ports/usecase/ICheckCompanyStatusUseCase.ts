@@ -1,8 +1,8 @@
-import type { ICheckCompanyStatusDTO } from "../../dtos/CheckCompanyStatusDTO";
+import type {
+  ICheckCompanyStatusInputDTO,
+  ICheckCompanyStatusOutputDTO,
+} from '../../dtos/CompanyApprovalDTO.js';
 
 export interface ICheckCompanyStatusUseCase {
-  execute(dto: ICheckCompanyStatusDTO): Promise<{
-    status: string;
-    rejectionReason?: string | null;
-  }>;
+  execute(dto: ICheckCompanyStatusInputDTO): Promise<ICheckCompanyStatusOutputDTO>;
 }

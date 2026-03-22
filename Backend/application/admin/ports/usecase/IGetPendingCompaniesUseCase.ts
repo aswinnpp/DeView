@@ -1,3 +1,8 @@
+import type {
+  IPendingCompaniesInputDTO,
+  IPendingCompaniesOutputDTO,
+} from '../../dtos/PendingCompaniesDTO.js';
+
 export interface IGetPendingCompaniesUseCase {
-  execute(search?: string, sortOrder?: 'asc' | 'desc', page?: string, limit?: string): Promise<{ data: unknown[]; total: number }>;
+  execute(input: IPendingCompaniesInputDTO): Promise<IPendingCompaniesOutputDTO>;
 }

@@ -7,8 +7,8 @@ import type {
 } from '../ports/usecase/IUpdateApplicationStatusUseCase.js';
 import type {
   IUpdateApplicationStatusInputDTO,
-  IUpdateApplicationStatusResultDTO,
-} from '../dtos/UpdateApplicationStatusDTO.js';
+  IUpdateApplicationStatusOutputDTO,
+} from '../dtos/ApplicationStatusDTO.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 @injectable()
@@ -20,7 +20,7 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
     private readonly _rejectionMailRepository: IRejectionMailRepository
   ) {}
 
-  async execute(input: IUpdateApplicationStatusInputDTO): Promise<IUpdateApplicationStatusResultDTO> {
+  async execute(input: IUpdateApplicationStatusInputDTO): Promise<IUpdateApplicationStatusOutputDTO> {
     const updated = await this._applicationRepository.updateStatus(input);
 
     if (!updated) {

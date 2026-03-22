@@ -1,3 +1,5 @@
+/** Admin subscription list — input + output in one module. */
+
 import type { Subscription } from '../../../domain/entities/Subscription.js';
 
 export interface IListSubscriptionsInputDTO {
@@ -13,4 +15,3 @@ export interface IListSubscriptionsOutputDTO {
   data: Subscription[];
   total: number;
 }
-

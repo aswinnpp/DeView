@@ -1,30 +1,12 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IInterviewFeedbackRepository } from '../ports/repository/IInterviewFeedbackRepository.js';
-
-export interface ICandidateInterviewHistoryItem {
-  id: string;
-  interviewId: string;
-  companyName: string;
-  interviewerName: string;
-  jobId: string;
-  round: string;
-  feedback: string;
-  totalScore: number;
-  createdAt: string;
-}
-
-export interface IListMyInterviewFeedbacksInput {
-  candidateUserId: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface IListMyInterviewFeedbacksUseCase {
-  execute(input: IListMyInterviewFeedbacksInput): Promise<{ data: ICandidateInterviewHistoryItem[]; total: number }>;
-}
+import type { IListMyInterviewFeedbacksUseCase } from '../ports/usecase/IListMyInterviewFeedbacksUseCase.js';
+import type {
+  ICandidateInterviewHistoryItemDTO,
+  IListMyInterviewFeedbacksInputDTO,
+  IListMyInterviewFeedbacksOutputDTO,
+} from '../dtos/InterviewListDTO.js';
 
 @injectable()
 export class ListMyInterviewFeedbacksUseCase implements IListMyInterviewFeedbacksUseCase {
@@ -33,10 +15,7 @@ export class ListMyInterviewFeedbacksUseCase implements IListMyInterviewFeedback
     private readonly _feedbackRepo: IInterviewFeedbackRepository
   ) {}
 
-  async execute(input: IListMyInterviewFeedbacksInput): Promise<{
-    data: ICandidateInterviewHistoryItem[];
-    total: number;
-  }> {
+  async execute(input: IListMyInterviewFeedbacksInputDTO): Promise<IListMyInterviewFeedbacksOutputDTO> {
     const { candidateUserId, search, page, limit, sortOrder } = input;
     const { data: feedbacks, total } = await this._feedbackRepo.listByCandidateUserId(candidateUserId, {
       search,
@@ -45,7 +24,7 @@ export class ListMyInterviewFeedbacksUseCase implements IListMyInterviewFeedback
       sortOrder,
     });
 
-    const items: ICandidateInterviewHistoryItem[] = feedbacks.map((fb) => ({
+    const items: ICandidateInterviewHistoryItemDTO[] = feedbacks.map((fb) => ({
       id: fb.id ?? fb.interviewId,
       interviewId: fb.interviewId,
       companyName: fb.companyName,
@@ -60,4 +39,3 @@ export class ListMyInterviewFeedbacksUseCase implements IListMyInterviewFeedback
     return { data: items, total };
   }
 }
-

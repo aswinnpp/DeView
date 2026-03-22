@@ -1,24 +1,8 @@
-export interface ICandidateInterviewHistoryItem {
-  id: string;
-  interviewId: string;
-  companyName: string;
-  interviewerName: string;
-  jobId: string;
-  round: string;
-  feedback: string;
-  totalScore: number;
-  createdAt: string;
-}
-
-export interface IListMyInterviewFeedbacksInput {
-  candidateUserId: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-  sortOrder?: 'asc' | 'desc';
-}
+import type {
+  IListMyInterviewFeedbacksInputDTO,
+  IListMyInterviewFeedbacksOutputDTO,
+} from '../../dtos/InterviewListDTO.js';
 
 export interface IListMyInterviewFeedbacksUseCase {
-  execute(input: IListMyInterviewFeedbacksInput): Promise<{ data: ICandidateInterviewHistoryItem[]; total: number }>;
+  execute(input: IListMyInterviewFeedbacksInputDTO): Promise<IListMyInterviewFeedbacksOutputDTO>;
 }
-

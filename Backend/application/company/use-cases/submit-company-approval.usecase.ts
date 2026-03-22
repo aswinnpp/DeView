@@ -3,7 +3,7 @@ import { TYPES } from "../../../shared/di/types";
 import { ICompanyProfileRepository } from "../ports/repository/ICompanyProfileRepository";
 import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
 import { CompanyApproval } from "../../../domain/entities/CompanyApprovalEntitie";
-import { ISubmitCompanyApprovalDTO } from "../dtos/SubmitCompanyApprovalDTO";
+import type { ISubmitCompanyApprovalInputDTO } from '../dtos/CompanyApprovalDTO.js';
 import { AppError } from "../../../shared/errors/AppError";
 import type { ISubmitCompanyApprovalUseCase } from "../ports/usecase/ISubmitCompanyApprovalUseCase";
 
@@ -14,7 +14,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
     @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository
   ) { }
 
-  async execute(dto: ISubmitCompanyApprovalDTO) {
+  async execute(dto: ISubmitCompanyApprovalInputDTO) {
     if (!dto.userId) {
       throw AppError.badRequest("UserId is required");
     }

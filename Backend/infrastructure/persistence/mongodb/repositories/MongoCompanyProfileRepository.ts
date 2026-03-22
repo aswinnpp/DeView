@@ -1,5 +1,6 @@
 import { Collection, ObjectId, type Filter } from "mongodb";
 import type {
+  ICompanyProfileDashboardRow,
   ICompanyProfileRepository,
   ICompanyProfileSearchOptions,
 } from "../../../../application/company/ports/repository/ICompanyProfileRepository";
@@ -87,6 +88,31 @@ export class MongoCompanyProfileRepository
 
     const docs = await cursor.toArray();
     return { data: docs.map((d) => this.toDomain(d as ICompanyApprovalDocument)), total };
+  }
+
+  async listMinimalForAdminDashboard(): Promise<ICompanyProfileDashboardRow[]> {
+    const docs = await this.collection
+      .find(
+        {},
+        {
+          projection: {
+            status: 1,
+            createdAt: 1,
+            activeSubscription: 1,
+          },
+        },
+      )
+      .toArray();
+
+    return docs.map((d) => {
+      const sub = d.activeSubscription;
+      return {
+        status: d.status,
+        createdAt: d.createdAt,
+        activePlanName: sub?.planName ?? null,
+        activeSubscriptionStatus: sub?.status ?? null,
+      };
+    });
   }
 
   private subscriptionToDomain(

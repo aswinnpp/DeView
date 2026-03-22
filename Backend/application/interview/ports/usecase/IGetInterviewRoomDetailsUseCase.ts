@@ -1,9 +1,8 @@
-export interface IGetInterviewRoomDetailsUseCase {
-  execute(input: {
-    interviewId: string;
-    userId: string;
-    role: string;
-    companyId?: string;
-  }): Promise<unknown>;
-}
+import type {
+  IGetInterviewRoomDetailsInputDTO,
+  IGetInterviewRoomDetailsOutputDTO,
+} from '../../dtos/InterviewRoomDTO.js';
 
+export interface IGetInterviewRoomDetailsUseCase {
+  execute(input: IGetInterviewRoomDetailsInputDTO): Promise<IGetInterviewRoomDetailsOutputDTO>;
+}

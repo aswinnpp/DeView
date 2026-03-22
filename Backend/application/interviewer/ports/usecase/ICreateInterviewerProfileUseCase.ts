@@ -1,5 +1,8 @@
-import type { CreateInterviewerProfileDTO } from "../../dtos/CreateInterviewerProfileDTO";
+import type {
+  ICreateInterviewerProfileInputDTO,
+  ICreateInterviewerProfileOutputDTO,
+} from '../../dtos/InterviewerProfileDTO.js';
 
 export interface ICreateInterviewerProfileUseCase {
-  execute(dto: CreateInterviewerProfileDTO): Promise<{ message: string }>;
+  execute(dto: ICreateInterviewerProfileInputDTO): Promise<ICreateInterviewerProfileOutputDTO>;
 }

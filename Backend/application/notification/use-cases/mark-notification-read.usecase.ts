@@ -3,6 +3,10 @@ import { AppError } from "../../../shared/errors/AppError.js";
 import { TYPES } from "../../../shared/di/types.js";
 import type { INotificationRepository } from "../ports/repository/INotificationRepository.js";
 import type { IMarkNotificationReadUseCase } from "../ports/usecase/IMarkNotificationReadUseCase.js";
+import type {
+  IMarkNotificationReadInputDTO,
+  IMarkNotificationReadOutputDTO,
+} from "../dtos/NotificationDTO.js";
 
 @injectable()
 export class MarkNotificationReadUseCase implements IMarkNotificationReadUseCase {
@@ -11,7 +15,7 @@ export class MarkNotificationReadUseCase implements IMarkNotificationReadUseCase
     private readonly _notifications: INotificationRepository,
   ) {}
 
-  async execute(input: { companyId: string; notificationId: string }) {
+  async execute(input: IMarkNotificationReadInputDTO): Promise<IMarkNotificationReadOutputDTO> {
     const ok = await this._notifications.markRead({
       recipientType: "COMPANY",
       recipientId: input.companyId,

@@ -24,9 +24,31 @@ const AdminDashboard = () => {
         subscriptionByPlanData,
         timePeriod,
         setTimePeriod,
-        tooltipStyle,
+        chartTooltip,
         timePeriodOptions,
+        loading,
+        error,
     } = useAdminDashboard();
+
+    if (error) {
+        return (
+            <div className="max-w-[1400px] mx-auto">
+                <p className="text-red-400 text-center py-16 m-0">{error}</p>
+            </div>
+        );
+    }
+
+    if (loading) {
+        return (
+            <div className="max-w-[1400px] mx-auto animate-pulse">
+                <div className="h-9 bg-slate-800 rounded-lg w-48 mb-4" />
+                <div className="grid grid-cols-2 max-md:grid-cols-1 gap-6">
+                    <div className="h-72 bg-slate-800 rounded-2xl border border-slate-700" />
+                    <div className="h-72 bg-slate-800 rounded-2xl border border-slate-700" />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-[1400px] mx-auto">
@@ -69,7 +91,7 @@ const AdminDashboard = () => {
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
-                                    <Tooltip contentStyle={tooltipStyle} />
+                                    <Tooltip {...chartTooltip} />
                                     <Legend
                                         wrapperStyle={{ color: '#94a3b8', fontSize: 12 }}
                                     />
@@ -103,7 +125,7 @@ const AdminDashboard = () => {
 
                                     />
                                     <YAxis stroke="#64748b" fontSize={12} />
-                                    <Tooltip contentStyle={tooltipStyle} />
+                                    <Tooltip {...chartTooltip} />
                                     <Legend wrapperStyle={{ color: '#94a3b8', fontSize: 12 }} />
                                     <Bar
                                         dataKey="companies"

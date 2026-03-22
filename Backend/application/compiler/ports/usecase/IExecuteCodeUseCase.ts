@@ -1,9 +1,5 @@
-export type ExecuteCodeResult = {
-  output: string;
-  statusId?: number;
-  statusDescription?: string;
-};
+import type { IExecuteCodeInputDTO, IExecuteCodeOutputDTO } from '../../dtos/CompilerDTO.js';
 
 export interface IExecuteCodeUseCase {
-  execute(params: { code: string; languageId: number; stdin?: string }): Promise<ExecuteCodeResult>;
+  execute(input: IExecuteCodeInputDTO): Promise<IExecuteCodeOutputDTO>;
 }

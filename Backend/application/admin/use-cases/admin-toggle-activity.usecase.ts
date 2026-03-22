@@ -1,44 +1,44 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from "../../../shared/di/types";
-import { ICompanyProfileRepository } from "../../company/ports/repository/ICompanyProfileRepository";
-import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
-import type { ITokenService } from "../../auth/ports/services/ITokenService";
-import { DomainError } from "../../../shared/errors/DomainError";
-import type { IAdminToggleActivityUseCase } from "../ports/usecase/IAdminToggleActivityUseCase";
+import { TYPES } from '../../../shared/di/types';
+import { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository';
+import { IUserRepository } from '../../shared/ports/repository/IUserRepository';
+import type { ITokenService } from '../../auth/ports/services/ITokenService';
+import { DomainError } from '../../../shared/errors/DomainError';
+import type { IToggleCompanyActivityInputDTO } from '../dtos/AdminCompanyMutationsDTO.js';
+import type { IAdminToggleActivityUseCase } from '../ports/usecase/IAdminToggleActivityUseCase.js';
 
 @injectable()
 export class AdminToggleActivityUseCase implements IAdminToggleActivityUseCase {
-    constructor(
-        @inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository,
-        @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository,
-        @inject(TYPES.TokenServicePort) private _tokenService: ITokenService
-    ) { }
+  constructor(
+    @inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository,
+    @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository,
+    @inject(TYPES.TokenServicePort) private _tokenService: ITokenService,
+  ) {}
 
-    async execute(id: string) {
+  async execute(input: IToggleCompanyActivityInputDTO) {
+    const { userId: id } = input;
 
-        const user = await this._userRepo.findById(id);
+    const user = await this._userRepo.findById(id);
 
-        if (!user) {
-            throw new DomainError("User not found");
-        }
-
-        const company = await this._repo.findByUserId(id);
-
-
-        user.isActive = !user.isActive;
-
-        if (company) {
-            company.isActive = user.isActive;
-            await this._repo.save(company);
-        }
-
-        if (!user.isActive && user.id) {
-            await this._tokenService.revokeAllUserTokens(user.id);
-        }
-
-        await this._userRepo.save(user);
-
-
-        return { isActive: user.isActive };
+    if (!user) {
+      throw new DomainError('User not found');
     }
+
+    const company = await this._repo.findByUserId(id);
+
+    user.isActive = !user.isActive;
+
+    if (company) {
+      company.isActive = user.isActive;
+      await this._repo.save(company);
+    }
+
+    if (!user.isActive && user.id) {
+      await this._tokenService.revokeAllUserTokens(user.id);
+    }
+
+    await this._userRepo.save(user);
+
+    return { isActive: user.isActive };
+  }
 }

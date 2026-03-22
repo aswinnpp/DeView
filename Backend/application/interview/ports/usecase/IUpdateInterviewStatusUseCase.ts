@@ -1,8 +1,8 @@
-export interface IUpdateInterviewStatusUseCase {
-  execute(input: {
-    interviewId: string;
-    interviewerUserId: string;
-    status: 'COMPLETED' | 'CANCELLED';
-  }): Promise<void>;
-}
+import type {
+  IUpdateInterviewStatusInputDTO,
+  IUpdateInterviewStatusOutputDTO,
+} from '../../dtos/InterviewCommandDTO.js';
 
+export interface IUpdateInterviewStatusUseCase {
+  execute(input: IUpdateInterviewStatusInputDTO): Promise<IUpdateInterviewStatusOutputDTO>;
+}

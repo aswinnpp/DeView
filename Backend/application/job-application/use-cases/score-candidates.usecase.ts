@@ -6,7 +6,7 @@ import type { IScoreCandidatesUseCase } from '../ports/usecase/IScoreCandidatesU
 import type {
   IScoreCandidatesInputDTO,
   IScoreResultDTO,
-  IScoreCandidatesResultDTO,
+  IScoreCandidatesOutputDTO,
 } from '../dtos/ScoreCandidatesDTO.js';
 import {
   buildCandidateProfileText,
@@ -23,7 +23,7 @@ export class ScoreCandidatesUseCase implements IScoreCandidatesUseCase {
     @inject(TYPES.AiScoringServicePort) private readonly _aiScoringService: IAiScoringService
   ) {}
 
-  async execute(input: IScoreCandidatesInputDTO): Promise<IScoreCandidatesResultDTO> {
+  async execute(input: IScoreCandidatesInputDTO): Promise<IScoreCandidatesOutputDTO> {
     const job = await this._jobRepo.findById(input.jobId);
     if (!job) {
       throw AppError.notFound('Job not found.');

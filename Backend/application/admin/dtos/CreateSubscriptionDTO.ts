@@ -1,3 +1,5 @@
+/** Admin create subscription — input + output (void result expressed as empty). */
+
 export interface ICreateSubscriptionInputDTO {
   name: string;
   price: number;
@@ -10,3 +12,4 @@ export interface ICreateSubscriptionInputDTO {
   hasAI: boolean;
 }
 
+export type ICreateSubscriptionOutputDTO = void;

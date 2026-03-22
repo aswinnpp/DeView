@@ -1,9 +1,8 @@
 import type {
   IUpdateApplicationStatusInputDTO,
-  IUpdateApplicationStatusResultDTO,
-} from '../../dtos/UpdateApplicationStatusDTO.js';
+  IUpdateApplicationStatusOutputDTO,
+} from '../../dtos/ApplicationStatusDTO.js';
 
 export interface IUpdateApplicationStatusUseCase {
-  execute(input: IUpdateApplicationStatusInputDTO): Promise<IUpdateApplicationStatusResultDTO>;
+  execute(input: IUpdateApplicationStatusInputDTO): Promise<IUpdateApplicationStatusOutputDTO>;
 }
-

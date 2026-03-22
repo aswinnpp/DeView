@@ -2,6 +2,10 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../../shared/di/types.js";
 import type { INotificationRepository } from "../ports/repository/INotificationRepository.js";
 import type { IListNotificationsUseCase } from "../ports/usecase/IListNotificationsUseCase.js";
+import type {
+  IListNotificationsInputDTO,
+  IListNotificationsOutputDTO,
+} from "../dtos/NotificationDTO.js";
 
 @injectable()
 export class ListNotificationsUseCase implements IListNotificationsUseCase {
@@ -10,7 +14,7 @@ export class ListNotificationsUseCase implements IListNotificationsUseCase {
     private readonly _notifications: INotificationRepository,
   ) {}
 
-  async execute(input: { companyId: string; unreadOnly?: boolean; limit?: number }) {
+  async execute(input: IListNotificationsInputDTO): Promise<IListNotificationsOutputDTO> {
     const data = await this._notifications.listByRecipient({
       recipientType: "COMPANY",
       recipientId: input.companyId,

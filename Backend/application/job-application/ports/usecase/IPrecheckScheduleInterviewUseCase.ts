@@ -1,8 +1,8 @@
 import type {
-  IPrecheckScheduleInterviewInput,
-} from '../../use-cases/precheck-schedule-interview.usecase.js';
+  IPrecheckScheduleInterviewInputDTO,
+  IPrecheckScheduleInterviewOutputDTO,
+} from '../../dtos/PrecheckScheduleInterviewDTO.js';
 
 export interface IPrecheckScheduleInterviewUseCase {
-  execute(input: IPrecheckScheduleInterviewInput): Promise<{ ok: true }>;
+  execute(input: IPrecheckScheduleInterviewInputDTO): Promise<IPrecheckScheduleInterviewOutputDTO>;
 }
-

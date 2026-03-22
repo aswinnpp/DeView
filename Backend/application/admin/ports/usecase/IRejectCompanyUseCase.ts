@@ -1,3 +1,8 @@
+import type {
+  IRejectCompanyInputDTO,
+  IRejectCompanyOutputDTO,
+} from '../../dtos/AdminCompanyMutationsDTO.js';
+
 export interface IRejectCompanyUseCase {
-  execute(approvalId: string, reason: string): Promise<void>;
+  execute(input: IRejectCompanyInputDTO): Promise<IRejectCompanyOutputDTO>;
 }

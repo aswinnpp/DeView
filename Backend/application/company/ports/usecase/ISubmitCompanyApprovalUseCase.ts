@@ -1,5 +1,8 @@
-import type { ISubmitCompanyApprovalDTO } from "../../dtos/SubmitCompanyApprovalDTO";
+import type {
+  ISubmitCompanyApprovalInputDTO,
+  ISubmitCompanyApprovalOutputDTO,
+} from '../../dtos/CompanyApprovalDTO.js';
 
 export interface ISubmitCompanyApprovalUseCase {
-  execute(dto: ISubmitCompanyApprovalDTO): Promise<{ approvalId: string | null }>;
+  execute(dto: ISubmitCompanyApprovalInputDTO): Promise<ISubmitCompanyApprovalOutputDTO>;
 }

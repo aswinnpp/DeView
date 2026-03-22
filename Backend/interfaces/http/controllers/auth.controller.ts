@@ -23,20 +23,13 @@ import {
   clearCookie,
 } from "../cookies/cookieHelper";
 
-import type { IRegisterUserRequestDTO } from "../../../application/auth/dtos/RegisterUserRequestDTO";
-import type { ILoginRequestDTO } from "../../../application/auth/dtos/LoginRequestDTO";
+import type { IRegisterUserInputDTO } from "../../../application/auth/dtos/RegisterDTO.js";
+import type { ILoginInputDTO } from "../../../application/auth/dtos/LoginDTO.js";
+import type { IVerifyOtpInputDTO } from "../../../application/auth/dtos/VerifyOtpDTO.js";
+import type { IResendOtpInputDTO } from "../../../application/auth/dtos/ResendOtpDTO.js";
 import type { ResetPasswordRequest } from "../../../../Shared/contracts/auth/resetPassword";
 import type { VerifyOldPasswordRequest } from "../../../../Shared/contracts/auth/changePassword";
 import type { ChangePasswordRequest } from "../../../../Shared/contracts/auth/changePassword";
-
-interface IVerifyOtpBody {
-  email: string;
-  otp: string;
-}
-
-interface IEmailBody {
-  email: string;
-}
 
 @injectable()
 export class AuthController {
@@ -57,7 +50,7 @@ export class AuthController {
   // ---------------- REGISTER ----------------
 
   register = async (
-    request: FastifyRequest<{ Body: IRegisterUserRequestDTO }>,
+    request: FastifyRequest<{ Body: IRegisterUserInputDTO }>,
     reply: FastifyReply
   ) => {
     const result = await this._registerUserUseCase.execute(request.body);
@@ -67,19 +60,16 @@ export class AuthController {
   // ---------------- VERIFY OTP ----------------
 
   verifyOTP = async (
-    request: FastifyRequest<{ Body: IVerifyOtpBody }>,
+    request: FastifyRequest<{ Body: IVerifyOtpInputDTO }>,
     reply: FastifyReply
   ) => {
-    await this._verifyOTPUseCase.execute(
-      request.body.email,
-      request.body.otp
-    );
+    await this._verifyOTPUseCase.execute(request.body);
 
     reply.send(success({ success: true }));
   };
 
   resendOTP = async (
-    request: FastifyRequest<{ Body: IEmailBody }>,
+    request: FastifyRequest<{ Body: IResendOtpInputDTO }>,
     reply: FastifyReply
   ) => {
     const result = await this._resendOTPUseCase.execute(request.body);
@@ -89,11 +79,10 @@ export class AuthController {
   // ---------------- LOGIN ----------------
 
   login = async (
-    request: FastifyRequest<{ Body: ILoginRequestDTO }>,
+    request: FastifyRequest<{ Body: ILoginInputDTO }>,
     reply: FastifyReply
   ) => {
-    const { email, password } = request.body;
-    const result = await this._loginUseCase.execute(email, password);
+    const result = await this._loginUseCase.execute(request.body);
 
     setAccessTokenCookie(request, reply, result.accessToken);
     setRefreshTokenCookie(request, reply, result.refreshToken);
@@ -154,7 +143,7 @@ export class AuthController {
   // ---------------- PASSWORD RESET ----------------
 
   forgotPassword = async (
-    request: FastifyRequest<{ Body: IEmailBody }>,
+    request: FastifyRequest<{ Body: { email: string } }>,
     reply: FastifyReply
   ) => {
     await this._forgotPasswordUseCase.execute(request.body.email);
@@ -162,7 +151,7 @@ export class AuthController {
   };
 
   verifyPasswordResetOTP = async (
-    request: FastifyRequest<{ Body: IVerifyOtpBody }>,
+    request: FastifyRequest<{ Body: IVerifyOtpInputDTO }>,
     reply: FastifyReply
   ) => {
     await this._verifyPasswordResetOTPUseCase.execute(

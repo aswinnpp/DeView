@@ -1,7 +1,9 @@
 import type { JobFormValues } from '../../../../Shared/contracts/job/form.js';
-import type { ICreateJobDTO } from '../dtos/CreateJobDTO.js';
-import type { IUpdateJobDTO } from '../dtos/UpdateJobDTO.js';
-import type { IListJobsInput } from '../ports/usecase/IListJobsUseCase.js';
+import type {
+  ICreateJobInputDTO,
+  IUpdateJobInputDTO,
+  IListJobsInputDTO,
+} from '../dtos/JobDTO.js';
 import type { JobStatus } from '../../../domain/entities/Job.js';
 import type { CallerContext } from '../../shared/types/CallerContext.js';
 
@@ -16,7 +18,7 @@ export interface IJobListQuery {
 }
 
 export const JobMapper = {
-  toCreateDTO(body: JobFormValues, context: CallerContext): ICreateJobDTO {
+  toCreateDTO(body: JobFormValues, context: CallerContext): ICreateJobInputDTO {
     return {
       ...body,
       companyId: context.companyId || '',
@@ -28,7 +30,7 @@ export const JobMapper = {
     params: { id: string },
     body: Partial<JobFormValues>,
     context: CallerContext
-  ): IUpdateJobDTO {
+  ): IUpdateJobInputDTO {
     return {
       jobId: params.id,
       companyId: context.companyId || '',
@@ -37,7 +39,7 @@ export const JobMapper = {
     };
   },
 
-  toListInput(query: IJobListQuery | undefined, context: CallerContext): IListJobsInput {
+  toListInput(query: IJobListQuery | undefined, context: CallerContext): IListJobsInputDTO {
     const page = query?.page != null ? Number(query.page) : Number.NaN;
     const limit = query?.limit != null ? Number(query.limit) : Number.NaN;
     return {

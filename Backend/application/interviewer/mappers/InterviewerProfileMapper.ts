@@ -1,6 +1,8 @@
 import type { InterviewerProfile } from "../../../domain/entities/InterviewerProfile";
-import type { CreateInterviewerProfileDTO } from "../dtos/CreateInterviewerProfileDTO";
-import type { UpdateInterviewerProfileDTO } from "../dtos/UpdateInterviewerProfileDTO";
+import type {
+  ICreateInterviewerProfileInputDTO,
+  IUpdateInterviewerProfileInputDTO,
+} from '../dtos/InterviewerProfileDTO.js';
 
 export interface InterviewerProfileView {
   fullName: string;
@@ -41,7 +43,7 @@ export function toView(profile: InterviewerProfile): InterviewerProfileView {
 export function toCreateDTO(
   body: InterviewerProfileView,
   userId: string
-): CreateInterviewerProfileDTO {
+): ICreateInterviewerProfileInputDTO {
   return {
     userId,
     fullName: body.fullName,
@@ -64,7 +66,7 @@ export function toCreateDTO(
 export function toUpdateDTO(
   body: Partial<InterviewerProfileView>,
   userId: string
-): UpdateInterviewerProfileDTO {
+): IUpdateInterviewerProfileInputDTO {
   return {
     userId,
     ...body,

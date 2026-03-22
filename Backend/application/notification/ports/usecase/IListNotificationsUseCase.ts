@@ -1,10 +1,8 @@
-import type { Notification } from "../../../../domain/entities/Notification.js";
+import type {
+  IListNotificationsInputDTO,
+  IListNotificationsOutputDTO,
+} from '../../dtos/NotificationDTO.js';
 
 export interface IListNotificationsUseCase {
-  execute(input: {
-    companyId: string;
-    unreadOnly?: boolean;
-    limit?: number;
-  }): Promise<{ data: Notification[] }>;
+  execute(input: IListNotificationsInputDTO): Promise<IListNotificationsOutputDTO>;
 }
-

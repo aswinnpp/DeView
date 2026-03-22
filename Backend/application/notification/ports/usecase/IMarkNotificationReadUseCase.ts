@@ -1,4 +1,8 @@
-export interface IMarkNotificationReadUseCase {
-  execute(input: { companyId: string; notificationId: string }): Promise<{ ok: boolean }>;
-}
+import type {
+  IMarkNotificationReadInputDTO,
+  IMarkNotificationReadOutputDTO,
+} from '../../dtos/NotificationDTO.js';
 
+export interface IMarkNotificationReadUseCase {
+  execute(input: IMarkNotificationReadInputDTO): Promise<IMarkNotificationReadOutputDTO>;
+}

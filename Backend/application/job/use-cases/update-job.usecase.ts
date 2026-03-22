@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IJobRepository } from '../ports/repository/IJobRepository.js';
 import type { IUpdateJobUseCase } from '../ports/usecase/IUpdateJobUseCase.js';
-import type { IUpdateJobDTO } from '../dtos/UpdateJobDTO.js';
+import type { IUpdateJobInputDTO } from '../dtos/JobDTO.js';
 import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository.js';
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
@@ -17,7 +17,7 @@ export class UpdateJobUseCase implements IUpdateJobUseCase {
     private readonly _companyRepo: ICompanyProfileRepository,
   ) {}
 
-  async execute(dto: IUpdateJobDTO) {
+  async execute(dto: IUpdateJobInputDTO) {
     const job = await this._repo.findById(dto.jobId);
 
     if (!job || job.companyId !== dto.companyId) {

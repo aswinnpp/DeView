@@ -5,15 +5,11 @@ import type { IInterviewFeedbackRepository } from '../ports/repository/IIntervie
 import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { InterviewFeedback } from '../../../domain/entities/InterviewFeedback.js';
-
-export interface ISaveInterviewFeedbackUseCase {
-  execute(input: {
-    interviewId: string;
-    interviewerUserId: string;
-    totalScore: number;
-    feedback: string;
-  }): Promise<{ success: boolean }>;
-}
+import type { ISaveInterviewFeedbackUseCase } from '../ports/usecase/ISaveInterviewFeedbackUseCase.js';
+import type {
+  ISaveInterviewFeedbackInputDTO,
+  ISaveInterviewFeedbackOutputDTO,
+} from '../dtos/InterviewCommandDTO.js';
 
 @injectable()
 export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCase {
@@ -24,12 +20,7 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
     @inject(TYPES.ApplicationRepositoryPort) private readonly _applicationRepo: IApplicationRepository
   ) {}
 
-  async execute(input: {
-    interviewId: string;
-    interviewerUserId: string;
-    totalScore: number;
-    feedback: string;
-  }): Promise<{ success: boolean }> {
+  async execute(input: ISaveInterviewFeedbackInputDTO): Promise<ISaveInterviewFeedbackOutputDTO> {
     const { interviewId, interviewerUserId, totalScore, feedback } = input;
 
     if (!feedback.trim()) {
@@ -83,4 +74,3 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
     return { success: true };
   }
 }
-

@@ -1,5 +1,8 @@
-import type { UpdateInterviewerProfileDTO } from "../../dtos/UpdateInterviewerProfileDTO";
+import type {
+  IUpdateInterviewerProfileInputDTO,
+  IUpdateInterviewerProfileOutputDTO,
+} from '../../dtos/InterviewerProfileDTO.js';
 
 export interface IUpdateInterviewerProfileUseCase {
-  execute(dto: UpdateInterviewerProfileDTO): Promise<{ message: string }>;
+  execute(dto: IUpdateInterviewerProfileInputDTO): Promise<IUpdateInterviewerProfileOutputDTO>;
 }

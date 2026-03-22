@@ -1,7 +1,5 @@
+import type { ILoginInputDTO, ILoginOutputDTO } from '../../dtos/LoginDTO.js';
+
 export interface ILoginUseCase {
-  execute(emailStr: string, password: string): Promise<{
-    user: { id: string; fullName: string; email: string; role: string };
-    accessToken: string;
-    refreshToken: string;
-  }>;
+  execute(input: ILoginInputDTO): Promise<ILoginOutputDTO>;
 }

@@ -9,7 +9,8 @@ import { IPasswordHasher } from "../ports/services/IPasswordHasher";
 import { IEmailService } from "../ports/services/IEmailService";
 import { AppError } from "../../../shared/errors/AppError";
 import { TYPES } from "../../../shared/di/types";
-import type { IRegisterUserUseCase, IRegisterUserDTO } from "../ports/usecase/IRegisterUserUseCase";
+import type { IRegisterUserInputDTO, IRegisterUserOutputDTO } from '../dtos/RegisterDTO.js';
+import type { IRegisterUserUseCase } from '../ports/usecase/IRegisterUserUseCase';
 
 @injectable()
 export class RegisterUserUseCase implements IRegisterUserUseCase {
@@ -20,7 +21,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     @inject(TYPES.EmailServicePort) private readonly _emailService: IEmailService
   ) {}
 
-  async execute(dto: IRegisterUserDTO): Promise<{ message: string; email: string }> {
+  async execute(dto: IRegisterUserInputDTO): Promise<IRegisterUserOutputDTO> {
     const email = new Email(dto.email);
     const role = new Role(dto.role);
 

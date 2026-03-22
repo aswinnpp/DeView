@@ -36,6 +36,7 @@ export const API_ROUTES = {
             MARK_READ: (notificationId: string) => `/company/notifications/${notificationId}/read`,
             DELETE: (notificationId: string) => `/company/notifications/${notificationId}`,
         },
+        DASHBOARD_STATS: '/company/dashboard/stats',
     },
     JOB: {
         JOBS_LIST: '/jobs',
@@ -73,6 +74,7 @@ export const API_ROUTES = {
         SUBSCRIPTION_LIST: '/admin/company-requests/subscription',
         SUBSCRIPTION_TOGGLE: (id: string) => `/admin/company-requests/subscription/${id}/toggle-active`,
         SUBSCRIPTION_UPDATE: (id: string) => `/admin/company-requests/subscription/${id}`,
+        DASHBOARD_STATS: '/admin/dashboard/stats',
     },
     INTERVIEWS: {
         ROOM: (interviewId: string) => `/interviews/${interviewId}/room`,
@@ -114,6 +116,8 @@ export const APP_ROUTES = {
     ROOT: '/',
     LOGIN: '/login',
     RESET_PASSWORD: '/reset-password',
+    /** Shared recruitment dashboard (same page for company owner and HR). */
+    EMPLOYER_DASHBOARD: (base: EmployerBase) => `/${base}/dashboard`,
     COMPANY_DASHBOARD: '/company/dashboard',
     JOBS_PATH: (base: EmployerBase) => `/${base}/jobs`,
     JOBS_EDIT_PATH: (base: EmployerBase, jobId: string) => `/${base}/jobs/${jobId}/edit`,

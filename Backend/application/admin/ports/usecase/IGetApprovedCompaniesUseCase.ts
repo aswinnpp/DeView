@@ -1,3 +1,8 @@
+import type {
+  IApprovedCompaniesInputDTO,
+  IApprovedCompaniesOutputDTO,
+} from '../../dtos/ApprovedCompaniesDTO.js';
+
 export interface IGetApprovedCompaniesUseCase {
-  execute(search?: string, status?: string, sortOrder?: 'asc' | 'desc', page?: string, limit?: string): Promise<{ approvals: unknown[]; total: number }>;
+  execute(input: IApprovedCompaniesInputDTO): Promise<IApprovedCompaniesOutputDTO>;
 }

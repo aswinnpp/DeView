@@ -1,7 +1,8 @@
 import { injectable } from 'inversify';
 import { env } from '../../../infrastructure/config/env.js';
 import { AppError } from '../../../shared/errors/AppError.js';
-import type { CompilerLanguage, IGetCompilerLanguagesUseCase } from '../ports/usecase/IGetCompilerLanguagesUseCase.js';
+import type { CompilerLanguage } from '../dtos/CompilerDTO.js';
+import type { IGetCompilerLanguagesUseCase } from '../ports/usecase/IGetCompilerLanguagesUseCase.js';
 import { normalizeLanguagesPayload } from '../mappers/compiler.mapper.js';
 
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6h

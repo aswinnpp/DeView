@@ -1,3 +1,5 @@
+/** Application status update — input + output in one module. */
+
 import type { Application, ApplicationStatus } from '../../../domain/entities/Application.js';
 
 export interface IUpdateApplicationStatusInputDTO {
@@ -8,7 +10,6 @@ export interface IUpdateApplicationStatusInputDTO {
   rejectionEmailContent?: string;
 }
 
-export interface IUpdateApplicationStatusResultDTO {
+export interface IUpdateApplicationStatusOutputDTO {
   application: Application;
 }
-

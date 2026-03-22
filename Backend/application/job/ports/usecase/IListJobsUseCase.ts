@@ -1,19 +1,5 @@
-import type { Job } from '../../../../domain/entities/Job.js';
-
-export interface IListJobsInput {
-  companyId: string;
-  search?: string;
-  status?: 'OPEN' | 'CLOSED';
-  page?: number;
-  limit?: number;
-}
-
-export interface IListJobsResult {
-  data: Job[];
-  total: number;
-}
+import type { IListJobsInputDTO, IListJobsOutputDTO } from '../../dtos/JobDTO.js';
 
 export interface IListJobsUseCase {
-  execute(input: IListJobsInput): Promise<IListJobsResult>;
+  execute(input: IListJobsInputDTO): Promise<IListJobsOutputDTO>;
 }
-

@@ -1,14 +1,14 @@
 import type { Application, ApplicationStatus } from '../../../domain/entities/Application.js';
 import type { ApplicationView } from '../dtos/ApplicationView.js';
-import type { IListPendingApplicationsForJobInput } from '../dtos/ListPendingApplicationsForJobDTO.js';
+import type { IListPendingApplicationsForJobInputDTO } from '../dtos/PendingApplicationsForJobDTO.js';
 import type { IScoreCandidatesInputDTO, IScoreCandidateInputDTO } from '../dtos/ScoreCandidatesDTO.js';
-import type { IUpdateApplicationStatusInputDTO } from '../dtos/UpdateApplicationStatusDTO.js';
+import type { IUpdateApplicationStatusInputDTO } from '../dtos/ApplicationStatusDTO.js';
 import type { IListMyApplicationsInput } from '../../candidate/ports/usecase/IListMyApplicationsUseCase.js';
 import type { CallerContext } from '../../shared/types/CallerContext.js';
 import type { IScheduleInterviewInput } from '../use-cases/schedule-interview.usecase.js';
 import type { IDeclineRescheduleRequestInput } from '../use-cases/decline-reschedule-request.usecase.js';
 import type { IGetResumeViewUrlInput } from '../use-cases/get-resume-view-url.usecase.js';
-import type { IPrecheckScheduleInterviewInput } from '../use-cases/precheck-schedule-interview.usecase.js';
+import type { IPrecheckScheduleInterviewInputDTO } from '../dtos/PrecheckScheduleInterviewDTO.js';
 
 type CandidatePipelineTab =
   | 'pending'
@@ -104,7 +104,7 @@ export const ApplicationMapper = {
       pipelineTab?: CandidatePipelineTab;
     },
     context: CallerContext
-  ): IListPendingApplicationsForJobInput {
+  ): IListPendingApplicationsForJobInputDTO {
     const pipelineTab = query?.pipelineTab;
     const statuses = pipelineTab ? statusesForPipelineTab(pipelineTab) : undefined;
     return {
@@ -268,7 +268,7 @@ export const ApplicationMapper = {
     params: { jobId: string; applicationId: string },
     query: { scheduledDate?: string },
     context: CallerContext
-  ): IPrecheckScheduleInterviewInput {
+  ): IPrecheckScheduleInterviewInputDTO {
     return {
       companyId: context.companyId || '',
       jobId: params.jobId,

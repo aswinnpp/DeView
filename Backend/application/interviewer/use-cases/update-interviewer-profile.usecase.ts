@@ -2,7 +2,7 @@ import { injectable, inject } from "inversify";
 import { TYPES } from "../../../shared/di/types";
 import type { IInterviewerProfileRepository } from "../ports/repository/IInterviewerProfileRepository";
 import type { IUpdateInterviewerProfileUseCase } from "../ports/usecase/IUpdateInterviewerProfileUseCase";
-import type { UpdateInterviewerProfileDTO } from "../dtos/UpdateInterviewerProfileDTO";
+import type { IUpdateInterviewerProfileInputDTO } from "../dtos/InterviewerProfileDTO.js";
 import { AppError } from "../../../shared/errors/AppError";
 
 @injectable()
@@ -12,7 +12,7 @@ export class UpdateInterviewerProfileUseCase implements IUpdateInterviewerProfil
     private readonly _repo: IInterviewerProfileRepository
   ) {}
 
-  async execute(dto: UpdateInterviewerProfileDTO): Promise<{ message: string }> {
+  async execute(dto: IUpdateInterviewerProfileInputDTO): Promise<{ message: string }> {
     if (!dto.userId) {
       throw AppError.badRequest("UserId is required");
     }

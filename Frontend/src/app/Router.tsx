@@ -17,7 +17,6 @@ const NotFoundPage = lazy(() => import("../features/error/NotFoundPage"));
 // Company pages - moved from auth folder to company folder
 const CompanyApprovalFormPage = lazy(() => import("../features/company/CompanyApprovalFormPage"));
 const CompanyApprovalPendingPage = lazy(() => import("../features/company/CompanyApprovalPendingPage"));
-const CompanyDashboardPage = lazy(() => import("../features/company/CompanyDashboardPage"));
 const CompanyLayout = lazy(() => import("../features/company/CompanyLayout"));
 const ManageHRPage = lazy(() => import("../features/company/ManageHRPage"));
 const CompanyProfilePage = lazy(() => import("../features/company/CompanyProfilePage"));
@@ -40,7 +39,7 @@ const AdminCandidatesPage = lazy(() => import("../features/admin/AdminCandidates
 const AdminSubscriptionsPage = lazy(() => import("../features/admin/AdminSubscriptionsPage"));
 
 const HRLayout = lazy(() => import("../features/hr/HRLayout"));
-const HRDashboard = lazy(() => import("../features/hr/HRDashboard"));
+const RecruitmentDashboardPage = lazy(() => import("../features/dashboard"));
 const ApplicationsManagementPage = lazy(() => import("../features/application/ApplicationsManagement"));
 const InterviewRoomPage = lazy(() => import("../features/interviewRoom/InterviewRoomPage"));
 
@@ -107,7 +106,7 @@ const AppRouter = () => {
 
           <Route path="/company" element={<CompanyLayout />}>
             <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<CompanyDashboardPage />} />
+            <Route path="dashboard" element={<RecruitmentDashboardPage />} />
             <Route path="jobs" element={<JobsPage />} />
             <Route path="applications" element={<ApplicationsManagementPage />} />
             <Route path="offer-letters" element={<CompanyOfferLettersPage />} />
@@ -117,7 +116,7 @@ const AppRouter = () => {
 
           <Route path="/hr" element={<HRLayout />}>
             <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<HRDashboard />} />
+            <Route path="dashboard" element={<RecruitmentDashboardPage />} />
             <Route path="jobs" element={<JobsPage />} />
             <Route path="applications" element={<ApplicationsManagementPage />} />
           </Route>

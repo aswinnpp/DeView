@@ -1,8 +1,10 @@
 import type {
-  IListPendingApplicationsForJobInput,
-  IListPendingApplicationsForJobResult,
-} from '../../dtos/ListPendingApplicationsForJobDTO.js';
+  IListPendingApplicationsForJobInputDTO,
+  IListPendingApplicationsForJobOutputDTO,
+} from '../../dtos/PendingApplicationsForJobDTO.js';
 
 export interface IListPendingApplicationsForJobUseCase {
-  execute(input: IListPendingApplicationsForJobInput): Promise<IListPendingApplicationsForJobResult>;
+  execute(
+    input: IListPendingApplicationsForJobInputDTO
+  ): Promise<IListPendingApplicationsForJobOutputDTO>;
 }

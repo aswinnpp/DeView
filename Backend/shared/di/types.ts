@@ -36,6 +36,7 @@ export const TYPES = {
   SubmitCompanyApprovalUseCasePort: Symbol('SubmitCompanyApprovalUseCasePort'),
   GetMyCompanyApprovalUseCasePort: Symbol('GetMyCompanyApprovalUseCasePort'),
   GetCompanyProfileUseCasePort: Symbol('GetCompanyProfileUseCasePort'),
+  GetCompanyDashboardStatsUseCasePort: Symbol('GetCompanyDashboardStatsUseCasePort'),
   UpdateCompanyProfileUseCasePort: Symbol('UpdateCompanyProfileUseCasePort'),
   CreateTeamMemberUseCasePort: Symbol('CreateTeamMemberUseCasePort'),
   ListTeamMembersUseCasePort: Symbol('ListTeamMembersUseCasePort'),
@@ -43,6 +44,7 @@ export const TYPES = {
 
   GetPendingCompaniesUseCasePort: Symbol('GetPendingCompaniesUseCasePort'),
   GetApprovedCompaniesUseCasePort: Symbol('GetApprovedCompaniesUseCasePort'),
+  GetAdminDashboardStatsUseCasePort: Symbol('GetAdminDashboardStatsUseCasePort'),
   ApproveCompanyUseCasePort: Symbol('ApproveCompanyUseCasePort'),
   RejectCompanyUseCasePort: Symbol('RejectCompanyUseCasePort'),
   MarkDocumentUseCasePort: Symbol('MarkDocumentUseCasePort'),

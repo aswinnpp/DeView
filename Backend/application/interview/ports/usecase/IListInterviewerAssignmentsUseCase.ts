@@ -1,15 +1,8 @@
-import type { Interview } from '../../../../domain/entities/Interview.js';
-
-export interface IListInterviewerAssignmentsInput {
-  interviewerUserId: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-  sortOrder?: 'asc' | 'desc';
-  acceptedOnly?: boolean;
-}
+import type {
+  IListInterviewerAssignmentsInputDTO,
+  IListInterviewerAssignmentsOutputDTO,
+} from '../../dtos/InterviewListDTO.js';
 
 export interface IListInterviewerAssignmentsUseCase {
-  execute(input: IListInterviewerAssignmentsInput): Promise<{ data: Interview[]; total: number }>;
+  execute(input: IListInterviewerAssignmentsInputDTO): Promise<IListInterviewerAssignmentsOutputDTO>;
 }
-

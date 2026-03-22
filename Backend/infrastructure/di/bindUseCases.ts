@@ -21,6 +21,7 @@ import { CheckCompanyStatusUseCase } from '../../application/company/use-cases/c
 import { SubmitCompanyApprovalUseCase } from '../../application/company/use-cases/submit-company-approval.usecase.js';
 import { GetMyCompanyApprovalUseCase } from '../../application/company/use-cases/get-my-company-approval.usecase.js';
 import { GetCompanyProfileUseCase } from '../../application/company/use-cases/get-company-profile.usecase.js';
+import { GetCompanyDashboardStatsUseCase } from '../../application/company/use-cases/get-company-dashboard-stats.usecase.js';
 import { UpdateCompanyProfileUseCase } from '../../application/company/use-cases/update-company-profile.usecase.js';
 import { CreateTeamMemberUseCase } from '../../application/company/use-cases/create-team-member.usecase.js';
 import { ListTeamMembersUseCase } from '../../application/company/use-cases/list-team-members.usecase.js';
@@ -41,6 +42,7 @@ import { ApproveCompanyUseCase } from '../../application/admin/use-cases/approve
 import { RejectCompanyUseCase } from '../../application/admin/use-cases/reject-company.usecase.js';
 import { MarkDocumentUseCase } from '../../application/admin/use-cases/mark-document.usecase.js';
 import { GetApprovedCompaniesUseCase } from '../../application/admin/use-cases/get-approved-companies.usecase.js';
+import { GetAdminDashboardStatsUseCase } from '../../application/admin/use-cases/get-admin-dashboard-stats.usecase.js';
 import { AdminToggleActivityUseCase } from '../../application/admin/use-cases/admin-toggle-activity.usecase.js';
 import { AdminCreateSubscription } from "../../application/admin/use-cases/admin-subscription.usecase.js";
 import { AdminListSubscriptionsUsecase } from "../../application/admin/use-cases/admin-list-subscriptions.usecase.js";
@@ -118,6 +120,7 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.SubmitCompanyApprovalUseCasePort).to(SubmitCompanyApprovalUseCase);
   container.bind(TYPES.GetMyCompanyApprovalUseCasePort).to(GetMyCompanyApprovalUseCase);
   container.bind(TYPES.GetCompanyProfileUseCasePort).to(GetCompanyProfileUseCase);
+  container.bind(TYPES.GetCompanyDashboardStatsUseCasePort).to(GetCompanyDashboardStatsUseCase);
   container.bind(TYPES.UpdateCompanyProfileUseCasePort).to(UpdateCompanyProfileUseCase);
   container.bind(TYPES.CreateTeamMemberUseCasePort).to(CreateTeamMemberUseCase);
   container.bind(TYPES.ListTeamMembersUseCasePort).to(ListTeamMembersUseCase);
@@ -132,6 +135,7 @@ export function bindUseCases(container: Container): void {
   // Admin use cases
   container.bind(TYPES.GetPendingCompaniesUseCasePort).to(GetPendingCompaniesUseCase);
   container.bind(TYPES.GetApprovedCompaniesUseCasePort).to(GetApprovedCompaniesUseCase);
+  container.bind(TYPES.GetAdminDashboardStatsUseCasePort).to(GetAdminDashboardStatsUseCase);
   container.bind(TYPES.ApproveCompanyUseCasePort).to(ApproveCompanyUseCase);
   container.bind(TYPES.RejectCompanyUseCasePort).to(RejectCompanyUseCase);
   container.bind(TYPES.MarkDocumentUseCasePort).to(MarkDocumentUseCase);

@@ -1,5 +1,4 @@
-import type { CompilerLanguage } from '../ports/usecase/IGetCompilerLanguagesUseCase.js';
-import type { ExecuteCodeResult } from '../ports/usecase/IExecuteCodeUseCase.js';
+import type { CompilerLanguage, IExecuteCodeOutputDTO } from '../dtos/CompilerDTO.js';
 
 export type CompilerSubmission = {
   stdout?: string | null;
@@ -28,7 +27,7 @@ export function normalizeLanguagesPayload(raw: unknown): CompilerLanguage[] {
   return [];
 }
 
-export function mapSubmissionToExecuteResult(submission: CompilerSubmission): ExecuteCodeResult {
+export function mapSubmissionToExecuteResult(submission: CompilerSubmission): IExecuteCodeOutputDTO {
   const statusId = submission.status?.id;
   const statusDescription = submission.status?.description;
 

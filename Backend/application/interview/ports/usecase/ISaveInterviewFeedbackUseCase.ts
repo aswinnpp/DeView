@@ -1,9 +1,8 @@
-export interface ISaveInterviewFeedbackUseCase {
-  execute(input: {
-    interviewId: string;
-    interviewerUserId: string;
-    totalScore: number;
-    feedback: string;
-  }): Promise<{ success: boolean }>;
-}
+import type {
+  ISaveInterviewFeedbackInputDTO,
+  ISaveInterviewFeedbackOutputDTO,
+} from '../../dtos/InterviewCommandDTO.js';
 
+export interface ISaveInterviewFeedbackUseCase {
+  execute(input: ISaveInterviewFeedbackInputDTO): Promise<ISaveInterviewFeedbackOutputDTO>;
+}

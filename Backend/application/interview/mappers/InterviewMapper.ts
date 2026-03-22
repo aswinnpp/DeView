@@ -1,8 +1,8 @@
 import { parseSearchParams } from '../../shared/utils/parseSearchParams.js';
-import type { IListInterviewerAssignmentsInput } from '../ports/usecase/IListInterviewerAssignmentsUseCase.js';
-import type { IListCompletedInterviewsForInterviewerInput } from '../ports/usecase/IListCompletedInterviewsForInterviewerUseCase.js';
-import type { IListMyInterviewsInput } from '../ports/usecase/IListMyInterviewsUseCase.js';
-import type { IListMyInterviewFeedbacksInput } from '../ports/usecase/IListMyInterviewFeedbacksUseCase.js';
+import type { IListInterviewerAssignmentsInputDTO } from '../dtos/InterviewListDTO.js';
+import type { IListCompletedInterviewsForInterviewerInputDTO } from '../dtos/InterviewListDTO.js';
+import type { IListMyInterviewsInputDTO } from '../dtos/InterviewListDTO.js';
+import type { IListMyInterviewFeedbacksInputDTO } from '../dtos/InterviewListDTO.js';
 
 export interface IListAssignmentsQuery {
   search?: string;
@@ -30,7 +30,7 @@ export const InterviewMapper = {
   toListInterviewerAssignmentsInput(
     query: IListAssignmentsQuery,
     interviewerUserId: string
-  ): IListInterviewerAssignmentsInput {
+  ): IListInterviewerAssignmentsInputDTO {
     const { search, page, limit, sortOrder, acceptedOnly } = query;
     const { page: parsedPage, limit: parsedLimit } = parseSearchParams({ page, limit });
     return {
@@ -46,7 +46,7 @@ export const InterviewMapper = {
   toListCompletedInterviewsInput(
     query: IListCompletedQuery,
     interviewerUserId: string
-  ): IListCompletedInterviewsForInterviewerInput {
+  ): IListCompletedInterviewsForInterviewerInputDTO {
     const { search, page, limit, sortOrder } = query;
     const { page: parsedPage, limit: parsedLimit } = parseSearchParams({ page, limit });
     return {
@@ -58,7 +58,7 @@ export const InterviewMapper = {
     };
   },
 
-  toListMyInterviewsInput(query: IListMyInterviewsQuery, candidateUserId: string): IListMyInterviewsInput {
+  toListMyInterviewsInput(query: IListMyInterviewsQuery, candidateUserId: string): IListMyInterviewsInputDTO {
     const { search, page, limit, sortOrder } = query;
     const { page: parsedPage, limit: parsedLimit } = parseSearchParams({ page, limit });
     return {
@@ -73,7 +73,7 @@ export const InterviewMapper = {
   toListMyFeedbacksInput(
     query: IListMyInterviewsQuery,
     candidateUserId: string
-  ): IListMyInterviewFeedbacksInput {
+  ): IListMyInterviewFeedbacksInputDTO {
     const { search, page, limit, sortOrder } = query;
     const { page: parsedPage, limit: parsedLimit } = parseSearchParams({ page, limit });
     return {

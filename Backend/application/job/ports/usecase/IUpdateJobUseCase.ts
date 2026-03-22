@@ -1,7 +1,5 @@
-import type { Job } from '../../../../domain/entities/Job.js';
-import type { IUpdateJobDTO } from '../../dtos/UpdateJobDTO.js';
+import type { IUpdateJobInputDTO, IUpdateJobOutputDTO } from '../../dtos/JobDTO.js';
 
 export interface IUpdateJobUseCase {
-  execute(dto: IUpdateJobDTO): Promise<{ job: Job }>;
+  execute(dto: IUpdateJobInputDTO): Promise<IUpdateJobOutputDTO>;
 }
-

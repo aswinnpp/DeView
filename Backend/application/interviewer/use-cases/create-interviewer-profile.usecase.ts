@@ -2,7 +2,7 @@ import { injectable, inject } from "inversify";
 import { TYPES } from "../../../shared/di/types";
 import type { IInterviewerProfileRepository } from "../ports/repository/IInterviewerProfileRepository";
 import type { ICreateInterviewerProfileUseCase } from "../ports/usecase/ICreateInterviewerProfileUseCase";
-import type { CreateInterviewerProfileDTO } from "../dtos/CreateInterviewerProfileDTO";
+import type { ICreateInterviewerProfileInputDTO } from "../dtos/InterviewerProfileDTO.js";
 import { InterviewerProfile } from "../../../domain/entities/InterviewerProfile";
 import { AppError } from "../../../shared/errors/AppError";
 
@@ -13,7 +13,7 @@ export class CreateInterviewerProfileUseCase implements ICreateInterviewerProfil
     private readonly _repo: IInterviewerProfileRepository
   ) {}
 
-  async execute(dto: CreateInterviewerProfileDTO): Promise<{ message: string }> {
+  async execute(dto: ICreateInterviewerProfileInputDTO): Promise<{ message: string }> {
     if (!dto.userId) {
       throw AppError.badRequest("UserId is required");
     }
@@ -36,7 +36,8 @@ export class CreateInterviewerProfileUseCase implements ICreateInterviewerProfil
       dto.education,
       dto.university ?? "",
       dto.linkedinUrl ?? "",
-      dto.githubUrl ?? ""
+      dto.githubUrl ?? "",
+      dto.profilePicUrl ?? ""
     );
     await this._repo.save(profile);
     return { message: "Profile created successfully" };

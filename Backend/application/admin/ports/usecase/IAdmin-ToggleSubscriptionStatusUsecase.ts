@@ -1,5 +1,8 @@
-import type { IToggleStatusResultDTO } from '../../dtos/ToggleStatusDTO.js';
+import type {
+  ISubscriptionToggleStatusInputDTO,
+  ISubscriptionToggleStatusOutputDTO,
+} from '../../dtos/SubscriptionToggleStatusDTO.js';
 
 export interface IAdminToggleSubscriptionStatusUsecase {
-  execute(id: string): Promise<IToggleStatusResultDTO>;
+  execute(input: ISubscriptionToggleStatusInputDTO): Promise<ISubscriptionToggleStatusOutputDTO>;
 }

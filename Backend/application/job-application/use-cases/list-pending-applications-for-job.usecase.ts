@@ -4,7 +4,7 @@ import type { IApplicationRepository } from '../ports/repository/IApplicationRep
 import type {
   IListPendingApplicationsForJobUseCase,
 } from '../ports/usecase/IListPendingApplicationsForJobUseCase.js';
-import type { IListPendingApplicationsForJobInput } from '../dtos/ListPendingApplicationsForJobDTO.js';
+import type { IListPendingApplicationsForJobInputDTO } from '../dtos/PendingApplicationsForJobDTO.js';
 
 @injectable()
 export class ListPendingApplicationsForJobUseCase
@@ -14,7 +14,7 @@ export class ListPendingApplicationsForJobUseCase
     @inject(TYPES.ApplicationRepositoryPort) private readonly _repo: IApplicationRepository
   ) {}
 
-  async execute(input: IListPendingApplicationsForJobInput) {
+  async execute(input: IListPendingApplicationsForJobInputDTO) {
     const filter = input.statuses && input.statuses.length > 0 ? input.statuses : input.status;
     const [data, byStatus] = await Promise.all([
       this._repo.listByJobId(input.jobId, input.companyId, filter),

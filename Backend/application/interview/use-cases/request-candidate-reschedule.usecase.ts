@@ -3,16 +3,11 @@ import { TYPES } from '../../../shared/di/types.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import type { IInterviewRepository } from '../ports/repository/IInterviewRepository.js';
 import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository.js';
-import type { Interview } from '../../../domain/entities/Interview.js';
-
-export interface IRequestCandidateRescheduleUseCase {
-  execute(input: {
-    interviewId: string;
-    candidateUserId: string;
-    requestedDate: string;
-    reason: string;
-  }): Promise<{ interview: Interview }>;
-}
+import type { IRequestCandidateRescheduleUseCase } from '../ports/usecase/IRequestCandidateRescheduleUseCase.js';
+import type {
+  IRequestCandidateRescheduleInputDTO,
+  IRequestCandidateRescheduleOutputDTO,
+} from '../dtos/InterviewCommandDTO.js';
 
 @injectable()
 export class RequestCandidateRescheduleUseCase implements IRequestCandidateRescheduleUseCase {
@@ -21,12 +16,7 @@ export class RequestCandidateRescheduleUseCase implements IRequestCandidateResch
     @inject(TYPES.ApplicationRepositoryPort) private readonly _applicationRepo: IApplicationRepository
   ) {}
 
-  async execute(input: {
-    interviewId: string;
-    candidateUserId: string;
-    requestedDate: string;
-    reason: string;
-  }): Promise<{ interview: Interview }> {
+  async execute(input: IRequestCandidateRescheduleInputDTO): Promise<IRequestCandidateRescheduleOutputDTO> {
     const requestedDate = String(input.requestedDate ?? '').trim();
     const reason = String(input.reason ?? '').trim();
     if (!requestedDate) throw AppError.badRequest('requestedDate is required');
@@ -64,4 +54,3 @@ export class RequestCandidateRescheduleUseCase implements IRequestCandidateResch
     return { interview: updatedInterview };
   }
 }
-

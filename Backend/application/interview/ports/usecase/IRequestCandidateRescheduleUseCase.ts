@@ -1,11 +1,8 @@
-import type { Interview } from '../../../../domain/entities/Interview.js';
+import type {
+  IRequestCandidateRescheduleInputDTO,
+  IRequestCandidateRescheduleOutputDTO,
+} from '../../dtos/InterviewCommandDTO.js';
 
 export interface IRequestCandidateRescheduleUseCase {
-  execute(input: {
-    interviewId: string;
-    candidateUserId: string;
-    requestedDate: string;
-    reason: string;
-  }): Promise<{ interview: Interview }>;
+  execute(input: IRequestCandidateRescheduleInputDTO): Promise<IRequestCandidateRescheduleOutputDTO>;
 }
-

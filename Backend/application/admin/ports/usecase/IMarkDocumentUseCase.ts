@@ -1,9 +1,8 @@
-import type { CompanyDocuments } from "../../../../domain/entities/CompanyApprovalEntitie";
+import type {
+  IMarkCompanyDocumentInputDTO,
+  IMarkCompanyDocumentOutputDTO,
+} from '../../dtos/AdminCompanyMutationsDTO.js';
 
 export interface IMarkDocumentUseCase {
-  execute(
-    companyId: string,
-    documentKey: keyof CompanyDocuments,
-    verified: boolean
-  ): Promise<{ documentKey: keyof CompanyDocuments; marked: boolean }>;
+  execute(input: IMarkCompanyDocumentInputDTO): Promise<IMarkCompanyDocumentOutputDTO>;
 }

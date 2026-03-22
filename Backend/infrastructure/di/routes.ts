@@ -23,6 +23,8 @@ import { interviewerSlotsRoutes } from "../../interfaces/http/routes/interviewer
 import { notificationsRoutes } from "../../interfaces/http/routes/notifications.routes.js";
 import { landingStatsRoutes } from "../../interfaces/http/routes/landing-stats.routes.js";
 import { compilerRoutes } from "../../interfaces/http/routes/compiler.routes.js";
+import { adminDashboardRoutes } from "../../interfaces/http/routes/admin-dashboard.routes.js";
+import { companyDashboardRoutes } from "../../interfaces/http/routes/company-dashboard.routes.js";
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     await fastify.register(
@@ -40,6 +42,7 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
             await companyTeamRoutes(instance, controllers.companyTeamController);
             await companySubscriptionRoutes(instance, controllers.adminSubscriptionController);
             await companyPaymentRoutes(instance, controllers.companyPaymentController);
+            await companyDashboardRoutes(instance, controllers.dashboardStatsController);
             await instance.register(
                 async (sub) => {
                     await notificationsRoutes(sub, controllers.notificationsController);
@@ -64,6 +67,13 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
             await subscriptionRoutes(instance, controllers.adminSubscriptionController);
         },
         { prefix: '/admin/company-requests' }
+    );
+
+    await fastify.register(
+        async (instance) => {
+            await adminDashboardRoutes(instance, controllers.dashboardStatsController);
+        },
+        { prefix: '/admin' }
     );
 
     // Upload routes

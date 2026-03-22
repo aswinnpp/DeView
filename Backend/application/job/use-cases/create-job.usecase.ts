@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IJobRepository } from '../ports/repository/IJobRepository.js';
-import type { ICreateJobDTO } from '../dtos/CreateJobDTO.js';
+import type { ICreateJobInputDTO } from '../dtos/JobDTO.js';
 import type { ICreateJobUseCase } from '../ports/usecase/ICreateJobUseCase.js';
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
 import { Job } from '../../../domain/entities/Job.js';
@@ -21,7 +21,7 @@ export class CreateJobUseCase implements ICreateJobUseCase {
     @inject(TYPES.NotificationPublisherPort) private readonly _notificationPublisher: INotificationPublisher,
   ) {}
 
-  async execute(dto: ICreateJobDTO) {
+  async execute(dto: ICreateJobInputDTO) {
     const now = new Date();
 
     const company = await this._companyRepo.findById(dto.companyId);

@@ -1,4 +1,8 @@
-export interface IDeleteNotificationUseCase {
-  execute(input: { companyId: string; notificationId: string }): Promise<{ ok: boolean }>;
-}
+import type {
+  IDeleteNotificationInputDTO,
+  IDeleteNotificationOutputDTO,
+} from '../../dtos/NotificationDTO.js';
 
+export interface IDeleteNotificationUseCase {
+  execute(input: IDeleteNotificationInputDTO): Promise<IDeleteNotificationOutputDTO>;
+}

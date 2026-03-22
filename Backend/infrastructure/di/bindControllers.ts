@@ -21,6 +21,7 @@ import { InterviewerSlotsController } from '../../interfaces/http/controllers/in
 import { NotificationsController } from "../../interfaces/http/controllers/notifications.controller.js";
 import { LandingStatsController } from '../../interfaces/http/controllers/landing-stats.controller.js';
 import { CompilerController } from '../../interfaces/http/controllers/compiler.controller.js';
+import { DashboardStatsController } from '../../interfaces/http/controllers/dashboard-stats.controller.js';
 
 export function bindControllers(container: Container): void {
   container.bind(AuthController).toSelf();
@@ -44,5 +45,5 @@ export function bindControllers(container: Container): void {
   container.bind(NotificationsController).toSelf();
   container.bind(LandingStatsController).toSelf();
   container.bind(CompilerController).toSelf();
-  
+  container.bind(DashboardStatsController).toSelf();
 }

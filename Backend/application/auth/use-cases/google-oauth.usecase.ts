@@ -8,7 +8,7 @@ import { Email } from "../../../domain/value-objects/Email";
 import { Role } from "../../../domain/value-objects/Role";
 import { User } from "../../../domain/entities/User";
 import { AppError } from "../../../shared/errors/AppError";
-import { IGoogleUserDTO } from "../dtos/GoogleUserDTO";
+import type { IGoogleOAuthUserDTO } from '../dtos/GoogleOAuthDTO.js';
 import { ICryptoRandom } from "../../shared/ports/services/ICryptoRandom";
 import type { IGoogleOAuthUseCase } from "../ports/usecase/IGoogleOAuthUseCase";
 
@@ -42,7 +42,7 @@ export class GoogleOAuthUseCase implements IGoogleOAuthUseCase {
     }
 
     const role = parseRoleFromState(state);
-    let googleUser: IGoogleUserDTO;
+    let googleUser: IGoogleOAuthUserDTO;
 
     try {
       const verified = await this._googleAuth.verifyToken(code);
@@ -57,7 +57,7 @@ export class GoogleOAuthUseCase implements IGoogleOAuthUseCase {
     return this.execute(googleUser, role);
   }
 
-  async execute(googleUser: IGoogleUserDTO, role?: string) {
+  async execute(googleUser: IGoogleOAuthUserDTO, role?: string) {
     const email = new Email(googleUser.email);
     const roleValue = role && ALLOWED_ROLES.includes(role) ? role : "candidate";
     const roleVO = new Role(roleValue);

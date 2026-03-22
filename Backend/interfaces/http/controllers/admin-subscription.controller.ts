@@ -78,8 +78,7 @@ export class AdminSubscriptionController {
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply,
   ) => {
-    const { id } = request.params;
-    const result = await this._toggleSubscriptionStatusUsecase.execute(id);
+    const result = await this._toggleSubscriptionStatusUsecase.execute({ id: request.params.id });
 
     reply
       .status(HttpStatus.OK)

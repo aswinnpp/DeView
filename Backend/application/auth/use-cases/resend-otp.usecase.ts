@@ -6,9 +6,8 @@ import { Email } from "../../../domain/value-objects/Email";
 import { OTPCode } from "../../../domain/value-objects/OTPCode";
 import { IEmailService } from "../ports/services/IEmailService";
 import { AppError } from "../../../shared/errors/AppError";
-import { IResendOtpRequestDTO } from "../dtos/ResendOTPRequestDTO";
-import { IResendOtpResponseDTO } from "../dtos/ResendOTPResponseDTO";
-import type { IResendOtpUseCase } from "../ports/usecase/IResendOtpUseCase";
+import type { IResendOtpInputDTO, IResendOtpOutputDTO } from '../dtos/ResendOtpDTO.js';
+import type { IResendOtpUseCase } from '../ports/usecase/IResendOtpUseCase';
 
 @injectable()
 export class ResendOTPUseCase implements IResendOtpUseCase {
@@ -18,7 +17,7 @@ export class ResendOTPUseCase implements IResendOtpUseCase {
     @inject(TYPES.EmailServicePort) private readonly _emailService: IEmailService
   ) {}
 
-  async execute(dto: IResendOtpRequestDTO): Promise<IResendOtpResponseDTO> {
+  async execute(dto: IResendOtpInputDTO): Promise<IResendOtpOutputDTO> {
     const email = new Email(dto.email);
 
     const existingUser = await this._userRepository.findByEmail(email);

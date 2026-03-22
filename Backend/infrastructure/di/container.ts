@@ -32,6 +32,7 @@ import { InterviewerSlotsController } from "../../interfaces/http/controllers/in
 import { NotificationsController } from "../../interfaces/http/controllers/notifications.controller.js";
 import { LandingStatsController } from '../../interfaces/http/controllers/landing-stats.controller.js';
 import { CompilerController } from "../../interfaces/http/controllers/compiler.controller.js";
+import { DashboardStatsController } from "../../interfaces/http/controllers/dashboard-stats.controller.js";
 
 export function createContainer(db: Db) {
   const container = new Container();
@@ -70,6 +71,7 @@ export function getControllers(container: ContainerType) {
     notificationsController: container.get(NotificationsController),
     landingStatsController: container.get(LandingStatsController),
     compilerController: container.get(CompilerController),
+    dashboardStatsController: container.get(DashboardStatsController),
   };
 }
 

@@ -1,3 +1,8 @@
+import type {
+  IToggleCompanyActivityInputDTO,
+  IToggleCompanyActivityOutputDTO,
+} from '../../dtos/AdminCompanyMutationsDTO.js';
+
 export interface IAdminToggleActivityUseCase {
-  execute(id: string): Promise<{ isActive: boolean }>;
+  execute(input: IToggleCompanyActivityInputDTO): Promise<IToggleCompanyActivityOutputDTO>;
 }

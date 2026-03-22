@@ -1,3 +1,5 @@
+import type { IVerifyOtpInputDTO, IVerifyOtpOutputDTO } from '../../dtos/VerifyOtpDTO.js';
+
 export interface IVerifyOtpUseCase {
-  execute(emailStr: string, otpStr: string): Promise<void>;
+  execute(input: IVerifyOtpInputDTO): Promise<IVerifyOtpOutputDTO>;
 }

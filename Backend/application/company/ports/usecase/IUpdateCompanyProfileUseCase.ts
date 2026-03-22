@@ -1,5 +1,8 @@
-import type { IUpdateCompanyProfileDTO } from "../../dtos/UpdateCompanyProfileDTO";
+import type {
+  IUpdateCompanyProfileInputDTO,
+  IUpdateCompanyProfileOutputDTO,
+} from '../../dtos/CompanyProfileDTO.js';
 
 export interface IUpdateCompanyProfileUseCase {
-  execute(dto: IUpdateCompanyProfileDTO): Promise<{ message: string }>;
+  execute(dto: IUpdateCompanyProfileInputDTO): Promise<IUpdateCompanyProfileOutputDTO>;
 }

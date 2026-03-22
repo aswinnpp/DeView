@@ -1,8 +1,8 @@
 import type {
   IScoreCandidatesInputDTO,
-  IScoreCandidatesResultDTO,
+  IScoreCandidatesOutputDTO,
 } from '../../dtos/ScoreCandidatesDTO.js';
 
 export interface IScoreCandidatesUseCase {
-  execute(input: IScoreCandidatesInputDTO): Promise<IScoreCandidatesResultDTO>;
+  execute(input: IScoreCandidatesInputDTO): Promise<IScoreCandidatesOutputDTO>;
 }
