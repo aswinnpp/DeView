@@ -13,6 +13,8 @@ import type { IJobRepository } from '../../application/job/ports/repository/IJob
 import type { IJobApplicationRepository } from '../../application/candidate/ports/repository/IJobApplicationRepository.js';
 import type { IApplicationRepository } from '../../application/job-application/ports/repository/IApplicationRepository.js';
 import type { IRejectionMailRepository } from '../../application/job-application/ports/repository/IRejectionMailRepository.js';
+import type { IOfferMailRepository } from '../../application/job-application/ports/repository/IOfferMailRepository.js';
+import type { ICounterLetterRepository } from '../../application/job-application/ports/repository/ICounterLetterRepository.js';
 import type { IInterviewRepository } from '../../application/interview/ports/repository/IInterviewRepository.js';
 import type { IInterviewFeedbackRepository } from '../../application/interview/ports/repository/IInterviewFeedbackRepository.js';
 import type { IInterviewerProfileRepository } from '../../application/interviewer/ports/repository/IInterviewerProfileRepository.js';
@@ -37,6 +39,10 @@ import { IJobDocument } from '../persistence/mongodb/schemas/JobDocument.js';
 import { IApplicationDocument } from '../persistence/mongodb/schemas/ApplicationDocument.js';
 import { IRejectionMailDocument } from '../persistence/mongodb/schemas/RejectionMailDocument.js';
 import { MongoRejectionMailRepository } from '../persistence/mongodb/repositories/MongoRejectionMailRepository.js';
+import { IOfferMailDocument } from '../persistence/mongodb/schemas/OfferMailDocument.js';
+import { MongoOfferMailRepository } from '../persistence/mongodb/repositories/MongoOfferMailRepository.js';
+import { ICounterLetterDocument } from '../persistence/mongodb/schemas/CounterLetterDocument.js';
+import { MongoCounterLetterRepository } from '../persistence/mongodb/repositories/MongoCounterLetterRepository.js';
 import { IInterviewDocument } from '../persistence/mongodb/schemas/InterviewDocument.js';
 import { MongoInterviewRepository } from '../persistence/mongodb/repositories/MongoInterviewRepository.js';
 import { IInterviewFeedbackDocument } from '../persistence/mongodb/schemas/InterviewFeedbackDocument.js';
@@ -80,6 +86,12 @@ const createApplicationRepository = (db: Db) =>
 
 const createRejectionMailRepository = (db: Db) =>
   new MongoRejectionMailRepository(db.collection<IRejectionMailDocument>('rejectionMails'));
+
+const createOfferMailRepository = (db: Db) =>
+  new MongoOfferMailRepository(db.collection<IOfferMailDocument>('offerMails'));
+
+const createCounterLetterRepository = (db: Db) =>
+  new MongoCounterLetterRepository(db.collection<ICounterLetterDocument>('counterLetters'));
 
 const createInterviewRepository = (db: Db) =>
   new MongoInterviewRepository(db.collection<IInterviewDocument>('interviews'));
@@ -138,6 +150,14 @@ export function bindRepositories(container: Container): void {
 
   container.bind<IRejectionMailRepository>(TYPES.RejectionMailRepositoryPort).toDynamicValue(() =>
     createRejectionMailRepository(container.get<Db>(TYPES.Db))
+  );
+
+  container.bind<IOfferMailRepository>(TYPES.OfferMailRepositoryPort).toDynamicValue(() =>
+    createOfferMailRepository(container.get<Db>(TYPES.Db))
+  );
+
+  container.bind<ICounterLetterRepository>(TYPES.CounterLetterRepositoryPort).toDynamicValue(() =>
+    createCounterLetterRepository(container.get<Db>(TYPES.Db))
   );
 
   container.bind<IInterviewRepository>(TYPES.InterviewRepositoryPort).toDynamicValue(() =>

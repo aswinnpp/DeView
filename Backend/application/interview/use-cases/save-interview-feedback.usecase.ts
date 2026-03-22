@@ -3,13 +3,25 @@ import { TYPES } from '../../../shared/di/types.js';
 import type { IInterviewRepository } from '../ports/repository/IInterviewRepository.js';
 import type { IInterviewFeedbackRepository } from '../ports/repository/IInterviewFeedbackRepository.js';
 import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository.js';
+import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
+import type { IUpdateApplicationStatusUseCase } from '../../job-application/ports/usecase/IUpdateApplicationStatusUseCase.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { InterviewFeedback } from '../../../domain/entities/InterviewFeedback.js';
+import type { Application } from '../../../domain/entities/Application.js';
 import type { ISaveInterviewFeedbackUseCase } from '../ports/usecase/ISaveInterviewFeedbackUseCase.js';
 import type {
   ISaveInterviewFeedbackInputDTO,
   ISaveInterviewFeedbackOutputDTO,
 } from '../dtos/InterviewCommandDTO.js';
+
+const PASS_SCORE = 3;
+
+function roundFeedback(app: Application, round: string) {
+  const fromArr = app.interviewRounds?.find((x) => x.round === round);
+  if (fromArr) return fromArr;
+  if (app.interviewDetails?.round === round) return app.interviewDetails;
+  return undefined;
+}
 
 @injectable()
 export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCase {
@@ -17,7 +29,10 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
     @inject(TYPES.InterviewRepositoryPort) private readonly _interviewRepo: IInterviewRepository,
     @inject(TYPES.InterviewFeedbackRepositoryPort)
     private readonly _feedbackRepo: IInterviewFeedbackRepository,
-    @inject(TYPES.ApplicationRepositoryPort) private readonly _applicationRepo: IApplicationRepository
+    @inject(TYPES.ApplicationRepositoryPort) private readonly _applicationRepo: IApplicationRepository,
+    @inject(TYPES.JobRepositoryPort) private readonly _jobRepo: IJobRepository,
+    @inject(TYPES.UpdateApplicationStatusUseCasePort)
+    private readonly _updateApplicationStatus: IUpdateApplicationStatusUseCase
   ) {}
 
   async execute(input: ISaveInterviewFeedbackInputDTO): Promise<ISaveInterviewFeedbackOutputDTO> {
@@ -70,6 +85,69 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
       feedback: feedback.trim(),
       totalScore,
     });
+
+    const appAfter = await this._applicationRepo.findByIdAndJobId(
+      interview.applicationId,
+      interview.jobId,
+      interview.companyId
+    );
+    if (!appAfter) {
+      return { success: true };
+    }
+
+    if (appAfter.status === 'REJECTED' || appAfter.status === 'HIRED') {
+      return { success: true };
+    }
+
+    const job = await this._jobRepo.findById(interview.jobId);
+    const jobRounds =
+      job?.interviewRounds && job.interviewRounds.length > 0 ? job.interviewRounds : ['HR Screening'];
+
+    if (totalScore < PASS_SCORE) {
+      const rejectionBody = `Dear ${appAfter.fullName},
+
+Thank you for interviewing for this position. After careful consideration of your performance in the ${interview.round} round (score ${totalScore}/5), we will not be moving forward with your application at this time.
+
+We appreciate the time you invested and wish you success in your search.
+
+Best regards,
+HR Team`;
+      await this._updateApplicationStatus.execute({
+        applicationId: interview.applicationId,
+        jobId: interview.jobId,
+        companyId: interview.companyId,
+        status: 'REJECTED',
+        rejectionEmailContent: rejectionBody,
+      });
+      return { success: true };
+    }
+
+    const allRoundsPass = jobRounds.every((r) => {
+      const fd = roundFeedback(appAfter, r);
+      const s = fd?.totalScore;
+      return typeof s === 'number' && s >= PASS_SCORE;
+    });
+
+    if (allRoundsPass) {
+      const jobTitle = job?.title ?? 'the role';
+      const offerBody = `Dear ${appAfter.fullName},
+
+We are pleased to offer you the position of ${jobTitle}. You have successfully completed all interview rounds.
+
+This letter is saved in our system for your records. Our HR team may follow up with detailed compensation and next steps.
+
+Congratulations, and welcome aboard.
+
+Best regards,
+HR Team`;
+      await this._updateApplicationStatus.execute({
+        applicationId: interview.applicationId,
+        jobId: interview.jobId,
+        companyId: interview.companyId,
+        status: 'HIRED',
+        offerEmailContent: offerBody,
+      });
+    }
 
     return { success: true };
   }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import OfferLetterModal from "../../components/applications/OfferLetterModal";
+import OfferLetterModal, { type OfferLetterData } from "../../components/applications/OfferLetterModal";
 import RejectionEmailModal from "../../components/applications/RejectionEmailModal";
 import Button from "../../components/common/Button";
 import Table from "../../components/common/Table";
@@ -8,6 +8,7 @@ import Input from "../../components/common/Input";
 import { useApplication, COMPANY_PLACEHOLDER } from "../../hooks/application/useApplication";
 import Pagination from "../../components/common/Pagination";
 import { ToastContainer } from "../../components/common/Toast";
+import { showToast } from "../../components/common/toastService";
 import { applicationsService } from "../../services/applications.service";
 import { companyTeamService, type TeamMember } from "../../services/companyTeam.service";
 import { interviewerSlotsService } from "../../services/interviewerSlots.service";
@@ -159,6 +160,7 @@ const HRApplicationsPage = () => {
 
     // Modal states (pure UI)
     const [showOfferModal, setShowOfferModal] = useState(false);
+    const [isSendingOffer, setIsSendingOffer] = useState(false);
     const [showInterviewerModal, setShowInterviewerModal] = useState(false);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [showCandidateDetail, setShowCandidateDetail] = useState(false);
@@ -396,10 +398,26 @@ const HRApplicationsPage = () => {
     // Helper function to format slot date
  
 
-    const handleConfirmOffer = async () => {
-     
-        alert(`Offer letter sent to ${selectedCandidate?.name}!`);
-        setShowOfferModal(false);
+    const handleConfirmOffer = async (data: OfferLetterData) => {
+        if (!selectedJob || !selectedCandidate) return;
+        setIsSendingOffer(true);
+        try {
+            await applicationsService.updateApplicationStatus(selectedJob.id, selectedCandidate.applicationId, {
+                status: "HIRED",
+                offerEmailContent: data.content,
+                offerSalary: data.salary,
+                offerLocation: data.location,
+                offerStartDate: data.startDate,
+                offerBenefits: data.benefits,
+            });
+            showToast(`Offer letter saved for ${selectedCandidate.name}`, "success");
+            setShowOfferModal(false);
+            await refreshSelectedJobApplications();
+        } catch {
+            showToast("Could not save offer letter. Please try again.", "error");
+        } finally {
+            setIsSendingOffer(false);
+        }
     };
 
 
@@ -1200,7 +1218,16 @@ const HRApplicationsPage = () => {
                             {(selectedCandidate.status === 'INTERVIEW_COMPLETE' || selectedCandidate.status === 'COMPLETED') && (
                                 <>
                                     <button onClick={() => { setShowCandidateDetail(false); handleSendOffer(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Send Offer</button>
-                                    <button onClick={() => { setShowCandidateDetail(false); handleReject(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Reject</button>
+                                    <button
+                                        onClick={() => {
+                                            handleReject(selectedCandidate);
+                                            setShowCandidateDetail(false);
+                                            setShowRejectionModal(true);
+                                        }}
+                                        style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
+                                    >
+                                        Reject
+                                    </button>
                                 </>
                             )}
                             {selectedCandidate.status === 'RESCHEDULE_REQUESTED' && (
@@ -1961,7 +1988,7 @@ const HRApplicationsPage = () => {
                 candidate={selectedCandidate ? { name: selectedCandidate.name, email: selectedCandidate.email } : null}
                 job={selectedJob ? { title: selectedJob.title, location: selectedJob.location, jobType: selectedJob.jobType || 'Full-time', salary: selectedJob.salary, department: selectedJob.department } : null}
                 company={COMPANY_PLACEHOLDER}
-                isLoading={false}
+                isLoading={isSendingOffer}
             />
 
             {/* EXISTING REJECTION EMAIL MODAL */}
@@ -2102,7 +2129,11 @@ const HRApplicationsPage = () => {
                                 Send Offer
                             </button>
                             <button
-                                onClick={() => { setShowFeedbackModal(false); handleReject(selectedCandidate); }}
+                                onClick={() => {
+                                    setShowFeedbackModal(false);
+                                    handleReject(selectedCandidate);
+                                    setShowRejectionModal(true);
+                                }}
                                 style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
                             >
                                 Reject

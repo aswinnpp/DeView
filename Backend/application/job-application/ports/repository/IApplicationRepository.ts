@@ -38,6 +38,7 @@ export interface IApplicationRepository {
     companyId: string;
     status: ApplicationStatus;
     rejectionEmailContent?: string;
+    offerEmailContent?: string;
   }): Promise<Application | null>;
 
   addCompletedRound(input: {

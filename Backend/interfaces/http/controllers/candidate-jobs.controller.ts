@@ -5,6 +5,8 @@ import { TYPES } from '../../../infrastructure/di/types.js';
 import type { IListAllJobsForCandidatesUseCase } from '../../../application/candidate/ports/usecase/IListAllJobsForCandidatesUseCase.js';
 import type { IApplyForJobUseCase } from '../../../application/candidate/ports/usecase/IApplyForJobUseCase.js';
 import type { IListMyApplicationsUseCase } from '../../../application/candidate/ports/usecase/IListMyApplicationsUseCase.js';
+import { ListCandidateMailboxUseCase } from '../../../application/candidate/use-cases/list-candidate-mailbox.usecase.js';
+import { SubmitOfferCounterLetterUseCase } from '../../../application/candidate/use-cases/submit-offer-counter-letter.usecase.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ApplicationMapper } from '../../../application/job-application/mappers/ApplicationMapper.js';
 
@@ -27,6 +29,10 @@ export class CandidateJobsController {
     private readonly _applyForJobUseCase: IApplyForJobUseCase,
     @inject(TYPES.ListMyApplicationsUseCasePort)
     private readonly _listMyApplicationsUseCase: IListMyApplicationsUseCase,
+    @inject(ListCandidateMailboxUseCase)
+    private readonly _listCandidateMailboxUseCase: ListCandidateMailboxUseCase,
+    @inject(SubmitOfferCounterLetterUseCase)
+    private readonly _submitOfferCounterLetterUseCase: SubmitOfferCounterLetterUseCase
   ) {}
 
   applyForJob = async (
@@ -83,6 +89,50 @@ export class CandidateJobsController {
 
     const data = ApplicationMapper.toListView(result.data);
     reply.send(success({ data, total: result.total }));
+  };
+
+  listMailbox = async (request: FastifyRequest, reply: FastifyReply) => {
+    const userId = request.currentUser.userId;
+    const result = await this._listCandidateMailboxUseCase.execute(userId);
+    reply.send(success(result));
+  };
+
+  submitOfferCounter = async (
+    request: FastifyRequest<{ Params: { offerMailId: string }; Body: { letter?: string } }>,
+    reply: FastifyReply
+  ) => {
+    const userId = request.currentUser.userId;
+    const { offerMailId } = request.params;
+    const letter = request.body?.letter ?? '';
+    const result = await this._submitOfferCounterLetterUseCase.execute({
+      candidateUserId: userId,
+      offerMailId,
+      letter,
+    });
+    const m = result.offer;
+    const c = result.counter;
+    reply.send(
+      success({
+        offer: {
+          id: m.id,
+          applicationId: m.applicationId,
+          jobId: m.jobId,
+          companyId: m.companyId,
+          candidateUserId: m.candidateUserId,
+          candidateName: m.candidateName,
+          candidateEmail: m.candidateEmail,
+          content: m.content,
+          salary: m.salary,
+          location: m.location,
+          startDate: m.startDate,
+          benefits: m.benefits,
+          status: m.status,
+          counterLetter: c.content,
+          counterSentAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : String(c.createdAt),
+          createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : String(m.createdAt),
+        },
+      })
+    );
   };
 
   getAllJobs = async (

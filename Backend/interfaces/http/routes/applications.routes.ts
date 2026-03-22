@@ -8,6 +8,14 @@ export async function applicationsRoutes(
 ) {
   fastify.addHook('preHandler', requireRoles('company', 'hr' ));
 
+  fastify.get('/offer-mails', {
+    handler: controller.listOfferMails,
+  });
+
+  fastify.post('/offer-mails/:offerMailId/counter/respond', {
+    handler: controller.respondToCounterLetter,
+  });
+
   fastify.get('/jobs', {
     handler: controller.listJobs,
   });

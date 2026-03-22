@@ -90,36 +90,6 @@ interface IJobApplicant {
     updatedAt: string;
 }
 
-interface IMail {
-    id: string;
-    candidateEmail: string;
-    candidateName: string;
-    type: 'offer' | 'rejection';
-    subject: string;
-    content: string;
-    jobTitle: string;
-    companyName: string;
-    sentAt: string;
-    read: boolean;
-    jobId?: string;
-    hrName?: string;
-    offerDetails?: {
-        position: string;
-        salary: string;
-        startDate: string;
-        location: string;
-        benefits?: string[];
-    };
-    status?: 'pending' | 'accepted' | 'rejected' | 'counter_sent';
-    counterDetails?: {
-        expectedSalary: string;
-        preferredStartDate: string;
-        preferredLocation: string;
-        additionalNotes: string;
-        submittedAt: string;
-    };
-}
-
 interface ISystemDataContextType {
     hrs: IHR[];
     interviews: IInterview[];
@@ -129,7 +99,6 @@ interface ISystemDataContextType {
     companies: ICompany[];
     jobs: IJob[];
     subscriptionPlans: ISubscriptionPlan[];
-    mails: IMail[];
     addHr: (hr: IHR) => void;
     toggleInterviewerActive: (id: string) => void;
     addInterviewer: (interviewer: IInterviewer) => void;
@@ -151,10 +120,6 @@ interface ISystemDataContextType {
     updateCandidate: (id: string, updates: Partial<ICandidate>) => void;
     updateJobApplicantStatus: (jobId: string, candidateId: string, status: string) => void;
     scheduleInterviewForApplicant: (jobId: string, candidateId: string, details: Partial<IInterview> & { candidateName: string }) => void;
-    markMailAsRead: (mailId: string) => void;
-    sendCounterOffer: (mailId: string, counterDetails: IMail['counterDetails']) => void;
-    acceptOffer: (mailId: string) => void;
-    rejectOffer: (mailId: string) => void;
 }
 
 const SystemDataContext = createContext<ISystemDataContextType | null>(null);
@@ -177,46 +142,6 @@ export const SystemDataProvider = ({ children }: ISystemDataProviderProps) => {
     ]);
 
     const [paymentRequests, setPaymentRequests] = useState<IPaymentRequest[]>([]);
-
-    // Initialize mails with current user's email from localStorage
-    const getUserEmail = () => localStorage.getItem('userEmail') || 'candidate@example.com';
-    const getUserName = () => localStorage.getItem('userName') || 'Candidate';
-
-    const [mails, setMails] = useState<IMail[]>([
-        {
-            id: 'mail-1',
-            candidateEmail: getUserEmail(),
-            candidateName: getUserName(),
-            type: 'offer',
-            subject: 'Job Offer - Senior Frontend Developer',
-            content: `Dear ${getUserName()},\n\nWe are pleased to offer you the position of Senior Frontend Developer at TechCorp Solutions.\n\nAfter careful consideration of your qualifications and interview performance, we believe you would be an excellent addition to our team.\n\nPlease review the offer details below and respond within 7 days.\n\nBest regards,\nHR Team`,
-            jobTitle: 'Senior Frontend Developer',
-            companyName: 'TechCorp Solutions',
-            sentAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            read: false,
-            hrName: 'Sarah Johnson',
-            offerDetails: {
-                position: 'Senior Frontend Developer',
-                salary: '₹18-22 LPA',
-                startDate: 'January 15, 2026',
-                location: 'Bangalore, Karnataka',
-                benefits: ['Health Insurance', 'Flexible work hours', 'Professional development budget', 'Stock options']
-            }
-        },
-        {
-            id: 'mail-2',
-            candidateEmail: getUserEmail(),
-            candidateName: getUserName(),
-            type: 'rejection',
-            subject: 'Application Status - Backend Developer Position',
-            content: `Dear ${getUserName()},\n\nThank you for your interest in the Backend Developer position at InnovateTech.\n\nAfter careful consideration, we have decided to move forward with other candidates whose experience more closely aligns with our current needs.\n\nWe wish you the best in your job search.\n\nBest regards,\nRecruitment Team`,
-            jobTitle: 'Backend Developer',
-            companyName: 'InnovateTech',
-            sentAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-            read: true,
-            hrName: 'Michael Chen'
-        }
-    ]);
 
     // HR Actions
     const addHr = (hr: IHR) => {
@@ -423,38 +348,6 @@ export const SystemDataProvider = ({ children }: ISystemDataProviderProps) => {
         );
     };
 
-    // Mail Actions
-    const markMailAsRead = (mailId: string) => {
-        setMails(prev => prev.map(mail =>
-            mail.id === mailId ? { ...mail, read: true } : mail
-        ));
-    };
-
-    const sendCounterOffer = (mailId: string, counterDetails: IMail['counterDetails']) => {
-        setMails(prev => prev.map(mail =>
-            mail.id === mailId ? {
-                ...mail,
-                status: 'counter_sent',
-                counterDetails: {
-                    ...counterDetails!,
-                    submittedAt: new Date().toISOString()
-                }
-            } : mail
-        ));
-    };
-
-    const acceptOffer = (mailId: string) => {
-        setMails(prev => prev.map(mail =>
-            mail.id === mailId ? { ...mail, status: 'accepted' } : mail
-        ));
-    };
-
-    const rejectOffer = (mailId: string) => {
-        setMails(prev => prev.map(mail =>
-            mail.id === mailId ? { ...mail, status: 'rejected' } : mail
-        ));
-    };
-
     const value = useMemo(
         () => ({
             hrs,
@@ -486,15 +379,10 @@ export const SystemDataProvider = ({ children }: ISystemDataProviderProps) => {
             updateCandidate,
             updateJobApplicantStatus,
             scheduleInterviewForApplicant,
-            mails,
-            markMailAsRead,
-            sendCounterOffer,
-            acceptOffer,
-            rejectOffer
         }),
         // Intentionally stable: callback identities are stable; full deps would cause unnecessary re-renders
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [hrs, interviews, interviewers, candidates, paymentRequests, companies, jobs, subscriptionPlans, mails]
+        [hrs, interviews, interviewers, candidates, paymentRequests, companies, jobs, subscriptionPlans]
     );
 
     return <SystemDataContext.Provider value={value}>{children}</SystemDataContext.Provider>;

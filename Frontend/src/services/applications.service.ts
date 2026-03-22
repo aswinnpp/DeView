@@ -63,6 +63,10 @@ export interface ApplicationItem {
     requestedAt: string;
   };
   completedRounds?: string[];
+  rejectionEmailContent?: string;
+  rejectionSentAt?: string;
+  offerEmailContent?: string;
+  offerSentAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -94,6 +98,7 @@ export interface JobListItem {
   jobType: string;
   salary?: string;
   status: string;
+  interviewRounds?: string[];
   applicants?: JobApplicantDoc[];
   createdAt: string;
   updatedAt: string;
@@ -282,7 +287,7 @@ export const applicationsService = {
     return res.data as { scores: Array<{ applicationId: string; matchScore: number }> };
   },
 
-  /** Update status (and optional rejection email content) for a single application. */
+  /** Update status (and optional rejection / offer email content) for a single application. */
   updateApplicationStatus: async (
     jobId: string,
     applicationId: string,
@@ -297,12 +302,67 @@ export const applicationsService = {
         | "REJECTED"
         | "RESCHEDULE_REQUESTED";
       rejectionEmailContent?: string;
+      offerEmailContent?: string;
+      offerSalary?: string;
+      offerLocation?: string;
+      offerStartDate?: string;
+      offerBenefits?: string;
     }
   ): Promise<void> => {
     await api.put(
       API_ROUTES.APPLICATIONS.UPDATE_STATUS(jobId, applicationId),
       payload
     );
+  },
+
+  respondToCounterLetter: async (
+    offerMailId: string,
+    action: "accept" | "reject"
+  ): Promise<void> => {
+    await api.post(API_ROUTES.APPLICATIONS.COUNTER_RESPOND(offerMailId), { action });
+  },
+
+  listOfferMails: async (): Promise<
+    Array<{
+      id: string | null;
+      applicationId: string;
+      jobId: string;
+      companyId: string;
+      candidateUserId: string;
+      candidateName: string;
+      candidateEmail: string;
+      content: string;
+      salary?: string;
+      location?: string;
+      startDate?: string;
+      benefits?: string;
+      status: "pending" | "accepted" | "declined" | "counter";
+      counterLetter?: string;
+      counterSentAt?: string;
+      createdAt: string;
+    }>
+  > => {
+    const res = await api.get<{ data?: unknown }>(API_ROUTES.APPLICATIONS.OFFER_MAILS);
+    const raw = (res.data as { data?: unknown })?.data;
+    if (!Array.isArray(raw)) return [];
+    return raw as Array<{
+      id: string | null;
+      applicationId: string;
+      jobId: string;
+      companyId: string;
+      candidateUserId: string;
+      candidateName: string;
+      candidateEmail: string;
+      content: string;
+      salary?: string;
+      location?: string;
+      startDate?: string;
+      benefits?: string;
+      status: "pending" | "accepted" | "declined" | "counter";
+      counterLetter?: string;
+      counterSentAt?: string;
+      createdAt: string;
+    }>;
   },
 
   /** Schedule an interview for a single application. */

@@ -11,6 +11,8 @@ import type { IDeclineRescheduleRequestUseCase } from '../../../application/job-
 import type { IGetResumeViewUrlUseCase } from '../../../application/job-application/use-cases/get-resume-view-url.usecase.js';
 import type { IGetLatestInterviewerFeedbackUseCase } from '../../../application/job-application/use-cases/get-latest-interviewer-feedback.usecase.js';
 import type { IPrecheckScheduleInterviewUseCase } from '../../../application/job-application/ports/usecase/IPrecheckScheduleInterviewUseCase';
+import { ListOfferMailsUseCase } from '../../../application/job-application/use-cases/list-offer-mails.usecase.js';
+import { RespondToCounterLetterUseCase } from '../../../application/job-application/use-cases/respond-to-counter-letter.usecase.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ApplicationMapper } from '../../../application/job-application/mappers/ApplicationMapper.js';
 import { applicationsListQuerySchema } from '../schemas/applications.schema.js';
@@ -38,7 +40,9 @@ export class ApplicationsController {
     @inject(TYPES.GetResumeViewUrlUseCasePort)
     private readonly _getResumeViewUrlUseCase: IGetResumeViewUrlUseCase,
     @inject(TYPES.GetLatestInterviewerFeedbackUseCasePort)
-    private readonly _getLatestInterviewerFeedbackUseCase: IGetLatestInterviewerFeedbackUseCase
+    private readonly _getLatestInterviewerFeedbackUseCase: IGetLatestInterviewerFeedbackUseCase,
+    @inject(ListOfferMailsUseCase) private readonly _listOfferMailsUseCase: ListOfferMailsUseCase,
+    @inject(RespondToCounterLetterUseCase) private readonly _respondToCounterLetterUseCase: RespondToCounterLetterUseCase
   ) {}
 
   listJobs = async (
@@ -127,6 +131,45 @@ export class ApplicationsController {
     reply.send(success(result));
   };
 
+  listOfferMails = async (request: FastifyRequest, reply: FastifyReply) => {
+    const ctx = toContext(request.currentUser);
+    const result = await this._listOfferMailsUseCase.execute({
+      companyId: ctx.companyId ?? '',
+    });
+    const data = result.data.map((m) => {
+      const mid = m.id ?? '';
+      const fromNew = mid ? result.counterLettersByOfferMailId.get(mid) : undefined;
+      const fromLegacy = mid && !fromNew ? result.legacyEmbeddedCounters.get(mid) : undefined;
+      const counterLetter = fromNew?.content ?? fromLegacy?.content;
+      const counterSentAtRaw = fromNew?.createdAt ?? fromLegacy?.sentAt;
+      const counterSentAt =
+        counterSentAtRaw instanceof Date ? counterSentAtRaw.toISOString() : counterSentAtRaw ? String(counterSentAtRaw) : undefined;
+      const counterResponseStatus = fromNew?.responseStatus === 'accepted' || fromNew?.responseStatus === 'rejected'
+        ? fromNew.responseStatus
+        : undefined;
+      return {
+        id: m.id,
+        applicationId: m.applicationId,
+        jobId: m.jobId,
+        companyId: m.companyId,
+        candidateUserId: m.candidateUserId,
+        candidateName: m.candidateName,
+        candidateEmail: m.candidateEmail,
+        content: m.content,
+        salary: m.salary,
+        location: m.location,
+        startDate: m.startDate,
+        benefits: m.benefits,
+        status: m.status,
+        ...(counterLetter !== undefined && { counterLetter }),
+        ...(counterSentAt !== undefined && { counterSentAt }),
+        ...(counterResponseStatus !== undefined && { counterResponseStatus }),
+        createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : String(m.createdAt),
+      };
+    });
+    reply.send(success({ data }));
+  };
+
   updateStatus = async (
     request: FastifyRequest<{
       Params: { jobId: string; applicationId: string };
@@ -141,6 +184,11 @@ export class ApplicationsController {
           | 'REJECTED'
           | 'RESCHEDULE_REQUESTED';
         rejectionEmailContent?: string;
+        offerEmailContent?: string;
+        offerSalary?: string;
+        offerLocation?: string;
+        offerStartDate?: string;
+        offerBenefits?: string;
       };
     }>,
     reply: FastifyReply
@@ -198,6 +246,27 @@ export class ApplicationsController {
       companyId: ctx.companyId ?? '',
       jobId: request.params.jobId,
       applicationId: request.params.applicationId,
+    });
+    reply.send(success(result));
+  };
+
+  respondToCounterLetter = async (
+    request: FastifyRequest<{
+      Params: { offerMailId: string };
+      Body: { action: 'accept' | 'reject' };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const ctx = toContext(request.currentUser);
+    const companyId = ctx.companyId ?? '';
+    const action = request.body?.action;
+    if (action !== 'accept' && action !== 'reject') {
+      return reply.status(400).send({ success: false, message: 'action must be accept or reject' });
+    }
+    const result = await this._respondToCounterLetterUseCase.execute({
+      offerMailId: request.params.offerMailId,
+      companyId,
+      action,
     });
     reply.send(success(result));
   };

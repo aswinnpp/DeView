@@ -10,5 +10,7 @@ export interface IRejectionMailRepository {
     candidateEmail: string;
     content: string;
   }): Promise<RejectionMail>;
+
+  listByCandidateUserId(candidateUserId: string): Promise<RejectionMail[]>;
 }
 

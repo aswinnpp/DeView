@@ -67,6 +67,8 @@ export class Application {
     public completedRounds: string[] = [],
     public rejectionEmailContent?: string,
     public rejectionSentAt?: Date,
+    public offerEmailContent?: string,
+    public offerSentAt?: Date,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) {}

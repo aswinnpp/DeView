@@ -65,6 +65,8 @@ export const TYPES = {
   PaymentRepositoryPort: Symbol("PaymentRepositoryPort"),
   JobRepositoryPort: Symbol('JobRepositoryPort'),
   RejectionMailRepositoryPort: Symbol('RejectionMailRepositoryPort'),
+  OfferMailRepositoryPort: Symbol('OfferMailRepositoryPort'),
+  CounterLetterRepositoryPort: Symbol('CounterLetterRepositoryPort'),
 
   CreatePaymentIntentUseCasePort: Symbol("CreatePaymentIntentUseCasePort"),
   HandlePaymentWebhookUseCasePort: Symbol("HandlePaymentWebhookUseCasePort"),

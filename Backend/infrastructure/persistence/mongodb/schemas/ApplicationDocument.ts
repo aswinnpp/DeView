@@ -70,6 +70,10 @@ export interface IApplicationDocument {
   rejectionEmailContent?: string;
   /** When the rejection email was sent */
   rejectionSentAt?: Date;
+  /** Full offer letter body saved when status becomes HIRED */
+  offerEmailContent?: string;
+  /** When the offer letter was saved */
+  offerSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

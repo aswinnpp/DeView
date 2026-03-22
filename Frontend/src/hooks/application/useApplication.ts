@@ -97,6 +97,25 @@ export const COMPANY_PLACEHOLDER = {
 const JOBS_PER_PAGE = 3;
 const CANDIDATES_PER_PAGE = 3;
 
+function buildCompletedRoundsFromApi(apiApp: ApplicationItem): Candidate["completedRounds"] {
+  const completed = apiApp.completedRounds ?? [];
+  const rounds = apiApp.interviewRounds ?? [];
+  if (completed.length === 0) return [];
+  return completed.map((roundName) => {
+    const entry = rounds.find((r) => r.round === roundName);
+    const score = entry?.totalScore ?? 0;
+    const n = typeof score === "number" ? score : 0;
+    return {
+      roundName,
+      interviewer: entry?.interviewer ?? "—",
+      date: entry ? `${entry.scheduledDate} ${entry.scheduledTime}` : "—",
+      score: n,
+      result: n >= 3 ? ("PASSED" as const) : ("FAILED" as const),
+      feedback: entry?.feedback ?? "",
+    };
+  });
+}
+
 function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): Candidate {
   const appliedDate = apiApp.createdAt
     ? new Date(apiApp.createdAt).toLocaleDateString("en-IN", {
@@ -142,7 +161,7 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     interviewDetails: apiApp.interviewDetails,
     rescheduleRequest: apiApp.rescheduleRequest,
     attemptedRounds: apiApp.completedRounds ?? [],
-    completedRounds: [],
+    completedRounds: buildCompletedRoundsFromApi(apiApp),
   };
 }
 
@@ -193,7 +212,7 @@ export function useApplication() {
             salary: j.salary,
             jobType: j.jobType,
             applicantCount: j.applicants?.length ?? 0,
-            interviewRounds: (j as unknown as { interviewRounds?: string[] })?.interviewRounds ?? [],
+            interviewRounds: j.interviewRounds ?? [],
           }))
         );
         setJobsTotal(res.total);
@@ -312,7 +331,7 @@ export function useApplication() {
           c.id === selectedCandidate.id ? { ...c, status: "REJECTED" as ExtendedApplicantStatus } : c
         )
       );
-      showToast(`Rejection email sent to ${selectedCandidate.name}`, "success");
+      showToast(`Rejection email saved for ${selectedCandidate.name}`, "success");
     } catch {
       alert("Could not update application status. Please try again.");
     }

@@ -58,6 +58,8 @@ import { ToggleCandidateStatusUseCase } from '../../application/candidate/use-ca
 import { ListAllJobsForCandidatesUseCase } from '../../application/candidate/use-cases/list-all-jobs-for-candidates.usecase.js';
 import { ApplyForJobUseCase } from '../../application/candidate/use-cases/apply-for-job.usecase.js';
 import { ListMyApplicationsUseCase } from '../../application/candidate/use-cases/list-my-applications.usecase.js';
+import { ListCandidateMailboxUseCase } from '../../application/candidate/use-cases/list-candidate-mailbox.usecase.js';
+import { SubmitOfferCounterLetterUseCase } from '../../application/candidate/use-cases/submit-offer-counter-letter.usecase.js';
 import { ListPendingApplicationsForJobUseCase } from '../../application/job-application/use-cases/list-pending-applications-for-job.usecase.js';
 import { ScoreCandidatesUseCase } from '../../application/job-application/use-cases/score-candidates.usecase.js';
 import { UpdateApplicationStatusUseCase } from '../../application/job-application/use-cases/update-application-status.usecase.js';
@@ -66,6 +68,8 @@ import { PrecheckScheduleInterviewUseCase } from '../../application/job-applicat
 import { DeclineRescheduleRequestUseCase } from '../../application/job-application/use-cases/decline-reschedule-request.usecase.js';
 import { GetResumeViewUrlUseCase } from '../../application/job-application/use-cases/get-resume-view-url.usecase.js';
 import { GetLatestInterviewerFeedbackUseCase } from '../../application/job-application/use-cases/get-latest-interviewer-feedback.usecase.js';
+import { ListOfferMailsUseCase } from '../../application/job-application/use-cases/list-offer-mails.usecase.js';
+import { RespondToCounterLetterUseCase } from '../../application/job-application/use-cases/respond-to-counter-letter.usecase.js';
 import { ListMyInterviewsUseCase } from '../../application/interview/use-cases/list-my-interviews.usecase.js';
 import { GetInterviewRoomDetailsUseCase } from '../../application/interview/use-cases/get-interview-room-details.usecase.js';
 import { ListInterviewerAssignmentsUseCase } from '../../application/interview/use-cases/list-interviewer-assignments.usecase.js';
@@ -153,6 +157,8 @@ export function bindUseCases(container: Container): void {
 
   container.bind(TYPES.ApplyForJobUseCasePort).to(ApplyForJobUseCase);
   container.bind(TYPES.ListMyApplicationsUseCasePort).to(ListMyApplicationsUseCase);
+  container.bind(ListCandidateMailboxUseCase).toSelf();
+  container.bind(SubmitOfferCounterLetterUseCase).toSelf();
 
   // Application use cases (company/HR)
   container.bind(TYPES.ListPendingApplicationsForJobUseCasePort).to(ListPendingApplicationsForJobUseCase);
@@ -163,6 +169,8 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.DeclineRescheduleRequestUseCasePort).to(DeclineRescheduleRequestUseCase);
   container.bind(TYPES.GetResumeViewUrlUseCasePort).to(GetResumeViewUrlUseCase);
   container.bind(TYPES.GetLatestInterviewerFeedbackUseCasePort).to(GetLatestInterviewerFeedbackUseCase);
+  container.bind(ListOfferMailsUseCase).toSelf();
+  container.bind(RespondToCounterLetterUseCase).toSelf();
 
   // Interview use cases
   container.bind(TYPES.ListMyInterviewsUseCasePort).to(ListMyInterviewsUseCase);

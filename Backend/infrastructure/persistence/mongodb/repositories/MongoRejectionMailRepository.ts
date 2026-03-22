@@ -48,5 +48,13 @@ export class MongoRejectionMailRepository implements IRejectionMailRepository {
     };
     return toDomain(inserted);
   }
+
+  async listByCandidateUserId(candidateUserId: string): Promise<RejectionMail[]> {
+    const docs = await this._collection
+      .find({ candidateUserId })
+      .sort({ createdAt: -1 })
+      .toArray();
+    return docs.map((d) => toDomain(d));
+  }
 }
 

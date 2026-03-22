@@ -20,7 +20,7 @@ const CompanyApprovalPendingPage = lazy(() => import("../features/company/Compan
 const CompanyLayout = lazy(() => import("../features/company/CompanyLayout"));
 const ManageHRPage = lazy(() => import("../features/company/ManageHRPage"));
 const CompanyProfilePage = lazy(() => import("../features/company/CompanyProfilePage"));
-const CompanyOfferLettersPage = lazy(() => import("../features/company/OfferLettersPage"));
+const OfferLettersPage = lazy(() => import("../features/offerLetter/OfferLettersPage"));
 const JobsPage = lazy(() => import("../features/jobs/JobsPage"));
 
 
@@ -28,6 +28,7 @@ const Profile = lazy(() => import("../features/candidate/Profile"));
 const CandidateInterviews = lazy(() => import("../features/candidate/CandidateInterviews"));
 const CandidateJobsPage = lazy(() => import("../features/candidate/CandidateJobsPage"));
 const CandidateAppliedJobsPage = lazy(() => import("../features/candidate/CandidateAppliedJobsPage"));
+const CandidateMailsPage = lazy(() => import("../features/candidate/CandidateMailsPage"));
 const CandidateLayout = lazy(() => import("../features/candidate/CandidateLayout"));
 
 
@@ -93,6 +94,7 @@ const AppRouter = () => {
             <Route path="jobs" element={<CandidateJobsPage />} />
             <Route path="interviews" element={<CandidateInterviews />} />
             <Route path="applied" element={<CandidateAppliedJobsPage />} />
+            <Route path="mails" element={<CandidateMailsPage />} />
           </Route>
 
           <Route path="/admin" element={<AdminLayout />}>
@@ -109,7 +111,7 @@ const AppRouter = () => {
             <Route path="dashboard" element={<RecruitmentDashboardPage />} />
             <Route path="jobs" element={<JobsPage />} />
             <Route path="applications" element={<ApplicationsManagementPage />} />
-            <Route path="offer-letters" element={<CompanyOfferLettersPage />} />
+            <Route path="offer-letters" element={<OfferLettersPage />} />
             <Route path="team" element={<ManageHRPage />} />
             <Route path="profile" element={<CompanyProfilePage />} />
           </Route>
@@ -119,6 +121,7 @@ const AppRouter = () => {
             <Route path="dashboard" element={<RecruitmentDashboardPage />} />
             <Route path="jobs" element={<JobsPage />} />
             <Route path="applications" element={<ApplicationsManagementPage />} />
+            <Route path="offer-letters" element={<OfferLettersPage />} />
           </Route>
 
           {/* Interviewer routes */}

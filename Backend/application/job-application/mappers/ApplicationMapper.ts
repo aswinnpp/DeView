@@ -80,6 +80,20 @@ export const ApplicationMapper = {
           }
         : undefined,
       completedRounds: app.completedRounds ?? [],
+      rejectionEmailContent: app.rejectionEmailContent,
+      rejectionSentAt:
+        app.rejectionSentAt instanceof Date
+          ? app.rejectionSentAt.toISOString()
+          : app.rejectionSentAt != null
+            ? String(app.rejectionSentAt)
+            : undefined,
+      offerEmailContent: app.offerEmailContent,
+      offerSentAt:
+        app.offerSentAt instanceof Date
+          ? app.offerSentAt.toISOString()
+          : app.offerSentAt != null
+            ? String(app.offerSentAt)
+            : undefined,
       createdAt: app.createdAt instanceof Date ? app.createdAt.toISOString() : String(app.createdAt),
       updatedAt: app.updatedAt instanceof Date ? app.updatedAt.toISOString() : String(app.updatedAt),
     };
@@ -164,6 +178,11 @@ export const ApplicationMapper = {
         | 'REJECTED'
         | 'RESCHEDULE_REQUESTED';
       rejectionEmailContent?: string;
+      offerEmailContent?: string;
+      offerSalary?: string;
+      offerLocation?: string;
+      offerStartDate?: string;
+      offerBenefits?: string;
     },
     context: CallerContext
   ): IUpdateApplicationStatusInputDTO {
@@ -173,6 +192,11 @@ export const ApplicationMapper = {
       companyId: context.companyId || '',
       status: body.status as ApplicationStatus,
       rejectionEmailContent: body.rejectionEmailContent,
+      offerEmailContent: body.offerEmailContent,
+      offerSalary: body.offerSalary,
+      offerLocation: body.offerLocation,
+      offerStartDate: body.offerStartDate,
+      offerBenefits: body.offerBenefits,
     };
   },
 
@@ -183,6 +207,7 @@ export const ApplicationMapper = {
       | 'SHORTLISTED'
       | 'INTERVIEW_SCHEDULED'
       | 'INTERVIEW_COMPLETE'
+      | 'COMPLETED'
       | 'HIRED'
       | 'REJECTED'
       | 'RESCHEDULE_REQUESTED';

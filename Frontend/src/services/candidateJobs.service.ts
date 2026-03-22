@@ -70,6 +70,40 @@ export interface ApplyForJobParams {
   resumeUrl?: string;
 }
 
+export type OfferMailboxStatus = "pending" | "accepted" | "declined" | "counter";
+
+export interface CandidateMailboxOfferRow {
+  id: string | null;
+  applicationId: string;
+  jobId: string;
+  jobTitle: string;
+  companyName: string;
+  content: string;
+  salary?: string;
+  location?: string;
+  startDate?: string;
+  benefits?: string;
+  status: OfferMailboxStatus;
+  counterLetter?: string;
+  counterSentAt?: string;
+  /** Company response to candidate counter (accepted | rejected). */
+  counterResponseStatus?: "accepted" | "rejected";
+  createdAt: string;
+}
+
+export interface CandidateMailboxData {
+  offers: CandidateMailboxOfferRow[];
+  rejections: Array<{
+    id: string | null;
+    applicationId: string;
+    jobId: string;
+    jobTitle: string;
+    companyName: string;
+    content: string;
+    createdAt: string;
+  }>;
+}
+
 export interface MyApplicationsParams {
   status?: string;
   search?: string;
@@ -130,6 +164,32 @@ export const candidateJobsService = {
         },
       })
       .then((res) => toPaginatedResult(res.data)),
+
+  listMailbox: async (): Promise<CandidateMailboxData> => {
+    const res = await api.get<CandidateMailboxData>(API_ROUTES.CANDIDATE.MAILBOX);
+    const body = res.data;
+    if (body && typeof body === "object" && "offers" in body && "rejections" in body) {
+      const offersRaw = Array.isArray(body.offers) ? body.offers : [];
+      return {
+        offers: offersRaw.map((o) => ({
+          ...o,
+          status:
+            o.status === "accepted" ||
+            o.status === "declined" ||
+            o.status === "pending" ||
+            o.status === "counter"
+              ? o.status
+              : "pending",
+        })),
+        rejections: Array.isArray(body.rejections) ? body.rejections : [],
+      };
+    }
+    return { offers: [], rejections: [] };
+  },
+
+  submitOfferCounter: async (offerMailId: string, letter: string): Promise<void> => {
+    await api.post(API_ROUTES.CANDIDATE.OFFER_COUNTER(offerMailId), { letter });
+  },
 
   listMyApplications: (params?: MyApplicationsParams) =>
     api

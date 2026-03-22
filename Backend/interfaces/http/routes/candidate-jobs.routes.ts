@@ -27,4 +27,13 @@ export async function candidateJobsRoutes(
     handler: controller.listMyApplications,
   });
 
+  fastify.get('/mailbox', {
+    preHandler: requireRoles('candidate'),
+    handler: controller.listMailbox,
+  });
+
+  fastify.post('/mailbox/offers/:offerMailId/counter', {
+    preHandler: requireRoles('candidate'),
+    handler: controller.submitOfferCounter,
+  });
 }

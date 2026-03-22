@@ -8,6 +8,11 @@ export interface IUpdateApplicationStatusInputDTO {
   companyId: string;
   status: ApplicationStatus;
   rejectionEmailContent?: string;
+  offerEmailContent?: string;
+  offerSalary?: string;
+  offerLocation?: string;
+  offerStartDate?: string;
+  offerBenefits?: string;
 }
 
 export interface IUpdateApplicationStatusOutputDTO {

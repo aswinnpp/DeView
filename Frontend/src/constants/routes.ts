@@ -48,6 +48,8 @@ export const API_ROUTES = {
     /** Applications API – company/HR only, independent prefix like jobs */
     APPLICATIONS: {
         JOBS_LIST: '/applications/jobs',
+        OFFER_MAILS: '/applications/offer-mails',
+        COUNTER_RESPOND: (offerMailId: string) => `/applications/offer-mails/${offerMailId}/counter/respond`,
         PENDING_APPLICATIONS: (jobId: string) => `/applications/jobs/${jobId}/applications`,
         RESUME_VIEW_URL: (jobId: string, applicationId: string) =>
             `/applications/jobs/${jobId}/applications/${applicationId}/resume-view-url`,
@@ -99,6 +101,8 @@ export const API_ROUTES = {
         JOBS: '/candidate/jobs',
         APPLY: (jobId: string) => `/candidate/jobs/${jobId}/apply`,
         MY_APPLICATIONS: '/candidate/applications/my',
+        MAILBOX: '/candidate/mailbox',
+        OFFER_COUNTER: (offerMailId: string) => `/candidate/mailbox/offers/${offerMailId}/counter`,
         MY_INTERVIEWS: '/candidate/interviews/my',
         REQUEST_RESCHEDULE: (interviewId: string) => `/candidate/interviews/${interviewId}/reschedule`,
         INTERVIEW_FEEDBACKS: '/candidate/interviews/feedbacks',
@@ -128,6 +132,8 @@ export const APP_ROUTES = {
     CANDIDATE_INTERVIEWS:"/candidate/interviews",
     INTERVIEW_ROOM: (interviewId: string) => `/interviews/${interviewId}/room`,
     CANDIDATE_PROFILE: '/candidate/profile',
+    CANDIDATE_MAILS: '/candidate/mails',
+    OFFER_LETTERS: (base: EmployerBase) => `/${base}/offer-letters`,
     HR_DASHBOARD: '/hr/dashboard',
     ADMIN_DASHBOARD: '/admin',
     INTERVIEWER_DASHBOARD: '/interviewer/dashboard',

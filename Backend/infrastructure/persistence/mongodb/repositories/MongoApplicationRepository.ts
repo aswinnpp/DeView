@@ -48,6 +48,8 @@ function toDomain(doc: IApplicationDocument): Application {
     doc.completedRounds ?? [],
     doc.rejectionEmailContent,
     doc.rejectionSentAt,
+    doc.offerEmailContent,
+    doc.offerSentAt,
     doc.createdAt,
     doc.updatedAt
   );
@@ -229,8 +231,9 @@ export class MongoApplicationRepository implements IApplicationRepository {
     companyId: string;
     status: ApplicationStatus;
     rejectionEmailContent?: string;
+    offerEmailContent?: string;
   }): Promise<Application | null> {
-    const { applicationId, jobId, status, rejectionEmailContent } = input;
+    const { applicationId, jobId, status, rejectionEmailContent, offerEmailContent } = input;
 
     let _id: ObjectId;
     try {
@@ -247,6 +250,11 @@ export class MongoApplicationRepository implements IApplicationRepository {
     if (status === 'REJECTED' && rejectionEmailContent && rejectionEmailContent.trim().length > 0) {
       setUpdate.rejectionEmailContent = rejectionEmailContent;
       setUpdate.rejectionSentAt = new Date();
+    }
+
+    if (status === 'HIRED' && offerEmailContent && offerEmailContent.trim().length > 0) {
+      setUpdate.offerEmailContent = offerEmailContent;
+      setUpdate.offerSentAt = new Date();
     }
 
     // First perform the update

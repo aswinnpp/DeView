@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IInterviewRepository } from '../ports/repository/IInterviewRepository.js';
 import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository.js';
+import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import type { IUpdateInterviewStatusUseCase } from '../ports/usecase/IUpdateInterviewStatusUseCase.js';
 import type { IUpdateInterviewStatusInputDTO } from '../dtos/InterviewCommandDTO.js';
@@ -12,7 +13,9 @@ export class UpdateInterviewStatusUseCase implements IUpdateInterviewStatusUseCa
     @inject(TYPES.InterviewRepositoryPort)
     private readonly _interviewRepository: IInterviewRepository,
     @inject(TYPES.ApplicationRepositoryPort)
-    private readonly _applicationRepository: IApplicationRepository
+    private readonly _applicationRepository: IApplicationRepository,
+    @inject(TYPES.JobRepositoryPort)
+    private readonly _jobRepository: IJobRepository
   ) {}
 
   async execute(input: IUpdateInterviewStatusInputDTO): Promise<void> {
@@ -33,17 +36,27 @@ export class UpdateInterviewStatusUseCase implements IUpdateInterviewStatusUseCa
     }
 
     if (status === 'COMPLETED') {
-      await this._applicationRepository.addCompletedRound({
+      const appAfter = await this._applicationRepository.addCompletedRound({
         applicationId: interview.applicationId,
         jobId: interview.jobId,
         companyId: interview.companyId,
         round: interview.round,
       });
+
+      const job = await this._jobRepository.findById(interview.jobId);
+      const jobRounds =
+        job?.interviewRounds && job.interviewRounds.length > 0
+          ? job.interviewRounds
+          : ['HR Screening'];
+
+      const completed = new Set(appAfter?.completedRounds ?? []);
+      const allRoundsDone = jobRounds.every((r) => completed.has(r));
+
       await this._applicationRepository.updateStatus({
         applicationId: interview.applicationId,
         jobId: interview.jobId,
         companyId: interview.companyId,
-        status: 'COMPLETED',
+        status: allRoundsDone ? 'COMPLETED' : 'INTERVIEW_COMPLETE',
       });
     }
   }

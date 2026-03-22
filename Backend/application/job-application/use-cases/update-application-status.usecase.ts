@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IApplicationRepository } from '../ports/repository/IApplicationRepository.js';
 import type { IRejectionMailRepository } from '../ports/repository/IRejectionMailRepository.js';
+import type { IOfferMailRepository } from '../ports/repository/IOfferMailRepository.js';
 import type {
   IUpdateApplicationStatusUseCase,
 } from '../ports/usecase/IUpdateApplicationStatusUseCase.js';
@@ -17,17 +18,33 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
     @inject(TYPES.ApplicationRepositoryPort)
     private readonly _applicationRepository: IApplicationRepository,
     @inject(TYPES.RejectionMailRepositoryPort)
-    private readonly _rejectionMailRepository: IRejectionMailRepository
+    private readonly _rejectionMailRepository: IRejectionMailRepository,
+    @inject(TYPES.OfferMailRepositoryPort)
+    private readonly _offerMailRepository: IOfferMailRepository
   ) {}
 
   async execute(input: IUpdateApplicationStatusInputDTO): Promise<IUpdateApplicationStatusOutputDTO> {
+    const existing = await this._applicationRepository.findByIdAndJobId(
+      input.applicationId,
+      input.jobId,
+      input.companyId
+    );
+    if (!existing) {
+      throw AppError.notFound('Application not found');
+    }
+
     const updated = await this._applicationRepository.updateStatus(input);
 
     if (!updated) {
       throw AppError.notFound('Application not found');
     }
 
-    if (updated.status === 'REJECTED' && input.rejectionEmailContent && input.rejectionEmailContent.trim().length > 0) {
+    if (
+      updated.status === 'REJECTED' &&
+      input.rejectionEmailContent &&
+      input.rejectionEmailContent.trim().length > 0 &&
+      !existing.rejectionSentAt
+    ) {
       await this._rejectionMailRepository.create({
         applicationId: updated.id || input.applicationId,
         jobId: updated.jobId,
@@ -39,7 +56,27 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
       });
     }
 
+    if (
+      updated.status === 'HIRED' &&
+      input.offerEmailContent &&
+      input.offerEmailContent.trim().length > 0 &&
+      !existing.offerSentAt
+    ) {
+      await this._offerMailRepository.create({
+        applicationId: updated.id || input.applicationId,
+        jobId: updated.jobId,
+        companyId: updated.companyId,
+        candidateUserId: updated.candidateUserId,
+        candidateName: updated.fullName,
+        candidateEmail: updated.email,
+        content: input.offerEmailContent.trim(),
+        salary: input.offerSalary,
+        location: input.offerLocation,
+        startDate: input.offerStartDate,
+        benefits: input.offerBenefits,
+      });
+    }
+
     return { application: updated };
   }
 }
-

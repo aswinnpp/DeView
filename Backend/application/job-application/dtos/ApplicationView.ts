@@ -55,6 +55,10 @@ export interface ApplicationView {
     requestedAt: string;
   };
   completedRounds?: string[];
+  rejectionEmailContent?: string;
+  rejectionSentAt?: string;
+  offerEmailContent?: string;
+  offerSentAt?: string;
   createdAt: string;
   updatedAt: string;
 }
