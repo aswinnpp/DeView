@@ -23,6 +23,8 @@ export interface ICandidateMailboxOfferView {
   counterSentAt?: string;
   /** Company response to candidate counter (accepted | rejected). */
   counterResponseStatus?: 'accepted' | 'rejected';
+  /** True when accepted via DocuSign and a combined signed PDF can be fetched. */
+  signedOfferAvailable?: boolean;
   createdAt: string;
 }
 
@@ -115,6 +117,8 @@ export class ListCandidateMailboxUseCase {
           fromNew?.responseStatus === 'accepted' || fromNew?.responseStatus === 'rejected'
             ? fromNew.responseStatus
             : undefined;
+        const signedOfferAvailable =
+          o.status === 'accepted' && Boolean(o.docusignAcceptanceEnvelopeId?.trim());
         return {
           id: o.id,
           applicationId: o.applicationId,
@@ -130,6 +134,7 @@ export class ListCandidateMailboxUseCase {
           ...(counterLetter !== undefined && { counterLetter }),
           ...(counterSentAt !== undefined && { counterSentAt }),
           ...(counterResponseStatus !== undefined && { counterResponseStatus }),
+          ...(signedOfferAvailable && { signedOfferAvailable: true }),
           createdAt: toIso(o.createdAt),
         };
       }),

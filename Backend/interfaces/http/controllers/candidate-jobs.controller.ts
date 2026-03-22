@@ -7,6 +7,10 @@ import type { IApplyForJobUseCase } from '../../../application/candidate/ports/u
 import type { IListMyApplicationsUseCase } from '../../../application/candidate/ports/usecase/IListMyApplicationsUseCase.js';
 import { ListCandidateMailboxUseCase } from '../../../application/candidate/use-cases/list-candidate-mailbox.usecase.js';
 import { SubmitOfferCounterLetterUseCase } from '../../../application/candidate/use-cases/submit-offer-counter-letter.usecase.js';
+import { RespondToOfferLetterUseCase } from '../../../application/candidate/use-cases/respond-to-offer-letter.usecase.js';
+import { BeginOfferSigningUseCase } from '../../../application/candidate/use-cases/begin-offer-signing.usecase.js';
+import { ConfirmOfferSigningUseCase } from '../../../application/candidate/use-cases/confirm-offer-signing.usecase.js';
+import { GetSignedOfferPdfUseCase } from '../../../application/job-application/use-cases/get-signed-offer-pdf.usecase.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ApplicationMapper } from '../../../application/job-application/mappers/ApplicationMapper.js';
 
@@ -32,7 +36,15 @@ export class CandidateJobsController {
     @inject(ListCandidateMailboxUseCase)
     private readonly _listCandidateMailboxUseCase: ListCandidateMailboxUseCase,
     @inject(SubmitOfferCounterLetterUseCase)
-    private readonly _submitOfferCounterLetterUseCase: SubmitOfferCounterLetterUseCase
+    private readonly _submitOfferCounterLetterUseCase: SubmitOfferCounterLetterUseCase,
+    @inject(RespondToOfferLetterUseCase)
+    private readonly _respondToOfferLetterUseCase: RespondToOfferLetterUseCase,
+    @inject(BeginOfferSigningUseCase)
+    private readonly _beginOfferSigningUseCase: BeginOfferSigningUseCase,
+    @inject(ConfirmOfferSigningUseCase)
+    private readonly _confirmOfferSigningUseCase: ConfirmOfferSigningUseCase,
+    @inject(GetSignedOfferPdfUseCase)
+    private readonly _getSignedOfferPdfUseCase: GetSignedOfferPdfUseCase
   ) {}
 
   applyForJob = async (
@@ -95,6 +107,92 @@ export class CandidateJobsController {
     const userId = request.currentUser.userId;
     const result = await this._listCandidateMailboxUseCase.execute(userId);
     reply.send(success(result));
+  };
+
+  respondToOffer = async (
+    request: FastifyRequest<{
+      Params: { offerMailId: string };
+      Body: { action?: string };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const userId = request.currentUser.userId;
+    const { offerMailId } = request.params;
+    const raw = String(request.body?.action ?? '').toLowerCase();
+    if (raw !== 'decline') {
+      reply.status(400).send({
+        success: false,
+        message: 'Only decline is supported here. Use POST .../signing/begin to accept with DocuSign.',
+      });
+      return;
+    }
+    const offer = await this._respondToOfferLetterUseCase.execute({
+      candidateUserId: userId,
+      offerMailId,
+      action: 'decline',
+    });
+    reply.send(
+      success({
+        offer: {
+          id: offer.id,
+          applicationId: offer.applicationId,
+          jobId: offer.jobId,
+          companyId: offer.companyId,
+          status: offer.status,
+          createdAt: offer.createdAt instanceof Date ? offer.createdAt.toISOString() : String(offer.createdAt),
+        },
+      })
+    );
+  };
+
+  beginOfferSigning = async (
+    request: FastifyRequest<{ Params: { offerMailId: string } }>,
+    reply: FastifyReply
+  ) => {
+    const userId = request.currentUser.userId;
+    const result = await this._beginOfferSigningUseCase.execute({
+      candidateUserId: userId,
+      offerMailId: request.params.offerMailId,
+    });
+    reply.send(success(result));
+  };
+
+  confirmOfferSigning = async (
+    request: FastifyRequest<{ Params: { offerMailId: string } }>,
+    reply: FastifyReply
+  ) => {
+    const userId = request.currentUser.userId;
+    const { offer } = await this._confirmOfferSigningUseCase.execute({
+      candidateUserId: userId,
+      offerMailId: request.params.offerMailId,
+    });
+    reply.send(
+      success({
+        offer: {
+          id: offer.id,
+          applicationId: offer.applicationId,
+          jobId: offer.jobId,
+          companyId: offer.companyId,
+          status: offer.status,
+          createdAt: offer.createdAt instanceof Date ? offer.createdAt.toISOString() : String(offer.createdAt),
+        },
+      })
+    );
+  };
+
+  downloadSignedOfferPdf = async (
+    request: FastifyRequest<{ Params: { offerMailId: string } }>,
+    reply: FastifyReply
+  ) => {
+    const userId = request.currentUser.userId;
+    const pdf = await this._getSignedOfferPdfUseCase.execute({
+      offerMailId: request.params.offerMailId,
+      candidateUserId: userId,
+    });
+    return reply
+      .header('Content-Type', 'application/pdf')
+      .header('Content-Disposition', 'inline; filename="signed-offer.pdf"')
+      .send(pdf);
   };
 
   submitOfferCounter = async (

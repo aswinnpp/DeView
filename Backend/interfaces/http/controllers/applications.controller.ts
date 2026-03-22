@@ -13,6 +13,7 @@ import type { IGetLatestInterviewerFeedbackUseCase } from '../../../application/
 import type { IPrecheckScheduleInterviewUseCase } from '../../../application/job-application/ports/usecase/IPrecheckScheduleInterviewUseCase';
 import { ListOfferMailsUseCase } from '../../../application/job-application/use-cases/list-offer-mails.usecase.js';
 import { RespondToCounterLetterUseCase } from '../../../application/job-application/use-cases/respond-to-counter-letter.usecase.js';
+import { GetSignedOfferPdfUseCase } from '../../../application/job-application/use-cases/get-signed-offer-pdf.usecase.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ApplicationMapper } from '../../../application/job-application/mappers/ApplicationMapper.js';
 import { applicationsListQuerySchema } from '../schemas/applications.schema.js';
@@ -42,7 +43,8 @@ export class ApplicationsController {
     @inject(TYPES.GetLatestInterviewerFeedbackUseCasePort)
     private readonly _getLatestInterviewerFeedbackUseCase: IGetLatestInterviewerFeedbackUseCase,
     @inject(ListOfferMailsUseCase) private readonly _listOfferMailsUseCase: ListOfferMailsUseCase,
-    @inject(RespondToCounterLetterUseCase) private readonly _respondToCounterLetterUseCase: RespondToCounterLetterUseCase
+    @inject(RespondToCounterLetterUseCase) private readonly _respondToCounterLetterUseCase: RespondToCounterLetterUseCase,
+    @inject(GetSignedOfferPdfUseCase) private readonly _getSignedOfferPdfUseCase: GetSignedOfferPdfUseCase
   ) {}
 
   listJobs = async (
@@ -147,6 +149,8 @@ export class ApplicationsController {
       const counterResponseStatus = fromNew?.responseStatus === 'accepted' || fromNew?.responseStatus === 'rejected'
         ? fromNew.responseStatus
         : undefined;
+      const signedOfferAvailable =
+        m.status === 'accepted' && Boolean(m.docusignAcceptanceEnvelopeId?.trim());
       return {
         id: m.id,
         applicationId: m.applicationId,
@@ -164,6 +168,7 @@ export class ApplicationsController {
         ...(counterLetter !== undefined && { counterLetter }),
         ...(counterSentAt !== undefined && { counterSentAt }),
         ...(counterResponseStatus !== undefined && { counterResponseStatus }),
+        ...(signedOfferAvailable && { signedOfferAvailable: true }),
         createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : String(m.createdAt),
       };
     });
@@ -269,5 +274,24 @@ export class ApplicationsController {
       action,
     });
     reply.send(success(result));
+  };
+
+  downloadOfferSignedPdf = async (
+    request: FastifyRequest<{ Params: { offerMailId: string } }>,
+    reply: FastifyReply
+  ) => {
+    const ctx = toContext(request.currentUser);
+    const companyId = ctx.companyId ?? '';
+    if (!companyId) {
+      return reply.status(403).send({ success: false, message: 'Forbidden' });
+    }
+    const pdf = await this._getSignedOfferPdfUseCase.execute({
+      offerMailId: request.params.offerMailId,
+      companyId,
+    });
+    return reply
+      .header('Content-Type', 'application/pdf')
+      .header('Content-Disposition', 'inline; filename="signed-offer.pdf"')
+      .send(pdf);
   };
 }

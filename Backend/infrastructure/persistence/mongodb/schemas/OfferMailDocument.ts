@@ -22,4 +22,6 @@ export interface IOfferMailDocument {
   counterLetter?: string;
   counterSentAt?: Date;
   createdAt: Date;
+  /** Set when candidate starts DocuSign acceptance; cleared if envelope voided. */
+  docusignAcceptanceEnvelopeId?: string;
 }

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Button from "../../components/common/Button";
+import { SignedOfferPdfPanel } from "../../components/offer/SignedOfferPdfPanel";
 import { applicationsService } from "../../services/applications.service";
 import type { JobListItem } from "../../services/applications.service";
+import { APP_ROUTES } from "../../constants/routes";
 
 export type OfferLetterRow = {
   id: string | null;
@@ -18,6 +21,8 @@ export type OfferLetterRow = {
   counterLetter?: string;
   counterSentAt?: string;
   counterResponseStatus?: "accepted" | "rejected";
+  /** DocuSign combined PDF available after digital acceptance. */
+  signedOfferAvailable?: boolean;
   createdAt: string;
 };
 
@@ -95,6 +100,7 @@ export default function OfferLettersPage() {
           r.status === "counter"
             ? r.status
             : "pending",
+        signedOfferAvailable: Boolean(r.signedOfferAvailable),
       }));
       setRows(normalized);
       setJobs(jobsResult.data ?? []);
@@ -112,6 +118,12 @@ export default function OfferLettersPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const loadEmployerSignedPdf = useCallback(() => {
+    const id = selectedOffer?.id;
+    if (!id) return Promise.reject(new Error("Missing offer id"));
+    return applicationsService.fetchOfferSignedPdf(id);
+  }, [selectedOffer?.id]);
 
   const jobTitleMap = useMemo(() => {
     const m = new Map<string, string>();
@@ -208,6 +220,15 @@ export default function OfferLettersPage() {
                 {selectedOffer.content}
               </pre>
             </div>
+
+            {selectedOffer.status === "accepted" &&
+              selectedOffer.signedOfferAvailable &&
+              selectedOffer.id && (
+                <SignedOfferPdfPanel
+                  loadPdf={loadEmployerSignedPdf}
+                  title="Signed offer (candidate, DocuSign)"
+                />
+              )}
 
             {/* Counter letter */}
             {selectedOffer.status === "counter" && selectedOffer.counterLetter?.trim() && (
@@ -324,6 +345,16 @@ export default function OfferLettersPage() {
           <p className="text-slate-400 text-sm mt-2 mb-0">
             Track all sent offer letters and candidate responses. Data from Applications workflow.
           </p>
+          <p className="text-slate-500 text-xs mt-2 mb-0">
+            One-time{" "}
+            <Link
+              to={APP_ROUTES.OFFER_DOCUSIGN_CONSENT}
+              className="text-violet-400 hover:text-violet-300 font-medium underline-offset-2 hover:underline"
+            >
+              DocuSign access (JWT consent)
+            </Link>{" "}
+            is required on the sending account before digital signing APIs work.
+          </p>
         </div>
         <Button
           variant="secondary"
@@ -426,6 +457,11 @@ export default function OfferLettersPage() {
                     </td>
                     <td className="py-3 px-3">
                       <StatusBadge status={row.status} />
+                      {row.signedOfferAvailable ? (
+                        <div className="text-[10px] text-emerald-400/90 mt-1 font-semibold uppercase tracking-wide">
+                          Signed PDF
+                        </div>
+                      ) : null}
                     </td>
                     <td className="py-3 px-3">
                       <button

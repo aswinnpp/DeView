@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "tsx watch server.ts",
     "start": "tsx server.ts",
-    "test": "echo \\\"Error: no test specified\\\" && exit 1"
+    "test": "echo \\\"Error: no test specified\\\" && exit 1",
+    "docusign:token": "tsx scripts/docusign-jwt-token.ts"
   },
   "repository": {
     "type": "git",
@@ -47,6 +48,7 @@
     "mongodb": "^7.0.0",
     "node-cache": "^5.1.2",
     "nodemailer": "^7.0.11",
+    "pdf-lib": "^1.17.1",
     "redis": "^5.10.0",
     "reflect-metadata": "^0.2.2",
     "rotating-file-stream": "^3.2.9",

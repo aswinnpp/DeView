@@ -21,6 +21,8 @@ export interface IOfferMailRepository {
 
   findByIdAndCandidateUserId(offerMailId: string, candidateUserId: string): Promise<OfferMail | null>;
 
+  findByIdAndCompanyId(offerMailId: string, companyId: string): Promise<OfferMail | null>;
+
   /**
    * Sets `status` to `counter` when the offer is open for counter (pending, counter, or legacy no status).
    */
@@ -35,4 +37,27 @@ export interface IOfferMailRepository {
 
   /** Update offer mail status (e.g. when company accepts/rejects counter). */
   updateStatus(offerMailId: string, status: 'accepted' | 'declined'): Promise<OfferMail | null>;
+
+  /**
+   * Candidate accepts or declines the initial offer (`pending` only; legacy docs without `status` count as pending).
+   */
+  updateStatusIfCandidatePending(
+    offerMailId: string,
+    candidateUserId: string,
+    status: 'accepted' | 'declined'
+  ): Promise<OfferMail | null>;
+
+  setAcceptanceEnvelopeId(
+    offerMailId: string,
+    candidateUserId: string,
+    envelopeId: string
+  ): Promise<OfferMail | null>;
+
+  clearAcceptanceEnvelopeId(offerMailId: string, candidateUserId: string): Promise<OfferMail | null>;
+
+  markAcceptedAfterSigning(
+    offerMailId: string,
+    candidateUserId: string,
+    envelopeId: string
+  ): Promise<OfferMail | null>;
 }

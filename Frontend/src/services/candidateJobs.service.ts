@@ -88,6 +88,8 @@ export interface CandidateMailboxOfferRow {
   counterSentAt?: string;
   /** Company response to candidate counter (accepted | rejected). */
   counterResponseStatus?: "accepted" | "rejected";
+  /** DocuSign combined PDF available (accepted + envelope id). */
+  signedOfferAvailable?: boolean;
   createdAt: string;
 }
 
@@ -180,6 +182,7 @@ export const candidateJobsService = {
             o.status === "counter"
               ? o.status
               : "pending",
+          signedOfferAvailable: Boolean(o.signedOfferAvailable),
         })),
         rejections: Array.isArray(body.rejections) ? body.rejections : [],
       };
@@ -189,6 +192,39 @@ export const candidateJobsService = {
 
   submitOfferCounter: async (offerMailId: string, letter: string): Promise<void> => {
     await api.post(API_ROUTES.CANDIDATE.OFFER_COUNTER(offerMailId), { letter });
+  },
+
+  respondToOffer: async (offerMailId: string, action: "decline"): Promise<void> => {
+    await api.post(API_ROUTES.CANDIDATE.OFFER_RESPOND(offerMailId), { action });
+  },
+
+  beginOfferSigning: async (
+    offerMailId: string
+  ): Promise<
+    | { outcome: "sign"; signingUrl: string }
+    | { outcome: "accepted" }
+    | { outcome: "consent_required" }
+  > => {
+    const res = await api.post<
+      | { outcome: "sign"; signingUrl: string }
+      | { outcome: "accepted" }
+      | { outcome: "consent_required" }
+    >(API_ROUTES.CANDIDATE.OFFER_SIGNING_BEGIN(offerMailId));
+    return res.data as
+      | { outcome: "sign"; signingUrl: string }
+      | { outcome: "accepted" }
+      | { outcome: "consent_required" };
+  },
+
+  confirmOfferSigning: async (offerMailId: string): Promise<void> => {
+    await api.post(API_ROUTES.CANDIDATE.OFFER_SIGNING_CONFIRM(offerMailId));
+  },
+
+  fetchOfferSignedPdf: async (offerMailId: string): Promise<Blob> => {
+    const res = await api.get(API_ROUTES.CANDIDATE.OFFER_SIGNED_PDF(offerMailId), {
+      responseType: "blob",
+    });
+    return res.data as Blob;
   },
 
   listMyApplications: (params?: MyApplicationsParams) =>

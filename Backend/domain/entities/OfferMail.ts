@@ -16,6 +16,8 @@ export class OfferMail {
     public startDate?: string,
     public benefits?: string,
     public status: OfferMailStatus = 'pending',
-    public createdAt: Date = new Date()
+    public createdAt: Date = new Date(),
+    /** DocuSign envelope for embedded acceptance signing (pending until completed). */
+    public docusignAcceptanceEnvelopeId?: string
   ) {}
 }

@@ -13,7 +13,7 @@ import { RedisRefreshTokenRepository } from '../persistence/redis/RedisRefreshTo
 import { env } from '../config/env.js';
 import { GoogleGenAiScoringService } from '../ai/GoogleGenAiScoringService.js';
 import { SocketIoNotificationPublisher } from "../notifications/SocketIoNotificationPublisher.js";
-
+import { DocuSignOfferEnvelopeService } from '../docusign/DocuSignOfferEnvelopeService.js';
 
 export function bindServices(container: Container): void {
 
@@ -23,6 +23,10 @@ export function bindServices(container: Container): void {
   container.bind(TYPES.CryptoRandomPort).to(NodeCryptoRandomService);
   container.bind(TYPES.AiScoringServicePort).to(GoogleGenAiScoringService);
   container.bind(TYPES.NotificationPublisherPort).to(SocketIoNotificationPublisher);
+
+  container
+    .bind(DocuSignOfferEnvelopeService)
+    .toConstantValue(new DocuSignOfferEnvelopeService(env));
 
   container.bind(TYPES.GoogleAuthPort).toConstantValue(
     new GoogleAuthService(

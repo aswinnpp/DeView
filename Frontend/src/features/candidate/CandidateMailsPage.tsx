@@ -5,8 +5,8 @@ import {
   type CandidateMailboxData,
   type OfferMailboxStatus,
 } from "../../services/candidateJobs.service";
+import { extractApiError } from "../../api/axios";
 import CounterProposalModal from "../../components/applications/CounterProposalModal";
-
 type FilterType = "all" | "offer" | "rejection";
 
 type InboxItem =
@@ -66,6 +66,11 @@ export default function CandidateMailsPage() {
   const [counterSubmitting, setCounterSubmitting] = useState(false);
   const [counterError, setCounterError] = useState<string | null>(null);
   const [counterModalOpen, setCounterModalOpen] = useState(false);
+  const [offerRespondBusy, setOfferRespondBusy] = useState<false | "decline" | "sign">(false);
+  const [offerRespondError, setOfferRespondError] = useState<string | null>(null);
+  /** One-time DocuSign JWT consent — must be completed by the DocuSign integration user (not necessarily the candidate). */
+  const [offerConsentNotice, setOfferConsentNotice] = useState<string | null>(null);
+  const [signedPdfBusy, setSignedPdfBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -110,6 +115,7 @@ export default function CandidateMailsPage() {
   const selected = selectedKey ? items.find((m) => m.rowKey === selectedKey) : undefined;
 
   useEffect(() => {
+    setOfferRespondError(null);
     if (!selected || selected.kind !== "offer") {
       setCounterDraft("");
       setCounterError(null);
@@ -160,6 +166,71 @@ export default function CandidateMailsPage() {
       setCounterSubmitting(false);
     }
   }, [selected, counterDraft, load]);
+
+  const declineOffer = useCallback(async () => {
+    if (selected?.kind !== "offer" || !selected.id) return;
+    setOfferRespondError(null);
+    setOfferConsentNotice(null);
+    setOfferRespondBusy("decline");
+    try {
+      await candidateJobsService.respondToOffer(selected.id, "decline");
+      await load();
+    } catch (e) {
+      setOfferRespondError(extractApiError(e));
+    } finally {
+      setOfferRespondBusy(false);
+    }
+  }, [selected, load]);
+
+  const startAcceptSigning = useCallback(async () => {
+    if (selected?.kind !== "offer" || !selected.id) return;
+    setOfferRespondError(null);
+    setOfferConsentNotice(null);
+    setOfferRespondBusy("sign");
+    try {
+      const result = await candidateJobsService.beginOfferSigning(selected.id);
+      if (result.outcome === "accepted") {
+        await load();
+        setOfferRespondBusy(false);
+        return;
+      }
+      if (result.outcome === "consent_required") {
+        setOfferConsentNotice(
+          "Offer signing isn’t available yet: DocuSign must be activated once by your employer (JWT consent). Candidates don’t use the DocuSign login page — after setup, you’ll go straight to signing. Ask HR to open Connect DocuSign from the employer portal, then try again."
+        );
+        setOfferRespondBusy(false);
+        return;
+      }
+      const url = result.signingUrl;
+      if (url.includes("/oauth/auth")) {
+        setOfferRespondError(
+          "Received a DocuSign login link instead of a signing session. The employer must complete DocuSign setup first."
+        );
+        setOfferRespondBusy(false);
+        return;
+      }
+      window.location.assign(url);
+    } catch (e) {
+      setOfferRespondError(extractApiError(e));
+      setOfferRespondBusy(false);
+    }
+  }, [selected, load]);
+
+  const openSignedOfferInNewTab = useCallback(async () => {
+    if (selected?.kind !== "offer" || !selected.id) return;
+    setSignedPdfBusy(true);
+    setOfferRespondError(null);
+    try {
+      const blob = await candidateJobsService.fetchOfferSignedPdf(selected.id);
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank", "noopener,noreferrer");
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (e) {
+      setOfferRespondError(extractApiError(e));
+    } finally {
+      setSignedPdfBusy(false);
+    }
+  }, [selected]);
 
   const shell = (children: ReactNode) => (
     <div className="flex min-h-screen w-full flex-col bg-[rgb(15,15,25)] text-slate-100">
@@ -295,6 +366,9 @@ export default function CandidateMailsPage() {
   const canSendCounter =
     selected.kind === "offer" && Boolean(selected.id) && selected.status === "pending";
 
+  const canAcceptOrReject =
+    selected.kind === "offer" && Boolean(selected.id) && selected.status === "pending";
+
   return shell(
     <>
       <CandidateNavHeader title="MAIL DETAILS" currentPage="mails" />
@@ -312,16 +386,28 @@ export default function CandidateMailsPage() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <h2 className="m-0 text-xl font-bold text-slate-100">{subjectFor(selected)}</h2>
               {selected.kind === "offer" && (
-                <span
-                  className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${offerResponseBadgeClass(
-                    selected.status
-                  )}`}
-                >
-                  {offerResponseLabel(
-                    selected.status,
-                    "counterResponseStatus" in selected ? selected.counterResponseStatus : undefined
-                  )}
-                </span>
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  <span
+                    className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${offerResponseBadgeClass(
+                      selected.status
+                    )}`}
+                  >
+                    {offerResponseLabel(
+                      selected.status,
+                      "counterResponseStatus" in selected ? selected.counterResponseStatus : undefined
+                    )}
+                  </span>
+                  {selected.status === "accepted" && selected.signedOfferAvailable && selected.id ? (
+                    <button
+                      type="button"
+                      onClick={() => void openSignedOfferInNewTab()}
+                      disabled={signedPdfBusy}
+                      className="rounded-lg border border-slate-500/50 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10 hover:border-slate-400/60 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {signedPdfBusy ? "Opening…" : "View"}
+                    </button>
+                  ) : null}
+                </div>
               )}
             </div>
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
@@ -435,22 +521,50 @@ export default function CandidateMailsPage() {
 
           {selected.kind === "offer" && (
             <div className="space-y-4">
+              {offerConsentNotice ? (
+                <div className="rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                  {offerConsentNotice}
+                </div>
+              ) : null}
+              {offerRespondError ? (
+                <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                  {offerRespondError}
+                </div>
+              ) : null}
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <button
                   type="button"
-                  disabled
-                  title="Accept with digital signing — coming soon"
-                  className="order-1 flex-1 rounded-xl border border-emerald-500/40 bg-emerald-600/20 px-4 py-3 text-sm font-semibold text-emerald-100 opacity-50 cursor-not-allowed sm:min-w-[140px]"
+                  disabled={!canAcceptOrReject || offerRespondBusy !== false}
+                  title={
+                    !canAcceptOrReject
+                      ? selected.status !== "pending"
+                        ? "Only available while the offer is awaiting your response."
+                        : "This message can’t be used to respond (missing id)."
+                      : "Digitally sign in DocuSign; your acceptance is recorded only after signing."
+                  }
+                  onClick={() => void startAcceptSigning()}
+                  className="order-1 flex-1 rounded-xl border border-emerald-500/40 bg-emerald-600/20 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-600/30 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
                 >
-                  Accept
+                  {offerRespondBusy === "sign" ? "Opening DocuSign…" : "Accept & sign"}
                 </button>
                 <button
                   type="button"
-                  disabled
-                  title="Reject offer — coming soon"
-                  className="order-2 flex-1 rounded-xl border border-red-500/40 bg-red-600/15 px-4 py-3 text-sm font-semibold text-red-200 opacity-50 cursor-not-allowed sm:min-w-[140px]"
+                  disabled={!canAcceptOrReject || offerRespondBusy !== false}
+                  title={
+                    !canAcceptOrReject
+                      ? selected.status !== "pending"
+                        ? "Only available while the offer is awaiting your response."
+                        : "This message can’t be used to respond (missing id)."
+                      : "Decline this offer"
+                  }
+                  onClick={() => {
+                    if (!canAcceptOrReject) return;
+                    if (!window.confirm("Decline this offer? The employer will see that you declined.")) return;
+                    void declineOffer();
+                  }}
+                  className="order-2 flex-1 rounded-xl border border-red-500/40 bg-red-600/15 px-4 py-3 text-sm font-semibold text-red-200 transition hover:bg-red-600/25 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
                 >
-                  Reject
+                  {offerRespondBusy === "decline" ? "Declining…" : "Reject"}
                 </button>
                 <button
                   type="button"
@@ -481,8 +595,8 @@ export default function CandidateMailsPage() {
 
               <p className="m-0 text-sm text-slate-500">
                 {selected.status === "counter"
-                  ? "Your counter has been sent. Accept will use a digitally signed offer letter when that flow ships."
-                  : "Accept will use a digitally signed offer letter when that flow ships. Use Counter to send your written counter proposal."}
+                  ? "Your counter has been sent. Wait for the employer’s reply, or contact them if you need to follow up."
+                  : "Accept opens DocuSign — the offer is marked accepted only after you finish signing. Reject declines immediately. Use Counter to propose different terms."}
               </p>
             </div>
           )}

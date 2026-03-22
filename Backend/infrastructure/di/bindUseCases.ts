@@ -60,6 +60,9 @@ import { ApplyForJobUseCase } from '../../application/candidate/use-cases/apply-
 import { ListMyApplicationsUseCase } from '../../application/candidate/use-cases/list-my-applications.usecase.js';
 import { ListCandidateMailboxUseCase } from '../../application/candidate/use-cases/list-candidate-mailbox.usecase.js';
 import { SubmitOfferCounterLetterUseCase } from '../../application/candidate/use-cases/submit-offer-counter-letter.usecase.js';
+import { RespondToOfferLetterUseCase } from '../../application/candidate/use-cases/respond-to-offer-letter.usecase.js';
+import { BeginOfferSigningUseCase } from '../../application/candidate/use-cases/begin-offer-signing.usecase.js';
+import { ConfirmOfferSigningUseCase } from '../../application/candidate/use-cases/confirm-offer-signing.usecase.js';
 import { ListPendingApplicationsForJobUseCase } from '../../application/job-application/use-cases/list-pending-applications-for-job.usecase.js';
 import { ScoreCandidatesUseCase } from '../../application/job-application/use-cases/score-candidates.usecase.js';
 import { UpdateApplicationStatusUseCase } from '../../application/job-application/use-cases/update-application-status.usecase.js';
@@ -70,6 +73,7 @@ import { GetResumeViewUrlUseCase } from '../../application/job-application/use-c
 import { GetLatestInterviewerFeedbackUseCase } from '../../application/job-application/use-cases/get-latest-interviewer-feedback.usecase.js';
 import { ListOfferMailsUseCase } from '../../application/job-application/use-cases/list-offer-mails.usecase.js';
 import { RespondToCounterLetterUseCase } from '../../application/job-application/use-cases/respond-to-counter-letter.usecase.js';
+import { GetSignedOfferPdfUseCase } from '../../application/job-application/use-cases/get-signed-offer-pdf.usecase.js';
 import { ListMyInterviewsUseCase } from '../../application/interview/use-cases/list-my-interviews.usecase.js';
 import { GetInterviewRoomDetailsUseCase } from '../../application/interview/use-cases/get-interview-room-details.usecase.js';
 import { ListInterviewerAssignmentsUseCase } from '../../application/interview/use-cases/list-interviewer-assignments.usecase.js';
@@ -159,6 +163,9 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ListMyApplicationsUseCasePort).to(ListMyApplicationsUseCase);
   container.bind(ListCandidateMailboxUseCase).toSelf();
   container.bind(SubmitOfferCounterLetterUseCase).toSelf();
+  container.bind(RespondToOfferLetterUseCase).toSelf();
+  container.bind(BeginOfferSigningUseCase).toSelf();
+  container.bind(ConfirmOfferSigningUseCase).toSelf();
 
   // Application use cases (company/HR)
   container.bind(TYPES.ListPendingApplicationsForJobUseCasePort).to(ListPendingApplicationsForJobUseCase);
@@ -171,6 +178,7 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.GetLatestInterviewerFeedbackUseCasePort).to(GetLatestInterviewerFeedbackUseCase);
   container.bind(ListOfferMailsUseCase).toSelf();
   container.bind(RespondToCounterLetterUseCase).toSelf();
+  container.bind(GetSignedOfferPdfUseCase).toSelf();
 
   // Interview use cases
   container.bind(TYPES.ListMyInterviewsUseCasePort).to(ListMyInterviewsUseCase);

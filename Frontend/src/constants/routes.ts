@@ -49,6 +49,7 @@ export const API_ROUTES = {
     APPLICATIONS: {
         JOBS_LIST: '/applications/jobs',
         OFFER_MAILS: '/applications/offer-mails',
+        OFFER_SIGNED_PDF: (offerMailId: string) => `/applications/offer-mails/${offerMailId}/signed-pdf`,
         COUNTER_RESPOND: (offerMailId: string) => `/applications/offer-mails/${offerMailId}/counter/respond`,
         PENDING_APPLICATIONS: (jobId: string) => `/applications/jobs/${jobId}/applications`,
         RESUME_VIEW_URL: (jobId: string, applicationId: string) =>
@@ -86,6 +87,9 @@ export const API_ROUTES = {
         LANGUAGES: "/compiler/languages",
         EXECUTE: "/compiler/execute",
     },
+    PUBLIC: {
+        DOCUSIGN_CONSENT_URL: '/public/docusign/consent-url',
+    },
     INTERVIEWER: {
         PROFILE: '/interviewer/profile',
         ASSIGNMENTS: '/interviewer/assignments',
@@ -103,6 +107,12 @@ export const API_ROUTES = {
         MY_APPLICATIONS: '/candidate/applications/my',
         MAILBOX: '/candidate/mailbox',
         OFFER_COUNTER: (offerMailId: string) => `/candidate/mailbox/offers/${offerMailId}/counter`,
+        OFFER_RESPOND: (offerMailId: string) => `/candidate/mailbox/offers/${offerMailId}/respond`,
+        OFFER_SIGNING_BEGIN: (offerMailId: string) =>
+            `/candidate/mailbox/offers/${offerMailId}/signing/begin`,
+        OFFER_SIGNING_CONFIRM: (offerMailId: string) =>
+            `/candidate/mailbox/offers/${offerMailId}/signing/confirm`,
+        OFFER_SIGNED_PDF: (offerMailId: string) => `/candidate/mailbox/offers/${offerMailId}/signed-pdf`,
         MY_INTERVIEWS: '/candidate/interviews/my',
         REQUEST_RESCHEDULE: (interviewId: string) => `/candidate/interviews/${interviewId}/reschedule`,
         INTERVIEW_FEEDBACKS: '/candidate/interviews/feedbacks',
@@ -134,6 +144,10 @@ export const APP_ROUTES = {
     CANDIDATE_PROFILE: '/candidate/profile',
     CANDIDATE_MAILS: '/candidate/mails',
     OFFER_LETTERS: (base: EmployerBase) => `/${base}/offer-letters`,
+    /** DocuSign JWT consent return (SPA); API may redirect here from /offer/success on the backend port. */
+    OFFER_DOCUSIGN_SUCCESS: '/offer/success',
+    /** Starts DocuSign OAuth consent (redirects browser to DocuSign). */
+    OFFER_DOCUSIGN_CONSENT: '/offer/docusign-consent',
     HR_DASHBOARD: '/hr/dashboard',
     ADMIN_DASHBOARD: '/admin',
     INTERVIEWER_DASHBOARD: '/interviewer/dashboard',

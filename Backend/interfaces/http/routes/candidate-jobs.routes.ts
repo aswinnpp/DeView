@@ -36,4 +36,24 @@ export async function candidateJobsRoutes(
     preHandler: requireRoles('candidate'),
     handler: controller.submitOfferCounter,
   });
+
+  fastify.post('/mailbox/offers/:offerMailId/respond', {
+    preHandler: requireRoles('candidate'),
+    handler: controller.respondToOffer,
+  });
+
+  fastify.post('/mailbox/offers/:offerMailId/signing/begin', {
+    preHandler: requireRoles('candidate'),
+    handler: controller.beginOfferSigning,
+  });
+
+  fastify.post('/mailbox/offers/:offerMailId/signing/confirm', {
+    preHandler: requireRoles('candidate'),
+    handler: controller.confirmOfferSigning,
+  });
+
+  fastify.get('/mailbox/offers/:offerMailId/signed-pdf', {
+    preHandler: requireRoles('candidate'),
+    handler: controller.downloadSignedOfferPdf,
+  });
 }

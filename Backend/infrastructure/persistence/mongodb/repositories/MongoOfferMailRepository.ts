@@ -25,7 +25,8 @@ function toDomain(doc: IOfferMailDocument): OfferMail {
     doc.startDate,
     doc.benefits,
     normalizeStatus(doc.status),
-    doc.createdAt
+    doc.createdAt,
+    doc.docusignAcceptanceEnvelopeId
   );
 }
 
@@ -99,6 +100,17 @@ export class MongoOfferMailRepository implements IOfferMailRepository {
     return doc ? toDomain(doc) : null;
   }
 
+  async findByIdAndCompanyId(offerMailId: string, companyId: string): Promise<OfferMail | null> {
+    let oid: ObjectId;
+    try {
+      oid = new ObjectId(offerMailId);
+    } catch {
+      return null;
+    }
+    const doc = await this._collection.findOne({ _id: oid, companyId });
+    return doc ? toDomain(doc) : null;
+  }
+
   async markStatusCounterIfEligible(
     offerMailId: string,
     candidateUserId: string
@@ -135,6 +147,98 @@ export class MongoOfferMailRepository implements IOfferMailRepository {
     const result = await this._collection.findOneAndUpdate(
       { _id: oid },
       { $set: { status } },
+      { returnDocument: 'after' }
+    );
+    return result ? toDomain(result) : null;
+  }
+
+  async updateStatusIfCandidatePending(
+    offerMailId: string,
+    candidateUserId: string,
+    status: 'accepted' | 'declined'
+  ): Promise<OfferMail | null> {
+    let oid: ObjectId;
+    try {
+      oid = new ObjectId(offerMailId);
+    } catch {
+      return null;
+    }
+    const result = await this._collection.findOneAndUpdate(
+      {
+        _id: oid,
+        candidateUserId,
+        $or: [{ status: 'pending' }, { status: { $exists: false } }],
+      },
+      { $set: { status } },
+      { returnDocument: 'after' }
+    );
+    return result ? toDomain(result) : null;
+  }
+
+  async setAcceptanceEnvelopeId(
+    offerMailId: string,
+    candidateUserId: string,
+    envelopeId: string
+  ): Promise<OfferMail | null> {
+    let oid: ObjectId;
+    try {
+      oid = new ObjectId(offerMailId);
+    } catch {
+      return null;
+    }
+    const result = await this._collection.findOneAndUpdate(
+      {
+        _id: oid,
+        candidateUserId,
+        $or: [{ status: 'pending' }, { status: { $exists: false } }],
+      },
+      { $set: { docusignAcceptanceEnvelopeId: envelopeId } },
+      { returnDocument: 'after' }
+    );
+    return result ? toDomain(result) : null;
+  }
+
+  async clearAcceptanceEnvelopeId(
+    offerMailId: string,
+    candidateUserId: string
+  ): Promise<OfferMail | null> {
+    let oid: ObjectId;
+    try {
+      oid = new ObjectId(offerMailId);
+    } catch {
+      return null;
+    }
+    const result = await this._collection.findOneAndUpdate(
+      {
+        _id: oid,
+        candidateUserId,
+        $or: [{ status: 'pending' }, { status: { $exists: false } }],
+      },
+      { $unset: { docusignAcceptanceEnvelopeId: '' } },
+      { returnDocument: 'after' }
+    );
+    return result ? toDomain(result) : null;
+  }
+
+  async markAcceptedAfterSigning(
+    offerMailId: string,
+    candidateUserId: string,
+    envelopeId: string
+  ): Promise<OfferMail | null> {
+    let oid: ObjectId;
+    try {
+      oid = new ObjectId(offerMailId);
+    } catch {
+      return null;
+    }
+    const result = await this._collection.findOneAndUpdate(
+      {
+        _id: oid,
+        candidateUserId,
+        docusignAcceptanceEnvelopeId: envelopeId,
+        $or: [{ status: 'pending' }, { status: { $exists: false } }],
+      },
+      { $set: { status: 'accepted' } },
       { returnDocument: 'after' }
     );
     return result ? toDomain(result) : null;

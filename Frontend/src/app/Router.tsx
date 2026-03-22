@@ -1,6 +1,13 @@
 import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { PrivateRoute, PublicRoute } from "../components/common/routeGuards"
+import { PrivateRoute, PublicRoute } from "../components/common/routeGuards";
+
+const OfferDocuSignSuccessPage = lazy(
+  () => import("../features/offer/OfferDocuSignSuccessPage")
+);
+const OfferDocuSignConsentPage = lazy(
+  () => import("../features/offer/OfferDocuSignConsentPage")
+);
 
 
 
@@ -29,6 +36,7 @@ const CandidateInterviews = lazy(() => import("../features/candidate/CandidateIn
 const CandidateJobsPage = lazy(() => import("../features/candidate/CandidateJobsPage"));
 const CandidateAppliedJobsPage = lazy(() => import("../features/candidate/CandidateAppliedJobsPage"));
 const CandidateMailsPage = lazy(() => import("../features/candidate/CandidateMailsPage"));
+const OfferSigningCompletePage = lazy(() => import("../features/candidate/OfferSigningCompletePage"));
 const CandidateLayout = lazy(() => import("../features/candidate/CandidateLayout"));
 
 
@@ -64,6 +72,15 @@ const AppRouter = () => {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
+        {/* DocuSign JWT consent return / initiator — must not use PublicRoute (logged-in users still need these). */}
+        <Route
+          path="/offer/success"
+          element={<OfferDocuSignSuccessPage />}
+        />
+        <Route
+          path="/offer/docusign-consent"
+          element={<OfferDocuSignConsentPage />}
+        />
 
         {/* ─── Public Routes ───────────────────────── */}
 
@@ -95,6 +112,7 @@ const AppRouter = () => {
             <Route path="interviews" element={<CandidateInterviews />} />
             <Route path="applied" element={<CandidateAppliedJobsPage />} />
             <Route path="mails" element={<CandidateMailsPage />} />
+            <Route path="mails/signing-complete" element={<OfferSigningCompletePage />} />
           </Route>
 
           <Route path="/admin" element={<AdminLayout />}>

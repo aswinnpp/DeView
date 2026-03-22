@@ -12,6 +12,10 @@ export async function applicationsRoutes(
     handler: controller.listOfferMails,
   });
 
+  fastify.get('/offer-mails/:offerMailId/signed-pdf', {
+    handler: controller.downloadOfferSignedPdf,
+  });
+
   fastify.post('/offer-mails/:offerMailId/counter/respond', {
     handler: controller.respondToCounterLetter,
   });

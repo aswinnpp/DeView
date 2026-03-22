@@ -339,6 +339,8 @@ export const applicationsService = {
       status: "pending" | "accepted" | "declined" | "counter";
       counterLetter?: string;
       counterSentAt?: string;
+      counterResponseStatus?: "accepted" | "rejected";
+      signedOfferAvailable?: boolean;
       createdAt: string;
     }>
   > => {
@@ -361,8 +363,17 @@ export const applicationsService = {
       status: "pending" | "accepted" | "declined" | "counter";
       counterLetter?: string;
       counterSentAt?: string;
+      counterResponseStatus?: "accepted" | "rejected";
+      signedOfferAvailable?: boolean;
       createdAt: string;
     }>;
+  },
+
+  fetchOfferSignedPdf: async (offerMailId: string): Promise<Blob> => {
+    const res = await api.get(API_ROUTES.APPLICATIONS.OFFER_SIGNED_PDF(offerMailId), {
+      responseType: "blob",
+    });
+    return res.data as Blob;
   },
 
   /** Schedule an interview for a single application. */

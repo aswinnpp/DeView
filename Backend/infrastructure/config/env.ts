@@ -34,6 +34,20 @@ export interface IEnvConfig {
     GOOGLE_AI_API_KEY?: string;
     LOG_TO_FILE?: string;
     LOG_RETENTION_DAYS?: string;
+    /** DocuSign integration (JWT grant) — all optional until you enable signing */
+    DOCUSIGN_INTEGRATION_KEY?: string;
+    DOCUSIGN_USER_ID?: string;
+    /** PEM string; use literal \\n newlines in .env or base64 of the PEM file */
+    DOCUSIGN_PRIVATE_KEY?: string;
+    /** e.g. account-d.docusign.com (demo) */
+    DOCUSIGN_OAUTH_HOST?: string;
+    /** e.g. http://localhost:3000/offer/success */
+    DOCUSIGN_REDIRECT_URI?: string;
+    DOCUSIGN_JWT_LIFETIME_SECONDS?: string;
+    /** REST base for API calls; default demo: https://demo.docusign.net/restapi */
+    DOCUSIGN_REST_BASE_URL?: string;
+    /** Optional; if set, must match an account from /oauth/userinfo when the user has several */
+    DOCUSIGN_ACCOUNT_ID?: string;
 }
 function validateEnv(): IEnvConfig {
     const requiredVars = ['PORT', 'MONGO_URI', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
@@ -71,6 +85,15 @@ function validateEnv(): IEnvConfig {
         GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
         LOG_TO_FILE: process.env.LOG_TO_FILE,
         LOG_RETENTION_DAYS: process.env.LOG_RETENTION_DAYS,
+
+        DOCUSIGN_INTEGRATION_KEY: process.env.DOCUSIGN_INTEGRATION_KEY,
+        DOCUSIGN_USER_ID: process.env.DOCUSIGN_USER_ID,
+        DOCUSIGN_PRIVATE_KEY: process.env.DOCUSIGN_PRIVATE_KEY,
+        DOCUSIGN_OAUTH_HOST: process.env.DOCUSIGN_OAUTH_HOST,
+        DOCUSIGN_REDIRECT_URI: process.env.DOCUSIGN_REDIRECT_URI,
+        DOCUSIGN_JWT_LIFETIME_SECONDS: process.env.DOCUSIGN_JWT_LIFETIME_SECONDS,
+        DOCUSIGN_REST_BASE_URL: process.env.DOCUSIGN_REST_BASE_URL,
+        DOCUSIGN_ACCOUNT_ID: process.env.DOCUSIGN_ACCOUNT_ID,
     };
 }
 export const env = validateEnv();

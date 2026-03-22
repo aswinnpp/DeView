@@ -64,7 +64,17 @@ export default function NotificationBell(props: NotificationBellProps) {
   );
 
   if (props.as === "native") {
-    const { className = "", ...buttonProps } = props;
+    const {
+      className = "",
+      as: _as,
+      count: _c,
+      showBadge: _sb,
+      badgeContent: _bc,
+      badgeClassName: _b,
+      size: _s,
+      ariaLabel: _al,
+      ...buttonProps
+    } = props;
     return (
       <button aria-label={ariaLabel} type="button" className={className} {...buttonProps}>
         {content}
@@ -72,7 +82,18 @@ export default function NotificationBell(props: NotificationBellProps) {
     );
   }
 
-  const { variant = "secondary", className = "", ...buttonProps } = props;
+  const {
+    variant = "secondary",
+    className = "",
+    as: _as2,
+    count: _c2,
+    showBadge: _sb2,
+    badgeContent: _bc2,
+    badgeClassName: _b2,
+    size: _s2,
+    ariaLabel: _al2,
+    ...buttonProps
+  } = props;
   return (
     <Button aria-label={ariaLabel} variant={variant} className={className} {...buttonProps}>
       {content}

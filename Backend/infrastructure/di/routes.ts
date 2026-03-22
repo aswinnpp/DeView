@@ -25,8 +25,11 @@ import { landingStatsRoutes } from "../../interfaces/http/routes/landing-stats.r
 import { compilerRoutes } from "../../interfaces/http/routes/compiler.routes.js";
 import { adminDashboardRoutes } from "../../interfaces/http/routes/admin-dashboard.routes.js";
 import { companyDashboardRoutes } from "../../interfaces/http/routes/company-dashboard.routes.js";
+import { docusignPublicRoutes } from '../../interfaces/http/routes/docusign.routes.js';
+import { registerOfferDocusignRedirect } from '../../interfaces/http/routes/offer-docusign-redirect.routes.js';
 
 export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
+    await registerOfferDocusignRedirect(fastify);
     await fastify.register(
         async (instance) => {
             await authRoutes(instance, controllers.authController);
@@ -87,6 +90,12 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
     await fastify.register(
         async (instance) => {
             await landingStatsRoutes(instance, controllers.landingStatsController);
+            await instance.register(
+                async (sub) => {
+                    await docusignPublicRoutes(sub);
+                },
+                { prefix: '/docusign' }
+            );
         },
         { prefix: '/public' }
     );
