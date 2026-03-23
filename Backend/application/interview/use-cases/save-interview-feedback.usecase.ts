@@ -129,23 +129,14 @@ HR Team`;
     });
 
     if (allRoundsPass) {
-      const jobTitle = job?.title ?? 'the role';
-      const offerBody = `Dear ${appAfter.fullName},
-
-We are pleased to offer you the position of ${jobTitle}. You have successfully completed all interview rounds.
-
-This letter is saved in our system for your records. Our HR team may follow up with detailed compensation and next steps.
-
-Congratulations, and welcome aboard.
-
-Best regards,
-HR Team`;
       await this._updateApplicationStatus.execute({
         applicationId: interview.applicationId,
         jobId: interview.jobId,
         companyId: interview.companyId,
-        status: 'HIRED',
-        offerEmailContent: offerBody,
+        // Candidate passed all interview rounds, but do NOT automatically create/send an offer.
+        // Offer letters should be sent only when the employer manually sets application status to HIRED
+        // with `offerEmailContent` from the Applications Management flow.
+        status: 'COMPLETED',
       });
     }
 

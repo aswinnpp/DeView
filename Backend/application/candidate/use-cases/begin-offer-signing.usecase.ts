@@ -4,6 +4,7 @@ import { AppError } from '../../../shared/errors/AppError.js';
 import { env } from '../../../infrastructure/config/env.js';
 import type { IOfferMailRepository } from '../../job-application/ports/repository/IOfferMailRepository.js';
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
+import type { ICounterLetterRepository } from '../../job-application/ports/repository/ICounterLetterRepository.js';
 import {
   DocuSignConsentRequiredError,
   DocuSignJwtAuthService,
@@ -31,6 +32,8 @@ export class BeginOfferSigningUseCase {
     private readonly _offers: IOfferMailRepository,
     @inject(TYPES.CompanyProfileRepositoryPort)
     private readonly _companies: ICompanyProfileRepository,
+    @inject(TYPES.CounterLetterRepositoryPort)
+    private readonly _counterLetters: ICounterLetterRepository,
     @inject(DocuSignOfferEnvelopeService)
     private readonly _docusign: DocuSignOfferEnvelopeService
   ) {}
@@ -54,6 +57,19 @@ export class BeginOfferSigningUseCase {
     }
     if (offer.status !== 'pending') {
       throw AppError.badRequest('Only a pending offer can be accepted');
+    }
+
+    // If the company accepted the candidate counter, sign that counter text
+    // instead of the original offer body stored on the offer mail.
+    let offerBody = offer.content;
+    try {
+      const counterByOffer = await this._counterLetters.findLatestByOfferMailIds([offer.id]);
+      const acceptedCounter = counterByOffer.get(offer.id);
+      if (acceptedCounter?.responseStatus === 'accepted') {
+        offerBody = acceptedCounter.content;
+      }
+    } catch {
+      // If counter lookup fails, fall back to the original offer content.
     }
 
     const company = await this._companies.findById(offer.companyId);
@@ -116,7 +132,7 @@ export class BeginOfferSigningUseCase {
         clientUserId,
         companyName,
         candidateName: offer.candidateName,
-        offerBody: offer.content,
+        offerBody,
         salary: offer.salary,
         location: offer.location,
         startDate: offer.startDate,

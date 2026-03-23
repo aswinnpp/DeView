@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import Button from "../../components/common/Button";
-import { SignedOfferPdfPanel } from "../../components/offer/SignedOfferPdfPanel";
 import { applicationsService } from "../../services/applications.service";
+import { api, extractApiError } from "../../api/axios";
 import type { JobListItem } from "../../services/applications.service";
-import { APP_ROUTES } from "../../constants/routes";
+import { API_ROUTES } from "../../constants/routes";
 
 export type OfferLetterRow = {
   id: string | null;
@@ -82,6 +81,10 @@ export default function OfferLettersPage() {
   const [selectedJobId, setSelectedJobId] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [counterResponding, setCounterResponding] = useState<string | null>(null);
+  const [signedPdfBusy, setSignedPdfBusy] = useState(false);
+  const [signedPdfError, setSignedPdfError] = useState<string | null>(null);
+  const [consentRedirectBusy, setConsentRedirectBusy] = useState(false);
+  const [consentRedirectError, setConsentRedirectError] = useState<string | null>(null);
 
   const load = useCallback(async (): Promise<OfferLetterRow[]> => {
     setLoading(true);
@@ -119,11 +122,43 @@ export default function OfferLettersPage() {
     void load();
   }, [load]);
 
-  const loadEmployerSignedPdf = useCallback(() => {
-    const id = selectedOffer?.id;
-    if (!id) return Promise.reject(new Error("Missing offer id"));
-    return applicationsService.fetchOfferSignedPdf(id);
+  useEffect(() => {
+    setSignedPdfError(null);
+  }, [selectedOffer]);
+
+  const openEmployerSignedPdfInNewTab = useCallback(async () => {
+    if (!selectedOffer?.id) return;
+    setSignedPdfBusy(true);
+    setSignedPdfError(null);
+    try {
+      const blob = await applicationsService.fetchOfferSignedPdf(selectedOffer.id);
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank", "noopener,noreferrer");
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (e) {
+      setSignedPdfError(extractApiError(e));
+    } finally {
+      setSignedPdfBusy(false);
+    }
   }, [selectedOffer?.id]);
+
+  const startDocuSignConsent = useCallback(async () => {
+    setConsentRedirectBusy(true);
+    setConsentRedirectError(null);
+    try {
+      const res = await api.get<{ url?: string }>(API_ROUTES.PUBLIC.DOCUSIGN_CONSENT_URL);
+      const url = res.data?.url;
+      if (!url?.trim()) {
+        setConsentRedirectError("Consent URL was not returned. Check DocuSign configuration on the server.");
+        return;
+      }
+      window.location.assign(url);
+    } catch (e) {
+      setConsentRedirectError(extractApiError(e));
+    } finally {
+      setConsentRedirectBusy(false);
+    }
+  }, []);
 
   const jobTitleMap = useMemo(() => {
     const m = new Map<string, string>();
@@ -166,16 +201,35 @@ export default function OfferLettersPage() {
 
         <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900/95 to-slate-800/90 overflow-hidden">
           <div className="bg-gradient-to-r from-violet-600 to-purple-700 px-8 py-6">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-xl font-bold text-white m-0">{selectedOffer.candidateName}</h2>
                 <p className="text-white/90 text-sm mt-1.5 m-0">{selectedOffer.candidateEmail}</p>
               </div>
-              <StatusBadge status={selectedOffer.status} />
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge status={selectedOffer.status} />
+                {selectedOffer.status === "accepted" &&
+                selectedOffer.signedOfferAvailable &&
+                selectedOffer.id ? (
+                  <button
+                    type="button"
+                    onClick={() => void openEmployerSignedPdfInNewTab()}
+                    disabled={signedPdfBusy}
+                    className="rounded-lg border border-white/40 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {signedPdfBusy ? "Opening…" : "View"}
+                  </button>
+                ) : null}
+              </div>
             </div>
           </div>
 
           <div className="p-6 space-y-6">
+            {signedPdfError ? (
+              <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                {signedPdfError}
+              </div>
+            ) : null}
             {/* Offer details */}
             <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5">
               <h3 className="text-violet-300 font-semibold text-base mb-4">Offer Details</h3>
@@ -220,15 +274,6 @@ export default function OfferLettersPage() {
                 {selectedOffer.content}
               </pre>
             </div>
-
-            {selectedOffer.status === "accepted" &&
-              selectedOffer.signedOfferAvailable &&
-              selectedOffer.id && (
-                <SignedOfferPdfPanel
-                  loadPdf={loadEmployerSignedPdf}
-                  title="Signed offer (candidate, DocuSign)"
-                />
-              )}
 
             {/* Counter letter */}
             {selectedOffer.status === "counter" && selectedOffer.counterLetter?.trim() && (
@@ -345,16 +390,22 @@ export default function OfferLettersPage() {
           <p className="text-slate-400 text-sm mt-2 mb-0">
             Track all sent offer letters and candidate responses. Data from Applications workflow.
           </p>
-          <p className="text-slate-500 text-xs mt-2 mb-0">
-            One-time{" "}
-            <Link
-              to={APP_ROUTES.OFFER_DOCUSIGN_CONSENT}
-              className="text-violet-400 hover:text-violet-300 font-medium underline-offset-2 hover:underline"
+          <p className="text-slate-500 text-xs mt-2 mb-0 flex flex-wrap items-center gap-x-1 gap-y-1">
+            <span>
+              One-time DocuSign JWT consent is required on the sending account before digital signing works.
+            </span>
+            <button
+              type="button"
+              onClick={() => void startDocuSignConsent()}
+              disabled={consentRedirectBusy}
+              className="inline font-semibold text-violet-400 hover:text-violet-300 underline-offset-2 hover:underline disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-0 p-0 cursor-pointer"
             >
-              DocuSign access (JWT consent)
-            </Link>{" "}
-            is required on the sending account before digital signing APIs work.
+              {consentRedirectBusy ? "Opening DocuSign…" : "Connect DocuSign"}
+            </button>
           </p>
+          {consentRedirectError ? (
+            <p className="text-red-300 text-xs mt-1.5 mb-0">{consentRedirectError}</p>
+          ) : null}
         </div>
         <Button
           variant="secondary"

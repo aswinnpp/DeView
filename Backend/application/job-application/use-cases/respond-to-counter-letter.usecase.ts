@@ -11,7 +11,7 @@ export interface IRespondToCounterLetterInput {
 
 export interface IRespondToCounterLetterResult {
   ok: boolean;
-  offerStatus: 'accepted' | 'declined';
+  offerStatus: 'pending' | 'accepted' | 'declined';
   counterResponseStatus: 'accepted' | 'rejected';
 }
 
@@ -39,11 +39,12 @@ export class RespondToCounterLetterUseCase {
     }
 
     const responseStatus = action === 'accept' ? 'accepted' : 'rejected';
-    const offerStatus = action === 'accept' ? 'accepted' : 'declined';
 
     const [counter, updatedOffer] = await Promise.all([
       this._counterLetters.updateResponseStatusByOfferMailId(oid, responseStatus),
-      this._offerMails.updateStatus(oid, offerStatus),
+      action === 'accept'
+        ? this._offerMails.setStatusPending(oid)
+        : this._offerMails.updateStatus(oid, 'declined'),
     ]);
 
     if (!counter || !updatedOffer) {
@@ -52,7 +53,7 @@ export class RespondToCounterLetterUseCase {
 
     return {
       ok: true,
-      offerStatus,
+      offerStatus: action === 'accept' ? 'pending' : 'declined',
       counterResponseStatus: responseStatus,
     };
   }

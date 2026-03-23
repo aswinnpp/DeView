@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import type { IEnvConfig } from '../config/env.js';
 import { DocuSignJwtAuthService } from './DocuSignJwtAuthService.js';
 
@@ -75,43 +75,185 @@ async function buildOfferLetterPdfBase64(input: {
   const salary = input.salary ? safePdfText(input.salary) : '';
   const location = input.location ? safePdfText(input.location) : '';
   const startDate = input.startDate ? safePdfText(input.startDate) : '';
+  const formattedDate = new Date().toLocaleDateString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+  });
 
+  const pageWidth = 612;
+  const pageHeight = 792;
+  const frameMargin = 36;
+  const margin = 58;
+  const topY = pageHeight - margin;
+  const bottomY = margin;
+
+  const lineHeight = 14;
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const margin = 50;
-  const lineHeight = 14;
-  let page = pdf.addPage([612, 792]);
-  let y = 760;
 
-  const draw = (t: string, opts?: { bold?: boolean; size?: number }) => {
+  let page = pdf.addPage([pageWidth, pageHeight]);
+  let y = topY;
+
+  const ensureSpace = (neededLines: number) => {
+    if (y < bottomY + neededLines * lineHeight) {
+      page = pdf.addPage([pageWidth, pageHeight]);
+      y = topY;
+    }
+  };
+
+  const drawDivider = () => {
+    page.drawLine({
+      start: { x: margin, y },
+      end: { x: pageWidth - margin, y },
+      thickness: 1,
+      color: rgb(0.35, 0.35, 0.35),
+    });
+    y -= 12;
+  };
+
+  const drawWrapped = (
+    text: string,
+    opts?: { bold?: boolean; size?: number; color?: ReturnType<typeof rgb>; indent?: number }
+  ) => {
     const size = opts?.size ?? 11;
     const f = opts?.bold ? fontBold : font;
-    const wrapped = wrapLines(t, 85);
+    const color = opts?.color ?? rgb(0, 0, 0);
+    const indent = opts?.indent ?? 0;
+    const maxChars = indent > 0 ? 88 : 95;
+    const wrapped = wrapLines(text, maxChars);
+
     for (const line of wrapped) {
-      if (y < margin + lineHeight) {
-        page = pdf.addPage([612, 792]);
-        y = 760;
+      ensureSpace(1);
+      if (line === '') {
+        y -= Math.max(6, lineHeight - 4);
+        continue;
       }
-      page.drawText(line, { x: margin, y, size, font: f });
+      page.drawText(line, { x: margin + indent, y, size, font: f, color });
       y -= lineHeight;
     }
   };
 
-  draw('OFFER LETTER', { bold: true, size: 16 });
-  y -= 6;
-  draw(`To: ${candidateName} <${candidateEmail}>`, { bold: true });
-  draw(`From: ${companyName}`, { bold: true });
-  y -= 8;
-  if (salary.trim()) draw(`Compensation: ${salary.trim()}`);
-  if (location.trim()) draw(`Location: ${location.trim()}`);
-  if (startDate.trim()) draw(`Start date: ${startDate.trim()}`);
-  y -= 8;
-  draw(offerBody.trim() || '(No additional letter body.)');
-  y -= 24;
-  draw('Please sign below to accept this offer:', { bold: true });
+  const drawCentered = (text: string, opts?: { bold?: boolean; size?: number; color?: ReturnType<typeof rgb> }) => {
+    const size = opts?.size ?? 12;
+    const f = opts?.bold ? fontBold : font;
+    const color = opts?.color ?? rgb(0, 0, 0);
+    const width = f.widthOfTextAtSize(text, size);
+    const x = (pageWidth - width) / 2;
+    ensureSpace(1);
+    page.drawText(text, { x, y, size, font: f, color });
+    y -= lineHeight + 6;
+  };
+
+  const drawPageFrame = () => {
+    page.drawRectangle({
+      x: frameMargin,
+      y: frameMargin,
+      width: pageWidth - frameMargin * 2,
+      height: pageHeight - frameMargin * 2,
+      borderColor: rgb(0.12, 0.62, 0.84),
+      borderWidth: 1.6,
+    });
+  };
+
+  drawPageFrame();
+
+  // Header (formal offer-letter style)
+  drawCentered('JOB OFFER LETTER', { bold: true, size: 20, color: rgb(0.12, 0.12, 0.12) });
+  drawWrapped(companyName, { bold: true, size: 12 });
+  drawWrapped(`Date: ${formattedDate}`, { size: 11, color: rgb(0.25, 0.25, 0.25) });
+  y -= 2;
+  drawDivider();
+  drawWrapped(`To: ${candidateName}`, { bold: true, size: 12 });
+  drawWrapped(`Email: ${candidateEmail}`, { size: 11 });
+  y -= 2;
+  drawWrapped('Subject: Job Offer', { bold: true, size: 12 });
   y -= 4;
-  draw('/ds-sign/', { size: 10 });
+
+  const body = offerBody.trim() || '(No additional letter body.)';
+  drawWrapped(body, { size: 11 });
+  y -= 6;
+
+  drawWrapped('Position Details:', { bold: true, size: 12 });
+  if (startDate.trim()) drawWrapped(`- Start Date: ${startDate.trim()}`, { size: 11, indent: 12 });
+  if (location.trim()) drawWrapped(`- Work Location: ${location.trim()}`, { size: 11, indent: 12 });
+  if (!startDate.trim() && !location.trim()) {
+    drawWrapped('- Details will be shared by HR.', { size: 11, indent: 12 });
+  }
+
+  y -= 4;
+  drawWrapped('Compensation & Benefits:', { bold: true, size: 12 });
+  if (salary.trim()) {
+    drawWrapped(`- Salary: ${salary.trim()}`, { size: 11, indent: 12 });
+  } else {
+    drawWrapped('- Salary details will be shared by HR.', { size: 11, indent: 12 });
+  }
+
+  y -= 4;
+  drawWrapped('Terms & Conditions:', { bold: true, size: 12 });
+  drawWrapped('- Employment is subject to company policies.', { size: 11, indent: 12 });
+  drawWrapped('- Candidate must complete joining formalities and required documentation.', { size: 11, indent: 12 });
+  drawWrapped('- Either party may terminate employment as per policy and applicable law.', { size: 11, indent: 12 });
+
+  y -= 8;
+  drawWrapped('Please sign below to confirm acceptance of this offer:', { bold: true, size: 11, color: rgb(0, 0, 0) });
+  y -= 6;
+
+  const signatureBoxHeight = 44;
+  const signatureBoxY = y - signatureBoxHeight;
+  page.drawRectangle({
+    x: margin,
+    y: signatureBoxY,
+    width: pageWidth - margin * 2,
+    height: signatureBoxHeight,
+    borderColor: rgb(0.3, 0.3, 0.3),
+    borderWidth: 1,
+  });
+  page.drawText('Signature', { x: margin + 12, y: signatureBoxY + 15, size: 10, font });
+
+  // DocuSign anchor text must exist in the PDF. We keep it effectively invisible.
+  page.drawText('/ds-sign/', {
+    x: margin + 12,
+    y: signatureBoxY + 30,
+    size: 10,
+    font,
+    color: rgb(1, 1, 1),
+  });
+
+  y = signatureBoxY - 18;
+
+ 
+  ensureSpace(3);
+  drawWrapped('To complete signing, please upload your government ID proof:', {
+    bold: true,
+    size: 11,
+    color: rgb(0, 0, 0),
+  });
+
+  const idProofLinkText = 'Upload ID Proof';
+  const idProofLinkSize = 11;
+  const idProofLinkX = margin + 12;
+  const idProofLinkColor = rgb(0.0, 0.35, 0.7);
+
+  ensureSpace(1);
+  page.drawText(idProofLinkText, {
+    x: idProofLinkX,
+    y,
+    size: idProofLinkSize,
+    font,
+    color: idProofLinkColor,
+  });
+  const linkWidth = font.widthOfTextAtSize(idProofLinkText, idProofLinkSize);
+  page.drawLine({
+    start: { x: idProofLinkX, y: y - 2 },
+    end: { x: idProofLinkX + linkWidth, y: y - 2 },
+    thickness: 0.8,
+    color: idProofLinkColor,
+  });
+
+
+  y -= lineHeight + 6;
 
   const bytes = await pdf.save();
   return Buffer.from(bytes).toString('base64');
@@ -252,6 +394,19 @@ export class DocuSignOfferEnvelopeService {
                   anchorUnits: 'pixels',
                   anchorXOffset: '0',
                   anchorYOffset: '0',
+                },
+              ],
+              signerAttachmentTabs: [
+                {
+                  documentId: '1',
+                  // Keep in sync with `idProofLinkText` in buildOfferLetterPdfBase64()
+                  anchorString: 'Upload ID Proof',
+                  anchorUnits: 'pixels',
+                  anchorXOffset: '0',
+                  anchorYOffset: '0',
+                  name: 'Government ID Proof',
+                  tabLabel: 'ID_PROOF_ATTACHMENT',
+                  optional: 'false',
                 },
               ],
             },

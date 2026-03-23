@@ -39,6 +39,12 @@ export interface IOfferMailRepository {
   updateStatus(offerMailId: string, status: 'accepted' | 'declined'): Promise<OfferMail | null>;
 
   /**
+   * Set offer back to `pending` (waiting for candidate digital signature).
+   * Used when the company accepts the candidate's counter proposal.
+   */
+  setStatusPending(offerMailId: string): Promise<OfferMail | null>;
+
+  /**
    * Candidate accepts or declines the initial offer (`pending` only; legacy docs without `status` count as pending).
    */
   updateStatusIfCandidatePending(

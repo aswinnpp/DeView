@@ -41,7 +41,7 @@ export interface IEnvConfig {
     DOCUSIGN_PRIVATE_KEY?: string;
     /** e.g. account-d.docusign.com (demo) */
     DOCUSIGN_OAUTH_HOST?: string;
-    /** e.g. http://localhost:3000/offer/success */
+    /** OAuth redirect: backend GET /offer/success → 302 to FRONTEND_URL/company/offer-letters (must match DocuSign app URIs) */
     DOCUSIGN_REDIRECT_URI?: string;
     DOCUSIGN_JWT_LIFETIME_SECONDS?: string;
     /** REST base for API calls; default demo: https://demo.docusign.net/restapi */

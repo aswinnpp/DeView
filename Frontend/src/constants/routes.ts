@@ -144,10 +144,6 @@ export const APP_ROUTES = {
     CANDIDATE_PROFILE: '/candidate/profile',
     CANDIDATE_MAILS: '/candidate/mails',
     OFFER_LETTERS: (base: EmployerBase) => `/${base}/offer-letters`,
-    /** DocuSign JWT consent return (SPA); API may redirect here from /offer/success on the backend port. */
-    OFFER_DOCUSIGN_SUCCESS: '/offer/success',
-    /** Starts DocuSign OAuth consent (redirects browser to DocuSign). */
-    OFFER_DOCUSIGN_CONSENT: '/offer/docusign-consent',
     HR_DASHBOARD: '/hr/dashboard',
     ADMIN_DASHBOARD: '/admin',
     INTERVIEWER_DASHBOARD: '/interviewer/dashboard',

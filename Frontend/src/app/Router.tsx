@@ -2,15 +2,6 @@ import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { PrivateRoute, PublicRoute } from "../components/common/routeGuards";
 
-const OfferDocuSignSuccessPage = lazy(
-  () => import("../features/offer/OfferDocuSignSuccessPage")
-);
-const OfferDocuSignConsentPage = lazy(
-  () => import("../features/offer/OfferDocuSignConsentPage")
-);
-
-
-
 const LandingPage = lazy(() => import("../features/landing/LandingPage"));
 const LoginPage = lazy(() => import("../features/auth/LoginPage"));
 const RegisterPage = lazy(() => import("../features/auth/RegisterPage"));
@@ -72,16 +63,6 @@ const AppRouter = () => {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
-        {/* DocuSign JWT consent return / initiator — must not use PublicRoute (logged-in users still need these). */}
-        <Route
-          path="/offer/success"
-          element={<OfferDocuSignSuccessPage />}
-        />
-        <Route
-          path="/offer/docusign-consent"
-          element={<OfferDocuSignConsentPage />}
-        />
-
         {/* ─── Public Routes ───────────────────────── */}
 
         <Route element={<PublicRoute />}>

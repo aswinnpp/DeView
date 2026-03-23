@@ -152,6 +152,27 @@ export class MongoOfferMailRepository implements IOfferMailRepository {
     return result ? toDomain(result) : null;
   }
 
+  async setStatusPending(offerMailId: string): Promise<OfferMail | null> {
+    let oid: ObjectId;
+    try {
+      oid = new ObjectId(offerMailId);
+    } catch {
+      return null;
+    }
+
+    const result = await this._collection.findOneAndUpdate(
+      { _id: oid },
+      {
+        $set: { status: 'pending' },
+        // If the offer was previously used for signing attempts, ensure we re-create a fresh session.
+        $unset: { docusignAcceptanceEnvelopeId: '' },
+      },
+      { returnDocument: 'after' }
+    );
+
+    return result ? toDomain(result) : null;
+  }
+
   async updateStatusIfCandidatePending(
     offerMailId: string,
     candidateUserId: string,
