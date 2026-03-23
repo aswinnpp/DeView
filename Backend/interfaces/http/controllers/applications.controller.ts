@@ -16,7 +16,7 @@ import { RespondToCounterLetterUseCase } from '../../../application/job-applicat
 import { GetSignedOfferPdfUseCase } from '../../../application/job-application/use-cases/get-signed-offer-pdf.usecase.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ApplicationMapper } from '../../../application/job-application/mappers/ApplicationMapper.js';
-import { applicationsListQuerySchema } from '../schemas/applications.schema.js';
+import { applicationsListQuerySchema, offerMailsListQuerySchema } from '../schemas/applications.schema.js';
 
 function toContext(user: { userId: string; companyId?: string }) {
   return { userId: user.userId, companyId: user.companyId };
@@ -133,10 +133,27 @@ export class ApplicationsController {
     reply.send(success(result));
   };
 
-  listOfferMails = async (request: FastifyRequest, reply: FastifyReply) => {
+  listOfferMails = async (
+    request: FastifyRequest<{
+      Querystring: {
+        jobId?: string;
+        status?: 'pending' | 'accepted' | 'declined' | 'counter';
+        search?: string;
+        page?: number;
+        limit?: number;
+      };
+    }>,
+    reply: FastifyReply
+  ) => {
     const ctx = toContext(request.currentUser);
+    const query = offerMailsListQuerySchema.parse(request.query ?? {});
     const result = await this._listOfferMailsUseCase.execute({
       companyId: ctx.companyId ?? '',
+      jobId: query.jobId,
+      status: query.status,
+      search: query.search,
+      page: query.page,
+      limit: query.limit,
     });
     const data = result.data.map((m) => {
       const mid = m.id ?? '';
@@ -172,7 +189,7 @@ export class ApplicationsController {
         createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : String(m.createdAt),
       };
     });
-    reply.send(success({ data }));
+    reply.send(success({ data, total: result.total }));
   };
 
   updateStatus = async (

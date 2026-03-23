@@ -104,6 +104,7 @@ export interface CandidateMailboxData {
     content: string;
     createdAt: string;
   }>;
+  total?: number;
 }
 
 export interface MyApplicationsParams {
@@ -167,8 +168,26 @@ export const candidateJobsService = {
       })
       .then((res) => toPaginatedResult(res.data)),
 
-  listMailbox: async (): Promise<CandidateMailboxData> => {
-    const res = await api.get<CandidateMailboxData>(API_ROUTES.CANDIDATE.MAILBOX);
+  listMailbox: async (
+    params?: {
+      kind?: "all" | "offer" | "rejection";
+      jobId?: string;
+      offerStatus?: OfferMailboxStatus;
+      search?: string;
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<CandidateMailboxData> => {
+    const res = await api.get<CandidateMailboxData>(API_ROUTES.CANDIDATE.MAILBOX, {
+      params: {
+        kind: params?.kind,
+        jobId: params?.jobId,
+        offerStatus: params?.offerStatus,
+        search: params?.search,
+        page: params?.page,
+        limit: params?.limit,
+      },
+    });
     const body = res.data;
     if (body && typeof body === "object" && "offers" in body && "rejections" in body) {
       const offersRaw = Array.isArray(body.offers) ? body.offers : [];
@@ -185,9 +204,10 @@ export const candidateJobsService = {
           signedOfferAvailable: Boolean(o.signedOfferAvailable),
         })),
         rejections: Array.isArray(body.rejections) ? body.rejections : [],
+        total: typeof (body as CandidateMailboxData & { total?: unknown }).total === "number" ? (body as CandidateMailboxData & { total?: number }).total : undefined,
       };
     }
-    return { offers: [], rejections: [] };
+    return { offers: [], rejections: [], total: 0 };
   },
 
   submitOfferCounter: async (offerMailId: string, letter: string): Promise<void> => {

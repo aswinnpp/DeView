@@ -13,6 +13,7 @@ import { ConfirmOfferSigningUseCase } from '../../../application/candidate/use-c
 import { GetSignedOfferPdfUseCase } from '../../../application/job-application/use-cases/get-signed-offer-pdf.usecase.js';
 import { JobMapper } from '../../../application/job/mappers/JobMapper.js';
 import { ApplicationMapper } from '../../../application/job-application/mappers/ApplicationMapper.js';
+import { candidateMailboxListQuerySchema } from '../schemas/candidate-mailbox.schema.js';
 
 interface ApplyBody {
   useResumeFromProfile: boolean;
@@ -105,7 +106,16 @@ export class CandidateJobsController {
 
   listMailbox = async (request: FastifyRequest, reply: FastifyReply) => {
     const userId = request.currentUser.userId;
-    const result = await this._listCandidateMailboxUseCase.execute(userId);
+    const query = candidateMailboxListQuerySchema.parse(request.query ?? {});
+    const result = await this._listCandidateMailboxUseCase.execute({
+      candidateUserId: userId,
+      kind: query.kind,
+      jobId: query.jobId,
+      offerStatus: query.offerStatus,
+      search: query.search,
+      page: query.page,
+      limit: query.limit,
+    });
     reply.send(success(result));
   };
 

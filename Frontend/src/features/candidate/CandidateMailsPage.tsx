@@ -1,17 +1,9 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import CandidateNavHeader from "./CandidateNavHeader";
-import {
-  candidateJobsService,
-  type CandidateMailboxData,
-  type OfferMailboxStatus,
-} from "../../services/candidateJobs.service";
-import { extractApiError } from "../../api/axios";
+import { Button, Pagination, SearchInput, Table } from "../../components/common";
+import type { OfferMailboxStatus } from "../../services/candidateJobs.service";
 import CounterProposalModal from "../../components/applications/CounterProposalModal";
-type FilterType = "all" | "offer" | "rejection";
-
-type InboxItem =
-  | (CandidateMailboxData["offers"][number] & { kind: "offer"; rowKey: string })
-  | (CandidateMailboxData["rejections"][number] & { kind: "rejection"; rowKey: string });
+import { useCandidateMails, type FilterType, type InboxItem } from "../../hooks/candidate/useCandidateMails";
 
 function splitBenefits(benefits: string | undefined): string[] {
   if (!benefits?.trim()) return [];
@@ -57,180 +49,40 @@ function offerResponseLabel(
 }
 
 export default function CandidateMailsPage() {
-  const [data, setData] = useState<CandidateMailboxData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [filterType, setFilterType] = useState<FilterType>("all");
-  const [counterDraft, setCounterDraft] = useState("");
-  const [counterSubmitting, setCounterSubmitting] = useState(false);
-  const [counterError, setCounterError] = useState<string | null>(null);
-  const [counterModalOpen, setCounterModalOpen] = useState(false);
-  const [offerRespondBusy, setOfferRespondBusy] = useState<false | "decline" | "sign">(false);
-  const [offerRespondError, setOfferRespondError] = useState<string | null>(null);
-  /** One-time DocuSign JWT consent — must be completed by the DocuSign integration user (not necessarily the candidate). */
-  const [offerConsentNotice, setOfferConsentNotice] = useState<string | null>(null);
-  const [signedPdfBusy, setSignedPdfBusy] = useState(false);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await candidateJobsService.listMailbox();
-      setData(res);
-    } catch {
-      setError("Could not load your messages.");
-      setData({ offers: [], rejections: [] });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  const items: InboxItem[] = useMemo(() => {
-    if (!data) return [];
-    const offers: InboxItem[] = data.offers.map((o) => ({
-      ...o,
-      kind: "offer" as const,
-      rowKey: `offer:${o.id ?? o.applicationId}:${o.createdAt}`,
-    }));
-    const rejections: InboxItem[] = data.rejections.map((r) => ({
-      ...r,
-      kind: "rejection" as const,
-      rowKey: `rejection:${r.id ?? r.applicationId}:${r.createdAt}`,
-    }));
-    return [...offers, ...rejections].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }, [data]);
-
-  const filtered = useMemo(() => {
-    if (filterType === "all") return items;
-    return items.filter((m) => m.kind === filterType);
-  }, [items, filterType]);
-
-  const selected = selectedKey ? items.find((m) => m.rowKey === selectedKey) : undefined;
-
-  useEffect(() => {
-    setOfferRespondError(null);
-    if (!selected || selected.kind !== "offer") {
-      setCounterDraft("");
-      setCounterError(null);
-      return;
-    }
-    setCounterDraft(selected.status === "counter" ? (selected.counterLetter ?? "") : "");
-    setCounterError(null);
-  }, [selected]);
-
-  useEffect(() => {
-    if (!counterModalOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setCounterModalOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [counterModalOpen]);
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffDays = Math.ceil((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  };
-
-  const formatTime = (dateStr: string) =>
-    new Date(dateStr).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-
-  const subjectFor = (m: InboxItem) =>
-    m.kind === "offer" ? `Offer — ${m.jobTitle}` : `Update — ${m.jobTitle}`;
-
-  const submitCounter = useCallback(async () => {
-    if (selected?.kind !== "offer" || !selected.id) return;
-    const letter = counterDraft.trim();
-    if (!letter) return;
-    setCounterSubmitting(true);
-    setCounterError(null);
-    try {
-      await candidateJobsService.submitOfferCounter(selected.id, letter);
-      setCounterModalOpen(false);
-      await load();
-    } catch {
-      setCounterError("Could not send your counter proposal. Please try again.");
-    } finally {
-      setCounterSubmitting(false);
-    }
-  }, [selected, counterDraft, load]);
-
-  const declineOffer = useCallback(async () => {
-    if (selected?.kind !== "offer" || !selected.id) return;
-    setOfferRespondError(null);
-    setOfferConsentNotice(null);
-    setOfferRespondBusy("decline");
-    try {
-      await candidateJobsService.respondToOffer(selected.id, "decline");
-      await load();
-    } catch (e) {
-      setOfferRespondError(extractApiError(e));
-    } finally {
-      setOfferRespondBusy(false);
-    }
-  }, [selected, load]);
-
-  const startAcceptSigning = useCallback(async () => {
-    if (selected?.kind !== "offer" || !selected.id) return;
-    setOfferRespondError(null);
-    setOfferConsentNotice(null);
-    setOfferRespondBusy("sign");
-    try {
-      const result = await candidateJobsService.beginOfferSigning(selected.id);
-      if (result.outcome === "accepted") {
-        await load();
-        setOfferRespondBusy(false);
-        return;
-      }
-      if (result.outcome === "consent_required") {
-        setOfferConsentNotice(
-          "Offer signing isn’t available yet: DocuSign must be activated once by your employer (JWT consent). Candidates don’t use the DocuSign login page — after setup, you’ll go straight to signing. Ask HR to open Connect DocuSign from the employer portal, then try again."
-        );
-        setOfferRespondBusy(false);
-        return;
-      }
-      const url = result.signingUrl;
-      if (url.includes("/oauth/auth")) {
-        setOfferRespondError(
-          "Received a DocuSign login link instead of a signing session. The employer must complete DocuSign setup first."
-        );
-        setOfferRespondBusy(false);
-        return;
-      }
-      window.location.assign(url);
-    } catch (e) {
-      setOfferRespondError(extractApiError(e));
-      setOfferRespondBusy(false);
-    }
-  }, [selected, load]);
-
-  const openSignedOfferInNewTab = useCallback(async () => {
-    if (selected?.kind !== "offer" || !selected.id) return;
-    setSignedPdfBusy(true);
-    setOfferRespondError(null);
-    try {
-      const blob = await candidateJobsService.fetchOfferSignedPdf(selected.id);
-      const url = URL.createObjectURL(blob);
-      window.open(url, "_blank", "noopener,noreferrer");
-      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-    } catch (e) {
-      setOfferRespondError(extractApiError(e));
-    } finally {
-      setSignedPdfBusy(false);
-    }
-  }, [selected]);
+  const {
+    loading,
+    error,
+    filterType,
+    setFilterType,
+    offerStatusFilter,
+    setOfferStatusFilter,
+    setJobSearch,
+    page,
+    setPage,
+    total,
+    MAILBOX_PAGE_SIZE,
+    filtered,
+    selected,
+    setSelectedKey,
+    counterDraft,
+    setCounterDraft,
+    counterSubmitting,
+    counterError,
+    setCounterError,
+    counterModalOpen,
+    setCounterModalOpen,
+    offerRespondBusy,
+    offerRespondError,
+    offerConsentNotice,
+    signedPdfBusy,
+    submitCounter,
+    declineOffer,
+    startAcceptSigning,
+    openSignedOfferInNewTab,
+    formatDate,
+    formatTime,
+    subjectFor,
+  } = useCandidateMails();
 
   const shell = (children: ReactNode) => (
     <div className="flex min-h-screen w-full flex-col bg-[rgb(15,15,25)] text-slate-100">
@@ -238,7 +90,7 @@ export default function CandidateMailsPage() {
     </div>
   );
 
-  if (loading && !data) {
+  if (loading && filtered.length === 0 && !selected) {
     return shell(
       <>
         <CandidateNavHeader title="MAILS" currentPage="mails" />
@@ -260,101 +112,146 @@ export default function CandidateMailsPage() {
             </div>
           )}
 
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
               <h2 className="m-0 text-2xl font-bold text-slate-100">Inbox</h2>
               <p className="mt-1 text-sm text-slate-400">
                 Offer letters and application updates from employers you applied to.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {(["all", "offer", "rejection"] as const).map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setFilterType(type)}
-                  className={`rounded-lg px-4 py-2 text-xs font-semibold capitalize transition-colors ${
-                    filterType === type
-                      ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-900/40"
-                      : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200"
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
+          </div>
+
+          <div
+            className={`flex flex-col sm:flex-row gap-3 items-stretch sm:items-end mb-6 ${
+              loading ? "pointer-events-none opacity-70" : ""
+            }`}
+          >
+            <div className="flex-1">
+              <label className="block text-xs font-semibold text-slate-400 mb-1.5">Search by Job</label>
+              <SearchInput
+                placeholder="Search by job title..."
+                onSearch={(q) => {
+                  setJobSearch(q);
+                  setPage(1);
+                }}
+              />
+            </div>
+            <div className="sm:w-[180px]">
+              <label className="block text-xs font-semibold text-slate-400 mb-1.5">Filter by Type</label>
+              <select
+                value={filterType}
+                onChange={(e) => {
+                  setFilterType(e.target.value as FilterType);
+                  setPage(1);
+                }}
+                className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-200 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
+              >
+                <option value="all">All</option>
+                <option value="offer">Offer</option>
+                <option value="rejection">Rejection</option>
+              </select>
+            </div>
+            <div className="sm:w-[220px]">
+              <label className="block text-xs font-semibold text-slate-400 mb-1.5">Filter by Status</label>
+              <select
+                value={offerStatusFilter}
+                onChange={(e) => {
+                  setOfferStatusFilter(e.target.value as OfferMailboxStatus | "all");
+                  setPage(1);
+                }}
+                className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-200 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
+              >
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="declined">Declined</option>
+                <option value="counter">Counter sent</option>
+              </select>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
-            {filtered.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-14 text-center">
-                <p className="m-0 text-slate-400 text-sm">
-                  No messages yet. When an employer sends an offer or rejection, it will appear here.
-                </p>
-              </div>
-            ) : (
-              filtered.map((mail) => (
-                <button
-                  key={mail.rowKey}
-                  type="button"
-                  onClick={() => setSelectedKey(mail.rowKey)}
-                  className="w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition-all hover:border-violet-500/40 hover:bg-white/[0.07] hover:translate-x-0.5"
-                >
-                  <div className="flex gap-4">
-                    <div
-                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg ${
-                        mail.kind === "offer"
-                          ? "bg-gradient-to-br from-emerald-500 to-teal-600"
-                          : "bg-gradient-to-br from-red-500 to-rose-600"
-                      }`}
-                    >
-                      {mail.kind === "offer" ? "📧" : "📩"}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-                        <h3 className="m-0 truncate text-base font-semibold text-slate-100">
-                          {subjectFor(mail)}
-                        </h3>
-                        <div className="flex shrink-0 flex-wrap items-center gap-1.5 justify-end">
-                          {mail.kind === "offer" && (
-                            <span
-                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${offerResponseBadgeClass(
-                                mail.status
-                              )}`}
-                            >
-                              {offerResponseLabel(
-                                mail.status,
-                                "counterResponseStatus" in mail ? mail.counterResponseStatus : undefined
-                              )}
-                            </span>
-                          )}
-                          <span
-                            className={`rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                              mail.kind === "offer"
-                                ? "bg-emerald-500/20 text-emerald-300"
-                                : "bg-red-500/20 text-red-300"
-                            }`}
-                          >
-                            {mail.kind}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mb-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
-                        <span>
-                          From: <strong className="text-slate-300">{mail.companyName}</strong>
-                        </span>
-                        <span className="hidden sm:inline">•</span>
-                        <span>{mail.jobTitle}</span>
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        {formatDate(mail.createdAt)} at {formatTime(mail.createdAt)}
-                      </div>
+          <Table<InboxItem>
+            columns={[
+              {
+                header: "Message",
+                render: (mail) => (
+                  <div className="min-w-0">
+                    <div className="font-semibold text-slate-100 truncate">{subjectFor(mail)}</div>
+                    <div className="text-xs text-slate-400 mt-1 truncate">
+                      From: <span className="text-slate-300 font-semibold">{mail.companyName}</span> • {mail.jobTitle}
                     </div>
                   </div>
-                </button>
-              ))
-            )}
-          </div>
+                ),
+                cellClassName: "p-4",
+              },
+              {
+                header: "Sent",
+                render: (mail) => (
+                  <div className="text-xs text-slate-500">
+                    {formatDate(mail.createdAt)} at {formatTime(mail.createdAt)}
+                  </div>
+                ),
+              },
+              {
+                header: "Status",
+                render: (mail) => {
+                  if (mail.kind === "offer") {
+                    return (
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${offerResponseBadgeClass(
+                            mail.status
+                          )}`}
+                        >
+                          {offerResponseLabel(
+                            mail.status,
+                            mail.counterResponseStatus
+                          )}
+                        </span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <span className="rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-red-500/20 text-red-300">
+                      rejection
+                    </span>
+                  );
+                },
+              },
+              {
+                header: "Actions",
+                render: (mail) => (
+                  <Button
+                    type="button"
+                    variant="ghostOutline"
+                    className="!px-3 !py-2 !text-xs"
+                    onClick={() => setSelectedKey(mail.rowKey)}
+                  >
+                    Open
+                  </Button>
+                ),
+                headerClassName: "w-[120px]",
+              },
+            ]}
+            data={filtered}
+            rowKey={(mail) => mail.rowKey}
+            emptyMessage="No messages yet."
+            emptySubMessage="When an employer sends an offer or rejection, it will appear here."
+          />
+
+          {total > 0 ? (
+            <div className="mt-4">
+              <Pagination
+                page={page}
+                totalPages={Math.max(1, Math.ceil(total / MAILBOX_PAGE_SIZE))}
+                onPageChange={(next) => setPage(next)}
+                leftContent={`Showing ${(page - 1) * MAILBOX_PAGE_SIZE + 1}–${Math.min(
+                  page * MAILBOX_PAGE_SIZE,
+                  total
+                )} of ${total}`}
+              />
+            </div>
+          ) : null}
         </main>
       </>
     );
@@ -373,13 +270,14 @@ export default function CandidateMailsPage() {
     <>
       <CandidateNavHeader title="MAIL DETAILS" currentPage="mails" />
       <main className="flex-1 px-6 py-8 sm:px-10">
-        <button
+        <Button
           type="button"
+          variant="ghostOutline"
           onClick={() => setSelectedKey(null)}
-          className="mb-6 flex items-center gap-2 border-0 bg-transparent p-0 text-sm font-medium text-slate-400 hover:text-slate-200"
+          className="!mb-6 !flex !items-center !gap-2 !border-0 !bg-transparent !p-0 !text-sm !font-medium !text-slate-400 hover:!text-slate-200"
         >
           ← Back to inbox
-        </button>
+        </Button>
 
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
           <div className="mb-6 border-b border-white/10 pb-5">
@@ -398,14 +296,15 @@ export default function CandidateMailsPage() {
                     )}
                   </span>
                   {selected.status === "accepted" && selected.signedOfferAvailable && selected.id ? (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghostOutline"
                       onClick={() => void openSignedOfferInNewTab()}
                       disabled={signedPdfBusy}
                       className="rounded-lg border border-slate-500/50 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10 hover:border-slate-400/60 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {signedPdfBusy ? "Opening…" : "View"}
-                    </button>
+                    </Button>
                   ) : null}
                 </div>
               )}
@@ -532,8 +431,9 @@ export default function CandidateMailsPage() {
                 </div>
               ) : null}
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                <button
+                <Button
                   type="button"
+                  variant="primary"
                   disabled={!canAcceptOrReject || offerRespondBusy !== false}
                   title={
                     !canAcceptOrReject
@@ -543,12 +443,13 @@ export default function CandidateMailsPage() {
                       : "Digitally sign in DocuSign; your acceptance is recorded only after signing."
                   }
                   onClick={() => void startAcceptSigning()}
-                  className="order-1 flex-1 rounded-xl border border-emerald-500/40 bg-emerald-600/20 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-600/30 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
+                  className="order-1 !flex-1 rounded-xl border border-emerald-500/40 bg-emerald-600/20 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-600/30 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
                 >
                   {offerRespondBusy === "sign" ? "Opening DocuSign…" : "Accept & sign"}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="danger"
                   disabled={!canAcceptOrReject || offerRespondBusy !== false}
                   title={
                     !canAcceptOrReject
@@ -562,12 +463,13 @@ export default function CandidateMailsPage() {
                     if (!window.confirm("Decline this offer? The employer will see that you declined.")) return;
                     void declineOffer();
                   }}
-                  className="order-2 flex-1 rounded-xl border border-red-500/40 bg-red-600/15 px-4 py-3 text-sm font-semibold text-red-200 transition hover:bg-red-600/25 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
+                  className="order-2 !flex-1 rounded-xl border border-red-500/40 bg-red-600/15 px-4 py-3 text-sm font-semibold text-red-200 transition hover:bg-red-600/25 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
                 >
                   {offerRespondBusy === "decline" ? "Declining…" : "Reject"}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="violet"
                   disabled={!canSendCounter}
                   title={
                     !canSendCounter
@@ -580,10 +482,10 @@ export default function CandidateMailsPage() {
                     setCounterError(null);
                     setCounterModalOpen(true);
                   }}
-                  className="order-3 flex-1 rounded-xl border border-violet-500/50 bg-gradient-to-r from-violet-600/90 to-purple-600/90 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-900/25 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
+                  className="order-3 !flex-1 rounded-xl border border-violet-500/50 bg-gradient-to-r from-violet-600/90 to-purple-600/90 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-900/25 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
                 >
                   Counter
-                </button>
+                </Button>
               </div>
 
               {!selected.id && (selected.status === "pending" || selected.status === "counter") ? (

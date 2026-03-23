@@ -1,9 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Button from "../../components/common/Button";
-import { applicationsService } from "../../services/applications.service";
-import { api, extractApiError } from "../../api/axios";
-import type { JobListItem } from "../../services/applications.service";
-import { API_ROUTES } from "../../constants/routes";
+import { Button, Pagination, SearchInput, Table } from "../../components/common";
+import { useOfferLetters } from "../../hooks/offerLetter/useOfferLetters";
 
 export type OfferLetterRow = {
   id: string | null;
@@ -73,111 +69,33 @@ function StatusBadge({ status }: { status: OfferLetterRow["status"] }) {
 }
 
 export default function OfferLettersPage() {
-  const [rows, setRows] = useState<OfferLetterRow[]>([]);
-  const [jobs, setJobs] = useState<JobListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedOffer, setSelectedOffer] = useState<OfferLetterRow | null>(null);
-  const [selectedJobId, setSelectedJobId] = useState<string>("all");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [counterResponding, setCounterResponding] = useState<string | null>(null);
-  const [signedPdfBusy, setSignedPdfBusy] = useState(false);
-  const [signedPdfError, setSignedPdfError] = useState<string | null>(null);
-  const [consentRedirectBusy, setConsentRedirectBusy] = useState(false);
-  const [consentRedirectError, setConsentRedirectError] = useState<string | null>(null);
+  const {
+    rows,
+    jobs,
+    page,
+    setPage,
+    setJobSearch,
+    loading,
+    error,
+    selectedOffer,
+    setSelectedOffer,
+    selectedJobId,
+    setSelectedJobId,
+    selectedStatus,
+    setSelectedStatus,
+    counterResponding,
+    signedPdfBusy,
+    signedPdfError,
+    openEmployerSignedPdfInNewTab,
+    respondToCounter,
+    refreshOffers,
+    jobTitleMap,
+    totalPages,
+    paginationLeftContent,
+  } = useOfferLetters();
 
-  const load = useCallback(async (): Promise<OfferLetterRow[]> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [offerData, jobsResult] = await Promise.all([
-        applicationsService.listOfferMails(),
-        applicationsService.listJobs({ limit: 500 }),
-      ]);
-      const normalized = offerData.map((r) => ({
-        ...r,
-        status:
-          r.status === "accepted" ||
-          r.status === "declined" ||
-          r.status === "pending" ||
-          r.status === "counter"
-            ? r.status
-            : "pending",
-        signedOfferAvailable: Boolean(r.signedOfferAvailable),
-      }));
-      setRows(normalized);
-      setJobs(jobsResult.data ?? []);
-      return normalized;
-    } catch {
-      setError("Could not load offer letters.");
-      setRows([]);
-      setJobs([]);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  useEffect(() => {
-    setSignedPdfError(null);
-  }, [selectedOffer]);
-
-  const openEmployerSignedPdfInNewTab = useCallback(async () => {
-    if (!selectedOffer?.id) return;
-    setSignedPdfBusy(true);
-    setSignedPdfError(null);
-    try {
-      const blob = await applicationsService.fetchOfferSignedPdf(selectedOffer.id);
-      const url = URL.createObjectURL(blob);
-      window.open(url, "_blank", "noopener,noreferrer");
-      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-    } catch (e) {
-      setSignedPdfError(extractApiError(e));
-    } finally {
-      setSignedPdfBusy(false);
-    }
-  }, [selectedOffer?.id]);
-
-  const startDocuSignConsent = useCallback(async () => {
-    setConsentRedirectBusy(true);
-    setConsentRedirectError(null);
-    try {
-      const res = await api.get<{ url?: string }>(API_ROUTES.PUBLIC.DOCUSIGN_CONSENT_URL);
-      const url = res.data?.url;
-      if (!url?.trim()) {
-        setConsentRedirectError("Consent URL was not returned. Check DocuSign configuration on the server.");
-        return;
-      }
-      window.location.assign(url);
-    } catch (e) {
-      setConsentRedirectError(extractApiError(e));
-    } finally {
-      setConsentRedirectBusy(false);
-    }
-  }, []);
-
-  const jobTitleMap = useMemo(() => {
-    const m = new Map<string, string>();
-    jobs.forEach((j) => m.set(j.id, j.title));
-    return m;
-  }, [jobs]);
-
-  const filteredRows = useMemo(() => {
-    return rows.filter((r) => {
-      const jobMatch = selectedJobId === "all" || r.jobId === selectedJobId;
-      const statusMatch = selectedStatus === "all" || r.status === selectedStatus;
-      return jobMatch && statusMatch;
-    });
-  }, [rows, selectedJobId, selectedStatus]);
-
-  const uniqueJobIds = useMemo(() => {
-    const ids = new Set(rows.map((r) => r.jobId));
-    return Array.from(ids);
-  }, [rows]);
+  const visibleRows = rows;
+ 
 
   // Detail view
   if (selectedOffer) {
@@ -185,13 +103,14 @@ export default function OfferLettersPage() {
       <div className="w-full">
         <header className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => setSelectedOffer(null)}
-              className="text-slate-400 hover:text-slate-200 text-sm font-medium mb-2 inline-flex items-center gap-1.5"
+              className="!bg-transparent !border-0 !px-0 !py-0 text-slate-400 hover:text-slate-200 text-sm font-medium mb-2 inline-flex items-center gap-1.5"
             >
               ← Back to list
-            </button>
+            </Button>
             <h1 className="text-2xl font-bold text-slate-50 m-0">Offer Letter Details</h1>
             <p className="text-slate-400 text-sm mt-2 mb-0">
               View offer details and candidate response
@@ -211,14 +130,14 @@ export default function OfferLettersPage() {
                 {selectedOffer.status === "accepted" &&
                 selectedOffer.signedOfferAvailable &&
                 selectedOffer.id ? (
-                  <button
+                  <Button
                     type="button"
                     onClick={() => void openEmployerSignedPdfInNewTab()}
                     disabled={signedPdfBusy}
                     className="rounded-lg border border-white/40 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {signedPdfBusy ? "Opening…" : "View"}
-                  </button>
+                  </Button>
                 ) : null}
               </div>
             </div>
@@ -296,45 +215,24 @@ export default function OfferLettersPage() {
                   {selectedOffer.counterLetter}
                 </pre>
                 <div className="mt-6 pt-5 border-t border-amber-500/20 flex flex-wrap gap-3">
-                  <button
+                  <Button
                     type="button"
+                    variant="ghostOutline"
                     disabled={!!counterResponding}
-                    onClick={async () => {
-                      if (!selectedOffer.id) return;
-                      setCounterResponding("accept");
-                      try {
-                        await applicationsService.respondToCounterLetter(selectedOffer.id, "accept");
-                        const refreshed = await load();
-                        const updated = refreshed.find((r) => r.id === selectedOffer.id);
-                        setSelectedOffer(updated ?? null);
-                      } finally {
-                        setCounterResponding(null);
-                      }
-                    }}
+                    onClick={() => void respondToCounter("accept")}
                     className="flex-1 min-w-[140px] py-3 px-5 rounded-lg font-semibold text-sm bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-500 hover:to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {counterResponding === "accept" ? "Processing…" : "Accept Counter"}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="ghostOutline"
                     disabled={!!counterResponding}
-                    onClick={async () => {
-                      if (!selectedOffer.id) return;
-                      if (!window.confirm("Are you sure you want to reject this counter proposal? The candidate will be notified.")) return;
-                      setCounterResponding("reject");
-                      try {
-                        await applicationsService.respondToCounterLetter(selectedOffer.id, "reject");
-                        const refreshed = await load();
-                        const updated = refreshed.find((r) => r.id === selectedOffer.id);
-                        setSelectedOffer(updated ?? null);
-                      } finally {
-                        setCounterResponding(null);
-                      }
-                    }}
+                    onClick={() => void respondToCounter("reject")}
                     className="flex-1 min-w-[140px] py-3 px-5 rounded-lg font-semibold text-sm border border-red-500/60 bg-red-500/10 text-red-200 hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {counterResponding === "reject" ? "Processing…" : "Reject Counter"}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -390,28 +288,14 @@ export default function OfferLettersPage() {
           <p className="text-slate-400 text-sm mt-2 mb-0">
             Track all sent offer letters and candidate responses. Data from Applications workflow.
           </p>
-          <p className="text-slate-500 text-xs mt-2 mb-0 flex flex-wrap items-center gap-x-1 gap-y-1">
-            <span>
-              One-time DocuSign JWT consent is required on the sending account before digital signing works.
-            </span>
-            <button
-              type="button"
-              onClick={() => void startDocuSignConsent()}
-              disabled={consentRedirectBusy}
-              className="inline font-semibold text-violet-400 hover:text-violet-300 underline-offset-2 hover:underline disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-0 p-0 cursor-pointer"
-            >
-              {consentRedirectBusy ? "Opening DocuSign…" : "Connect DocuSign"}
-            </button>
-          </p>
-          {consentRedirectError ? (
-            <p className="text-red-300 text-xs mt-1.5 mb-0">{consentRedirectError}</p>
-          ) : null}
+          {/* DocuSign JWT consent is handled server-side; we only need this UI
+              on first setup flows. */}
         </div>
         <Button
           variant="secondary"
           className="bg-slate-800 border-slate-700 text-slate-200 shrink-0"
           type="button"
-          onClick={() => void load()}
+          onClick={() => void refreshOffers()}
           disabled={loading}
         >
           {loading ? "Loading…" : "Refresh"}
@@ -425,33 +309,54 @@ export default function OfferLettersPage() {
       )}
 
       {/* Filters */}
-      {!loading && rows.length > 0 && (
-        <div className="flex flex-wrap gap-4 mb-6">
-          <div className="flex-1 min-w-[200px]">
+      <div
+        className={`flex flex-col sm:flex-row gap-3 items-stretch sm:items-end mb-6 ${
+          loading ? "pointer-events-none opacity-70" : ""
+        }`}
+      >
+          <div className="flex-1">
+            <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+              Search by Job
+            </label>
+            <SearchInput
+              placeholder="Search by job title..."
+              onSearch={(q) => {
+                setJobSearch(q);
+                setPage(1);
+              }}
+            />
+          </div>
+          <div className="sm:w-[220px]">
             <label className="block text-xs font-semibold text-slate-400 mb-1.5">
               Filter by Job
             </label>
             <select
               value={selectedJobId}
-              onChange={(e) => setSelectedJobId(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-600 text-slate-200 text-sm outline-none focus:border-violet-500"
+              onChange={(e) => {
+                setSelectedJobId(e.target.value);
+                setPage(1);
+              }}
+              className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-200 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
             >
               <option value="all">All Jobs</option>
-              {uniqueJobIds.map((jid) => (
-                <option key={jid} value={jid}>
-                  {jobTitleMap.get(jid) ?? jid}
+              {jobs.map((j) => (
+                <option key={j.id} value={j.id}>
+                  {j.title}
                 </option>
               ))}
             </select>
           </div>
-          <div className="flex-1 min-w-[200px]">
+          <div className="sm:w-[220px]">
             <label className="block text-xs font-semibold text-slate-400 mb-1.5">
               Filter by Status
             </label>
             <select
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-600 text-slate-200 text-sm outline-none focus:border-violet-500"
+              onChange={(e) => {
+                setSelectedStatus(e.target.value);
+                setPage(1);
+              }}
+              className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-200 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
             >
               <option value="all">All Statuses</option>
               <option value="pending">Pending</option>
@@ -460,75 +365,90 @@ export default function OfferLettersPage() {
               <option value="counter">Counter Received</option>
             </select>
           </div>
-        </div>
-      )}
+      </div>
 
       <div className="rounded-2xl border border-slate-700/60 bg-slate-900/40 p-6">
         {loading ? (
           <div className="text-slate-400 text-sm">Loading…</div>
-        ) : filteredRows.length === 0 ? (
-          <>
-            <div className="text-slate-300 font-semibold">No offer letters yet</div>
-            <div className="text-slate-400 text-sm mt-1">
-              Send an offer from Applications or complete all interview rounds with passing scores (3+).
-            </div>
-          </>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-slate-700">
-                  <th className="py-3 px-3 text-slate-300 font-semibold text-sm">Candidate</th>
-                  <th className="py-3 px-3 text-slate-300 font-semibold text-sm">Position</th>
-                  <th className="py-3 px-3 text-slate-300 font-semibold text-sm">Salary</th>
-                  <th className="py-3 px-3 text-slate-300 font-semibold text-sm">Sent Date</th>
-                  <th className="py-3 px-3 text-slate-300 font-semibold text-sm">Status</th>
-                  <th className="py-3 px-3 text-slate-300 font-semibold text-sm">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRows.map((row) => (
-                  <tr
-                    key={row.id ?? `${row.applicationId}-${row.createdAt}`}
-                    className="border-b border-slate-800/80 hover:bg-slate-800/30"
+          <Table<OfferLetterRow>
+            columns={[
+              {
+                header: "Candidate",
+                render: (row) => (
+                  <div className="min-w-0">
+                    <div className="font-semibold text-slate-100 truncate">{row.candidateName}</div>
+                    <div className="text-slate-400 text-xs truncate">{row.candidateEmail}</div>
+                  </div>
+                ),
+                cellClassName: "p-4",
+              },
+              {
+                header: "Position",
+                render: (row) => (
+                  <div className="text-slate-200">{jobTitleMap.get(row.jobId) ?? row.jobId}</div>
+                ),
+                cellClassName: "p-4",
+              },
+              {
+                header: "Salary",
+                render: (row) => <div className="text-emerald-400 font-medium">{row.salary ?? "—"}</div>,
+                cellClassName: "p-4",
+              },
+              {
+                header: "Sent Date",
+                render: (row) => (
+                  <div>
+                    <div className="text-slate-300">{formatDate(row.createdAt)}</div>
+                    <div className="text-slate-500 text-xs">{formatTime(row.createdAt)}</div>
+                  </div>
+                ),
+                cellClassName: "p-4",
+              },
+              {
+                header: "Status",
+                render: (row) => (
+                  <div>
+                    <StatusBadge status={row.status} />
+                    {row.signedOfferAvailable ? (
+                      <div className="text-[10px] text-emerald-400/90 mt-1 font-semibold uppercase tracking-wide">
+                        Signed PDF
+                      </div>
+                    ) : null}
+                  </div>
+                ),
+                cellClassName: "p-4",
+              },
+              {
+                header: "Actions",
+                headerClassName: "w-[140px]",
+                render: (row) => (
+                  <Button
+                    type="button"
+                    variant="ghostOutline"
+                    className="!px-3 !py-2 !text-xs"
+                    onClick={() => setSelectedOffer(row)}
                   >
-                    <td className="py-3 px-3">
-                      <div className="font-semibold text-slate-100">{row.candidateName}</div>
-                      <div className="text-slate-400 text-xs">{row.candidateEmail}</div>
-                    </td>
-                    <td className="py-3 px-3 text-slate-200">
-                      {jobTitleMap.get(row.jobId) ?? row.jobId}
-                    </td>
-                    <td className="py-3 px-3 text-emerald-400 font-medium">
-                      {row.salary ?? "—"}
-                    </td>
-                    <td className="py-3 px-3 text-slate-300 text-sm">
-                      <div>{formatDate(row.createdAt)}</div>
-                      <div className="text-slate-500 text-xs">{formatTime(row.createdAt)}</div>
-                    </td>
-                    <td className="py-3 px-3">
-                      <StatusBadge status={row.status} />
-                      {row.signedOfferAvailable ? (
-                        <div className="text-[10px] text-emerald-400/90 mt-1 font-semibold uppercase tracking-wide">
-                          Signed PDF
-                        </div>
-                      ) : null}
-                    </td>
-                    <td className="py-3 px-3">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedOffer(row)}
-                        className="px-4 py-2 rounded-lg border border-violet-500/50 bg-violet-500/10 text-violet-300 font-semibold text-sm hover:bg-violet-500/20 transition-colors"
-                      >
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    View Details
+                  </Button>
+                ),
+                cellClassName: "p-4",
+              },
+            ]}
+            data={visibleRows}
+            rowKey={(row) => row.id ?? `${row.applicationId}-${row.createdAt}`}
+            emptyMessage="No offer letters yet"
+            emptySubMessage="Send an offer from Applications or complete all interview rounds with passing scores (3+)."
+          />
         )}
+        {!loading && totalPages > 1 ? (
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            leftContent={paginationLeftContent}
+          />
+        ) : null}
       </div>
     </div>
   );

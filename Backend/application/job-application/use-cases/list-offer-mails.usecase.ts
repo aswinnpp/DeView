@@ -4,13 +4,21 @@ import type { IOfferMailRepository } from '../ports/repository/IOfferMailReposit
 import type { ICounterLetterRepository } from '../ports/repository/ICounterLetterRepository.js';
 import type { OfferMail } from '../../../domain/entities/OfferMail.js';
 import type { CounterLetter } from '../../../domain/entities/CounterLetter.js';
+import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
 
 export interface IListOfferMailsInputDTO {
   companyId: string;
+  jobId?: string;
+  status?: 'pending' | 'accepted' | 'declined' | 'counter';
+  /** Search by job title (case-insensitive regex). */
+  search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface IListOfferMailsResult {
   data: OfferMail[];
+  total: number;
   /** Latest counter letter per offer mail id (from `counterLetters` collection). */
   counterLettersByOfferMailId: Map<string, CounterLetter>;
   /** Legacy embedded counter on `offerMails` documents (deprecated). */
@@ -23,17 +31,65 @@ export class ListOfferMailsUseCase {
     @inject(TYPES.OfferMailRepositoryPort)
     private readonly _offerMailRepository: IOfferMailRepository,
     @inject(TYPES.CounterLetterRepositoryPort)
-    private readonly _counterLetterRepository: ICounterLetterRepository
+    private readonly _counterLetterRepository: ICounterLetterRepository,
+    @inject(TYPES.JobRepositoryPort)
+    private readonly _jobRepository: IJobRepository
   ) {}
 
   async execute(input: IListOfferMailsInputDTO): Promise<IListOfferMailsResult> {
     const companyId = String(input.companyId ?? '').trim();
-    const data = await this._offerMailRepository.listByCompanyId(companyId);
+    const page = Math.max(1, input.page ?? 1);
+    const limit = Math.min(100, Math.max(1, input.limit ?? 10));
+
+    const allOffers = await this._offerMailRepository.listByCompanyId(companyId);
+
+    // --- Filtering (in-memory after fetching company offers) ---
+    let filtered = allOffers;
+
+    if (input.jobId?.trim()) {
+      filtered = filtered.filter((o) => o.jobId === input.jobId);
+    }
+
+    if (input.status) {
+      filtered = filtered.filter((o) => o.status === input.status);
+    }
+
+    if (input.search?.trim()) {
+      // Resolve matching job IDs via jobs collection lookup.
+      const search = input.search.trim();
+      const jobIds = new Set<string>();
+      let jobPage = 1;
+      const jobLimit = 100; // repo clamps max(100)
+
+      // Fetch until we have all matching jobs.
+      while (true) {
+        const { data: jobs, total } = await this._jobRepository.listByCompanyIdPaginated(companyId, {
+          search,
+          page: jobPage,
+          limit: jobLimit,
+        });
+        jobs.forEach((j) => {
+          if (j.id) jobIds.add(j.id);
+        });
+
+        if (jobPage * jobLimit >= total) break;
+        jobPage += 1;
+      }
+
+      filtered = filtered.filter((o) => jobIds.has(o.jobId));
+    }
+
+    const total = filtered.length;
+    const start = (page - 1) * limit;
+    const data = filtered.slice(start, start + limit);
+
+    // --- Counter lookups only for current page data ---
     const ids = data.map((o) => o.id).filter((id): id is string => Boolean(id));
     const [counterLettersByOfferMailId, legacyEmbeddedCounters] = await Promise.all([
       this._counterLetterRepository.findLatestByOfferMailIds(ids),
       this._offerMailRepository.findLegacyEmbeddedCountersByOfferMailIds(ids),
     ]);
-    return { data, counterLettersByOfferMailId, legacyEmbeddedCounters };
+
+    return { data, total, counterLettersByOfferMailId, legacyEmbeddedCounters };
   }
 }

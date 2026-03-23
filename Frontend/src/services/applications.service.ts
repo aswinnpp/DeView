@@ -322,32 +322,17 @@ export const applicationsService = {
     await api.post(API_ROUTES.APPLICATIONS.COUNTER_RESPOND(offerMailId), { action });
   },
 
-  listOfferMails: async (): Promise<
-    Array<{
-      id: string | null;
-      applicationId: string;
-      jobId: string;
-      companyId: string;
-      candidateUserId: string;
-      candidateName: string;
-      candidateEmail: string;
-      content: string;
-      salary?: string;
-      location?: string;
-      startDate?: string;
-      benefits?: string;
-      status: "pending" | "accepted" | "declined" | "counter";
-      counterLetter?: string;
-      counterSentAt?: string;
-      counterResponseStatus?: "accepted" | "rejected";
-      signedOfferAvailable?: boolean;
-      createdAt: string;
-    }>
-  > => {
-    const res = await api.get<{ data?: unknown }>(API_ROUTES.APPLICATIONS.OFFER_MAILS);
-    const raw = (res.data as { data?: unknown })?.data;
-    if (!Array.isArray(raw)) return [];
-    return raw as Array<{
+  listOfferMails: async (
+    params?: {
+      jobId?: string;
+      status?: "pending" | "accepted" | "declined" | "counter";
+      /** Job title search (case-insensitive, backed by jobs collection lookup). */
+      search?: string;
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<{
+    data: Array<{
       id: string | null;
       applicationId: string;
       jobId: string;
@@ -367,6 +352,50 @@ export const applicationsService = {
       signedOfferAvailable?: boolean;
       createdAt: string;
     }>;
+    total: number;
+  }> => {
+    const res = await api.get<{ data?: unknown; total?: unknown }>(
+      API_ROUTES.APPLICATIONS.OFFER_MAILS,
+      {
+        params: {
+          jobId: params?.jobId,
+          status: params?.status,
+          search: params?.search,
+          page: params?.page,
+          limit: params?.limit,
+        },
+      }
+    );
+
+    const raw = (res.data as { data?: unknown })?.data;
+    const totalRaw = (res.data as { total?: unknown })?.total;
+
+    const list = Array.isArray(raw)
+      ? (raw as Array<{
+          id: string | null;
+          applicationId: string;
+          jobId: string;
+          companyId: string;
+          candidateUserId: string;
+          candidateName: string;
+          candidateEmail: string;
+          content: string;
+          salary?: string;
+          location?: string;
+          startDate?: string;
+          benefits?: string;
+          status: "pending" | "accepted" | "declined" | "counter";
+          counterLetter?: string;
+          counterSentAt?: string;
+          counterResponseStatus?: "accepted" | "rejected";
+          signedOfferAvailable?: boolean;
+          createdAt: string;
+        }>)
+      : [];
+
+    const total =
+      typeof totalRaw === "number" && totalRaw >= 0 ? totalRaw : list.length;
+    return { data: list, total };
   },
 
   fetchOfferSignedPdf: async (offerMailId: string): Promise<Blob> => {

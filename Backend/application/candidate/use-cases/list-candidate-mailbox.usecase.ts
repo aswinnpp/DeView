@@ -38,9 +38,12 @@ export interface ICandidateMailboxRejectionView {
   createdAt: string;
 }
 
+export type CandidateMailboxKind = 'all' | 'offer' | 'rejection';
+
 export interface IListCandidateMailboxOutput {
   offers: ICandidateMailboxOfferView[];
   rejections: ICandidateMailboxRejectionView[];
+  total: number;
 }
 
 @injectable()
@@ -58,8 +61,23 @@ export class ListCandidateMailboxUseCase {
     private readonly _companies: ICompanyProfileRepository
   ) {}
 
-  async execute(candidateUserId: string): Promise<IListCandidateMailboxOutput> {
-    const uid = String(candidateUserId ?? '').trim();
+  async execute(input: {
+    candidateUserId: string;
+    kind?: CandidateMailboxKind;
+    jobId?: string;
+    offerStatus?: 'pending' | 'accepted' | 'declined' | 'counter';
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<IListCandidateMailboxOutput> {
+    const uid = String(input.candidateUserId ?? '').trim();
+    const kind: CandidateMailboxKind = input.kind ?? 'all';
+    const jobId = input.jobId?.trim();
+    const offerStatus = input.offerStatus;
+    const search = input.search?.trim()?.toLowerCase();
+    const page = Math.max(1, input.page ?? 1);
+    const limit = Math.min(100, Math.max(1, input.limit ?? 10));
+
     const [offers, rejections] = await Promise.all([
       this._offerMails.listByCandidateUserId(uid),
       this._rejectionMails.listByCandidateUserId(uid),
@@ -101,8 +119,7 @@ export class ListCandidateMailboxUseCase {
 
     const toIso = (d: Date) => (d instanceof Date ? d.toISOString() : String(d));
 
-    return {
-      offers: offers.map((o) => {
+    const offersMapped: ICandidateMailboxOfferView[] = offers.map((o) => {
         const oid = o.id ?? '';
         const fromNew = oid ? counterByOfferId.get(oid) : undefined;
         const fromLegacy = oid && !fromNew ? legacyEmbedded.get(oid) : undefined;
@@ -137,8 +154,9 @@ export class ListCandidateMailboxUseCase {
           ...(signedOfferAvailable && { signedOfferAvailable: true }),
           createdAt: toIso(o.createdAt),
         };
-      }),
-      rejections: rejections.map((r) => ({
+      });
+
+    const rejectionsMapped: ICandidateMailboxRejectionView[] = rejections.map((r) => ({
         id: r.id,
         applicationId: r.applicationId,
         jobId: r.jobId,
@@ -146,7 +164,48 @@ export class ListCandidateMailboxUseCase {
         companyName: companyNames.get(r.companyId) ?? 'Company',
         content: r.content,
         createdAt: toIso(r.createdAt),
-      })),
+    }));
+
+    // Build combined list so we can apply a single sort + pagination.
+    const items: Array<
+      | ({ kind: 'offer' } & ICandidateMailboxOfferView)
+      | ({ kind: 'rejection' } & ICandidateMailboxRejectionView)
+    > = [
+      ...offersMapped.map((o) => ({ kind: 'offer' as const, ...o })),
+      ...rejectionsMapped.map((r) => ({ kind: 'rejection' as const, ...r })),
+    ];
+
+    const filtered = items.filter((m) => {
+      if (jobId && m.jobId !== jobId) return false;
+
+      if (search) {
+        const title = m.jobTitle?.toLowerCase?.() ?? '';
+        if (!title.includes(search)) return false;
+      }
+
+      if (kind !== 'all' && m.kind !== kind) return false;
+
+      if (offerStatus && m.kind === 'offer' && m.status !== offerStatus) return false;
+      // If it's a rejection, ignore `offerStatus`.
+      return true;
+    });
+
+    filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const total = filtered.length;
+    const start = (page - 1) * limit;
+    const paged = filtered.slice(start, start + limit);
+
+    return {
+      offers: paged.filter((m) => m.kind === 'offer').map((m) => {
+        const { kind: _kind, ...rest } = m;
+        return rest as ICandidateMailboxOfferView;
+      }),
+      rejections: paged.filter((m) => m.kind === 'rejection').map((m) => {
+        const { kind: _kind, ...rest } = m;
+        return rest as ICandidateMailboxRejectionView;
+      }),
+      total,
     };
   }
 }
