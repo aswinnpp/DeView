@@ -1,7 +1,6 @@
 import { NavLink, Outlet, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button, NotificationBell } from '../../components/common';
-import { SystemDataProvider } from '../../context/SystemDataContext';
 import { APP_ROUTES } from '../../constants/routes';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../context/store';
@@ -246,13 +245,11 @@ const CompanyLayout = () => {
                     </aside>
 
                     <main className="bg-[rgba(255,255,255,0.01)] overflow-y-auto max-md:p-4 max-md:overflow-x-hidden" style={{ padding: '24px 32px' }}>
-                        <SystemDataProvider>
-                            <div className="flex flex-col h-full max-md:min-w-0">
-                                <div className="flex-1 overflow-y-auto max-md:overflow-x-hidden">
-                                    <Outlet />
-                                </div>
+                        <div className="flex flex-col h-full max-md:min-w-0">
+                            <div className="flex-1 overflow-y-auto max-md:overflow-x-hidden">
+                                <Outlet />
                             </div>
-                        </SystemDataProvider>
+                        </div>
                     </main>
                 </div>
             </div>

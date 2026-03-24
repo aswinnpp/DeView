@@ -7,11 +7,11 @@ import type { IGetInterviewerProfileUseCase } from "../../../application/intervi
 import type { ICreateInterviewerProfileUseCase } from "../../../application/interviewer/ports/usecase/ICreateInterviewerProfileUseCase";
 import type { IUpdateInterviewerProfileUseCase } from "../../../application/interviewer/ports/usecase/IUpdateInterviewerProfileUseCase";
 import type { IFileStorage } from "../../../application/upload/ports/services/IFileStorage.js";
-import { AppError } from "../../../shared/errors/AppError";
 import {
-  toView,
+  toProfileStateView,
   toCreateDTO,
   toUpdateDTO,
+  toProfilePicStorageKey,
   type InterviewerProfileView,
 } from "../../../application/interviewer/mappers/InterviewerProfileMapper";
 
@@ -31,9 +31,7 @@ export class InterviewerProfileController {
   getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
     const userId = request.currentUser!.userId;
     const profile = await this._getProfileUseCase.execute(userId);
-    const hasProfile = profile !== null;
-    const data = profile ? toView(profile) : undefined;
-    reply.send(success({ hasProfile, data }));
+    reply.send(success(toProfileStateView(profile)));
   };
 
   createProfile = async (
@@ -59,9 +57,8 @@ export class InterviewerProfileController {
   getProfilePicViewUrl = async (request: FastifyRequest, reply: FastifyReply) => {
     const userId = request.currentUser!.userId;
     const profile = await this._getProfileUseCase.execute(userId);
-    const raw = profile?.profilePicUrl ?? "";
-    if (!raw.trim()) throw AppError.notFound("Profile picture not found");
-    const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
+    const key = toProfilePicStorageKey(profile);
+    const url = await this._fileStorage.getSignedViewUrl(key, 3600);
     reply.send(success({ url }));
   };
 }

@@ -8,7 +8,6 @@ import type { IListTeamMembersUseCase } from '../../../application/company/ports
 import type { IToggleTeamMemberStatusUseCase } from '../../../application/company/ports/usecase/IToggleTeamMemberStatusUseCase.js';
 import { CompanyTeamMapper } from '../../../application/company/mappers/CompanyTeamMapper.js';
 import type { IGetMyInterviewerSlotsUseCase } from "../../../application/interviewer/ports/usecase/IGetMyInterviewerSlotsUseCase.js";
-import { AppError } from "../../../shared/errors/AppError.js";
 
 interface ICreateBody {
     fullName: string;
@@ -47,9 +46,16 @@ export class CompanyTeamController {
         request: FastifyRequest<{ Querystring: ISearchQuery }>,
         reply: FastifyReply
     ) => {
-        const { userId, companyId } = request.currentUser;
-        const { search, status, page, limit } = request.query;
-        const result = await this._listTeamMembersUseCase.execute(userId, companyId, 'hr', search, status, page, limit);
+        const input = CompanyTeamMapper.toListMembersInput(request.query, request.currentUser, 'hr');
+        const result = await this._listTeamMembersUseCase.execute(
+            input.userId,
+            input.companyIdFromToken,
+            input.role,
+            input.search,
+            input.status,
+            input.page,
+            input.limit
+        );
         reply.send(success(result));
     };
 
@@ -67,13 +73,11 @@ export class CompanyTeamController {
         request: FastifyRequest<{ Params: IToggleParams }>,
         reply: FastifyReply
     ) => {
-        const { userId, companyId } = request.currentUser;
-        
-
+        const input = CompanyTeamMapper.toToggleMemberStatusInput(request.params, request.currentUser);
         const result = await this._toggleTeamMemberStatusUseCase.execute(
-            request.params.id,
-            userId,
-            companyId
+            input.memberId,
+            input.userId,
+            input.companyIdFromToken
         );
         reply.send(success(result));
     };
@@ -82,9 +86,16 @@ export class CompanyTeamController {
         request: FastifyRequest<{ Querystring: ISearchQuery }>,
         reply: FastifyReply
     ) => {
-        const { userId, companyId } = request.currentUser;
-        const { search, status, page, limit } = request.query;
-        const result = await this._listTeamMembersUseCase.execute(userId, companyId, 'interviewer', search, status, page, limit);
+        const input = CompanyTeamMapper.toListMembersInput(request.query, request.currentUser, 'interviewer');
+        const result = await this._listTeamMembersUseCase.execute(
+            input.userId,
+            input.companyIdFromToken,
+            input.role,
+            input.search,
+            input.status,
+            input.page,
+            input.limit
+        );
         reply.send(success(result));
     };
 
@@ -102,11 +113,11 @@ export class CompanyTeamController {
         request: FastifyRequest<{ Params: IToggleParams }>,
         reply: FastifyReply
     ) => {
-        const { userId, companyId } = request.currentUser;
+        const input = CompanyTeamMapper.toToggleMemberStatusInput(request.params, request.currentUser);
         const result = await this._toggleTeamMemberStatusUseCase.execute(
-            request.params.id,
-            userId,
-            companyId
+            input.memberId,
+            input.userId,
+            input.companyIdFromToken
         );
         reply.send(success(result));
     };
@@ -115,11 +126,8 @@ export class CompanyTeamController {
         request: FastifyRequest<{ Params: IInterviewerIdParams; Querystring: IInterviewerSlotsQuery }>,
         reply: FastifyReply,
     ) => {
-        const { companyId } = request.currentUser;
-        if (!companyId) throw AppError.forbidden("No company associated with this account");
-        const interviewerId = request.params.id;
-        const { slotDate } = request.query ?? {};
-        const result = await this._getInterviewerSlotsUseCase.execute({ interviewerId, companyId, slotDate });
+        const input = CompanyTeamMapper.toGetInterviewerSlotsInput(request.params, request.query ?? {}, request.currentUser);
+        const result = await this._getInterviewerSlotsUseCase.execute(input);
         reply.send(success(result));
     };
 }

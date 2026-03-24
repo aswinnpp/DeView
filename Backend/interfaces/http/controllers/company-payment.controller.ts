@@ -8,9 +8,7 @@ import type { IHandlePaymentWebhookUseCase } from '../../../application/company/
 import type { IActivatePendingSubscriptionNowUseCase } from '../../../application/company/ports/usecase/IActivatePendingSubscriptionNowUseCase.js';
 import { success } from '../../../shared/http/apiResponse.js';
 import { HttpStatus } from '../../../shared/http/HttpStatus.js';
-import { AppError } from '../../../shared/errors/AppError.js';
 import { env } from '../../../infrastructure/config/env.js';
-import type Stripe from 'stripe';
 import { PaymentMapper } from '../../../application/company/mappers/PaymentMapper.js';
 
 type CreatePaymentIntentBody = {
@@ -34,17 +32,8 @@ export class CompanyPaymentController {
     request: FastifyRequest<{ Body: CreatePaymentIntentBody }>,
     reply: FastifyReply,
   ) => {
-    const { planId } = request.body;
-    const user = request.currentUser;
-
-    if (!user.companyId) {
-      throw AppError.forbidden('Company id missing on user');
-    }
-
-    const result = await this._createPaymentIntentUseCase.execute({
-      companyId: user.companyId,
-      planId,
-    });
+    const input = PaymentMapper.toCreatePaymentIntentInput(request.body, request.currentUser);
+    const result = await this._createPaymentIntentUseCase.execute(input);
 
     return reply.status(HttpStatus.OK).send(success({ clientSecret: result.clientSecret }));
   };
@@ -53,17 +42,8 @@ export class CompanyPaymentController {
     request: FastifyRequest<{ Params: ActivatePendingNowParams }>,
     reply: FastifyReply,
   ) => {
-    const user = request.currentUser;
-    if (!user.companyId) {
-      throw AppError.forbidden('Company id missing on user');
-    }
-
-    const { pendingId } = request.params;
-
-    await this.activatePendingSubscriptionNowUseCase.execute({
-      companyId: user.companyId,
-      pendingSubscriptionId: pendingId,
-    });
+    const input = PaymentMapper.toActivatePendingNowInput(request.params, request.currentUser);
+    await this.activatePendingSubscriptionNowUseCase.execute(input);
 
     return reply.status(HttpStatus.OK).send(success({}));
   };
@@ -75,15 +55,8 @@ export class CompanyPaymentController {
    
 
     const event = stripe.webhooks.constructEvent(rawBody, signature, env.STRIPE_WEBHOOK_SECRET as string);
-
-    if (event.type === 'payment_intent.succeeded' || event.type === 'payment_intent.payment_failed') {
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      const input = PaymentMapper.toHandlePaymentWebhookInput(
-        { id: paymentIntent.id, metadata: paymentIntent.metadata as { planId?: string; companyId?: string } | null },
-        event.type
-      );
-      await this._handlePaymentWebhookUseCase.execute(input);
-    }
+    const input = PaymentMapper.toHandlePaymentWebhookInputFromEvent(event);
+    await (input ? this._handlePaymentWebhookUseCase.execute(input) : Promise.resolve());
 
     return reply.status(200).send({ received: true });
   };

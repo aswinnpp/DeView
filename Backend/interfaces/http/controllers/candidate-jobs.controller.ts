@@ -52,17 +52,9 @@ export class CandidateJobsController {
     request: FastifyRequest<{ Params: ApplyParams; Body: ApplyBody }>,
     reply: FastifyReply
   ) => {
-    const { jobId } = request.params;
-    const body = request.body;
     const userId = request.currentUser.userId;
-
-    const result = await this._applyForJobUseCase.execute({
-      jobId,
-      candidateUserId: userId,
-      useResumeFromProfile: body.useResumeFromProfile,
-      coverLetter: body.coverLetter,
-      resumeUrl: body.resumeUrl,
-    });
+    const input = ApplicationMapper.toApplyForJobInput(request.params, request.body, userId);
+    const result = await this._applyForJobUseCase.execute(input);
 
     reply.send(success(result));
   };
@@ -107,52 +99,22 @@ export class CandidateJobsController {
   listMailbox = async (request: FastifyRequest, reply: FastifyReply) => {
     const userId = request.currentUser.userId;
     const query = candidateMailboxListQuerySchema.parse(request.query ?? {});
-    const result = await this._listCandidateMailboxUseCase.execute({
-      candidateUserId: userId,
-      kind: query.kind,
-      jobId: query.jobId,
-      offerStatus: query.offerStatus,
-      search: query.search,
-      page: query.page,
-      limit: query.limit,
-    });
+    const input = ApplicationMapper.toListCandidateMailboxInput(query, userId);
+    const result = await this._listCandidateMailboxUseCase.execute(input);
     reply.send(success(result));
   };
 
   respondToOffer = async (
     request: FastifyRequest<{
       Params: { offerMailId: string };
-      Body: { action?: string };
+      Body: { action: 'decline' };
     }>,
     reply: FastifyReply
   ) => {
     const userId = request.currentUser.userId;
-    const { offerMailId } = request.params;
-    const raw = String(request.body?.action ?? '').toLowerCase();
-    if (raw !== 'decline') {
-      reply.status(400).send({
-        success: false,
-        message: 'Only decline is supported here. Use POST .../signing/begin to accept with DocuSign.',
-      });
-      return;
-    }
-    const offer = await this._respondToOfferLetterUseCase.execute({
-      candidateUserId: userId,
-      offerMailId,
-      action: 'decline',
-    });
-    reply.send(
-      success({
-        offer: {
-          id: offer.id,
-          applicationId: offer.applicationId,
-          jobId: offer.jobId,
-          companyId: offer.companyId,
-          status: offer.status,
-          createdAt: offer.createdAt instanceof Date ? offer.createdAt.toISOString() : String(offer.createdAt),
-        },
-      })
-    );
+    const input = ApplicationMapper.toRespondToOfferInput(request.params, userId);
+    const offer = await this._respondToOfferLetterUseCase.execute(input);
+    reply.send(success(ApplicationMapper.toOfferSummaryView(offer)));
   };
 
   beginOfferSigning = async (
@@ -172,22 +134,12 @@ export class CandidateJobsController {
     reply: FastifyReply
   ) => {
     const userId = request.currentUser.userId;
+    const input = ApplicationMapper.toRespondToOfferInput(request.params, userId);
     const { offer } = await this._confirmOfferSigningUseCase.execute({
-      candidateUserId: userId,
-      offerMailId: request.params.offerMailId,
+      candidateUserId: input.candidateUserId,
+      offerMailId: input.offerMailId,
     });
-    reply.send(
-      success({
-        offer: {
-          id: offer.id,
-          applicationId: offer.applicationId,
-          jobId: offer.jobId,
-          companyId: offer.companyId,
-          status: offer.status,
-          createdAt: offer.createdAt instanceof Date ? offer.createdAt.toISOString() : String(offer.createdAt),
-        },
-      })
-    );
+    reply.send(success(ApplicationMapper.toOfferSummaryView(offer)));
   };
 
   downloadSignedOfferPdf = async (
@@ -195,10 +147,8 @@ export class CandidateJobsController {
     reply: FastifyReply
   ) => {
     const userId = request.currentUser.userId;
-    const pdf = await this._getSignedOfferPdfUseCase.execute({
-      offerMailId: request.params.offerMailId,
-      candidateUserId: userId,
-    });
+    const input = ApplicationMapper.toCandidateGetSignedOfferPdfInput(request.params, userId);
+    const pdf = await this._getSignedOfferPdfUseCase.execute(input);
     return reply
       .header('Content-Type', 'application/pdf')
       .header('Content-Disposition', 'inline; filename="signed-offer.pdf"')
@@ -210,37 +160,9 @@ export class CandidateJobsController {
     reply: FastifyReply
   ) => {
     const userId = request.currentUser.userId;
-    const { offerMailId } = request.params;
-    const letter = request.body?.letter ?? '';
-    const result = await this._submitOfferCounterLetterUseCase.execute({
-      candidateUserId: userId,
-      offerMailId,
-      letter,
-    });
-    const m = result.offer;
-    const c = result.counter;
-    reply.send(
-      success({
-        offer: {
-          id: m.id,
-          applicationId: m.applicationId,
-          jobId: m.jobId,
-          companyId: m.companyId,
-          candidateUserId: m.candidateUserId,
-          candidateName: m.candidateName,
-          candidateEmail: m.candidateEmail,
-          content: m.content,
-          salary: m.salary,
-          location: m.location,
-          startDate: m.startDate,
-          benefits: m.benefits,
-          status: m.status,
-          counterLetter: c.content,
-          counterSentAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : String(c.createdAt),
-          createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : String(m.createdAt),
-        },
-      })
-    );
+    const input = ApplicationMapper.toSubmitOfferCounterInput(request.params, request.body, userId);
+    const result = await this._submitOfferCounterLetterUseCase.execute(input);
+    reply.send(success(ApplicationMapper.toSubmitOfferCounterView(result)));
   };
 
   getAllJobs = async (

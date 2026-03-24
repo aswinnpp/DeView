@@ -201,8 +201,7 @@ export function useJobs() {
       try {
         await jobsService.toggleStatus(job.id, newStatus as "OPEN" | "CLOSED");
         await fetchJobs();
-      } catch (err) {
-        console.error("Failed to update job status:", err);
+      } catch {
       }
     },
     [fetchJobs, isActive]

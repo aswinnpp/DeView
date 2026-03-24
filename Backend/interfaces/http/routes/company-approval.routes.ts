@@ -24,5 +24,5 @@ export async function companyApprovalRoutes(
         handler: controller.submit,
     });
 
-    console.log(' Company routes registered');
+    fastify.log.info('Company routes registered');
 }

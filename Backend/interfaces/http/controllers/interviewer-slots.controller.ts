@@ -6,7 +6,6 @@ import { HttpStatus } from "../../../shared/http/HttpStatus.js";
 import type { InterviewerSlotsUpsertBody } from "../../../../Shared/contracts/interviewer/interviewerSlots.schema.js";
 import type { IGetMyInterviewerSlotsUseCase } from "../../../application/interviewer/ports/usecase/IGetMyInterviewerSlotsUseCase.js";
 import type { IUpsertMyInterviewerSlotsUseCase } from "../../../application/interviewer/ports/usecase/IUpsertMyInterviewerSlotsUseCase.js";
-import { AppError } from "../../../shared/errors/AppError.js";
 import { InterviewerSlotsMapper } from "../../../application/interviewer/mappers/InterviewerSlotsMapper.js";
 
 @injectable()
@@ -19,12 +18,10 @@ export class InterviewerSlotsController {
   ) {}
 
   getMySlots = async (request: FastifyRequest, reply: FastifyReply) => {
-    const interviewerId = request.currentUser!.userId;
-    const companyId = request.currentUser!.companyId;
-    if (!companyId) throw AppError.forbidden("No company associated with this account");
+    const ctx = InterviewerSlotsMapper.toInterviewerContext(request.currentUser!);
 
     const docs = await this._getMySlotsUseCase.execute(
-      InterviewerSlotsMapper.toGetMySlotsInput(interviewerId, companyId, request.query ?? {}),
+      InterviewerSlotsMapper.toGetMySlotsInput(ctx.interviewerId, ctx.companyId, request.query ?? {}),
     );
     reply.send(success(docs));
   };
@@ -33,12 +30,12 @@ export class InterviewerSlotsController {
     request: FastifyRequest<{ Body: InterviewerSlotsUpsertBody }>,
     reply: FastifyReply,
   ) => {
-    const interviewerId = request.currentUser!.userId;
+    const ctx = InterviewerSlotsMapper.toInterviewerContext(request.currentUser!);
     const doc = await this._upsertMySlotsUseCase.execute(
       InterviewerSlotsMapper.toUpsertInput(
-        interviewerId,
+        ctx.interviewerId,
         request.body,
-        request.currentUser!.companyId,
+        ctx.companyId,
       ),
     );
     reply.code(HttpStatus.CREATED).send(success(doc));

@@ -31,7 +31,6 @@ const RejectionEmailModal: React.FC<RejectionEmailModalProps> = ({
 }) => {
     const [content, setContent] = useState('');
 
-    // Initialize content when modal opens (dummy data)
     useEffect(() => {
         if (isOpen && candidate && job) {
             setContent(`Thank you for your interest in the ${job.title} position at ${company?.name || 'our company'} and for taking the time to interview with us.

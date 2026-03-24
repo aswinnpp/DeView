@@ -65,7 +65,7 @@ async function bootstrap() {
 
   if (!redisClient.isOpen) {
     await redisClient.connect();
-    console.log(" Redis connected");
+    fastify.log.info("Redis connected");
   }
 
   const db = await initializeDatabase();
@@ -94,7 +94,7 @@ async function bootstrap() {
 
   await fastify.listen({ port: env.PORT, host: '0.0.0.0' });
 
-  console.log(` Server running on port ${env.PORT}`);
+  fastify.log.info(`Server running on port ${env.PORT}`);
 }
 
 bootstrap();

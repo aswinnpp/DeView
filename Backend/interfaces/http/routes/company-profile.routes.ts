@@ -24,5 +24,5 @@ export async function companyProfileRoutes(
         handler: controller.updateProfile,
     });
 
-    console.log('Company profile routes registered');
+    fastify.log.info('Company profile routes registered');
 }

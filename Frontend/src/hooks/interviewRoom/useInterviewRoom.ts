@@ -91,8 +91,7 @@ export function useInterviewRoomDetails(
         if (!cancelled) {
           setDetails(roomDetails);
         }
-      } catch (err: unknown) {
-        console.error(err);
+      } catch {
         if (!cancelled) {
           setError("You are not allowed to join this interview yet.");
         }

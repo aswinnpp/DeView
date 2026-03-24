@@ -14,5 +14,5 @@ export async function uploadRoutes(
         handler: controller.generateSignature,
     });
 
-    console.log('Upload route registered');
+    fastify.log.info('Upload route registered');
 }

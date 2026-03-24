@@ -28,7 +28,10 @@ export function useRejectCompanyModal(
 
                 onSuccess();
             } catch (err) {
-                console.error("Reject failed:", extractApiError(err));
+                rejectForm.setError("reason", {
+                    type: "server",
+                    message: extractApiError(err),
+                });
             }
         },
         [companyId, onSuccess, rejectForm]

@@ -26,4 +26,59 @@ export const CompanyTeamMapper = {
       companyIdFromToken: context.companyId,
     };
   },
+
+  toListMembersInput(
+    query: { search?: string; status?: string; page?: string; limit?: string },
+    context: CallerContext,
+    role: 'hr' | 'interviewer'
+  ): {
+    userId: string;
+    companyIdFromToken?: string;
+    role: 'hr' | 'interviewer';
+    search?: string;
+    status?: string;
+    page?: string;
+    limit?: string;
+  } {
+    return {
+      userId: context.userId,
+      companyIdFromToken: context.companyId,
+      role,
+      search: query.search,
+      status: query.status,
+      page: query.page,
+      limit: query.limit,
+    };
+  },
+
+  toToggleMemberStatusInput(
+    params: { id: string },
+    context: CallerContext
+  ): {
+    memberId: string;
+    userId: string;
+    companyIdFromToken?: string;
+  } {
+    return {
+      memberId: params.id,
+      userId: context.userId,
+      companyIdFromToken: context.companyId,
+    };
+  },
+
+  toGetInterviewerSlotsInput(
+    params: { id: string },
+    query: { slotDate?: string },
+    context: CallerContext
+  ): {
+    interviewerId: string;
+    companyId: string;
+    slotDate?: string;
+  } {
+    return {
+      interviewerId: params.id,
+      companyId: context.companyId || '',
+      slotDate: query.slotDate,
+    };
+  },
 };

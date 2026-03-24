@@ -40,7 +40,6 @@ export class LoginUseCase implements ILoginUseCase {
     }
 
     if (!user.id) {
-      console.error('ERROR: User ID is null/undefined for user:', user.email.getValue());
       throw AppError.internal('User ID is missing');
     }
 

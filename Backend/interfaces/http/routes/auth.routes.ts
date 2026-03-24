@@ -70,5 +70,5 @@ export async function authRoutes(
         handler: controller.resetPassword,
     });
 
-    console.log(' Auth routes registered');
+    fastify.log.info('Auth routes registered');
 }

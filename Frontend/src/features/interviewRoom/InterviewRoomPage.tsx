@@ -79,8 +79,7 @@ const InterviewRoom = () => {
       await interviewsService.updateStatus(interviewId, status);
       setShowLeaveModal(false);
       doLeave();
-    } catch (err) {
-      console.error("Failed to update interview status:", err);
+    } catch {
       setShowLeaveModal(false);
       doLeave();
     } finally {

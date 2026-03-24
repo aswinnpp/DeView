@@ -2,7 +2,6 @@ import { NavLink, Outlet, useNavigate, Navigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../context/store";
-import { SystemDataProvider } from "../../context/SystemDataContext";
 import { logout } from "../../context/authSlice";
 import { authService } from "../../services/auth.service";
 import { APP_ROUTES } from "../../constants/routes";
@@ -18,25 +17,6 @@ const AdminLayout = () => {
     const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("admin");
 
     const role = (user?.role || "").toLowerCase();
-
-    if (!user) {
-        return <Navigate to={APP_ROUTES.LOGIN} replace />;
-    }
-
-    if (role !== "admin") {
-        switch (role) {
-            case "candidate":
-                return <Navigate to="/candidate" replace />;
-            case "company":
-                return <Navigate to={APP_ROUTES.COMPANY_DASHBOARD} replace />;
-            case "hr":
-                return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
-            case "interviewer":
-                return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
-            default:
-                return <Navigate to={APP_ROUTES.ROOT} replace />;
-        }
-    }
 
     useEffect(() => {
         if (sidebarOpen) {
@@ -68,8 +48,26 @@ const AdminLayout = () => {
             : 'bg-transparent hover:text-[#e5e7eb] hover:bg-[rgba(255,255,255,0.05)]'
         }`;
 
+    if (!user) {
+        return <Navigate to={APP_ROUTES.LOGIN} replace />;
+    }
+
+    if (role !== "admin") {
+        switch (role) {
+            case "candidate":
+                return <Navigate to="/candidate" replace />;
+            case "company":
+                return <Navigate to={APP_ROUTES.COMPANY_DASHBOARD} replace />;
+            case "hr":
+                return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
+            case "interviewer":
+                return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
+            default:
+                return <Navigate to={APP_ROUTES.ROOT} replace />;
+        }
+    }
+
     return (
-        <SystemDataProvider>
             <div className="min-h-screen bg-linear-to-br from-[#0f172a] to-[#1e1b4b] text-[#e5e7eb]">
                 {/* Header */}
                 <header className="flex justify-between items-center py-4 px-6 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.8)] backdrop-blur-[10px] sticky top-0 z-[100] max-md:py-3 max-md:px-4">
@@ -280,7 +278,6 @@ const AdminLayout = () => {
                     </main>
                 </div>
             </div>
-        </SystemDataProvider>
     );
 };
 

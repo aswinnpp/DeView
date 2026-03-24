@@ -28,7 +28,6 @@ const CompanyApprovalPendingPage = () => {
             if (status === 404) {
                 setNeedsApproval(true);
             } else {
-                console.error('Failed to load approval:', err);
                 navigate('/company/approval-form');
             }
         } finally {

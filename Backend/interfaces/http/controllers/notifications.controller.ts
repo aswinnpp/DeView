@@ -2,7 +2,6 @@ import { inject, injectable } from "inversify";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { success } from "../../../shared/http/apiResponse.js";
 import { TYPES } from "../../../shared/di/types.js";
-import { AppError } from "../../../shared/errors/AppError.js";
 import type { INotificationRepository } from "../../../application/notification/ports/repository/INotificationRepository.js";
 import { NotificationMapper } from "../../../application/notification/mappers/NotificationMapper.js";
 
@@ -33,7 +32,7 @@ export class NotificationsController {
     const ok = await this._notifications.markRead(
       NotificationMapper.toMarkReadInput(request.currentUser, request.params.notificationId),
     );
-    if (!ok) throw AppError.notFound("Notification not found.");
+    NotificationMapper.ensureMutationSucceeded(ok);
     reply.send(success({ ok: true }));
   };
 
@@ -44,7 +43,7 @@ export class NotificationsController {
     const ok = await this._notifications.delete(
       NotificationMapper.toDeleteInput(request.currentUser, request.params.notificationId),
     );
-    if (!ok) throw AppError.notFound("Notification not found.");
+    NotificationMapper.ensureMutationSucceeded(ok);
     reply.send(success({ ok: true }));
   };
 }

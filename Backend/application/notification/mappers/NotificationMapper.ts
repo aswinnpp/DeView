@@ -39,4 +39,8 @@ export const NotificationMapper = {
   toDeleteInput(user: CurrentUser, notificationId: string) {
     return { ...NotificationMapper.toRecipient(user), notificationId };
   },
+
+  ensureMutationSucceeded(ok: boolean) {
+    if (!ok) throw AppError.notFound('Notification not found.');
+  },
 };

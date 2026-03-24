@@ -84,8 +84,7 @@ export function useJudge0Runner(
           latestLanguages[0];
 
         setSelectedLanguageId(preferred?.id ?? null);
-      } catch (err) {
-        console.error("Failed to load Judge0 languages:", err);
+      } catch {
         if (!cancelled) {
           setLanguages(JUDGE0_FALLBACK_LANGUAGES);
           setSelectedLanguageId(null);
@@ -119,7 +118,6 @@ export function useJudge0Runner(
 
           setOutput(result.output || "");
         } catch (err) {
-          console.error("Judge0 execution failed:", err);
           const errorWithResponse = err as {
             response?: { data?: { message?: string } };
             message?: string;

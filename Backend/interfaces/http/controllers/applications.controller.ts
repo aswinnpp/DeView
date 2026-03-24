@@ -147,49 +147,9 @@ export class ApplicationsController {
   ) => {
     const ctx = toContext(request.currentUser);
     const query = offerMailsListQuerySchema.parse(request.query ?? {});
-    const result = await this._listOfferMailsUseCase.execute({
-      companyId: ctx.companyId ?? '',
-      jobId: query.jobId,
-      status: query.status,
-      search: query.search,
-      page: query.page,
-      limit: query.limit,
-    });
-    const data = result.data.map((m) => {
-      const mid = m.id ?? '';
-      const fromNew = mid ? result.counterLettersByOfferMailId.get(mid) : undefined;
-      const fromLegacy = mid && !fromNew ? result.legacyEmbeddedCounters.get(mid) : undefined;
-      const counterLetter = fromNew?.content ?? fromLegacy?.content;
-      const counterSentAtRaw = fromNew?.createdAt ?? fromLegacy?.sentAt;
-      const counterSentAt =
-        counterSentAtRaw instanceof Date ? counterSentAtRaw.toISOString() : counterSentAtRaw ? String(counterSentAtRaw) : undefined;
-      const counterResponseStatus = fromNew?.responseStatus === 'accepted' || fromNew?.responseStatus === 'rejected'
-        ? fromNew.responseStatus
-        : undefined;
-      const signedOfferAvailable =
-        m.status === 'accepted' && Boolean(m.docusignAcceptanceEnvelopeId?.trim());
-      return {
-        id: m.id,
-        applicationId: m.applicationId,
-        jobId: m.jobId,
-        companyId: m.companyId,
-        candidateUserId: m.candidateUserId,
-        candidateName: m.candidateName,
-        candidateEmail: m.candidateEmail,
-        content: m.content,
-        salary: m.salary,
-        location: m.location,
-        startDate: m.startDate,
-        benefits: m.benefits,
-        status: m.status,
-        ...(counterLetter !== undefined && { counterLetter }),
-        ...(counterSentAt !== undefined && { counterSentAt }),
-        ...(counterResponseStatus !== undefined && { counterResponseStatus }),
-        ...(signedOfferAvailable && { signedOfferAvailable: true }),
-        createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : String(m.createdAt),
-      };
-    });
-    reply.send(success({ data, total: result.total }));
+    const input = ApplicationMapper.toListOfferMailsInput(query, ctx);
+    const result = await this._listOfferMailsUseCase.execute(input);
+    reply.send(success(ApplicationMapper.toOfferMailsListView(result)));
   };
 
   updateStatus = async (
@@ -264,11 +224,8 @@ export class ApplicationsController {
     reply: FastifyReply
   ) => {
     const ctx = toContext(request.currentUser);
-    const result = await this._getLatestInterviewerFeedbackUseCase.execute({
-      companyId: ctx.companyId ?? '',
-      jobId: request.params.jobId,
-      applicationId: request.params.applicationId,
-    });
+    const input = ApplicationMapper.toGetLatestInterviewerFeedbackInput(request.params, ctx);
+    const result = await this._getLatestInterviewerFeedbackUseCase.execute(input);
     reply.send(success(result));
   };
 
@@ -280,16 +237,8 @@ export class ApplicationsController {
     reply: FastifyReply
   ) => {
     const ctx = toContext(request.currentUser);
-    const companyId = ctx.companyId ?? '';
-    const action = request.body?.action;
-    if (action !== 'accept' && action !== 'reject') {
-      return reply.status(400).send({ success: false, message: 'action must be accept or reject' });
-    }
-    const result = await this._respondToCounterLetterUseCase.execute({
-      offerMailId: request.params.offerMailId,
-      companyId,
-      action,
-    });
+    const input = ApplicationMapper.toRespondToCounterLetterInput(request.params, request.body, ctx);
+    const result = await this._respondToCounterLetterUseCase.execute(input);
     reply.send(success(result));
   };
 
@@ -298,14 +247,8 @@ export class ApplicationsController {
     reply: FastifyReply
   ) => {
     const ctx = toContext(request.currentUser);
-    const companyId = ctx.companyId ?? '';
-    if (!companyId) {
-      return reply.status(403).send({ success: false, message: 'Forbidden' });
-    }
-    const pdf = await this._getSignedOfferPdfUseCase.execute({
-      offerMailId: request.params.offerMailId,
-      companyId,
-    });
+    const input = ApplicationMapper.toGetSignedOfferPdfInput(request.params, ctx);
+    const pdf = await this._getSignedOfferPdfUseCase.execute(input);
     return reply
       .header('Content-Type', 'application/pdf')
       .header('Content-Disposition', 'inline; filename="signed-offer.pdf"')

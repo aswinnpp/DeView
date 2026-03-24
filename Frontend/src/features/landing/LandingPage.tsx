@@ -31,10 +31,8 @@ const LandingPage = () => {
                     interviewsConducted: Number(result?.interviewsConducted ?? 0) || 0,
                     developersHired: Number(result?.developersHired ?? 0) || 0,
                 });
-            } catch (err) {
+            } catch {
                 if (isCancelled) return;
-                // Keep default 0 values on error.
-                console.error(err);
             } finally {
                 if (!isCancelled) setLoading(false);
             }

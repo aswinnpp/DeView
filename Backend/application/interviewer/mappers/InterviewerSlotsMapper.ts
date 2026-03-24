@@ -2,6 +2,12 @@ import { AppError } from '../../../shared/errors/AppError.js';
 import type { InterviewerSlotsUpsertBody } from '../../../../Shared/contracts/interviewer/interviewerSlots.schema.js';
 
 export const InterviewerSlotsMapper = {
+  toInterviewerContext(user: { userId: string; companyId?: string }) {
+    const companyId = user.companyId ?? '';
+    if (!companyId) throw AppError.forbidden('No company associated with this account');
+    return { interviewerId: user.userId, companyId };
+  },
+
   toGetMySlotsInput(
     interviewerId: string,
     companyId: string,

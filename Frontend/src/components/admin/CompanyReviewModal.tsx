@@ -37,8 +37,7 @@ const CompanyReviewModal = ({
         await adminApprovalService.markDocument(company.id, docKey, !currentMarked);
         setDocMarks((prev) => ({ ...prev, [docKey]: !currentMarked }));
         onDocumentMarked?.();
-      } catch (err) {
-        console.error("Failed to mark document:", err);
+      } catch {
       } finally {
         setMarkingKey(null);
       }

@@ -1,5 +1,4 @@
 import type {
-  AdminDashboardTimePeriod,
   IAdminDashboardStatsInputDTO,
   IAdminDashboardStatsOutputDTO,
 } from '../../dtos/AdminDashboardStatsDTO.js';

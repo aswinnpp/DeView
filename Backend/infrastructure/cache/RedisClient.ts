@@ -5,6 +5,8 @@ export const redisClient: RedisClientType = createClient({
   url: env.REDIS_URL,
 });
 
-redisClient.on("error", (err) => console.error("Redis Error", err));
+redisClient.on("error", (err) => {
+  process.stderr.write(`Redis Error: ${String(err)}\n`);
+});
 
 

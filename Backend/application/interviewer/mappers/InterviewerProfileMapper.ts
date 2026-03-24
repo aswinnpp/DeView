@@ -3,6 +3,7 @@ import type {
   ICreateInterviewerProfileInputDTO,
   IUpdateInterviewerProfileInputDTO,
 } from '../dtos/InterviewerProfileDTO.js';
+import { AppError } from "../../../shared/errors/AppError.js";
 
 export interface InterviewerProfileView {
   fullName: string;
@@ -40,6 +41,16 @@ export function toView(profile: InterviewerProfile): InterviewerProfileView {
   };
 }
 
+export function toProfileStateView(profile: InterviewerProfile | null): {
+  hasProfile: boolean;
+  data?: InterviewerProfileView;
+} {
+  return {
+    hasProfile: profile !== null,
+    data: profile ? toView(profile) : undefined,
+  };
+}
+
 export function toCreateDTO(
   body: InterviewerProfileView,
   userId: string
@@ -71,4 +82,13 @@ export function toUpdateDTO(
     userId,
     ...body,
   };
+}
+
+export function toProfilePicStorageKey(profile: InterviewerProfile | null): string {
+  const raw = profile?.profilePicUrl ?? "";
+  const key = raw.trim();
+  if (!key) {
+    throw AppError.notFound("Profile picture not found");
+  }
+  return key;
 }

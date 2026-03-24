@@ -20,9 +20,7 @@ const getStoredUser = (): IUser | null => {
     if (userStr) {
       return JSON.parse(userStr);
     }
-  } catch {
-    console.error("Failed to parse stored user");
-  }
+  } catch {}
   return null;
 };
 

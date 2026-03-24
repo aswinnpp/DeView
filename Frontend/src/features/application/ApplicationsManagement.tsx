@@ -104,9 +104,6 @@ interface Candidate {
 
 type WorkflowTab = 'PENDING' | 'SHORTLISTED' | 'INTERVIEW_ATTENDEES' | 'INTERVIEW_COMPLETE' | 'HIRED' | 'REJECTED' | 'RESCHEDULE_REQUESTS';
 
-// ==================== DUMMY DATA ====================
-
-
 // ==================== MAIN COMPONENT ====================
 import { useCompanyProfile } from "../../hooks/company/useCompanyProfile";
 import { useCompanySubscription } from "../../hooks/company";

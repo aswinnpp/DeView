@@ -9,6 +9,14 @@ import type { IScheduleInterviewInput } from '../use-cases/schedule-interview.us
 import type { IDeclineRescheduleRequestInput } from '../use-cases/decline-reschedule-request.usecase.js';
 import type { IGetResumeViewUrlInput } from '../use-cases/get-resume-view-url.usecase.js';
 import type { IPrecheckScheduleInterviewInputDTO } from '../dtos/PrecheckScheduleInterviewDTO.js';
+import type { IListOfferMailsInputDTO, IListOfferMailsResult } from '../use-cases/list-offer-mails.usecase.js';
+import type { IGetLatestInterviewerFeedbackInput } from '../use-cases/get-latest-interviewer-feedback.usecase.js';
+import type { IRespondToCounterLetterInput } from '../use-cases/respond-to-counter-letter.usecase.js';
+import type { GetSignedOfferPdfRequest } from '../use-cases/get-signed-offer-pdf.usecase.js';
+import type { IApplyForJobInput } from '../../candidate/ports/usecase/IApplyForJobUseCase.js';
+import type { CandidateMailboxKind } from '../../candidate/use-cases/list-candidate-mailbox.usecase.js';
+import type { OfferMail } from '../../../domain/entities/OfferMail.js';
+import type { ISubmitOfferCounterLetterResult } from '../../candidate/use-cases/submit-offer-counter-letter.usecase.js';
 
 type CandidatePipelineTab =
   | 'pending'
@@ -16,6 +24,8 @@ type CandidatePipelineTab =
   | 'interview'
   | 'interview_complete'
   | 'complete';
+
+type OfferMailStatus = 'pending' | 'accepted' | 'declined' | 'counter';
 
 function statusesForPipelineTab(tab: CandidatePipelineTab): ApplicationStatus[] {
   switch (tab) {
@@ -31,6 +41,12 @@ function statusesForPipelineTab(tab: CandidatePipelineTab): ApplicationStatus[] 
       // UI uses "complete" tab for rejected candidates
       return ['REJECTED'];
   }
+}
+
+function toIsoString(value: unknown): string | undefined {
+  if (value == null) return undefined;
+  if (value instanceof Date) return value.toISOString();
+  return String(value);
 }
 
 export const ApplicationMapper = {
@@ -299,6 +315,280 @@ export const ApplicationMapper = {
       jobId: params.jobId,
       applicationId: params.applicationId,
       scheduledDate: query?.scheduledDate,
+    };
+  },
+
+  toListOfferMailsInput(
+    query: {
+      jobId?: string;
+      status?: OfferMailStatus;
+      search?: string;
+      page?: number;
+      limit?: number;
+    },
+    context: CallerContext
+  ): IListOfferMailsInputDTO {
+    return {
+      companyId: context.companyId || '',
+      jobId: query.jobId,
+      status: query.status,
+      search: query.search,
+      page: query.page,
+      limit: query.limit,
+    };
+  },
+
+  toOfferMailsListView(result: IListOfferMailsResult): {
+    data: Array<{
+      id?: string | null;
+      applicationId: string;
+      jobId: string;
+      companyId: string;
+      candidateUserId: string;
+      candidateName: string;
+      candidateEmail: string;
+      content: string;
+      salary?: string;
+      location?: string;
+      startDate?: string;
+      benefits?: string;
+      status: OfferMailStatus;
+      counterLetter?: string;
+      counterSentAt?: string;
+      counterResponseStatus?: 'accepted' | 'rejected';
+      signedOfferAvailable?: boolean;
+      createdAt: string;
+    }>;
+    total: number;
+  } {
+    const data = result.data.map((m) => {
+      const offerMailId = m.id ?? '';
+      const latestCounter = offerMailId
+        ? result.counterLettersByOfferMailId.get(offerMailId)
+        : undefined;
+      const legacyCounter =
+        offerMailId && !latestCounter
+          ? result.legacyEmbeddedCounters.get(offerMailId)
+          : undefined;
+      const counterLetter = latestCounter?.content ?? legacyCounter?.content;
+      const counterSentAt = toIsoString(
+        latestCounter?.createdAt ?? legacyCounter?.sentAt
+      );
+      const counterResponseStatus =
+        latestCounter?.responseStatus === 'accepted' ||
+        latestCounter?.responseStatus === 'rejected'
+          ? latestCounter.responseStatus
+          : undefined;
+      const signedOfferAvailable =
+        m.status === 'accepted' &&
+        Boolean(m.docusignAcceptanceEnvelopeId?.trim());
+
+      return {
+        id: m.id,
+        applicationId: m.applicationId,
+        jobId: m.jobId,
+        companyId: m.companyId,
+        candidateUserId: m.candidateUserId,
+        candidateName: m.candidateName,
+        candidateEmail: m.candidateEmail,
+        content: m.content,
+        salary: m.salary,
+        location: m.location,
+        startDate: m.startDate,
+        benefits: m.benefits,
+        status: m.status,
+        ...(counterLetter !== undefined && { counterLetter }),
+        ...(counterSentAt !== undefined && { counterSentAt }),
+        ...(counterResponseStatus !== undefined && { counterResponseStatus }),
+        ...(signedOfferAvailable && { signedOfferAvailable: true }),
+        createdAt: toIsoString(m.createdAt) || '',
+      };
+    });
+
+    return { data, total: result.total };
+  },
+
+  toGetLatestInterviewerFeedbackInput(
+    params: { jobId: string; applicationId: string },
+    context: CallerContext
+  ): IGetLatestInterviewerFeedbackInput {
+    return {
+      companyId: context.companyId || '',
+      jobId: params.jobId,
+      applicationId: params.applicationId,
+    };
+  },
+
+  toRespondToCounterLetterInput(
+    params: { offerMailId: string },
+    body: { action: 'accept' | 'reject' },
+    context: CallerContext
+  ): IRespondToCounterLetterInput {
+    return {
+      offerMailId: params.offerMailId,
+      companyId: context.companyId || '',
+      action: body.action,
+    };
+  },
+
+  toGetSignedOfferPdfInput(
+    params: { offerMailId: string },
+    context: CallerContext
+  ): Extract<GetSignedOfferPdfRequest, { companyId: string }> {
+    return {
+      offerMailId: params.offerMailId,
+      companyId: context.companyId || '',
+    };
+  },
+
+  toCandidateGetSignedOfferPdfInput(
+    params: { offerMailId: string },
+    userId: string
+  ): Extract<GetSignedOfferPdfRequest, { candidateUserId: string }> {
+    return {
+      offerMailId: params.offerMailId,
+      candidateUserId: userId,
+    };
+  },
+
+  toApplyForJobInput(
+    params: { jobId: string },
+    body: { useResumeFromProfile: boolean; coverLetter?: string; resumeUrl?: string },
+    userId: string
+  ): IApplyForJobInput {
+    return {
+      jobId: params.jobId,
+      candidateUserId: userId,
+      useResumeFromProfile: body.useResumeFromProfile,
+      coverLetter: body.coverLetter,
+      resumeUrl: body.resumeUrl,
+    };
+  },
+
+  toListCandidateMailboxInput(
+    query: {
+      kind?: CandidateMailboxKind;
+      jobId?: string;
+      offerStatus?: OfferMailStatus;
+      search?: string;
+      page?: number;
+      limit?: number;
+    },
+    userId: string
+  ): {
+    candidateUserId: string;
+    kind?: CandidateMailboxKind;
+    jobId?: string;
+    offerStatus?: OfferMailStatus;
+    search?: string;
+    page?: number;
+    limit?: number;
+  } {
+    return {
+      candidateUserId: userId,
+      kind: query.kind,
+      jobId: query.jobId,
+      offerStatus: query.offerStatus,
+      search: query.search,
+      page: query.page,
+      limit: query.limit,
+    };
+  },
+
+  toRespondToOfferInput(
+    params: { offerMailId: string },
+    userId: string
+  ): {
+    candidateUserId: string;
+    offerMailId: string;
+    action: 'decline';
+  } {
+    return {
+      candidateUserId: userId,
+      offerMailId: params.offerMailId,
+      action: 'decline',
+    };
+  },
+
+  toOfferSummaryView(offer: OfferMail): {
+    offer: {
+      id?: string | null;
+      applicationId: string;
+      jobId: string;
+      companyId: string;
+      status: OfferMailStatus;
+      createdAt: string;
+    };
+  } {
+    return {
+      offer: {
+        id: offer.id,
+        applicationId: offer.applicationId,
+        jobId: offer.jobId,
+        companyId: offer.companyId,
+        status: offer.status,
+        createdAt: toIsoString(offer.createdAt) || '',
+      },
+    };
+  },
+
+  toSubmitOfferCounterInput(
+    params: { offerMailId: string },
+    body: { letter?: string },
+    userId: string
+  ): {
+    candidateUserId: string;
+    offerMailId: string;
+    letter: string;
+  } {
+    return {
+      candidateUserId: userId,
+      offerMailId: params.offerMailId,
+      letter: body.letter ?? '',
+    };
+  },
+
+  toSubmitOfferCounterView(result: ISubmitOfferCounterLetterResult): {
+    offer: {
+      id?: string | null;
+      applicationId: string;
+      jobId: string;
+      companyId: string;
+      candidateUserId: string;
+      candidateName: string;
+      candidateEmail: string;
+      content: string;
+      salary?: string;
+      location?: string;
+      startDate?: string;
+      benefits?: string;
+      status: OfferMailStatus;
+      counterLetter: string;
+      counterSentAt: string;
+      createdAt: string;
+    };
+  } {
+    const offer = result.offer;
+    const counter = result.counter;
+    return {
+      offer: {
+        id: offer.id,
+        applicationId: offer.applicationId,
+        jobId: offer.jobId,
+        companyId: offer.companyId,
+        candidateUserId: offer.candidateUserId,
+        candidateName: offer.candidateName,
+        candidateEmail: offer.candidateEmail,
+        content: offer.content,
+        salary: offer.salary,
+        location: offer.location,
+        startDate: offer.startDate,
+        benefits: offer.benefits,
+        status: offer.status,
+        counterLetter: counter.content,
+        counterSentAt: toIsoString(counter.createdAt) || '',
+        createdAt: toIsoString(offer.createdAt) || '',
+      },
     };
   },
 };
