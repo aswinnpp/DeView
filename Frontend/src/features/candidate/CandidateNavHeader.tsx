@@ -6,7 +6,7 @@ import { useNotifications } from "../../hooks/notifications/useNotifications";
 
 interface ICandidateNavHeaderProps {
     title: string;
-    currentPage?: 'jobs' | 'dashboard' | 'profile' | 'mails' | 'interviews' | 'applied';
+    currentPage?: 'jobs' | 'dashboard' | 'profile' | 'mails' | 'interviews' | 'applied' | "history";
 }
 
 const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) => {
