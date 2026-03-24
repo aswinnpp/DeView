@@ -75,6 +75,12 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
     await fastify.register(
         async (instance) => {
             await adminDashboardRoutes(instance, controllers.dashboardStatsController);
+            await instance.register(
+                async (sub) => {
+                    await notificationsRoutes(sub, controllers.notificationsController);
+                },
+                { prefix: '/notifications' }
+            );
         },
         { prefix: '/admin' }
     );
@@ -130,6 +136,12 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
             await interviewerAssignmentsRoutes(instance, controllers.interviewerAssignmentsController);
             await interviewerProfileRoutes(instance, controllers.interviewerProfileController);
             await interviewerSlotsRoutes(instance, controllers.interviewerSlotsController);
+            await instance.register(
+                async (sub) => {
+                    await notificationsRoutes(sub, controllers.notificationsController);
+                },
+                { prefix: '/notifications' }
+            );
         },
         { prefix: '/interviewer' }
     );

@@ -6,13 +6,16 @@ import { SystemDataProvider } from "../../context/SystemDataContext";
 import { logout } from "../../context/authSlice";
 import { authService } from "../../services/auth.service";
 import { APP_ROUTES } from "../../constants/routes";
-import { Button } from "../../components/common";
+import { Button, NotificationBell } from "../../components/common";
+import { useNotifications } from "../../hooks/notifications/useNotifications";
 
 const AdminLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
     const user = useSelector((state: RootState) => state.auth.user);
+    const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("admin");
 
     const role = (user?.role || "").toLowerCase();
 
@@ -45,6 +48,11 @@ const AdminLayout = () => {
             document.body.style.overflow = "";
         };
     }, [sidebarOpen]);
+
+    useEffect(() => {
+        if (!showNotifications) return;
+        refresh().catch(() => {});
+    }, [showNotifications, refresh]);
 
     const handleLogout = useCallback(async () => {
         
@@ -88,7 +96,44 @@ const AdminLayout = () => {
                         </h2>
                     </div>
 
-                    <div className="flex items-center gap-3 relative" />
+                    <div className="flex items-center gap-3 relative">
+                        <div className="relative">
+                            <NotificationBell
+                                className="!bg-none !border-none cursor-pointer text-xl text-[rgba(255,255,255,0.95)] relative p-2 rounded-lg hover:bg-[rgba(255,255,255,0.08)]"
+                                onClick={() => setShowNotifications((v) => !v)}
+                                count={unreadCount}
+                            />
+                            {showNotifications && (
+                                <div className="absolute top-[110%] right-0 w-80 max-w-[calc(100vw-2rem)] bg-[rgba(12,12,18,0.98)] border border-[rgba(255,255,255,0.03)] rounded-xl shadow-[0_12px_30px_rgba(0,0,0,0.5)] z-[2000]">
+                                    <div className="flex justify-between items-center py-3.5 px-4 border-b border-[rgba(255,255,255,0.04)]">
+                                        <h3 className="m-0 text-white text-[15px]">Notifications</h3>
+                                        <Button variant="secondary" className="!bg-none !border-none text-[rgba(255,255,255,0.7)] cursor-pointer" onClick={() => setShowNotifications(false)}>✕</Button>
+                                    </div>
+                                    <div>
+                                        {notifications.length === 0 ? (
+                                            <div className="py-6 text-center text-[#94a3b8] text-sm">
+                                                No notifications yet
+                                            </div>
+                                        ) : (
+                                            notifications.map((n) => (
+                                                <button
+                                                    key={n.id}
+                                                    type="button"
+                                                    className="w-full text-left flex items-start gap-3 p-4 border-none border-b border-[rgba(255,255,255,0.03)] bg-transparent hover:bg-[rgba(255,255,255,0.02)] cursor-pointer"
+                                                    onClick={() => markRead(n.id)}
+                                                >
+                                                    <div className="min-w-0">
+                                                        <div className="text-white text-sm truncate">{n.message || n.title}</div>
+                                                        <div className="text-[rgba(255,255,255,0.5)] text-xs mt-1">{formatTime(n.createdAt)}</div>
+                                                    </div>
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </header>
 
                 {/* Mobile sidebar backdrop */}

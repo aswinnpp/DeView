@@ -1,6 +1,11 @@
 import type { ObjectId } from "mongodb";
 
-export type NotificationType = "NEW_APPLICATION" | "NEW_JOB";
+export type NotificationType =
+  | "NEW_APPLICATION"
+  | "NEW_JOB"
+  | "APPLICATION_SHORTLISTED"
+  | "INTERVIEW_SCHEDULED"
+  | "NEW_COMPANY_REGISTRATION";
 export type NotificationRecipientType = "COMPANY" | "USER";
 
 export interface INotificationDocument {

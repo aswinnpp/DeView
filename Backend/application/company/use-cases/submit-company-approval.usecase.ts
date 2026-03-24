@@ -2,6 +2,8 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
 import { ICompanyProfileRepository } from "../ports/repository/ICompanyProfileRepository";
 import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
+import type { INotificationRepository } from "../../notification/ports/repository/INotificationRepository.js";
+import type { INotificationPublisher } from "../../notification/ports/service/INotificationPublisher.js";
 import { CompanyApproval } from "../../../domain/entities/CompanyApprovalEntitie";
 import type { ISubmitCompanyApprovalInputDTO } from '../dtos/CompanyApprovalDTO.js';
 import { AppError } from "../../../shared/errors/AppError";
@@ -11,7 +13,9 @@ import type { ISubmitCompanyApprovalUseCase } from "../ports/usecase/ISubmitComp
 export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCase {
   constructor(
     @inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository,
-    @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository
+    @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository,
+    @inject(TYPES.NotificationRepositoryPort) private _notificationRepo: INotificationRepository,
+    @inject(TYPES.NotificationPublisherPort) private _notificationPublisher: INotificationPublisher
   ) { }
 
   async execute(dto: ISubmitCompanyApprovalInputDTO) {
@@ -52,6 +56,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       existing.updatedAt = new Date();
 
       await this._repo.save(existing);
+      await this._notifyAdmins(existing.id ?? '', dto.companyName);
 
       return { approvalId: existing.id };
     }
@@ -72,7 +77,32 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
     );
 
     await this._repo.save(approval);
+    await this._notifyAdmins(approval.id ?? '', dto.companyName);
     return { approvalId: approval.id ?? null };
+  }
+
+  private async _notifyAdmins(approvalId: string, companyName: string): Promise<void> {
+    const adminIds = await this._userRepo.listActiveUserIdsByRole('admin');
+    if (adminIds.length === 0) return;
+
+    await Promise.all(
+      adminIds.map(async (adminUserId) => {
+        const notification = await this._notificationRepo.create({
+          recipientType: 'USER',
+          recipientId: adminUserId,
+          type: 'NEW_COMPANY_REGISTRATION',
+          title: 'New company registration',
+          message: `${companyName} submitted a company approval request.`,
+          data: { approvalId, companyName },
+        });
+
+        await this._notificationPublisher.publish({
+          recipientType: 'USER',
+          recipientId: adminUserId,
+          notification,
+        });
+      })
+    );
   }
 }
 

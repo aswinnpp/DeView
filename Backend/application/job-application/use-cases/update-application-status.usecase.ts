@@ -3,6 +3,9 @@ import { TYPES } from '../../../shared/di/types.js';
 import type { IApplicationRepository } from '../ports/repository/IApplicationRepository.js';
 import type { IRejectionMailRepository } from '../ports/repository/IRejectionMailRepository.js';
 import type { IOfferMailRepository } from '../ports/repository/IOfferMailRepository.js';
+import type { INotificationRepository } from '../../notification/ports/repository/INotificationRepository.js';
+import type { INotificationPublisher } from '../../notification/ports/service/INotificationPublisher.js';
+import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
 import type {
   IUpdateApplicationStatusUseCase,
 } from '../ports/usecase/IUpdateApplicationStatusUseCase.js';
@@ -20,7 +23,13 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
     @inject(TYPES.RejectionMailRepositoryPort)
     private readonly _rejectionMailRepository: IRejectionMailRepository,
     @inject(TYPES.OfferMailRepositoryPort)
-    private readonly _offerMailRepository: IOfferMailRepository
+    private readonly _offerMailRepository: IOfferMailRepository,
+    @inject(TYPES.NotificationRepositoryPort)
+    private readonly _notificationRepository: INotificationRepository,
+    @inject(TYPES.NotificationPublisherPort)
+    private readonly _notificationPublisher: INotificationPublisher,
+    @inject(TYPES.JobRepositoryPort)
+    private readonly _jobRepository: IJobRepository
   ) {}
 
   async execute(input: IUpdateApplicationStatusInputDTO): Promise<IUpdateApplicationStatusOutputDTO> {
@@ -37,6 +46,28 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
 
     if (!updated) {
       throw AppError.notFound('Application not found');
+    }
+
+    if (updated.status === 'SHORTLISTED') {
+      const job = await this._jobRepository.findById(updated.jobId);
+      const jobTitle = job?.title ?? 'the role';
+      const notification = await this._notificationRepository.create({
+        recipientType: 'USER',
+        recipientId: updated.candidateUserId,
+        type: 'APPLICATION_SHORTLISTED',
+        title: 'You are shortlisted',
+        message: `You have been shortlisted for ${jobTitle}.`,
+        data: {
+          applicationId: updated.id ?? input.applicationId,
+          jobId: updated.jobId,
+          status: updated.status,
+        },
+      });
+      await this._notificationPublisher.publish({
+        recipientType: 'USER',
+        recipientId: updated.candidateUserId,
+        notification,
+      });
     }
 
     if (

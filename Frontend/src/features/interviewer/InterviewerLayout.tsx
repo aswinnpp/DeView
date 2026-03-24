@@ -5,19 +5,43 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../context/store";
 import { interviewerProfileService } from "../../services/interviewerProfile.service";
 import { NotificationBell } from "../../components/common";
-
-interface Notification {
-  id: number;
-  text: string;
-  time: string;
-}
+import { useNotifications } from "../../hooks/notifications/useNotifications";
 
 const InterviewerLayout: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const user = useSelector((state: RootState) => state.auth.user);
   const [profilePicViewUrl, setProfilePicViewUrl] = useState<string>("");
+  const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("interviewer");
 
   const role = (user?.role || "").toLowerCase();
+
+  const navLinkClass = (isActive: boolean) =>
+    `text-sm font-medium py-2.5 px-2.5 rounded-lg no-underline transition-all duration-300 ${
+      isActive
+        ? "text-white bg-white/10"
+        : "text-white/70 hover:text-white hover:bg-white/10 hover:-translate-y-0.5"
+    }`;
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    interviewerProfileService
+      .getProfilePicViewUrl()
+      .then((res) => {
+        if (!cancelled) setProfilePicViewUrl(res.url);
+      })
+      .catch(() => {
+        if (!cancelled) setProfilePicViewUrl("");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!showNotifications) return;
+    refresh().catch(() => {});
+  }, [showNotifications, refresh]);
 
   if (!user) {
     return <Navigate to={APP_ROUTES.LOGIN} replace />;
@@ -37,33 +61,6 @@ const InterviewerLayout: React.FC = () => {
         return <Navigate to={APP_ROUTES.ROOT} replace />;
     }
   }
-
-  const notifications: Notification[] = [
-    { id: 1, text: "Interview #123 starts in 15 mins", time: "Just now" },
-    { id: 2, text: "Candidate Priya submitted code", time: "10m ago" },
-  ];
-
-  const navLinkClass = (isActive: boolean) =>
-    `text-sm font-medium py-2.5 px-2.5 rounded-lg no-underline transition-all duration-300 ${
-      isActive
-        ? "text-white bg-white/10"
-        : "text-white/70 hover:text-white hover:bg-white/10 hover:-translate-y-0.5"
-    }`;
-
-  useEffect(() => {
-    let cancelled = false;
-    interviewerProfileService
-      .getProfilePicViewUrl()
-      .then((res) => {
-        if (!cancelled) setProfilePicViewUrl(res.url);
-      })
-      .catch(() => {
-        if (!cancelled) setProfilePicViewUrl("");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const initials =
     (user?.fullName || "I")
@@ -115,7 +112,7 @@ const InterviewerLayout: React.FC = () => {
                 onClick={() => setShowNotifications((v) => !v)}
                 aria-expanded={showNotifications}
                 aria-controls="notification-list"
-                count={notifications.length}
+                count={unreadCount}
                 badgeClassName="bg-gradient-to-br from-pink-500 to-pink-700 text-[10px] font-semibold py-0.5 px-1.5 rounded-full min-w-4 text-center leading-none"
               />
 
@@ -144,15 +141,17 @@ const InterviewerLayout: React.FC = () => {
                       </div>
                     ) : (
                       notifications.map((n) => (
-                        <div
+                        <button
                           key={n.id}
-                          className="flex items-start gap-3 py-4 px-5 border-b border-white/[0.05] transition-colors duration-300 hover:bg-white/[0.03]"
+                          type="button"
+                          className="w-full text-left flex items-start gap-3 py-4 px-5 border-none border-b border-white/[0.05] bg-transparent transition-colors duration-300 hover:bg-white/[0.03] cursor-pointer"
+                          onClick={() => markRead(n.id)}
                         >
                           <div className="flex-1 min-w-0">
-                            <p className="text-white text-sm leading-snug m-0 mb-1">{n.text}</p>
-                            <p className="text-white/60 text-xs m-0">{n.time}</p>
+                            <p className="text-white text-sm leading-snug m-0 mb-1">{n.message || n.title}</p>
+                            <p className="text-white/60 text-xs m-0">{formatTime(n.createdAt)}</p>
                           </div>
-                        </div>
+                        </button>
                       ))
                     )}
                   </div>

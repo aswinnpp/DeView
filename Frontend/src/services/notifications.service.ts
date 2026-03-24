@@ -1,7 +1,7 @@
 import { api } from "../api/axios";
 import { API_ROUTES } from "../constants/routes";
 
-export type NotificationScope = "company" | "candidate";
+export type NotificationScope = "company" | "candidate" | "admin" | "interviewer";
 
 export type AppNotification = {
   id: string;
@@ -14,7 +14,10 @@ export type AppNotification = {
 };
 
 function getRoutes(scope: NotificationScope) {
-  return scope === "company" ? API_ROUTES.COMPANY.NOTIFICATIONS : API_ROUTES.CANDIDATE.NOTIFICATIONS;
+  if (scope === "company") return API_ROUTES.COMPANY.NOTIFICATIONS;
+  if (scope === "admin") return API_ROUTES.ADMIN.NOTIFICATIONS;
+  if (scope === "interviewer") return API_ROUTES.INTERVIEWER.NOTIFICATIONS;
+  return API_ROUTES.CANDIDATE.NOTIFICATIONS;
 }
 
 export const notificationsService = {

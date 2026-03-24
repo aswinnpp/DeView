@@ -78,6 +78,11 @@ export const API_ROUTES = {
         SUBSCRIPTION_TOGGLE: (id: string) => `/admin/company-requests/subscription/${id}/toggle-active`,
         SUBSCRIPTION_UPDATE: (id: string) => `/admin/company-requests/subscription/${id}`,
         DASHBOARD_STATS: '/admin/dashboard/stats',
+        NOTIFICATIONS: {
+            LIST: '/admin/notifications',
+            MARK_READ: (notificationId: string) => `/admin/notifications/${notificationId}/read`,
+            DELETE: (notificationId: string) => `/admin/notifications/${notificationId}`,
+        },
     },
     INTERVIEWS: {
         ROOM: (interviewId: string) => `/interviews/${interviewId}/room`,
@@ -94,6 +99,11 @@ export const API_ROUTES = {
         PROFILE: '/interviewer/profile',
         ASSIGNMENTS: '/interviewer/assignments',
         SLOTS: '/interviewer/slots',
+        NOTIFICATIONS: {
+            LIST: '/interviewer/notifications',
+            MARK_READ: (notificationId: string) => `/interviewer/notifications/${notificationId}/read`,
+            DELETE: (notificationId: string) => `/interviewer/notifications/${notificationId}`,
+        },
         ACCEPT: (interviewId: string) => `/interviewer/assignments/${interviewId}/accept`,
         REJECT: (interviewId: string) => `/interviewer/assignments/${interviewId}/reject`,
         COMPLETED: '/interviewer/completed-interviews',

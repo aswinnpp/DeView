@@ -5,6 +5,8 @@ import type { IInterviewRepository } from '../../interview/ports/repository/IInt
 import type { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository.js';
 import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
 import type { IInterviewerSlotsRepository } from '../../interviewer/ports/repository/IInterviewerSlotsRepository.js';
+import type { INotificationRepository } from '../../notification/ports/repository/INotificationRepository.js';
+import type { INotificationPublisher } from '../../notification/ports/service/INotificationPublisher.js';
 import type { Application } from '../../../domain/entities/Application.js';
 import { Interview } from '../../../domain/entities/Interview.js';
 import { AppError } from '../../../shared/errors/AppError.js';
@@ -38,7 +40,11 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     @inject(TYPES.JobRepositoryPort)
     private readonly _jobRepository: IJobRepository,
     @inject(TYPES.InterviewerSlotsRepositoryPort)
-    private readonly _interviewerSlotsRepository: IInterviewerSlotsRepository
+    private readonly _interviewerSlotsRepository: IInterviewerSlotsRepository,
+    @inject(TYPES.NotificationRepositoryPort)
+    private readonly _notificationRepository: INotificationRepository,
+    @inject(TYPES.NotificationPublisherPort)
+    private readonly _notificationPublisher: INotificationPublisher
   ) {}
 
   async execute(input: IScheduleInterviewInput): Promise<{ application: Application }> {
@@ -172,6 +178,29 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
         )
       );
     }
+
+    const interviewerNotification = await this._notificationRepository.create({
+      recipientType: 'USER',
+      recipientId: trimmedInterviewerUserId,
+      type: 'INTERVIEW_SCHEDULED',
+      title: existing?.id ? 'Interview rescheduled' : 'New interview scheduled',
+      message: `${trimmedRound} interview for ${jobTitle || 'a role'} is scheduled on ${trimmedDate} at ${trimmedTime}.`,
+      data: {
+        applicationId,
+        jobId,
+        candidateUserId: updated.candidateUserId,
+        candidateName: updated.fullName,
+        round: trimmedRound,
+        scheduledDate: trimmedDate,
+        scheduledTime: trimmedTime,
+        isReschedule: Boolean(existing?.id),
+      },
+    });
+    await this._notificationPublisher.publish({
+      recipientType: 'USER',
+      recipientId: trimmedInterviewerUserId,
+      notification: interviewerNotification,
+    });
 
     return { application: updated };
   }
