@@ -14,7 +14,6 @@ import { DocuSignOfferEnvelopeService } from '../../../infrastructure/docusign/D
 export type BeginOfferSigningResult =
   | { outcome: 'sign'; signingUrl: string }
   | { outcome: 'accepted' }
-  /** JWT consent must be completed by an admin (not the candidate). Use employer “Connect DocuSign” or GET /public/docusign/consent-url. */
   | { outcome: 'consent_required' };
 
 function toDocuSignAppError(e: unknown): AppError {
@@ -59,8 +58,7 @@ export class BeginOfferSigningUseCase {
       throw AppError.badRequest('Only a pending offer can be accepted');
     }
 
-    // If the company accepted the candidate counter, sign that counter text
-    // instead of the original offer body stored on the offer mail.
+    
     let offerBody = offer.content;
     try {
       const counterByOffer = await this._counterLetters.findLatestByOfferMailIds([offer.id]);

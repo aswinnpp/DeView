@@ -28,12 +28,10 @@ export class HandlePaymentWebhookUseCase implements IHandlePaymentWebhookUseCase
       throw AppError.notFound(`Payment not found for intent ${paymentIntentId}`);
     }
 
-    // Prefer companyId/planId from Payment record (stored at create time) - more reliable than Stripe metadata
     const companyId = payment.companyId || input.companyId;
     const planId = payment.subscriptionPlanId || input.planId;
 
     if (eventType === 'payment_intent.succeeded') {
-      // Idempotency: do not reprocess already completed payments
       if (payment.status === 'succeeded' || payment.status === 'failed') {
         return;
       }

@@ -135,9 +135,6 @@ HR Team`;
         applicationId: interview.applicationId,
         jobId: interview.jobId,
         companyId: interview.companyId,
-        // Candidate passed all interview rounds, but do NOT automatically create/send an offer.
-        // Offer letters should be sent only when the employer manually sets application status to HIRED
-        // with `offerEmailContent` from the Applications Management flow.
         status: 'COMPLETED',
       });
     }

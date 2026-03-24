@@ -10,7 +10,6 @@ export interface IListOfferMailsInputDTO {
   companyId: string;
   jobId?: string;
   status?: 'pending' | 'accepted' | 'declined' | 'counter';
-  /** Search by job title (case-insensitive regex). */
   search?: string;
   page?: number;
   limit?: number;
@@ -19,9 +18,7 @@ export interface IListOfferMailsInputDTO {
 export interface IListOfferMailsResult {
   data: OfferMail[];
   total: number;
-  /** Latest counter letter per offer mail id (from `counterLetters` collection). */
   counterLettersByOfferMailId: Map<string, CounterLetter>;
-  /** Legacy embedded counter on `offerMails` documents (deprecated). */
   legacyEmbeddedCounters: Map<string, { content: string; sentAt: Date }>;
 }
 
@@ -43,7 +40,6 @@ export class ListOfferMailsUseCase {
 
     const allOffers = await this._offerMailRepository.listByCompanyId(companyId);
 
-    // --- Filtering (in-memory after fetching company offers) ---
     let filtered = allOffers;
 
     if (input.jobId?.trim()) {
@@ -55,13 +51,12 @@ export class ListOfferMailsUseCase {
     }
 
     if (input.search?.trim()) {
-      // Resolve matching job IDs via jobs collection lookup.
       const search = input.search.trim();
       const jobIds = new Set<string>();
       let jobPage = 1;
-      const jobLimit = 100; // repo clamps max(100)
+      const jobLimit = 100; 
 
-      // Fetch until we have all matching jobs.
+      
       while (true) {
         const { data: jobs, total } = await this._jobRepository.listByCompanyIdPaginated(companyId, {
           search,
@@ -83,7 +78,6 @@ export class ListOfferMailsUseCase {
     const start = (page - 1) * limit;
     const data = filtered.slice(start, start + limit);
 
-    // --- Counter lookups only for current page data ---
     const ids = data.map((o) => o.id).filter((id): id is string => Boolean(id));
     const [counterLettersByOfferMailId, legacyEmbeddedCounters] = await Promise.all([
       this._counterLetterRepository.findLatestByOfferMailIds(ids),

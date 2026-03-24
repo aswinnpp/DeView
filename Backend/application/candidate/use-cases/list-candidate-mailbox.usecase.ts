@@ -17,13 +17,10 @@ export interface ICandidateMailboxOfferView {
   location?: string;
   startDate?: string;
   benefits?: string;
-  /** Candidate response. */
   status: 'pending' | 'accepted' | 'declined' | 'counter';
   counterLetter?: string;
   counterSentAt?: string;
-  /** Company response to candidate counter (accepted | rejected). */
   counterResponseStatus?: 'accepted' | 'rejected';
-  /** True when accepted via DocuSign and a combined signed PDF can be fetched. */
   signedOfferAvailable?: boolean;
   createdAt: string;
 }

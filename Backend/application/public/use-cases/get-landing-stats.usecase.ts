@@ -16,7 +16,7 @@ export class GetLandingStatsUseCase implements IGetLandingStatsUseCase {
   async execute() {
     // Use a small limit to avoid loading all approved companies into memory.
     const { total: companies } = await this._companyRepo.findApproved({ page: 1, limit: 1 });
-    const interviewsConducted = await this._interviewRepo.countByStatus('COMPLETED');
+    const interviewsConducted = await this._interviewRepo.countByStatus();
     const developersHired = await this._applicationRepo.countByStatus('HIRED');
 
     return { companies, interviewsConducted, developersHired };

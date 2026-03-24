@@ -25,7 +25,6 @@ export class PrecheckScheduleInterviewUseCase implements IPrecheckScheduleInterv
     const companyId = String(input.companyId ?? '').trim();
     const jobId = String(input.jobId ?? '').trim();
     const applicationId = String(input.applicationId ?? '').trim();
-    // scheduledDate is validated during actual scheduling step
 
     if (!companyId) throw AppError.badRequest('companyId is required');
     if (!jobId) throw AppError.badRequest('jobId is required');
@@ -95,7 +94,6 @@ export class PrecheckScheduleInterviewUseCase implements IPrecheckScheduleInterv
       }
     }
 
-    // Candidate daily limit is enforced during actual scheduling.
 
     return { ok: true };
   }

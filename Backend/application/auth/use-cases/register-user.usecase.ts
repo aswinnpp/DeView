@@ -45,16 +45,12 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
       false
     );
 
-    // Generate OTP
     const otp = OTPCode.generate();
 
-    // Save user (repo decides insert/update)
     await this._userRepo.save(user);
 
-    // Save OTP
     await this._otpRepo.save(email.getValue(), otp);
 
-    // Send email
     await this._emailService.sendOTP(
       email.getValue(),
       otp.getValue(),

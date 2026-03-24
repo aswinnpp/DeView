@@ -5,9 +5,31 @@ import { IUserRepository } from "../../shared/ports/repository/IUserRepository";
 import type { INotificationRepository } from "../../notification/ports/repository/INotificationRepository.js";
 import type { INotificationPublisher } from "../../notification/ports/service/INotificationPublisher.js";
 import { CompanyApproval } from "../../../domain/entities/CompanyApprovalEntitie";
+import type { CompanyDocuments } from "../../../domain/entities/CompanyApprovalEntitie";
 import type { ISubmitCompanyApprovalInputDTO } from '../dtos/CompanyApprovalDTO.js';
 import { AppError } from "../../../shared/errors/AppError";
 import type { ISubmitCompanyApprovalUseCase } from "../ports/usecase/ISubmitCompanyApprovalUseCase";
+
+function toCompanyDocuments(input: ISubmitCompanyApprovalInputDTO["documents"]): CompanyDocuments {
+  const convert = (doc?: { fileName: string; fileUrl: string; uploadedAt: string; marked?: boolean }) => {
+    if (!doc) return undefined;
+    return {
+      fileName: doc.fileName,
+      fileUrl: doc.fileUrl,
+      uploadedAt: new Date(doc.uploadedAt),
+      marked: Boolean(doc.marked),
+    };
+  };
+
+  return {
+    certificateOfIncorporation: convert(input.certificateOfIncorporation),
+    gstCertificate: convert(input.gstCertificate),
+    panCard: convert(input.panCard),
+    addressProof: convert(input.addressProof),
+    authorizedSignatoryId: convert(input.authorizedSignatoryId),
+    bankDocument: convert(input.bankDocument),
+  };
+}
 
 @injectable()
 export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCase {
@@ -40,6 +62,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
     if (!user) {
       throw AppError.badRequest("User not found");
     }
+    const normalizedDocuments = toCompanyDocuments(dto.documents);
 
     if (existing?.status === "rejected") {
       existing.companyName = dto.companyName;
@@ -49,7 +72,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       existing.contactPhone = dto.contactPhone;
       existing.taxId = dto.taxId;
       existing.numberOfEmployees = dto.numberOfEmployees;
-      existing.documents = dto.documents;
+      existing.documents = normalizedDocuments;
       existing.website = dto.website;
       existing.status = "pending";
       existing.rejectionReason = undefined;
@@ -65,6 +88,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       null,
       dto.userId,
       dto.companyName,
+      undefined,
       dto.location,
       dto.address,
       dto.contactPerson,
@@ -72,7 +96,7 @@ export class SubmitCompanyApprovalUseCase implements ISubmitCompanyApprovalUseCa
       dto.contactPhone,
       dto.taxId,
       dto.numberOfEmployees,
-      dto.documents,
+      normalizedDocuments,
       dto.website
     );
 
