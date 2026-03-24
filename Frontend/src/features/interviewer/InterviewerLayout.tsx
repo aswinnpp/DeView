@@ -148,7 +148,9 @@ const InterviewerLayout: React.FC = () => {
                           onClick={() => markRead(n.id)}
                         >
                           <div className="flex-1 min-w-0">
-                            <p className="text-white text-sm leading-snug m-0 mb-1">{n.message || n.title}</p>
+                            <p className="text-white text-sm leading-snug m-0 mb-1 whitespace-pre-wrap break-words">
+                              {n.message || n.title}
+                            </p>
                             <p className="text-white/60 text-xs m-0">{formatTime(n.createdAt)}</p>
                           </div>
                         </button>

@@ -9,6 +9,7 @@ import type { INotificationRepository } from '../../notification/ports/repositor
 import type { INotificationPublisher } from '../../notification/ports/service/INotificationPublisher.js';
 import type { Application } from '../../../domain/entities/Application.js';
 import { Interview } from '../../../domain/entities/Interview.js';
+import type { InterviewType } from '../../../domain/entities/Interview.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 export interface IScheduleInterviewInput {
@@ -21,6 +22,8 @@ export interface IScheduleInterviewInput {
   interviewerEmail?: string;
   scheduledDate: string;
   scheduledTime: string;
+  interviewType?: InterviewType;
+  interviewLocation?: string;
   slotStartIso?: string;
 }
 
@@ -58,6 +61,8 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       interviewerEmail,
       scheduledDate,
       scheduledTime,
+      interviewType,
+      interviewLocation,
       slotStartIso,
     } = input;
 
@@ -67,7 +72,15 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     const trimmedInterviewerEmail = interviewerEmail ? String(interviewerEmail).trim() : undefined;
     const trimmedDate = String(scheduledDate ?? '').trim();
     const trimmedTime = String(scheduledTime ?? '').trim();
+    const normalizedType = String(interviewType ?? 'ONLINE').trim().toUpperCase() as InterviewType;
+    const trimmedLocation = interviewLocation ? String(interviewLocation).trim() : undefined;
     const trimmedSlotStartIso = slotStartIso ? String(slotStartIso).trim() : undefined;
+    if (!['ONLINE', 'CALL', 'F2F'].includes(normalizedType)) {
+      throw AppError.badRequest('Invalid interview type');
+    }
+    if (normalizedType === 'F2F' && !trimmedLocation) {
+      throw AppError.badRequest('Interview location is required for face-to-face interviews');
+    }
 
     if (!companyId) {
       throw AppError.badRequest('companyId is required to schedule an interview');
@@ -129,6 +142,9 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
         interviewerEmail: trimmedInterviewerEmail,
         scheduledDate: trimmedDate,
         scheduledTime: trimmedTime,
+        interviewType: normalizedType,
+        interviewLocation: normalizedType === 'F2F' ? trimmedLocation : undefined,
+        interviewerAccepted: false,
       },
       isReschedule: !!existing?.id,
     });
@@ -151,10 +167,12 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
         interviewerUserId: trimmedInterviewerUserId,
         interviewerName: trimmedInterviewerName,
         round: trimmedRound,
+        interviewType: normalizedType,
+        interviewLocation: normalizedType === 'F2F' ? trimmedLocation : undefined,
       });
       await this._interviewRepository.setInterviewerAccepted(existing.id, keepAccepted);
     } else {
-      const roomName = `deview-interview-${applicationId}-${Date.now()}`;
+      const roomName = normalizedType === 'ONLINE' ? `deview-interview-${applicationId}-${Date.now()}` : '';
       await this._interviewRepository.create(
         new Interview(
           null,
@@ -171,6 +189,8 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
           trimmedRound,
           trimmedDate,
           trimmedTime,
+          normalizedType,
+          normalizedType === 'F2F' ? trimmedLocation : undefined,
           'SCHEDULED',
           false,
           false,

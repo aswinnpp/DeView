@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import CandidateNavHeader from "./CandidateNavHeader";
 import { candidateJobsService } from "../../services/candidateJobs.service";
-import { extractApiError } from "../../api/axios";
 import { APP_ROUTES } from "../../constants/routes";
 
 export default function OfferSigningCompletePage() {
@@ -10,7 +9,6 @@ export default function OfferSigningCompletePage() {
   const offerMailId = searchParams.get("offerMailId")?.trim() ?? "";
 
   const [phase, setPhase] = useState<"loading" | "ok" | "err">("loading");
-  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!offerMailId) return;
@@ -21,10 +19,9 @@ export default function OfferSigningCompletePage() {
       try {
         await candidateJobsService.confirmOfferSigning(offerMailId);
         if (!cancelled) setPhase("ok");
-      } catch (e) {
+      } catch {
         if (!cancelled) {
           setPhase("err");
-          setMessage(extractApiError(e));
         }
       }
     })();
@@ -81,21 +78,7 @@ export default function OfferSigningCompletePage() {
               </Link>
             </>
           ) : null}
-          {phase === "err" ? (
-            <>
-              <div className="text-4xl mb-3" aria-hidden>
-                !
-              </div>
-              <h1 className="m-0 text-lg font-semibold text-amber-200">Could not confirm</h1>
-              <p className="mt-2 mb-6 text-sm text-slate-400 m-0">{message}</p>
-              <Link
-                to={APP_ROUTES.CANDIDATE_MAILS}
-                className="inline-flex w-full items-center justify-center rounded-xl border border-violet-500/50 bg-violet-600/20 py-3 text-sm font-semibold text-violet-200 hover:bg-violet-600/30 transition-colors"
-              >
-                Back to inbox
-              </Link>
-            </>
-          ) : null}
+         
         </div>
       </main>
     </div>

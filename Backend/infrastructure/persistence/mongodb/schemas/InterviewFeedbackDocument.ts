@@ -10,6 +10,8 @@ export interface IInterviewFeedbackDocument {
   interviewerUserId: string;
   interviewerName: string;
   round?: string;
+  interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+  interviewLocation?: string;
   feedback: string;
   totalScore: number;
   createdAt: Date;

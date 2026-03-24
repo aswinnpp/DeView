@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import CandidateNavHeader from "./CandidateNavHeader";
 import { SearchInput, Pagination } from "../../components/common";
 import { useCandidateApplications, type ApplicationWithJob } from "../../hooks/candidate/useCandidateApplications";
+import type { ApplicationItem } from "../../services/applications.service";
 
 const ITEMS_PER_PAGE = 2;
+type InterviewRoundLike =
+    | NonNullable<ApplicationItem["interviewDetails"]>
+    | NonNullable<NonNullable<ApplicationItem["interviewRounds"]>[number]>;
 
 const CandidateAppliedJobsPage: React.FC = () => {
     const [selectedApplication, setSelectedApplication] = useState<ApplicationWithJob | null>(null);
@@ -57,6 +61,14 @@ const CandidateAppliedJobsPage: React.FC = () => {
 
     const formatStatus = (status: string) => {
         return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    };
+
+    const formatInterviewType = (type?: string) => {
+
+        console.log(type);
+        if (type === "CALL") return "Call";
+        if (type === "F2F") return "Face to Face";
+        if (type === "ONLINE") return "Online";
     };
 
     if (selectedApplication) {
@@ -184,27 +196,37 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                 </div>
                             )}
 
-                            {/* All interview rounds (schedule + feedback per round) */}
-                            {((selectedApplication.status === "INTERVIEW_SCHEDULED" ||
-                                selectedApplication.status === "RESCHEDULE_REQUESTED" ||
-                                selectedApplication.status === "INTERVIEW_COMPLETE" ||
-                                selectedApplication.status === "COMPLETED") &&
-                                ((selectedApplication.interviewRounds && selectedApplication.interviewRounds.length > 0) ||
-                                    selectedApplication.interviewDetails)) && (
+                            {/* Interviews: always show completed rounds; upcoming rounds only after acceptance */}
+                            {(() => {
+                                const rounds = (selectedApplication.interviewRounds?.length
+                                    ? selectedApplication.interviewRounds
+                                    : selectedApplication.interviewDetails
+                                        ? [selectedApplication.interviewDetails]
+                                        : []);
+                                const completedRounds = new Set(selectedApplication.completedRounds ?? []);
+                                const isCompletedRound = (r: InterviewRoundLike) =>
+                                    Boolean(r.feedback) ||
+                                    r.totalScore != null ||
+                                    (typeof r.round === "string" && completedRounds.has(r.round));
+
+                                const displayRounds = (rounds as InterviewRoundLike[]).filter((r) => {
+                                    if (isCompletedRound(r)) return true;
+                                    return Boolean(r.interviewerAccepted);
+                                });
+                                const shouldShow =
+                                    (selectedApplication.status === "INTERVIEW_SCHEDULED" ||
+                                        selectedApplication.status === "RESCHEDULE_REQUESTED" ||
+                                        selectedApplication.status === "INTERVIEW_COMPLETE" ||
+                                        selectedApplication.status === "COMPLETED") &&
+                                    displayRounds.length > 0;
+                                if (!shouldShow) return null;
+                                return (
                                     <div className="mt-6">
                                         <h4 className="mb-3 text-sm font-semibold text-violet-200">
-                                            Interviews Attempted ({(
-                                                selectedApplication.interviewRounds?.length ??
-                                                (selectedApplication.interviewDetails ? 1 : 0)
-                                            )})
+                                            Interviews ({displayRounds.length})
                                         </h4>
                                         <div className="space-y-4">
-                                            {(selectedApplication.interviewRounds?.length
-                                                ? selectedApplication.interviewRounds
-                                                : selectedApplication.interviewDetails
-                                                    ? [selectedApplication.interviewDetails]
-                                                    : []
-                                            ).map((r, idx) => (
+                                            {displayRounds.map((r, idx: number) => (
                                                 <div
                                                     key={idx}
                                                     className="rounded-xl border border-violet-500/30 bg-violet-500/10 p-4"
@@ -226,6 +248,21 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                                                 {formatDate(r.scheduledDate)} at {r.scheduledTime}
                                                             </div>
                                                         </div>
+                                                        <div>
+                                                            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Interview Type</div>
+                                                            <div className="mt-1 text-slate-100">
+                                                                {formatInterviewType(r.interviewType ?? selectedApplication.latestFeedback?.interviewType)}
+                                                            </div>
+                                                        </div>
+                                                        {(r.interviewType ?? selectedApplication.latestFeedback?.interviewType) === "F2F" &&
+                                                        (r.interviewLocation ?? selectedApplication.latestFeedback?.interviewLocation) ? (
+                                                            <div>
+                                                                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Location</div>
+                                                                <div className="mt-1 text-slate-100">
+                                                                    {r.interviewLocation ?? selectedApplication.latestFeedback?.interviewLocation}
+                                                                </div>
+                                                            </div>
+                                                        ) : null}
                                                         {r.totalScore != null && (
                                                             <div>
                                                                 <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Score</div>
@@ -243,7 +280,8 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                             ))}
                                         </div>
                                     </div>
-                                )}
+                                );
+                            })()}
 
                             {/* Fallback: merged feedbacks API when no rounds in application yet */}
                             {selectedApplication.latestFeedback &&
@@ -417,10 +455,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                             index < paginatedApplications.length - 1 ? "border-b border-white/5" : ""
                                         } hover:bg-white/5`}
                                     >
-                                        {/* Company Logo */}
-                                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-lg font-bold text-white">
-                                            {(application.job?.companyName || 'C').charAt(0).toUpperCase()}
-                                        </div>
+                                      
 
                                         {/* Job Info */}
                                         <div className="min-w-0 flex-1">
@@ -455,33 +490,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                                 </span>
                                             </p>
 
-                                            {((application.interviewRounds?.length ?? 0) > 0 ||
-                                                application.interviewDetails ||
-                                                application.latestFeedback) && (
-                                                <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
-                                                    <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 font-semibold text-violet-200">
-                                                        {application.interviewRounds?.length
-                                                            ? `${application.interviewRounds.length} round${application.interviewRounds.length !== 1 ? "s" : ""}`
-                                                            : "1 round"}
-                                                    </span>
-                                                    {(application.interviewRounds?.some((r) => r.totalScore != null) ||
-                                                        application.interviewDetails?.totalScore != null ||
-                                                        application.latestFeedback?.totalScore != null) && (
-                                                        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-semibold text-emerald-200">
-                                                            Latest score:{" "}
-                                                            {([
-                                                                ...(application.interviewRounds ?? []),
-                                                            ]
-                                                                .reverse()
-                                                                .find((r) => r.totalScore != null)?.totalScore ??
-                                                                application.interviewDetails?.totalScore ??
-                                                                application.latestFeedback?.totalScore ??
-                                                                "—")}
-                                                            /5
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            )}
+                                          
                                         </div>
 
                                         <div className="self-center text-lg text-slate-500">

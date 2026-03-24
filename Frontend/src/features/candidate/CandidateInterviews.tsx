@@ -73,6 +73,11 @@ const CandidateInterviews = () => {
       return time;
     }
   };
+  const getInterviewTypeLabel = (type?: string) => {
+    if (type === "CALL") return "Call";
+    if (type === "F2F") return "Face to Face";
+    return "Online";
+  };
 
   const formatCountdown = (dateStr: string, startTime: string): string => {
     const date = new Date(dateStr);
@@ -159,7 +164,7 @@ const CandidateInterviews = () => {
               </h2>
               <p className="mt-1 text-xs text-slate-400 max-w-xl">
                 {activeTab === "UPCOMING"
-                  ? "View and join your scheduled interviews. Search by company to find the right one quickly."
+                  ? "View your scheduled interviews. Online interviews show join, call and face-to-face show details only."
                   : "Track your reschedule requests and their status."}
               </p>
             </div>
@@ -271,6 +276,11 @@ const CandidateInterviews = () => {
                       <div className="mt-4 space-y-2 text-xs md:text-sm text-slate-100">
                         <div className="inline-flex items-center gap-2 rounded-full bg-slate-900/70 px-3 py-1.5">
                           <span className="font-medium">
+                            {getInterviewTypeLabel(interview.interviewType)}
+                          </span>
+                        </div>
+                        <div className="inline-flex items-center gap-2 rounded-full bg-slate-900/70 px-3 py-1.5">
+                          <span className="font-medium">
                             {formatDate(interview.scheduledDate)}
                           </span>
                         </div>
@@ -279,6 +289,12 @@ const CandidateInterviews = () => {
                             {formatTime(interview.scheduledTime)}
                           </span>
                         </div>
+                        {interview.interviewType === "F2F" && interview.interviewLocation ? (
+                          <div className="rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2">
+                            <p className="text-[11px] uppercase tracking-wide text-slate-400">Location</p>
+                            <p className="mt-1 text-xs md:text-sm text-slate-100">{interview.interviewLocation}</p>
+                          </div>
+                        ) : null}
                       </div>
 
                       {activeTab === "RESCHEDULED" && interview.candidateRejection && (
@@ -324,12 +340,14 @@ const CandidateInterviews = () => {
                           <Button variant="amber" onClick={() => openRescheduleModal(interview)}>
                             Reschedule
                           </Button>
-                          <Button
-                            variant="violet"
-                            onClick={() => navigate(APP_ROUTES.INTERVIEW_ROOM(interview.id))}
-                          >
-                            Join Interview
-                          </Button>
+                          {(interview.interviewType ?? "ONLINE") === "ONLINE" ? (
+                            <Button
+                              variant="violet"
+                              onClick={() => navigate(APP_ROUTES.INTERVIEW_ROOM(interview.id))}
+                            >
+                              Join Interview
+                            </Button>
+                          ) : null}
                         </>
                       )}
                     </div>

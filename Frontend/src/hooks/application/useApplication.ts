@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { applicationsService, type ApplicationItem } from "../../services/applications.service";
 import { showToast } from "../../components/common/toastService";
+import { extractApiError } from "../../api/axios";
 
 export type ApplicantStatus = "PENDING" | "SHORTLISTED" | "REJECTED";
 export type ExtendedApplicantStatus =
@@ -332,8 +333,8 @@ export function useApplication() {
         )
       );
       showToast(`Rejection email saved for ${selectedCandidate.name}`, "success");
-    } catch {
-      alert("Could not update application status. Please try again.");
+    } catch (e) {
+      alert(extractApiError(e));
     }
   }
 

@@ -227,7 +227,15 @@ export class MongoInterviewRepository
 
   async rescheduleFromCompany(
     id: string,
-    input: { scheduledDate: string; scheduledTime: string; interviewerUserId: string; interviewerName: string; round: string }
+    input: {
+      scheduledDate: string;
+      scheduledTime: string;
+      interviewerUserId: string;
+      interviewerName: string;
+      round: string;
+      interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+      interviewLocation?: string;
+    }
   ): Promise<Interview | null> {
     let _id: ObjectId;
     try {
@@ -241,12 +249,22 @@ export class MongoInterviewRepository
       interviewerUserId: input.interviewerUserId.trim(),
       interviewerName: input.interviewerName.trim(),
       round: input.round.trim(),
+      interviewType: input.interviewType ?? 'ONLINE',
+      interviewLocation: input.interviewType === 'F2F' ? input.interviewLocation?.trim() : undefined,
       status: 'SCHEDULED',
       updatedAt: new Date(),
     };
+    const unsetFields: Record<string, ''> = {
+      candidateRejection: '',
+      candidateRejectionStatus: '',
+      interviewerRejectReason: '',
+    };
+    if ((input.interviewType ?? 'ONLINE') !== 'F2F') {
+      unsetFields.interviewLocation = '';
+    }
     const result = await this.collection.findOneAndUpdate(
       { _id },
-      { $set: update, $unset: { candidateRejection: '', candidateRejectionStatus: '', interviewerRejectReason: '' } },
+      { $set: update, $unset: unsetFields },
       { returnDocument: 'after' }
     );
     return result ? this.toDomain(result) : null;
@@ -319,6 +337,8 @@ export class MongoInterviewRepository
       doc.round,
       doc.scheduledDate,
       doc.scheduledTime,
+      doc.interviewType ?? 'ONLINE',
+      doc.interviewLocation,
       doc.status,
       doc.feedbackSubmitted ?? false,
       doc.interviewerAccepted ?? false,
@@ -346,6 +366,8 @@ export class MongoInterviewRepository
       round: entity.round,
       scheduledDate: entity.scheduledDate,
       scheduledTime: entity.scheduledTime,
+      interviewType: entity.interviewType,
+      interviewLocation: entity.interviewLocation,
       status: entity.status,
       feedbackSubmitted: entity.feedbackSubmitted,
       interviewerAccepted: entity.interviewerAccepted,

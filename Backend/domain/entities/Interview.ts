@@ -1,4 +1,5 @@
 export type InterviewStatus = 'SCHEDULED' | 'RESCHEDULED' | 'COMPLETED' | 'CANCELLED';
+export type InterviewType = 'ONLINE' | 'CALL' | 'F2F';
 
 export type CandidateRejection = { date: string; reason: string };
 export type CandidateRejectionStatus = 'PENDING' | 'DECLINED';
@@ -19,6 +20,8 @@ export class Interview {
     public round: string,
     public scheduledDate: string, 
     public scheduledTime: string, 
+    public interviewType: InterviewType = 'ONLINE',
+    public interviewLocation?: string,
     public status: InterviewStatus = 'SCHEDULED',
     public feedbackSubmitted: boolean = false,
     public interviewerAccepted: boolean = false,

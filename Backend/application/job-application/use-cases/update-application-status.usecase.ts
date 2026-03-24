@@ -6,6 +6,7 @@ import type { IOfferMailRepository } from '../ports/repository/IOfferMailReposit
 import type { INotificationRepository } from '../../notification/ports/repository/INotificationRepository.js';
 import type { INotificationPublisher } from '../../notification/ports/service/INotificationPublisher.js';
 import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
+import type { IInterviewRepository } from '../../interview/ports/repository/IInterviewRepository.js';
 import type {
   IUpdateApplicationStatusUseCase,
 } from '../ports/usecase/IUpdateApplicationStatusUseCase.js';
@@ -29,7 +30,9 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
     @inject(TYPES.NotificationPublisherPort)
     private readonly _notificationPublisher: INotificationPublisher,
     @inject(TYPES.JobRepositoryPort)
-    private readonly _jobRepository: IJobRepository
+    private readonly _jobRepository: IJobRepository,
+    @inject(TYPES.InterviewRepositoryPort)
+    private readonly _interviewRepository: IInterviewRepository
   ) {}
 
   async execute(input: IUpdateApplicationStatusInputDTO): Promise<IUpdateApplicationStatusOutputDTO> {
@@ -40,6 +43,19 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
     );
     if (!existing) {
       throw AppError.notFound('Application not found');
+    }
+
+    if (input.status === 'HIRED' || input.status === 'REJECTED') {
+      const hasInterviewTrail =
+        (existing.interviewRounds?.length ?? 0) > 0 || Boolean(existing.interviewDetails);
+      if (hasInterviewTrail) {
+        const latestCompleted = await this._interviewRepository.findLatestCompletedByApplicationId(
+          input.applicationId
+        );
+        if (!latestCompleted || !latestCompleted.feedbackSubmitted) {
+          throw AppError.forbidden('Interviewer feedback PENDING');
+        }
+      }
     }
 
     const updated = await this._applicationRepository.updateStatus(input);

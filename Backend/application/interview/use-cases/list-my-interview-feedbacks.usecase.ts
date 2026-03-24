@@ -31,6 +31,8 @@ export class ListMyInterviewFeedbacksUseCase implements IListMyInterviewFeedback
       interviewerName: fb.interviewerName,
       jobId: fb.jobId,
       round: fb.round,
+      interviewType: fb.interviewType,
+      interviewLocation: fb.interviewLocation,
       feedback: fb.feedback,
       totalScore: fb.totalScore,
       createdAt: fb.createdAt.toISOString(),

@@ -196,6 +196,8 @@ export class ApplicationsController {
         interviewerEmail?: string;
         scheduledDate: string;
         scheduledTime: string;
+        interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+        interviewLocation?: string;
         slotStartIso?: string;
       };
     }>,

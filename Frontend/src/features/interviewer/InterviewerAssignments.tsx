@@ -5,6 +5,11 @@ import type { InterviewerAssignmentItem } from "../../services/interviewerAssign
 const selectClass =
   "w-full py-2 px-3.5 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer";
 
+const getInterviewTypeLabel = (type?: string) => {
+  if (type === "CALL") return "Call";
+  if (type === "F2F") return "Face to Face";
+  return "Online";
+};
 
 
 const InterviewerAssignments = () => {
@@ -72,6 +77,17 @@ const InterviewerAssignments = () => {
         <span className="inline-block py-0.5 px-2 rounded text-[11px] font-semibold bg-violet-500/20 text-violet-300">
           {item.interviewRound}
         </span>
+      ),
+    },
+    {
+      header: "Type",
+      render: (item: InterviewerAssignmentItem) => (
+        <div className="text-xs text-slate-300">
+          <p className="m-0">{getInterviewTypeLabel(item.interviewType)}</p>
+          {item.interviewType === "F2F" && item.interviewLocation ? (
+            <p className="m-0 text-[11px] text-slate-500">{item.interviewLocation}</p>
+          ) : null}
+        </div>
       ),
     },
     

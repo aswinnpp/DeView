@@ -42,6 +42,10 @@ export interface ApplicationItem {
     interviewerEmail?: string;
     scheduledDate: string;
     scheduledTime: string;
+    interviewType?: "ONLINE" | "CALL" | "F2F";
+    interviewLocation?: string;
+    interviewerAccepted?: boolean;
+    interviewerRejectReason?: string;
     feedback?: string;
     totalScore?: number;
   };
@@ -51,6 +55,10 @@ export interface ApplicationItem {
     interviewerEmail?: string;
     scheduledDate: string;
     scheduledTime: string;
+    interviewType?: "ONLINE" | "CALL" | "F2F";
+    interviewLocation?: string;
+    interviewerAccepted?: boolean;
+    interviewerRejectReason?: string;
     feedback?: string;
     totalScore?: number;
   }>;
@@ -416,6 +424,8 @@ export const applicationsService = {
       interviewerEmail?: string;
       scheduledDate: string;
       scheduledTime: string;
+      interviewType?: "ONLINE" | "CALL" | "F2F";
+      interviewLocation?: string;
       slotStartIso?: string;
     }
   ): Promise<ApplicationItem> => {

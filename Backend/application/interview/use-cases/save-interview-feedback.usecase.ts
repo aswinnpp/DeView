@@ -70,6 +70,8 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
       interview.round,
       feedback.trim(),
       totalScore,
+      interview.interviewType,
+      interview.interviewLocation,
       now,
       now
     );

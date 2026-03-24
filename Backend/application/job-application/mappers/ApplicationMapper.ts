@@ -265,6 +265,8 @@ export const ApplicationMapper = {
       interviewerEmail?: string;
       scheduledDate: string;
       scheduledTime: string;
+      interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+      interviewLocation?: string;
       slotStartIso?: string;
     },
     context: CallerContext
@@ -279,6 +281,8 @@ export const ApplicationMapper = {
       interviewerEmail: body.interviewerEmail,
       scheduledDate: body.scheduledDate,
       scheduledTime: body.scheduledTime,
+      interviewType: body.interviewType,
+      interviewLocation: body.interviewLocation,
       slotStartIso: body.slotStartIso,
     };
   },

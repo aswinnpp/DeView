@@ -58,9 +58,22 @@ export interface IApplicationRepository {
       interviewerEmail?: string;
       scheduledDate: string;
       scheduledTime: string;
+      interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+      interviewLocation?: string;
+      interviewerAccepted?: boolean;
+      interviewerRejectReason?: string;
     };
     /** If provided, update existing round; else add new round */
     isReschedule?: boolean;
+  }): Promise<Application | null>;
+
+  setInterviewAcceptance(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    round: string;
+    interviewerAccepted: boolean;
+    interviewerRejectReason?: string;
   }): Promise<Application | null>;
 
   setRescheduleRequest(input: {

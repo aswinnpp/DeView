@@ -71,6 +71,8 @@ export class MongoInterviewFeedbackRepository
       doc.round ?? '',
       doc.feedback,
       doc.totalScore,
+      doc.interviewType,
+      doc.interviewLocation,
       doc.createdAt,
       doc.updatedAt
     );
@@ -87,6 +89,8 @@ export class MongoInterviewFeedbackRepository
       interviewerUserId: entity.interviewerUserId,
       interviewerName: entity.interviewerName,
       round: entity.round,
+      interviewType: entity.interviewType,
+      interviewLocation: entity.interviewLocation,
       feedback: entity.feedback,
       totalScore: entity.totalScore,
       createdAt: entity.createdAt,

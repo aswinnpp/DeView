@@ -42,6 +42,10 @@ export interface IApplicationDocument {
     interviewerEmail?: string;
     scheduledDate: string;
     scheduledTime: string;
+    interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+    interviewLocation?: string;
+    interviewerAccepted?: boolean;
+    interviewerRejectReason?: string;
     feedback?: string;
     totalScore?: number;
   };
@@ -52,6 +56,10 @@ export interface IApplicationDocument {
     interviewerEmail?: string;
     scheduledDate: string;
     scheduledTime: string;
+    interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+    interviewLocation?: string;
+    interviewerAccepted?: boolean;
+    interviewerRejectReason?: string;
     feedback?: string;
     totalScore?: number;
   }>;

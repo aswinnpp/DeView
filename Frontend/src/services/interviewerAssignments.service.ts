@@ -10,6 +10,8 @@ export interface InterviewerAssignmentItem {
   startTime: string;
   endTime: string;
   interviewRound: string;
+  interviewType?: "ONLINE" | "CALL" | "F2F";
+  interviewLocation?: string;
   status: string;
   interviewerAccepted?: boolean;
 }
@@ -22,6 +24,8 @@ function fromBackendInterview(raw: {
   candidateUserId?: string;
   scheduledDate?: string;
   scheduledTime?: string;
+  interviewType?: "ONLINE" | "CALL" | "F2F";
+  interviewLocation?: string;
   round?: string;
   status?: string;
   interviewerAccepted?: boolean;
@@ -51,6 +55,8 @@ function fromBackendInterview(raw: {
     startTime: raw.scheduledTime ?? "",
     endTime: raw.scheduledTime ?? "",
     interviewRound: raw.round ?? "",
+    interviewType: raw.interviewType ?? "ONLINE",
+    interviewLocation: raw.interviewLocation,
     status: assignmentStatus,
     interviewerAccepted: accepted,
   };

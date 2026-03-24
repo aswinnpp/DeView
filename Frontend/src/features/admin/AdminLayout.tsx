@@ -121,7 +121,9 @@ const AdminLayout = () => {
                                                     onClick={() => markRead(n.id)}
                                                 >
                                                     <div className="min-w-0">
-                                                        <div className="text-white text-sm truncate">{n.message || n.title}</div>
+                                                        <div className="text-white text-sm whitespace-pre-wrap break-words">
+                                                            {n.message || n.title}
+                                                        </div>
                                                         <div className="text-[rgba(255,255,255,0.5)] text-xs mt-1">{formatTime(n.createdAt)}</div>
                                                     </div>
                                                 </button>

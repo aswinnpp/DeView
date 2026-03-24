@@ -14,6 +14,10 @@ export type InterviewDetails = {
   interviewerEmail?: string;
   scheduledDate: string; // YYYY-MM-DD
   scheduledTime: string; // HH:mm
+  interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+  interviewLocation?: string;
+  interviewerAccepted?: boolean;
+  interviewerRejectReason?: string;
   /** Filled when interviewer submits feedback */
   feedback?: string;
   totalScore?: number;

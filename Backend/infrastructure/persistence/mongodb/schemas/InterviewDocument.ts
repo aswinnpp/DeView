@@ -15,6 +15,8 @@ export interface IInterviewDocument {
   round: string;
   scheduledDate: string;
   scheduledTime: string;
+  interviewType: 'ONLINE' | 'CALL' | 'F2F';
+  interviewLocation?: string;
   status: 'SCHEDULED' | 'RESCHEDULED' | 'COMPLETED' | 'CANCELLED';
   feedbackSubmitted?: boolean;
   interviewerAccepted?: boolean;

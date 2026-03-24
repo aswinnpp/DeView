@@ -19,7 +19,7 @@ export function useNotifications(scope: NotificationScope) {
   const companyId = user?.companyId ?? "";
 
   const recipient = useMemo(() => {
-    if (scope === "company") return { kind: "company" as const, id: companyId };
+    if (scope === "company" || scope === "hr") return { kind: "company" as const, id: companyId };
     return { kind: "user" as const, id: userId };
   }, [scope, companyId, userId]);
 

@@ -129,6 +129,8 @@ export interface InterviewItem {
   round: string;
   scheduledDate: string;
   scheduledTime: string;
+  interviewType?: "ONLINE" | "CALL" | "F2F";
+  interviewLocation?: string;
   status: string;
   candidateRejection?: { date: string; reason: string };
   candidateRejectionStatus?: "PENDING" | "DECLINED";

@@ -308,6 +308,10 @@ export class MongoApplicationRepository implements IApplicationRepository {
       interviewerEmail?: string;
       scheduledDate: string;
       scheduledTime: string;
+      interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+      interviewLocation?: string;
+      interviewerAccepted?: boolean;
+      interviewerRejectReason?: string;
     };
     isReschedule?: boolean;
   }): Promise<Application | null> {
@@ -326,6 +330,11 @@ export class MongoApplicationRepository implements IApplicationRepository {
       ...(roundDetails.interviewerEmail && { interviewerEmail: roundDetails.interviewerEmail }),
       scheduledDate: roundDetails.scheduledDate,
       scheduledTime: roundDetails.scheduledTime,
+      interviewType: roundDetails.interviewType ?? 'ONLINE',
+      ...(roundDetails.interviewType === 'F2F' &&
+        roundDetails.interviewLocation && { interviewLocation: roundDetails.interviewLocation }),
+      interviewerAccepted: Boolean(roundDetails.interviewerAccepted),
+      ...(roundDetails.interviewerRejectReason && { interviewerRejectReason: roundDetails.interviewerRejectReason }),
     };
 
     let updateResult;
@@ -339,11 +348,20 @@ export class MongoApplicationRepository implements IApplicationRepository {
             'interviewRounds.$[elem].interviewer': roundEntry.interviewer,
             'interviewRounds.$[elem].scheduledDate': roundEntry.scheduledDate,
             'interviewRounds.$[elem].scheduledTime': roundEntry.scheduledTime,
+            'interviewRounds.$[elem].interviewType': roundEntry.interviewType,
+            'interviewRounds.$[elem].interviewerAccepted': roundEntry.interviewerAccepted,
             ...(roundEntry.interviewerEmail && {
               'interviewRounds.$[elem].interviewerEmail': roundEntry.interviewerEmail,
             }),
+            ...(roundEntry.interviewType === 'F2F' && roundEntry.interviewLocation
+              ? { 'interviewRounds.$[elem].interviewLocation': roundEntry.interviewLocation }
+              : {}),
           },
-          $unset: { rescheduleRequest: '' },
+          $unset: {
+            rescheduleRequest: '',
+            ...(roundEntry.interviewType !== 'F2F' ? { 'interviewRounds.$[elem].interviewLocation': '' } : {}),
+            ...(roundEntry.interviewerRejectReason ? {} : { 'interviewRounds.$[elem].interviewerRejectReason': '' }),
+          },
         },
         { arrayFilters: [{ 'elem.round': roundDetails.round }] }
       );
@@ -391,6 +409,69 @@ export class MongoApplicationRepository implements IApplicationRepository {
     }
 
     if (!updateResult.matchedCount) return null;
+    const doc = await this._collection.findOne({ _id, jobId, companyId });
+    return doc ? toDomain(doc) : null;
+  }
+
+  async setInterviewAcceptance(input: {
+    applicationId: string;
+    jobId: string;
+    companyId: string;
+    round: string;
+    interviewerAccepted: boolean;
+    interviewerRejectReason?: string;
+  }): Promise<Application | null> {
+    const { applicationId, jobId, companyId, round, interviewerAccepted, interviewerRejectReason } = input;
+    let _id: ObjectId;
+    try {
+      _id = new ObjectId(applicationId);
+    } catch {
+      return null;
+    }
+
+    const setUpdate: Record<string, unknown> = {
+      updatedAt: new Date(),
+      'interviewRounds.$[elem].interviewerAccepted': Boolean(interviewerAccepted),
+    };
+    if (interviewerRejectReason && interviewerRejectReason.trim()) {
+      setUpdate['interviewRounds.$[elem].interviewerRejectReason'] = interviewerRejectReason.trim();
+    }
+
+    const unsetUpdate: Record<string, ''> = {};
+    if (!interviewerRejectReason?.trim()) {
+      unsetUpdate['interviewRounds.$[elem].interviewerRejectReason'] = '';
+    }
+
+    const result = await this._collection.updateOne(
+      { _id, jobId, companyId, 'interviewRounds.round': round },
+      {
+        $set: setUpdate,
+        ...(Object.keys(unsetUpdate).length ? { $unset: unsetUpdate } : {}),
+      },
+      { arrayFilters: [{ 'elem.round': round }] }
+    );
+
+    if (!result.matchedCount) {
+      // legacy single interviewDetails
+      const legacySet: Record<string, unknown> = {
+        updatedAt: new Date(),
+        'interviewDetails.interviewerAccepted': Boolean(interviewerAccepted),
+      };
+      if (interviewerRejectReason && interviewerRejectReason.trim()) {
+        legacySet['interviewDetails.interviewerRejectReason'] = interviewerRejectReason.trim();
+      }
+      const legacyUpdate = await this._collection.updateOne(
+        { _id, jobId, companyId, 'interviewDetails.round': round },
+        {
+          $set: legacySet,
+          ...(interviewerRejectReason?.trim()
+            ? {}
+            : { $unset: { 'interviewDetails.interviewerRejectReason': '' } }),
+        }
+      );
+      if (!legacyUpdate.matchedCount) return null;
+    }
+
     const doc = await this._collection.findOne({ _id, jobId, companyId });
     return doc ? toDomain(doc) : null;
   }

@@ -177,10 +177,12 @@ const HRApplicationsPage = () => {
     const [latestFeedbackError, setLatestFeedbackError] = useState<string | null>(null);
 
     // Schedule interview step state
-    const [scheduleStep, setScheduleStep] = useState(1); // 1 = select interviewer, 2 = select date/time/round
+    const [scheduleStep, setScheduleStep] = useState(1); // 1 = select round/type, 2 = interviewer, 3 = date/time
 
     // Slot-based interview scheduling states
     const [selectedRound, setSelectedRound] = useState('HR Screening');
+    const [selectedInterviewType, setSelectedInterviewType] = useState<"ONLINE" | "CALL" | "F2F">("ONLINE");
+    const [interviewLocation, setInterviewLocation] = useState('');
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
     const [selectedTimeIso, setSelectedTimeIso] = useState<string>('');
@@ -215,9 +217,42 @@ const HRApplicationsPage = () => {
         { key: 'REJECTED' as WorkflowTab, label: 'Rejected', color: '#ef4444' },
     ];
 
-    const handleSendOffer = (candidate: Candidate) => {
+    const ensureFeedbackBeforeDecision = async (candidate: Candidate): Promise<boolean> => {
+        const needsFeedbackGate = candidate.status === "INTERVIEW_COMPLETE" || candidate.status === "COMPLETED";
+        if (!needsFeedbackGate) return true;
+        if (!selectedJob) return false;
+        try {
+            await applicationsService.getLatestInterviewerFeedback(selectedJob.id, candidate.applicationId);
+            return true;
+        } catch (e) {
+            const msg = extractApiError(e);
+            const lower = msg.toLowerCase();
+            if (
+                lower.includes("interviewer feedback pending") ||
+                lower.includes("feedback pending") ||
+                lower.includes("not submitted") ||
+                lower.includes("not found")
+            ) {
+                setShowFeedbackPendingModal(true);
+                return false;
+            }
+            alert(msg);
+            return false;
+        }
+    };
+
+    const handleSendOffer = async (candidate: Candidate) => {
+        const canProceed = await ensureFeedbackBeforeDecision(candidate);
+        if (!canProceed) return;
         handleSelectCandidate(candidate);
         setShowOfferModal(true);
+    };
+
+    const handleRejectWithFeedbackGate = async (candidate: Candidate) => {
+        const canProceed = await ensureFeedbackBeforeDecision(candidate);
+        if (!canProceed) return;
+        handleReject(candidate);
+        setShowRejectionModal(true);
     };
 
     const handleScheduleInterview = async (candidate: Candidate) => {
@@ -226,6 +261,8 @@ const HRApplicationsPage = () => {
         setSelectedDate('');
         setSelectedTime('');
         setSelectedTimeIso('');
+        setSelectedInterviewType("ONLINE");
+        setInterviewLocation('');
 
         // Precheck (limit/feedback pending) immediately on click
         try {
@@ -410,8 +447,14 @@ const HRApplicationsPage = () => {
             showToast(`Offer letter saved for ${selectedCandidate.name}`, "success");
             setShowOfferModal(false);
             await refreshSelectedJobApplications();
-        } catch {
-            showToast("Could not save offer letter. Please try again.", "error");
+        } catch (e) {
+            const msg = extractApiError(e);
+            const lower = msg.toLowerCase();
+            if (lower.includes("interviewer feedback pending") || lower.includes("feedback pending")) {
+                setShowFeedbackPendingModal(true);
+            } else {
+                showToast(msg || "Could not save offer letter. Please try again.", "error");
+            }
         } finally {
             setIsSendingOffer(false);
         }
@@ -419,15 +462,12 @@ const HRApplicationsPage = () => {
 
 
 
-    const handleAssignNextRound = (candidate: Candidate) => {
+    const handleAssignNextRound = async (candidate: Candidate) => {
         const jobRounds = selectedJob?.interviewRounds ?? ['HR Screening'];
         const attempted = candidate.attemptedRounds ?? [];
         const available = jobRounds.filter((r: string) => !attempted.includes(r));
         if (available.length === 0) return; // All rounds done - use Send Offer or Reject instead
-        handleSelectCandidate(candidate);
-        setSelectedRound(available[0]);
-        setScheduleStep(1);
-        setShowInterviewerModal(true);
+        await handleScheduleInterview(candidate);
     };
 
     
@@ -1214,12 +1254,11 @@ const HRApplicationsPage = () => {
                             )}
                             {(selectedCandidate.status === 'INTERVIEW_COMPLETE' || selectedCandidate.status === 'COMPLETED') && (
                                 <>
-                                    <button onClick={() => { setShowCandidateDetail(false); handleSendOffer(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Send Offer</button>
+                                    <button onClick={() => { setShowCandidateDetail(false); void handleSendOffer(selectedCandidate); }} style={{ flex: 1, padding: 14, backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>Send Offer</button>
                                     <button
                                         onClick={() => {
-                                            handleReject(selectedCandidate);
                                             setShowCandidateDetail(false);
-                                            setShowRejectionModal(true);
+                                            void handleRejectWithFeedbackGate(selectedCandidate);
                                         }}
                                         style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
                                     >
@@ -1276,7 +1315,7 @@ const HRApplicationsPage = () => {
                                 <span style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, backgroundColor: scheduleStep === 1 ? '#3b82f620' : scheduleStep === 2 ? '#8b5cf620' : '#10b98120', color: scheduleStep === 1 ? '#3b82f6' : scheduleStep === 2 ? '#8b5cf6' : '#10b981' }}>
                                     Step {scheduleStep} of 3
                                 </span>
-                            <button onClick={() => { setShowInterviewerModal(false); setSelectedInterviewer(null); setScheduleStep(1); }} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 24 }}>×</button>
+                            <button onClick={() => { setShowInterviewerModal(false); setSelectedInterviewer(null); setInterviewLocation(''); setSelectedInterviewType("ONLINE"); setScheduleStep(1); }} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 24 }}>×</button>
                             </div>
                         </div>
 
@@ -1328,14 +1367,59 @@ const HRApplicationsPage = () => {
                                     })()}
                                 </div>
 
+                                <div style={{ marginBottom: 24 }}>
+                                    <h4 style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600, margin: '0 0 12px', textTransform: 'uppercase' }}>Select Interview Type</h4>
+                                    <p style={{ color: '#94a3b8', fontSize: 12, marginBottom: 16 }}>Online keeps the existing video interview flow. Call and face-to-face skip video join.</p>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                                        {[
+                                            { key: "ONLINE", label: "Online" },
+                                            { key: "CALL", label: "Call" },
+                                            { key: "F2F", label: "Face to Face" },
+                                        ].map((option) => (
+                                            <div
+                                                key={option.key}
+                                                onClick={() => setSelectedInterviewType(option.key as "ONLINE" | "CALL" | "F2F")}
+                                                style={{
+                                                    padding: 14,
+                                                    backgroundColor: selectedInterviewType === option.key ? '#334155' : '#0f172a',
+                                                    border: selectedInterviewType === option.key ? '2px solid #22c55e' : '1px solid #334155',
+                                                    borderRadius: 10,
+                                                    cursor: 'pointer',
+                                                    textAlign: 'center'
+                                                }}
+                                            >
+                                                <span style={{ color: selectedInterviewType === option.key ? '#22c55e' : '#e2e8f0', fontWeight: 600, fontSize: 14 }}>
+                                                    {option.label}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {selectedInterviewType === "F2F" && (
+                                    <div style={{ marginBottom: 24 }}>
+                                        <h4 style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600, margin: '0 0 12px', textTransform: 'uppercase' }}>Interview Location</h4>
+                                        <Input
+                                            value={interviewLocation}
+                                            onChange={(e) => setInterviewLocation(e.target.value)}
+                                            placeholder="Enter interview venue / address"
+                                            className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-[15px] focus:outline-none focus:border-indigo-500 focus:shadow-[0_0_0_2px_rgba(79,70,229,0.4)]"
+                                        />
+                                    </div>
+                                )}
+
                                 {/* Next Button */}
                                 <button
                                     onClick={() => setScheduleStep(2)}
-                                    disabled={!selectedRound || (selectedJob?.interviewRounds?.length ? selectedJob.interviewRounds : ['HR Screening']).filter((r: string) => !selectedCandidate.attemptedRounds?.includes(r)).length === 0}
+                                    disabled={
+                                        !selectedRound ||
+                                        (selectedInterviewType === "F2F" && !interviewLocation.trim()) ||
+                                        (selectedJob?.interviewRounds?.length ? selectedJob.interviewRounds : ['HR Screening']).filter((r: string) => !selectedCandidate.attemptedRounds?.includes(r)).length === 0
+                                    }
                                     style={{
                                         width: '100%',
                                         padding: 14,
-                                        backgroundColor: !selectedRound ? '#475569' : '#3b82f6',
+                                            backgroundColor: (!selectedRound || (selectedInterviewType === "F2F" && !interviewLocation.trim())) ? '#475569' : '#3b82f6',
                                         color: '#fff',
                                         border: 'none',
                                         borderRadius: 8,
@@ -1474,6 +1558,18 @@ const HRApplicationsPage = () => {
                                         <p style={{ color: '#3b82f6', fontWeight: 600, fontSize: 14, margin: '4px 0 0' }}>{selectedRound}</p>
                                     </div>
                                     <div>
+                                        <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Type</span>
+                                        <p style={{ color: '#22c55e', fontWeight: 600, fontSize: 14, margin: '4px 0 0' }}>
+                                            {selectedInterviewType === "F2F" ? "Face to Face" : selectedInterviewType === "CALL" ? "Call" : "Online"}
+                                        </p>
+                                    </div>
+                                    {selectedInterviewType === "F2F" && interviewLocation.trim() && (
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Location</span>
+                                            <p style={{ color: '#e2e8f0', fontWeight: 600, fontSize: 14, margin: '4px 0 0' }}>{interviewLocation}</p>
+                                        </div>
+                                    )}
+                                    <div>
                                         <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Interviewer</span>
                                         <p style={{ color: '#8b5cf6', fontWeight: 600, fontSize: 14, margin: '4px 0 0' }}>{selectedInterviewer.name}</p>
                                     </div>
@@ -1563,6 +1659,12 @@ const HRApplicationsPage = () => {
                                             <div><span style={{ color: '#94a3b8', fontSize: 12 }}>Candidate</span><p style={{ color: '#e2e8f0', margin: '4px 0 0', fontWeight: 500 }}>{selectedCandidate.name}</p></div>
                                             <div><span style={{ color: '#94a3b8', fontSize: 12 }}>Interviewer</span><p style={{ color: '#e2e8f0', margin: '4px 0 0', fontWeight: 500 }}>{selectedInterviewer.name}</p></div>
                                             <div><span style={{ color: '#94a3b8', fontSize: 12 }}>Round</span><p style={{ color: '#e2e8f0', margin: '4px 0 0', fontWeight: 500 }}>{selectedRound}</p></div>
+                                            <div><span style={{ color: '#94a3b8', fontSize: 12 }}>Type</span><p style={{ color: '#e2e8f0', margin: '4px 0 0', fontWeight: 500 }}>
+                                                {selectedInterviewType === "F2F" ? "Face to Face" : selectedInterviewType === "CALL" ? "Call" : "Online"}
+                                            </p></div>
+                                            {selectedInterviewType === "F2F" && interviewLocation.trim() && (
+                                                <div><span style={{ color: '#94a3b8', fontSize: 12 }}>Location</span><p style={{ color: '#e2e8f0', margin: '4px 0 0', fontWeight: 500 }}>{interviewLocation}</p></div>
+                                            )}
                                             <div><span style={{ color: '#94a3b8', fontSize: 12 }}>Date & Time</span><p style={{ color: '#e2e8f0', margin: '4px 0 0', fontWeight: 500 }}>
                                                 {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {selectedTime}
                                             </p></div>
@@ -1615,6 +1717,8 @@ const HRApplicationsPage = () => {
                                                         interviewerEmail: selectedInterviewer.email,
                                                         scheduledDate: selectedDate,
                                                         scheduledTime: selectedTime,
+                                                        interviewType: selectedInterviewType,
+                                                        interviewLocation: selectedInterviewType === "F2F" ? interviewLocation.trim() : undefined,
                                                         slotStartIso: selectedTimeIso || undefined,
                                                     }
                                                 );
@@ -1632,6 +1736,8 @@ const HRApplicationsPage = () => {
                                                 setSelectedInterviewer(null);
                                                 setSelectedDate('');
                                                 setSelectedTime('');
+                                                setInterviewLocation('');
+                                                setSelectedInterviewType("ONLINE");
                                                 setScheduleStep(1);
                                             } catch (e: unknown) {
                                                 const err = e as { response?: { data?: { message?: string } } };
@@ -1666,6 +1772,8 @@ const HRApplicationsPage = () => {
                                                     setSelectedDate('');
                                                     setSelectedTime('');
                                                     setSelectedTimeIso('');
+                                                    setInterviewLocation('');
+                                                    setSelectedInterviewType("ONLINE");
                                                     setScheduleStep(1);
                                                     setShowCandidateDailyLimitModal(true);
                                                 } else if (isLimit) {
@@ -1675,6 +1783,8 @@ const HRApplicationsPage = () => {
                                                     setSelectedDate('');
                                                     setSelectedTime('');
                                                     setSelectedTimeIso('');
+                                                    setInterviewLocation('');
+                                                    setSelectedInterviewType("ONLINE");
                                                     setScheduleStep(1);
                                                     setShowInterviewLimitModal(true);
                                                 } else if (isFeedbackPending) {
@@ -1684,6 +1794,8 @@ const HRApplicationsPage = () => {
                                                     setSelectedDate('');
                                                     setSelectedTime('');
                                                     setSelectedTimeIso('');
+                                                    setInterviewLocation('');
+                                                    setSelectedInterviewType("ONLINE");
                                                     setScheduleStep(1);
                                                     setShowFeedbackPendingModal(true);
                                                 } else if (isBooked) {
@@ -1828,7 +1940,7 @@ const HRApplicationsPage = () => {
                             </button>
                         </div>
                         <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 20 }}>
-                            You can’t assign the next round until the interviewer submits feedback for the previous
+                            You can’t move to the next action until the interviewer submits feedback for the previous
                             completed interview.
                         </p>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
@@ -2120,7 +2232,7 @@ const HRApplicationsPage = () => {
                                 Assign Next Round
                             </button>
                             <button
-                                onClick={() => { setShowFeedbackModal(false); handleSendOffer(selectedCandidate); }}
+                                onClick={() => { setShowFeedbackModal(false); void handleSendOffer(selectedCandidate); }}
                                 style={{ flex: 1, padding: 14, backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
                             >
                                 Send Offer
@@ -2128,8 +2240,7 @@ const HRApplicationsPage = () => {
                             <button
                                 onClick={() => {
                                     setShowFeedbackModal(false);
-                                    handleReject(selectedCandidate);
-                                    setShowRejectionModal(true);
+                                    void handleRejectWithFeedbackGate(selectedCandidate);
                                 }}
                                 style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
                             >

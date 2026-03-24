@@ -49,6 +49,8 @@ export interface ICandidateInterviewHistoryItemDTO {
   interviewerName: string;
   jobId: string;
   round: string;
+  interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+  interviewLocation?: string;
   feedback: string;
   totalScore: number;
   createdAt: string;

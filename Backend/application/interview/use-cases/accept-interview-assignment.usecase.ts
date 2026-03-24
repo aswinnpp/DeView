@@ -4,6 +4,7 @@ import type { IInterviewRepository } from '../ports/repository/IInterviewReposit
 import type { IAcceptInterviewAssignmentUseCase } from '../ports/usecase/IAcceptInterviewAssignmentUseCase.js';
 import type { INotificationRepository } from '../../notification/ports/repository/INotificationRepository.js';
 import type { INotificationPublisher } from '../../notification/ports/service/INotificationPublisher.js';
+import type { IApplicationRepository } from '../../job-application/ports/repository/IApplicationRepository.js';
 import type {
   IAcceptInterviewAssignmentInputDTO,
   IAcceptInterviewAssignmentOutputDTO,
@@ -13,6 +14,8 @@ import type {
 export class AcceptInterviewAssignmentUseCase implements IAcceptInterviewAssignmentUseCase {
   constructor(
     @inject(TYPES.InterviewRepositoryPort) private readonly _repo: IInterviewRepository,
+    @inject(TYPES.ApplicationRepositoryPort)
+    private readonly _applicationRepo: IApplicationRepository,
     @inject(TYPES.NotificationRepositoryPort) private readonly _notificationRepo: INotificationRepository,
     @inject(TYPES.NotificationPublisherPort) private readonly _notificationPublisher: INotificationPublisher
   ) {}
@@ -24,6 +27,13 @@ export class AcceptInterviewAssignmentUseCase implements IAcceptInterviewAssignm
     }
     const updated = await this._repo.setInterviewerAccepted(input.interviewId, true);
     if (updated) {
+      await this._applicationRepo.setInterviewAcceptance({
+        applicationId: updated.applicationId,
+        jobId: updated.jobId,
+        companyId: updated.companyId,
+        round: updated.round,
+        interviewerAccepted: true,
+      });
       const notification = await this._notificationRepo.create({
         recipientType: 'USER',
         recipientId: updated.candidateUserId,

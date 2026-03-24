@@ -25,6 +25,9 @@ export class GetInterviewRoomDetailsUseCase implements IGetInterviewRoomDetailsU
     }
 
     this.ensureAuthorized(interview, userId, role, companyId);
+    if ((interview.interviewType ?? 'ONLINE') !== 'ONLINE') {
+      throw AppError.badRequest('This interview type does not use an online room');
+    }
 
     return {
       interviewId: interview.id ?? interviewId,

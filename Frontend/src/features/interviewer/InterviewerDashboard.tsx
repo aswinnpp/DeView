@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Button, Table, Pagination, SearchInput } from "../../components/common";
 import { useInterviewerDashboard } from "../../hooks/interviewer";
 import type { InterviewerAssignmentItem } from "../../services/interviewerAssignments.service";
+import { interviewsService } from "../../services/interviews.service";
 
 const selectClass =
   "w-full py-2 px-3.5 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer";
@@ -23,8 +25,26 @@ const InterviewerDashboard = () => {
     formatTime,
     formatDate,
     handleJoinRoom,
+    fetchAssignments,
     ITEMS_PER_PAGE,
   } = useInterviewerDashboard();
+  const [updatingInterviewId, setUpdatingInterviewId] = useState<string | null>(null);
+
+  const getInterviewTypeLabel = (type?: string) => {
+    if (type === "CALL") return "Call";
+    if (type === "F2F") return "Face to Face";
+    return "Online";
+  };
+
+  const handleUpdateStatus = async (interviewId: string, status: "COMPLETED" | "CANCELLED") => {
+    setUpdatingInterviewId(interviewId);
+    try {
+      await interviewsService.updateStatus(interviewId, status);
+      await fetchAssignments();
+    } finally {
+      setUpdatingInterviewId(null);
+    }
+  };
 
   const columns = [
     {
@@ -70,6 +90,17 @@ const InterviewerDashboard = () => {
       ),
     },
     {
+      header: "Type",
+      render: (item: InterviewerAssignmentItem) => (
+        <div className="text-xs text-slate-300">
+          <p className="m-0">{getInterviewTypeLabel(item.interviewType)}</p>
+          {item.interviewType === "F2F" && item.interviewLocation ? (
+            <p className="m-0 text-[11px] text-slate-500">{item.interviewLocation}</p>
+          ) : null}
+        </div>
+      ),
+    },
+    {
       header: "Status",
       render: () => (
         <span className="inline-block py-1 px-2.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-400">
@@ -79,15 +110,35 @@ const InterviewerDashboard = () => {
     },
     {
       header: "Action",
-      render: (item: InterviewerAssignmentItem) => (
-        <Button
-          variant="primary"
-          className="!py-2 !px-4 text-sm"
-          onClick={() => handleJoinRoom(item.id)}
-        >
-          Join Room
-        </Button>
-      ),
+      render: (item: InterviewerAssignmentItem) =>
+        (item.interviewType ?? "ONLINE") === "ONLINE" ? (
+          <Button
+            variant="primary"
+            className="!py-2 !px-4 text-sm"
+            onClick={() => handleJoinRoom(item.id)}
+          >
+            Join Room
+          </Button>
+        ) : (
+          <div className="flex gap-2">
+            <Button
+              variant="primary"
+              className="!py-2 !px-3 text-xs"
+              onClick={() => handleUpdateStatus(item.id, "COMPLETED")}
+              disabled={updatingInterviewId === item.id}
+            >
+              Complete
+            </Button>
+            <Button
+              variant="danger"
+              className="!py-2 !px-3 text-xs"
+              onClick={() => handleUpdateStatus(item.id, "CANCELLED")}
+              disabled={updatingInterviewId === item.id}
+            >
+              Not Attempt
+            </Button>
+          </div>
+        ),
     },
   ];
 
@@ -95,7 +146,7 @@ const InterviewerDashboard = () => {
     <div className="py-6 px-0">
       <h2 className="text-lg font-semibold text-white mb-1">Upcoming Accepted Interviews</h2>
       <p className="text-slate-400 text-sm mb-4">
-        Interviews you have accepted. Use Join Room to start the online session.
+        Interviews you have accepted. Online interviews can be joined; call and face-to-face can be marked directly.
       </p>
 
       {error && (
