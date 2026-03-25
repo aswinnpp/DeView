@@ -14,12 +14,11 @@ import type {
   ISaveInterviewFeedbackOutputDTO,
 } from '../dtos/InterviewCommandDTO.js';
 
-const PASS_SCORE = 3;
+const PASS_SCORE = 5;
 
 function roundFeedback(app: Application, round: string) {
   const fromArr = app.interviewRounds?.find((x) => x.round === round);
   if (fromArr) return fromArr;
-  if (app.interviewDetails?.round === round) return app.interviewDetails;
   return undefined;
 }
 
@@ -105,24 +104,7 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
     const jobRounds =
       job?.interviewRounds && job.interviewRounds.length > 0 ? job.interviewRounds : ['HR Screening'];
 
-    if (totalScore < PASS_SCORE) {
-      const rejectionBody = `Dear ${appAfter.fullName},
-
-Thank you for interviewing for this position. After careful consideration of your performance in the ${interview.round} round (score ${totalScore}/5), we will not be moving forward with your application at this time.
-
-We appreciate the time you invested and wish you success in your search.
-
-Best regards,
-HR Team`;
-      await this._updateApplicationStatus.execute({
-        applicationId: interview.applicationId,
-        jobId: interview.jobId,
-        companyId: interview.companyId,
-        status: 'REJECTED',
-        rejectionEmailContent: rejectionBody,
-      });
-      return { success: true };
-    }
+ 
 
     const allRoundsPass = jobRounds.every((r) => {
       const fd = roundFeedback(appAfter, r);

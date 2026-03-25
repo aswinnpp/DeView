@@ -61,18 +61,28 @@ function wrapLines(text: string, maxChars: number): string[] {
 
 async function buildOfferLetterPdfBase64(input: {
   companyName: string;
+  companyAddress?: string;
+  companyContactPerson?: string;
+  companyContactEmail?: string;
+  companyWebsite?: string;
   candidateName: string;
   candidateEmail: string;
   offerBody: string;
   salary?: string;
+  benefits?: string;
   location?: string;
   startDate?: string;
 }): Promise<string> {
   const companyName = safePdfText(input.companyName);
+  const companyAddress = input.companyAddress ? safePdfText(input.companyAddress) : '';
+  const companyContactPerson = input.companyContactPerson ? safePdfText(input.companyContactPerson) : '';
+  const companyContactEmail = input.companyContactEmail ? safePdfText(input.companyContactEmail) : '';
+  const companyWebsite = input.companyWebsite ? safePdfText(input.companyWebsite) : '';
   const candidateName = safePdfText(input.candidateName);
   const candidateEmail = safePdfText(input.candidateEmail);
   const offerBody = safePdfText(input.offerBody);
   const salary = input.salary ? safePdfText(input.salary) : '';
+  const benefits = input.benefits ? safePdfText(input.benefits) : '';
   const location = input.location ? safePdfText(input.location) : '';
   const startDate = input.startDate ? safePdfText(input.startDate) : '';
   const formattedDate = new Date().toLocaleDateString('en-US', {
@@ -162,6 +172,16 @@ async function buildOfferLetterPdfBase64(input: {
   // Header (formal offer-letter style)
   drawCentered('JOB OFFER LETTER', { bold: true, size: 20, color: rgb(0.12, 0.12, 0.12) });
   drawWrapped(companyName, { bold: true, size: 12 });
+  if (companyAddress.trim()) {
+    drawWrapped(`Address: ${companyAddress.trim()}`, { size: 11, color: rgb(0.25, 0.25, 0.25) });
+  }
+  if (companyWebsite.trim()) {
+    drawWrapped(`Website: ${companyWebsite.trim()}`, { size: 11, color: rgb(0.25, 0.25, 0.25) });
+  }
+  if (companyContactPerson.trim() || companyContactEmail.trim()) {
+    const contact = `${companyContactPerson.trim() || 'HR Team'}${companyContactEmail.trim() ? ` (${companyContactEmail.trim()})` : ''}`;
+    drawWrapped(`Contact: ${contact}`, { size: 11, color: rgb(0.25, 0.25, 0.25) });
+  }
   drawWrapped(`Date: ${formattedDate}`, { size: 11, color: rgb(0.25, 0.25, 0.25) });
   y -= 2;
   drawDivider();
@@ -191,12 +211,25 @@ async function buildOfferLetterPdfBase64(input: {
   }
 
   y -= 4;
-  drawWrapped('Terms & Conditions:', { bold: true, size: 12 });
-  drawWrapped('- Employment is subject to company policies.', { size: 11, indent: 12 });
-  drawWrapped('- Candidate must complete joining formalities and required documentation.', { size: 11, indent: 12 });
-  drawWrapped('- Either party may terminate employment as per policy and applicable law.', { size: 11, indent: 12 });
+  drawWrapped('Benefits:', { bold: true, size: 12 });
+  if (benefits.trim()) {
+    const benefitsBullets = benefits
+      .split(/[\n,]+/)
+      .map((b) => b.trim())
+      .filter(Boolean);
 
-  y -= 8;
+    if (benefitsBullets.length > 0) {
+      for (const b of benefitsBullets) {
+        drawWrapped(`- ${b}`, { size: 11, indent: 12 });
+      }
+    } else {
+      drawWrapped('- Benefits will be shared by HR.', { size: 11, indent: 12 });
+    }
+  } else {
+    drawWrapped('- Benefits will be shared by HR.', { size: 11, indent: 12 });
+  }
+
+  y -= 6;
   drawWrapped('Please sign below to confirm acceptance of this offer:', { bold: true, size: 11, color: rgb(0, 0, 0) });
   y -= 6;
 
@@ -349,9 +382,14 @@ export class DocuSignOfferEnvelopeService {
     signerName: string;
     clientUserId: string;
     companyName: string;
+    companyAddress?: string;
+    companyContactPerson?: string;
+    companyContactEmail?: string;
+    companyWebsite?: string;
     candidateName: string;
     offerBody: string;
     salary?: string;
+    benefits?: string;
     location?: string;
     startDate?: string;
   }): Promise<string> {
@@ -360,10 +398,15 @@ export class DocuSignOfferEnvelopeService {
     const signerName = normalizeSignerName(input.signerName);
     const documentBase64 = await buildOfferLetterPdfBase64({
       companyName: input.companyName,
+      companyAddress: input.companyAddress,
+      companyContactPerson: input.companyContactPerson,
+      companyContactEmail: input.companyContactEmail,
+      companyWebsite: input.companyWebsite,
       candidateName: input.candidateName,
       candidateEmail: signerEmail,
       offerBody: input.offerBody,
       salary: input.salary,
+      benefits: input.benefits,
       location: input.location,
       startDate: input.startDate,
     });

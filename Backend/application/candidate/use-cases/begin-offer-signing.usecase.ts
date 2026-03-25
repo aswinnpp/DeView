@@ -72,6 +72,10 @@ export class BeginOfferSigningUseCase {
 
     const company = await this._companies.findById(offer.companyId);
     const companyName = company?.companyName?.trim() || 'Employer';
+    const companyAddress = company?.address?.trim();
+    const companyContactPerson = company?.contactPerson?.trim();
+    const companyContactEmail = company?.contactEmail?.trim();
+    const companyWebsite = company?.website?.trim();
 
     const returnUrlBase = env.FRONTEND_URL.replace(/\/$/, '');
     const returnUrl = `${returnUrlBase}/candidate/mails/signing-complete?offerMailId=${encodeURIComponent(offer.id)}`;
@@ -129,9 +133,14 @@ export class BeginOfferSigningUseCase {
         signerName: offer.candidateName,
         clientUserId,
         companyName,
+        companyAddress,
+        companyContactPerson,
+        companyContactEmail,
+        companyWebsite,
         candidateName: offer.candidateName,
         offerBody,
         salary: offer.salary,
+        benefits: offer.benefits,
         location: offer.location,
         startDate: offer.startDate,
       });
