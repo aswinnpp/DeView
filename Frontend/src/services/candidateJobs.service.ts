@@ -78,6 +78,8 @@ export interface CandidateMailboxOfferRow {
   jobId: string;
   jobTitle: string;
   companyName: string;
+  candidateName: string;
+  candidateEmail: string;
   content: string;
   salary?: string;
   location?: string;
@@ -90,6 +92,10 @@ export interface CandidateMailboxOfferRow {
   counterResponseStatus?: "accepted" | "rejected";
   /** DocuSign combined PDF available (accepted + envelope id). */
   signedOfferAvailable?: boolean;
+  companyAddress: string;
+  companyContactPerson: string;
+  companyContactEmail: string;
+  companyWebsite?: string;
   createdAt: string;
 }
 
@@ -101,7 +107,13 @@ export interface CandidateMailboxData {
     jobId: string;
     jobTitle: string;
     companyName: string;
+    candidateName: string;
+    candidateEmail: string;
     content: string;
+    companyAddress: string;
+    companyContactPerson: string;
+    companyContactEmail: string;
+    companyWebsite?: string;
     createdAt: string;
   }>;
   total?: number;

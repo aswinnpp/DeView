@@ -217,7 +217,8 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                     (selectedApplication.status === "INTERVIEW_SCHEDULED" ||
                                         selectedApplication.status === "RESCHEDULE_REQUESTED" ||
                                         selectedApplication.status === "INTERVIEW_COMPLETE" ||
-                                        selectedApplication.status === "COMPLETED") &&
+                                        selectedApplication.status === "COMPLETED" ||
+                                        selectedApplication.status === "HIRED") &&
                                     displayRounds.length > 0;
                                 if (!shouldShow) return null;
                                 return (

@@ -12,6 +12,8 @@ export interface ICandidateMailboxOfferView {
   jobId: string;
   jobTitle: string;
   companyName: string;
+  candidateName: string;
+  candidateEmail: string;
   content: string;
   salary?: string;
   location?: string;
@@ -22,6 +24,10 @@ export interface ICandidateMailboxOfferView {
   counterSentAt?: string;
   counterResponseStatus?: 'accepted' | 'rejected';
   signedOfferAvailable?: boolean;
+  companyAddress: string;
+  companyContactPerson: string;
+  companyContactEmail: string;
+  companyWebsite?: string;
   createdAt: string;
 }
 
@@ -31,7 +37,13 @@ export interface ICandidateMailboxRejectionView {
   jobId: string;
   jobTitle: string;
   companyName: string;
+  candidateName: string;
+  candidateEmail: string;
   content: string;
+  companyAddress: string;
+  companyContactPerson: string;
+  companyContactEmail: string;
+  companyWebsite?: string;
   createdAt: string;
 }
 
@@ -99,6 +111,10 @@ export class ListCandidateMailboxUseCase {
 
     const jobTitles = new Map<string, string>();
     const companyNames = new Map<string, string>();
+    const companyContactPersons = new Map<string, string>();
+    const companyAddresses = new Map<string, string>();
+    const companyContactEmails = new Map<string, string>();
+    const companyWebsites = new Map<string, string | undefined>();
 
     await Promise.all(
       [...jobIds].map(async (jid) => {
@@ -111,6 +127,10 @@ export class ListCandidateMailboxUseCase {
       [...companyIds].map(async (cid) => {
         const c = await this._companies.findById(cid);
         companyNames.set(cid, c?.companyName ?? 'Company');
+        companyContactPersons.set(cid, c?.contactPerson ?? 'HR Team');
+        companyAddresses.set(cid, c?.address ?? '');
+        companyContactEmails.set(cid, c?.contactEmail ?? '');
+        companyWebsites.set(cid, c?.website);
       })
     );
 
@@ -139,6 +159,8 @@ export class ListCandidateMailboxUseCase {
           jobId: o.jobId,
           jobTitle: jobTitles.get(o.jobId) ?? 'Position',
           companyName: companyNames.get(o.companyId) ?? 'Company',
+          candidateName: o.candidateName,
+          candidateEmail: o.candidateEmail,
           content: o.content,
           salary: o.salary,
           location: o.location,
@@ -149,6 +171,10 @@ export class ListCandidateMailboxUseCase {
           ...(counterSentAt !== undefined && { counterSentAt }),
           ...(counterResponseStatus !== undefined && { counterResponseStatus }),
           ...(signedOfferAvailable && { signedOfferAvailable: true }),
+          companyAddress: companyAddresses.get(o.companyId) ?? '',
+          companyContactPerson: companyContactPersons.get(o.companyId) ?? 'HR Team',
+          companyContactEmail: companyContactEmails.get(o.companyId) ?? '',
+          companyWebsite: companyWebsites.get(o.companyId),
           createdAt: toIso(o.createdAt),
         };
       });
@@ -159,7 +185,13 @@ export class ListCandidateMailboxUseCase {
         jobId: r.jobId,
         jobTitle: jobTitles.get(r.jobId) ?? 'Position',
         companyName: companyNames.get(r.companyId) ?? 'Company',
+        candidateName: r.candidateName,
+        candidateEmail: r.candidateEmail,
         content: r.content,
+        companyAddress: companyAddresses.get(r.companyId) ?? '',
+        companyContactPerson: companyContactPersons.get(r.companyId) ?? 'HR Team',
+        companyContactEmail: companyContactEmails.get(r.companyId) ?? '',
+        companyWebsite: companyWebsites.get(r.companyId),
         createdAt: toIso(r.createdAt),
     }));
 

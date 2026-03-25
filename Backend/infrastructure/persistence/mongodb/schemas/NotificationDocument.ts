@@ -5,7 +5,9 @@ export type NotificationType =
   | "NEW_JOB"
   | "APPLICATION_SHORTLISTED"
   | "INTERVIEW_SCHEDULED"
-  | "NEW_COMPANY_REGISTRATION";
+  | "NEW_COMPANY_REGISTRATION"
+  | "APPLICATION_REJECTED"
+  | "APPLICATION_OFFERED";
 export type NotificationRecipientType = "COMPANY" | "USER";
 
 export interface INotificationDocument {

@@ -92,6 +92,9 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
       input.rejectionEmailContent.trim().length > 0 &&
       !existing.rejectionSentAt
     ) {
+      const job = await this._jobRepository.findById(updated.jobId);
+      const jobTitle = job?.title ?? 'the role';
+
       await this._rejectionMailRepository.create({
         applicationId: updated.id || input.applicationId,
         jobId: updated.jobId,
@@ -101,6 +104,25 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
         candidateEmail: updated.email,
         content: input.rejectionEmailContent,
       });
+
+      const notification = await this._notificationRepository.create({
+        recipientType: 'USER',
+        recipientId: updated.candidateUserId,
+        type: 'APPLICATION_REJECTED',
+        title: 'Update: Application status',
+        message: `You received a rejection update for ${jobTitle}.`,
+        data: {
+          applicationId: updated.id ?? input.applicationId,
+          jobId: updated.jobId,
+          status: updated.status,
+        },
+      });
+
+      await this._notificationPublisher.publish({
+        recipientType: 'USER',
+        recipientId: updated.candidateUserId,
+        notification,
+      });
     }
 
     if (
@@ -109,6 +131,9 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
       input.offerEmailContent.trim().length > 0 &&
       !existing.offerSentAt
     ) {
+      const job = await this._jobRepository.findById(updated.jobId);
+      const jobTitle = job?.title ?? 'the role';
+
       await this._offerMailRepository.create({
         applicationId: updated.id || input.applicationId,
         jobId: updated.jobId,
@@ -121,6 +146,25 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
         location: input.offerLocation,
         startDate: input.offerStartDate,
         benefits: input.offerBenefits,
+      });
+
+      const notification = await this._notificationRepository.create({
+        recipientType: 'USER',
+        recipientId: updated.candidateUserId,
+        type: 'APPLICATION_OFFERED',
+        title: 'Congratulations! Offer available',
+        message: `You received an offer letter for ${jobTitle}.`,
+        data: {
+          applicationId: updated.id ?? input.applicationId,
+          jobId: updated.jobId,
+          status: updated.status,
+        },
+      });
+
+      await this._notificationPublisher.publish({
+        recipientType: 'USER',
+        recipientId: updated.candidateUserId,
+        notification,
       });
     }
 

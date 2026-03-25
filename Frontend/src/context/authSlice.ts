@@ -15,12 +15,12 @@ interface IAuthState {
 }
 
 const getStoredUser = (): IUser | null => {
-  try {
+  
     const userStr = localStorage.getItem("user");
     if (userStr) {
       return JSON.parse(userStr);
     }
-  } catch {}
+  
   return null;
 };
 
