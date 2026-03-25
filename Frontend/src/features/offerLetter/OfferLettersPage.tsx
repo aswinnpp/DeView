@@ -1,4 +1,5 @@
-import { Button, Pagination, SearchInput, Table } from "../../components/common";
+import { useState } from "react";
+import { Button, ConfirmModal, Pagination, SearchInput, Table } from "../../components/common";
 import { useOfferLetters } from "../../hooks/offerLetter/useOfferLetters";
 
 export type OfferLetterRow = {
@@ -34,6 +35,39 @@ function formatTime(dateStr: string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function formatEmailDate(dateStr: string) {
+  const d = new Date(dateStr);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
+}
+
+function splitBenefits(benefits: string | undefined) {
+  if (!benefits?.trim()) return [];
+  return benefits
+    .split(/[\n,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function offerPaperTitle(status: OfferLetterRow["status"]) {
+  return status === "declined" ? "Rejection" : "Offer Letter";
+}
+
+function offerPaperStatusLabel(status: OfferLetterRow["status"]) {
+  switch (status) {
+    case "accepted":
+      return "Accepted";
+    case "declined":
+      return "Declined";
+    case "counter":
+      return "Counter received";
+    default:
+      return "Awaiting your response";
+  }
 }
 
 function StatusBadge({ status }: { status: OfferLetterRow["status"] }) {
@@ -95,10 +129,17 @@ export default function OfferLettersPage() {
   } = useOfferLetters();
 
   const visibleRows = rows;
+
+  const [rejectCounterConfirmOpen, setRejectCounterConfirmOpen] = useState(false);
  
 
   // Detail view
   if (selectedOffer) {
+    const paperTitle = offerPaperTitle(selectedOffer.status);
+    const paperStatus = offerPaperStatusLabel(selectedOffer.status);
+    const positionTitle = jobTitleMap.get(selectedOffer.jobId) ?? selectedOffer.jobId;
+    const benefitsList = splitBenefits(selectedOffer.benefits);
+
     return (
       <div className="w-full">
         <header className="flex items-start justify-between gap-4 mb-6">
@@ -118,109 +159,102 @@ export default function OfferLettersPage() {
           </div>
         </header>
 
-        <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900/95 to-slate-800/90 overflow-hidden">
-          <div className="bg-gradient-to-r from-violet-600 to-purple-700 px-8 py-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-bold text-white m-0">{selectedOffer.candidateName}</h2>
-                <p className="text-white/90 text-sm mt-1.5 m-0">{selectedOffer.candidateEmail}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge status={selectedOffer.status} />
-                {selectedOffer.status === "accepted" &&
-                selectedOffer.signedOfferAvailable &&
-                selectedOffer.id ? (
-                  <Button
-                    type="button"
-                    onClick={() => void openEmployerSignedPdfInNewTab()}
-                    disabled={signedPdfBusy}
-                    className="rounded-lg border border-white/40 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/25 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {signedPdfBusy ? "Opening…" : "View"}
-                  </Button>
-                ) : null}
-              </div>
+          <div className="px-14 py-14">
+            <div className="mb-6">
+              <h3 className="m-0 w-full text-center text-[18px] font-bold text-slate-100">{paperTitle}</h3>
+              <p className="m-0 mt-1 text-center text-[13px] font-semibold text-slate-200">{paperStatus}</p>
             </div>
-          </div>
 
-          <div className="p-6 space-y-6">
+            <div className="mb-8 flex items-start justify-between gap-6">
+              <div>
+                <p className="m-0 text-[15px] font-semibold text-slate-100">{selectedOffer.candidateName}</p>
+                <p className="m-0 mt-1 text-[13px] text-slate-300">{selectedOffer.candidateEmail}</p>
+              </div>
+              <p className="m-0 text-[13px] text-slate-300">
+                {formatEmailDate(selectedOffer.createdAt)} at {formatTime(selectedOffer.createdAt)}
+              </p>
+            </div>
+
             {signedPdfError ? (
-              <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              <div className="mb-6 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
                 {signedPdfError}
               </div>
             ) : null}
-            {/* Offer details */}
-            <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5">
-              <h3 className="text-violet-300 font-semibold text-base mb-4">Offer Details</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <div>
-                  <div className="text-slate-400 text-xs mb-1">Position</div>
-                  <div className="text-slate-100 font-medium">
-                    {jobTitleMap.get(selectedOffer.jobId) ?? selectedOffer.jobId}
-                  </div>
-                </div>
-                {selectedOffer.salary && (
-                  <div>
-                    <div className="text-slate-400 text-xs mb-1">Salary</div>
-                    <div className="text-slate-100 font-medium">{selectedOffer.salary}</div>
-                  </div>
-                )}
-                {selectedOffer.startDate && (
-                  <div>
-                    <div className="text-slate-400 text-xs mb-1">Start Date</div>
-                    <div className="text-slate-100 font-medium">{selectedOffer.startDate}</div>
-                  </div>
-                )}
-                {selectedOffer.location && (
-                  <div>
-                    <div className="text-slate-400 text-xs mb-1">Location</div>
-                    <div className="text-slate-100 font-medium">{selectedOffer.location}</div>
-                  </div>
-                )}
-                <div>
-                  <div className="text-slate-400 text-xs mb-1">Sent On</div>
-                  <div className="text-slate-100 font-medium">
-                    {formatDate(selectedOffer.createdAt)} {formatTime(selectedOffer.createdAt)}
-                  </div>
-                </div>
+
+            <dl className="mb-8 grid grid-cols-1 gap-x-10 gap-y-2 text-[13.5px] text-slate-200 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <dt className="m-0 text-[12px] font-semibold uppercase tracking-wide text-slate-300">
+                  Offer details
+                </dt>
               </div>
-            </div>
 
-            {/* Offer content */}
-            <div className="rounded-xl border border-slate-700/60 bg-slate-900/40 p-5">
-              <h3 className="text-slate-200 font-semibold text-base mb-3">Offer Letter Content</h3>
-              <pre className="whitespace-pre-wrap text-slate-300 text-sm font-sans m-0 leading-relaxed">
-                {selectedOffer.content}
-              </pre>
-            </div>
+              <div>
+                <dt className="m-0 text-[12px] font-semibold uppercase tracking-wide text-slate-300">Position</dt>
+                <dd className="m-0 mt-1 font-semibold">{positionTitle}</dd>
+              </div>
 
-            {/* Counter letter */}
-            {selectedOffer.status === "counter" && selectedOffer.counterLetter?.trim() && (
-              <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/5 p-5">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold">
-                    C
-                  </div>
-                  <div>
-                    <h3 className="text-amber-400 font-bold text-lg m-0">Counter Proposal Received</h3>
-                    {selectedOffer.counterSentAt && (
-                      <p className="text-slate-400 text-xs m-0 mt-0.5">
-                        Submitted on {formatDate(selectedOffer.counterSentAt)} at{" "}
-                        {formatTime(selectedOffer.counterSentAt)}
-                      </p>
-                    )}
-                  </div>
+              {selectedOffer.salary ? (
+                <div>
+                  <dt className="m-0 text-[12px] font-semibold uppercase tracking-wide text-slate-300">Salary</dt>
+                  <dd className="m-0 mt-1">{selectedOffer.salary}</dd>
                 </div>
-                <pre className="whitespace-pre-wrap text-slate-300 text-sm font-sans m-0 max-h-48 overflow-y-auto rounded-lg border border-slate-800 bg-slate-950/80 p-3">
+              ) : null}
+
+              {selectedOffer.location ? (
+                <div>
+                  <dt className="m-0 text-[12px] font-semibold uppercase tracking-wide text-slate-300">
+                    Work Location
+                  </dt>
+                  <dd className="m-0 mt-1">{selectedOffer.location}</dd>
+                </div>
+              ) : null}
+
+              {selectedOffer.startDate ? (
+                <div>
+                  <dt className="m-0 text-[12px] font-semibold uppercase tracking-wide text-slate-300">Start Date</dt>
+                  <dd className="m-0 mt-1">{formatEmailDate(selectedOffer.startDate)}</dd>
+                </div>
+              ) : null}
+
+              {benefitsList.length > 0 ? (
+                <div className="sm:col-span-2">
+                  <dt className="m-0 text-[12px] font-semibold uppercase tracking-wide text-slate-300">
+                    Benefits
+                  </dt>
+                  <dd className="m-0 mt-1">{benefitsList.join(", ")}</dd>
+                </div>
+              ) : null}
+            </dl>
+
+            <pre className="whitespace-pre-wrap text-slate-200 text-[15px] font-serif m-0 leading-relaxed">
+              {selectedOffer.content}
+            </pre>
+
+            {selectedOffer.status === "counter" && selectedOffer.counterLetter?.trim() && (
+              <div className="mt-10 space-y-6 border-t border-sky-200/20 pt-8">
+                <div>
+                  <p className="m-0 text-[13px] font-semibold uppercase tracking-wide text-slate-300">
+                    Counter received
+                  </p>
+                  {selectedOffer.counterSentAt ? (
+                    <p className="m-0 mt-1 text-[13px] text-slate-300">
+                      Submitted on {formatEmailDate(selectedOffer.counterSentAt)} at{" "}
+                      {formatTime(selectedOffer.counterSentAt)}
+                    </p>
+                  ) : null}
+                </div>
+
+                <pre className="whitespace-pre-wrap text-slate-200 text-[15px] font-serif m-0 leading-relaxed max-h-48 overflow-y-auto">
                   {selectedOffer.counterLetter}
                 </pre>
-                <div className="mt-6 pt-5 border-t border-amber-500/20 flex flex-wrap gap-3">
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                   <Button
                     type="button"
                     variant="ghostOutline"
                     disabled={!!counterResponding}
                     onClick={() => void respondToCounter("accept")}
-                    className="flex-1 min-w-[140px] py-3 px-5 rounded-lg font-semibold text-sm bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-500 hover:to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 min-w-[140px] rounded-xl border border-emerald-500/35 bg-emerald-600/15 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-600/25 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {counterResponding === "accept" ? "Processing…" : "Accept Counter"}
                   </Button>
@@ -228,8 +262,8 @@ export default function OfferLettersPage() {
                     type="button"
                     variant="ghostOutline"
                     disabled={!!counterResponding}
-                    onClick={() => void respondToCounter("reject")}
-                    className="flex-1 min-w-[140px] py-3 px-5 rounded-lg font-semibold text-sm border border-red-500/60 bg-red-500/10 text-red-200 hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    onClick={() => setRejectCounterConfirmOpen(true)}
+                    className="flex-1 min-w-[140px] rounded-xl border border-red-500/35 bg-red-600/15 px-5 py-3 text-sm font-semibold text-red-200 transition hover:bg-red-600/25 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {counterResponding === "reject" ? "Processing…" : "Reject Counter"}
                   </Button>
@@ -237,44 +271,37 @@ export default function OfferLettersPage() {
               </div>
             )}
 
-            {/* Status messages */}
-            {selectedOffer.status === "accepted" && (
-              <div className="rounded-xl border-2 border-emerald-500/30 bg-emerald-500/5 p-6 text-center">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-2xl text-white mx-auto mb-4">
-                  ✓
-                </div>
-                <h3 className="text-emerald-400 font-bold text-xl m-0 mb-2">Offer Accepted</h3>
-                <p className="text-slate-400 text-sm m-0">
-                  Candidate has accepted the offer. Proceed with onboarding process.
-                </p>
+            {selectedOffer.status === "accepted" &&
+            selectedOffer.signedOfferAvailable &&
+            selectedOffer.id ? (
+              <div className="mt-10">
+                <Button
+                  type="button"
+                  onClick={() => void openEmployerSignedPdfInNewTab()}
+                  disabled={signedPdfBusy}
+                  className="rounded-lg border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-100 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {signedPdfBusy ? "Opening…" : "View signed PDF"}
+                </Button>
               </div>
-            )}
+            ) : null}
 
-            {selectedOffer.status === "declined" && (
-              <div className="rounded-xl border-2 border-red-500/30 bg-red-500/5 p-6 text-center">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-2xl text-white mx-auto mb-4">
-                  ✕
-                </div>
-                <h3 className="text-red-400 font-bold text-xl m-0 mb-2">Offer Declined</h3>
-                <p className="text-slate-400 text-sm m-0">
-                  Candidate has declined this offer. Consider other shortlisted candidates.
-                </p>
-              </div>
-            )}
-
-            {selectedOffer.status === "pending" && (
-              <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-6 text-center">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-2xl text-white mx-auto mb-4">
-                  ⏳
-                </div>
-                <h3 className="text-amber-400 font-bold text-xl m-0 mb-2">Awaiting Response</h3>
-                <p className="text-slate-400 text-sm m-0">
-                  Candidate has not yet responded to this offer letter.
-                </p>
-              </div>
-            )}
+            <ConfirmModal
+              isOpen={rejectCounterConfirmOpen}
+              title="Reject counter proposal?"
+              description="The candidate will be notified."
+              confirmText={counterResponding === "reject" ? "Rejecting..." : "Reject Counter"}
+              cancelText="Cancel"
+              confirmVariant="danger"
+              isLoading={counterResponding === "reject"}
+              onClose={() => setRejectCounterConfirmOpen(false)}
+              onConfirm={async () => {
+                await respondToCounter("reject");
+                setRejectCounterConfirmOpen(false);
+              }}
+            />
           </div>
-        </div>
+        
       </div>
     );
   }
@@ -367,7 +394,6 @@ export default function OfferLettersPage() {
           </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-700/60 bg-slate-900/40 p-6">
         {loading ? (
           <div className="text-slate-400 text-sm">Loading…</div>
         ) : (
@@ -449,7 +475,7 @@ export default function OfferLettersPage() {
             leftContent={paginationLeftContent}
           />
         ) : null}
-      </div>
+      
     </div>
   );
 }

@@ -78,7 +78,6 @@ const CandidateAppliedJobsPage: React.FC = () => {
                     <CandidateNavHeader title="APPLICATION DETAILS" currentPage="applied" />
 
                     <div className="pt-[72px] py-7 px-4 sm:px-6 lg:px-12 pb-20 max-md:pb-12">
-                        <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl">
                             <div className="mb-5 flex items-start justify-between gap-4">
                                 <div>
                                     <h3 className="text-lg font-semibold text-white">
@@ -336,7 +335,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    
                 </div>
             </div>
         );

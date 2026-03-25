@@ -25,7 +25,7 @@ export type OfferLetterRow = {
   createdAt: string;
 };
 
-const OFFER_LETTERS_PAGE_SIZE = 10;
+const OFFER_LETTERS_PAGE_SIZE = 1;
 
 export function useOfferLetters() {
   const [rows, setRows] = useState<OfferLetterRow[]>([]);
@@ -131,16 +131,6 @@ export function useOfferLetters() {
   const respondToCounter = useCallback(
     async (action: "accept" | "reject") => {
       if (!selectedOffer?.id) return;
-      if (!window.confirm) {
-        // should never happen, but keep function safe in unusual environments
-      }
-
-      if (action === "reject") {
-        const ok = window.confirm(
-          "Are you sure you want to reject this counter proposal? The candidate will be notified."
-        );
-        if (!ok) return;
-      }
 
       setCounterResponding(action);
       try {

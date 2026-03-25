@@ -1,6 +1,6 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import CandidateNavHeader from "./CandidateNavHeader";
-import { Button, Pagination, SearchInput, Table } from "../../components/common";
+import { Button, ConfirmModal, Pagination, SearchInput, Table } from "../../components/common";
 import type { OfferMailboxStatus } from "../../services/candidateJobs.service";
 import CounterProposalModal from "../../components/applications/CounterProposalModal";
 import { useCandidateMails, type FilterType, type InboxItem } from "../../hooks/candidate/useCandidateMails";
@@ -122,6 +122,10 @@ export default function CandidateMailsPage() {
     formatTime,
     subjectFor,
   } = useCandidateMails();
+
+  // Store which offer thread the user confirmed from.
+  // This way, switching threads automatically hides the modal without needing a `useEffect` setState.
+  const [declineConfirmOfferId, setDeclineConfirmOfferId] = useState<string | null>(null);
 
   const shell = (children: ReactNode) => (
     <div className="flex min-h-screen w-full flex-col bg-[rgb(15,15,25)] text-slate-100">
@@ -312,6 +316,7 @@ export default function CandidateMailsPage() {
   const benefitsList = selected.kind === "offer" ? splitBenefits(selected.benefits) : [];
   const showCounterLetter =
     selected.kind === "offer" && selected.status === "counter" && Boolean(selected.counterLetter?.trim());
+  const canRespondToOffer = selected.kind === "offer" && selected.status === "pending";
   const offerStatusLabelInside =
     selected.kind === "offer"
       ? offerResponseLabel(
@@ -398,7 +403,7 @@ export default function CandidateMailsPage() {
                     disabled={signedPdfBusy}
                     className="rounded-lg border border-slate-500/50 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10 hover:border-slate-400/60 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {signedPdfBusy ? "Opening…" : "View"}
+                    {signedPdfBusy ? "Opening…" : "View signed PDF"}
                   </Button>
                 </div>
               ) : null}
@@ -450,7 +455,7 @@ export default function CandidateMailsPage() {
                     </div>
                   ) : null}
 
-                  {!showCounterLetter && selected.kind === "offer" ? (
+                  {!showCounterLetter && canRespondToOffer ? (
                     <div className="mt-10 space-y-4 border-t border-sky-200/20 pt-6">
                       {offerConsentNotice ? (
                         <div className="rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
@@ -492,8 +497,7 @@ export default function CandidateMailsPage() {
                           }
                           onClick={() => {
                             if (!canAcceptOrReject) return;
-                            if (!window.confirm("Decline this offer? The employer will see that you declined.")) return;
-                            void declineOffer();
+                            setDeclineConfirmOfferId(selected?.id ?? null);
                           }}
                           className="order-2 !flex-1 rounded-xl border border-red-500/35 bg-red-600/15 px-4 py-3 text-sm font-semibold text-red-200 transition hover:bg-red-600/25 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
                         >
@@ -539,128 +543,31 @@ export default function CandidateMailsPage() {
             </div>
          
 
-          {selected.kind === "offer" && selected.status === "counter" && selected.counterLetter?.trim() ? (
-              <div className="flex">
-                <div className="flex-1">
-                  <div className="px-10 py-10">
-                    <div className="mb-6">
-                      <p className="m-0 text-[13px] font-bold text-slate-100">{subjectFor(selected)}</p>
-                      <p className="m-0 mt-1 text-[12px] text-slate-300">
-                        From: <span className="font-semibold text-slate-200">{selected.companyName}</span> •{" "}
-                        {formatDate(selected.createdAt)} at {formatTime(selected.createdAt)}
-                      </p>
-                    </div>
-                    <div className="mb-8 flex items-start justify-between gap-6">
-                      <div>
-                        <p className="m-0 text-[14px] font-semibold text-slate-100">{selected.companyName}</p>
-                        <p className="m-0 mt-1 text-[12px] text-slate-300">{selected.companyContactPerson}</p>
-                      </div>
-                      <p className="m-0 text-[12px] text-slate-300">
-                        {formatEmailDate(selected.counterSentAt ?? selected.createdAt)}
-                      </p>
-                    </div>
-
-                    <p className="m-0 mb-6 text-[14px] text-slate-200">Dear Hiring Team,</p>
-                    {offerDetails}
-                    {renderLetterContent(selected.counterLetter)}
-
-                    {selected.counterLetter && !contentLooksLikeItHasClosing(selected.counterLetter) ? (
-                      <div className="mt-10">
-                        <p className="m-0 font-semibold text-[14px] text-slate-200">Sincerely,</p>
-                        <div className="mt-6 h-[2px] w-[140px] bg-emerald-500/50" />
-                        <p className="m-0 mt-5 font-semibold text-[14px] text-slate-100">{recipientName}</p>
-                      </div>
-                    ) : null}
-
-                    {showCounterLetter && (
-                      <div className="mt-10 space-y-4 border-t border-sky-200/20 pt-6">
-                        {offerConsentNotice ? (
-                          <div className="rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-                            {offerConsentNotice}
-                          </div>
-                        ) : null}
-                        {offerRespondError ? (
-                          <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                            {offerRespondError}
-                          </div>
-                        ) : null}
-
-                        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                          <Button
-                            type="button"
-                            variant="primary"
-                            disabled={!canAcceptOrReject || offerRespondBusy !== false}
-                            title={
-                              !canAcceptOrReject
-                                ? selected.id
-                                  ? "Only available while the offer is awaiting your response."
-                                  : "This message can’t be used to respond (missing id)."
-                                : "Digitally sign in DocuSign; your acceptance is recorded only after signing."
-                            }
-                            onClick={() => void startAcceptSigning()}
-                            className="order-1 !flex-1 rounded-xl border border-emerald-500/35 bg-emerald-600/15 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-600/25 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
-                          >
-                            {offerRespondBusy === "sign" ? "Opening DocuSign…" : "Accept & sign"}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="danger"
-                            disabled={!canAcceptOrReject || offerRespondBusy !== false}
-                            title={
-                              !canAcceptOrReject
-                                ? selected.id
-                                  ? "Only available while the offer is awaiting your response."
-                                  : "This message can’t be used to respond (missing id)."
-                                : "Decline this offer"
-                            }
-                            onClick={() => {
-                              if (!canAcceptOrReject) return;
-                              if (!window.confirm("Decline this offer? The employer will see that you declined.")) return;
-                              void declineOffer();
-                            }}
-                            className="order-2 !flex-1 rounded-xl border border-red-500/35 bg-red-600/15 px-4 py-3 text-sm font-semibold text-red-200 transition hover:bg-red-600/25 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
-                          >
-                            {offerRespondBusy === "decline" ? "Declining…" : "Reject"}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="violet"
-                            disabled={!canSendCounter}
-                            title={
-                              !canSendCounter
-                                ? selected.id
-                                  ? "You can’t send another response for this offer."
-                                  : "This message can’t be used to send a counter (missing id)."
-                                : "Propose different terms in writing"
-                            }
-                            onClick={() => {
-                              setCounterError(null);
-                              setCounterModalOpen(true);
-                            }}
-                            className="order-3 !flex-1 rounded-xl border border-violet-500/40 bg-gradient-to-r from-violet-600/80 to-purple-600/80 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-900/15 disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[140px]"
-                          >
-                            Counter
-                          </Button>
-                        </div>
-
-                        {!selected.id && selected.status === "counter" ? (
-                          <p className="m-0 text-sm text-amber-200/90">
-                            Counter isn&apos;t available for this thread (missing message id). Contact the employer using the
-                            letter if needed.
-                          </p>
-                        ) : null}
-
-                        <p className="m-0 text-sm text-slate-300">
-                          {selected.status === "counter"
-                            ? "Your counter has been sent. Wait for the employer’s reply, or contact them if you need to follow up."
-                            : "Accept opens DocuSign — the offer is marked accepted only after you finish signing. Reject declines immediately. Use Counter to propose different terms."}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+          {selected.kind === "offer" &&
+          selected.status === "counter" &&
+          selected.counterLetter?.trim() &&
+          !selected.counterResponseStatus ? (
+            <div className="mb-6 rounded-xl border border-sky-200/20 bg-sky-950/10 p-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-sky-600/40 flex items-center justify-center text-white text-lg font-bold">
+                  C
+                </div>
+                <div>
+                  <h3 className="m-0 text-sky-200 font-bold">Counter sent</h3>
+                  {selected.counterSentAt ? (
+                    <p className="m-0 mt-1 text-sm text-slate-300">
+                      Sent {formatEmailDate(selected.counterSentAt)} at {formatTime(selected.counterSentAt)}
+                    </p>
+                  ) : (
+                    <p className="m-0 mt-1 text-sm text-slate-300">Sent to the employer.</p>
+                  )}
                 </div>
               </div>
-           
+
+              <p className="m-0 mt-4 text-sm text-slate-300">
+                Wait for the employer’s reply, or contact them if you need to follow up.
+              </p>
+            </div>
           ) : null}
 
           {selected.kind === "offer" &&
@@ -722,6 +629,21 @@ export default function CandidateMailsPage() {
           isLoading={counterSubmitting}
         />
       )}
+
+      <ConfirmModal
+        isOpen={declineConfirmOfferId !== null && selected?.id === declineConfirmOfferId}
+        title="Decline this offer?"
+        description="The employer will see that you declined."
+        confirmText={offerRespondBusy === "decline" ? "Declining..." : "Reject"}
+        cancelText="Cancel"
+        confirmVariant="danger"
+        isLoading={offerRespondBusy === "decline"}
+        onClose={() => setDeclineConfirmOfferId(null)}
+        onConfirm={async () => {
+          await declineOffer();
+          setDeclineConfirmOfferId(null);
+        }}
+      />
     </>
   );
 }

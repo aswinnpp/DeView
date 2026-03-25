@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Button, Table, Pagination, SearchInput } from "../../components/common";
 import { useInterviewerCompletedInterviews } from "../../hooks/interviewer/useInterviewerCompletedInterviews";
 import { interviewerCompletedInterviewsService } from "../../services/interviewerCompletedInterviews.service";
+import { interviewerFeedbackSchema } from "../../../../Shared/contracts/interviewer/interviewerFeedback.schema";
 
 type InterviewItem = {
   id: string;
@@ -11,7 +12,7 @@ type InterviewItem = {
   status: string;
 };
 
-const overallRatingField = { key: "overall", label: "Your Overall Score (1-5)" };
+const overallRatingField = { key: "overall", label: "Your Overall Score (1-10)" };
 
 const selectClass =
   "w-full py-2 px-3.5 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer";
@@ -39,6 +40,8 @@ const InterviewerManageInterviews = () => {
   const [submittedFeedbackIds, setSubmittedFeedbackIds] = useState<Set<string>>(new Set());
   const [showSubmittedModal, setShowSubmittedModal] = useState(false);
   const [submittedModalMessage, setSubmittedModalMessage] = useState("Feedback submitted successfully.");
+  const [formErrors, setFormErrors] = useState<{ overallScore?: string; comments?: string } | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const needsEvaluation = useMemo(() => interviews, [interviews]);
 
@@ -52,12 +55,16 @@ const InterviewerManageInterviews = () => {
     if (!evaluationDrafts[interview.id]) {
       setEvaluationDrafts((prev) => ({ ...prev, [interview.id]: ensureDraft() }));
     }
+    setFormErrors(null);
+    setSubmitError(null);
     setIsModalOpen(true);
   };
 
   const closeEvaluationModal = () => {
     setIsModalOpen(false);
     setCurrentInterview(null);
+    setFormErrors(null);
+    setSubmitError(null);
   };
 
   const handleDraftChange = (interviewId: string, field: "overallScore" | "comments", value: string | number) => {
@@ -68,6 +75,9 @@ const InterviewerManageInterviews = () => {
         [interviewId]: { ...draft, [field]: value },
       };
     });
+    // Clear previous validation messages when user edits the form.
+    setFormErrors(null);
+    setSubmitError(null);
   };
 
   const submitEvaluation = async () => {
@@ -75,19 +85,29 @@ const InterviewerManageInterviews = () => {
     const interviewId = currentInterview.id;
     const draft = evaluationDrafts[interviewId];
 
-    if (!draft?.comments) {
-      alert("Please add detailed comments.");
-      return;
-    }
-    if (draft.overallScore < 1 || draft.overallScore > 5) {
-      alert("Please ensure the overall score is between 1 and 5.");
+    setFormErrors(null);
+    setSubmitError(null);
+
+    const parsed = interviewerFeedbackSchema.safeParse({
+      overallScore: draft?.overallScore,
+      comments: draft?.comments,
+    });
+
+    if (!parsed.success) {
+      const nextErrors: { overallScore?: string; comments?: string } = {};
+      for (const issue of parsed.error.issues) {
+        const path = issue.path[0];
+        if (path === "overallScore") nextErrors.overallScore = issue.message;
+        if (path === "comments") nextErrors.comments = issue.message;
+      }
+      setFormErrors(nextErrors);
       return;
     }
 
     try {
       await interviewerCompletedInterviewsService.submitFeedback(interviewId, {
-        totalScore: draft.overallScore,
-        feedback: draft.comments,
+        totalScore: parsed.data.overallScore,
+        feedback: parsed.data.comments,
       });
       setSubmittedFeedbackIds((prev) => new Set(prev).add(interviewId));
       closeEvaluationModal();
@@ -100,14 +120,11 @@ const InterviewerManageInterviews = () => {
       setSubmittedModalMessage("Feedback submitted successfully.");
       setShowSubmittedModal(true);
     } catch (e) {
-      alert(
-        e instanceof Error ? e.message : "Failed to submit feedback. Please try again."
-      );
+      setSubmitError(e instanceof Error ? e.message : "Failed to submit feedback. Please try again.");
     }
   };
 
   const currentDraft = currentInterview ? evaluationDrafts[currentInterview.id] ?? ensureDraft() : ensureDraft();
-  const isFormValid = Boolean(currentDraft?.comments);
 
   const columns = [
     {
@@ -240,7 +257,7 @@ const InterviewerManageInterviews = () => {
                 <input
                   type="number"
                   min={1}
-                  max={5}
+                  max={10}
                   step={0.1}
                   className="w-full py-2 px-3 mt-1 border border-blue-400 rounded bg-white/90 text-slate-900"
                   value={currentDraft.overallScore}
@@ -248,6 +265,9 @@ const InterviewerManageInterviews = () => {
                     handleDraftChange(currentInterview.id, "overallScore", e.target.value)
                   }
                 />
+                {formErrors?.overallScore ? (
+                  <p className="m-0 mt-1 text-xs text-red-300">{formErrors.overallScore}</p>
+                ) : null}
               </label>
 
               <label className="block text-sm font-semibold text-white">
@@ -261,6 +281,9 @@ const InterviewerManageInterviews = () => {
                     handleDraftChange(currentInterview.id, "comments", e.target.value)
                   }
                 />
+                {formErrors?.comments ? (
+                  <p className="m-0 mt-1 text-xs text-red-300">{formErrors.comments}</p>
+                ) : null}
               </label>
             </div>
 
@@ -271,11 +294,14 @@ const InterviewerManageInterviews = () => {
               <Button
                 variant="primary"
                 onClick={submitEvaluation}
-                disabled={!isFormValid || isLoading}
+                // Let the submit handler run so Zod errors can be displayed inline.
+                disabled={isLoading}
               >
                 {isLoading ? "Submitting..." : "Finalize Evaluation"}
               </Button>
             </div>
+
+            {submitError ? <p className="m-0 mt-4 text-sm text-red-300">{submitError}</p> : null}
           </div>
         </div>
       )}

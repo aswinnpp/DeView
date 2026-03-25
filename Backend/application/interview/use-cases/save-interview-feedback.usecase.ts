@@ -42,7 +42,7 @@ export class SaveInterviewFeedbackUseCase implements ISaveInterviewFeedbackUseCa
       throw AppError.badRequest('Feedback is required');
     }
 
-    if (!Number.isFinite(totalScore) || totalScore < 1 || totalScore > 5) {
+    if (!Number.isFinite(totalScore) || totalScore < 1 || totalScore > 10) {
       throw AppError.badRequest('Total score must be between 1 and 5');
     }
 
