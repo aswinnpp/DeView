@@ -14,7 +14,7 @@ export async function interviewerSlotsRoutes(
     handler: controller.getMySlots,
   });
 
-  fastify.post("/slots", {
+  fastify.patch("/slots", {
     preHandler: requireRoles("interviewer"),
     schema: upsertInterviewerSlotsSchema,
     handler: controller.upsertMySlots,

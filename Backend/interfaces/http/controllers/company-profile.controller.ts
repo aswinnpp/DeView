@@ -7,6 +7,7 @@ import type { IUpdateCompanyProfileUseCase } from "../../../application/company/
 import { CompanyProfileMapper } from "../../../application/company/mappers/CompanyProfileMapper.js";
 import type { IFileStorage } from "../../../application/upload/ports/services/IFileStorage.js";
 import { AppError } from "../../../shared/errors/AppError";
+import { MESSAGES } from "../../../shared/constants/messages.js";
 
 interface IUpdateProfileBody {
   companyName?: string;
@@ -62,7 +63,7 @@ export class CompanyProfileController {
     const user = request.currentUser;
     const profile = await this._getProfileUseCase.execute(user.userId);
     const raw = (profile as unknown as { logoUrl?: string } | null)?.logoUrl ?? '';
-    if (!raw.trim()) throw AppError.notFound("Company logo not found");
+    if (!raw.trim()) throw AppError.notFound(MESSAGES.COMPANY_LOGO_NOT_FOUND);
     const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
     reply.send(success({ url }));
   };

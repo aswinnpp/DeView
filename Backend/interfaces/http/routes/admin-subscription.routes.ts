@@ -20,7 +20,7 @@ export async function subscriptionRoutes(
     handler: controller.update,
   });
 
-  fastify.post("/subscription/:id/toggle-active", {
+  fastify.patch("/subscription/:id/toggle-active", {
     handler: controller.toggle,
   });
 }

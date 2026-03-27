@@ -3,6 +3,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { TYPES } from "../../../infrastructure/di/types";
+import { MESSAGES } from "../../../shared/constants/messages.js";
 import type { ICheckCompanyStatusUseCase } from "../../../application/company/ports/usecase/ICheckCompanyStatusUseCase";
 import type { ISubmitCompanyApprovalUseCase } from "../../../application/company/ports/usecase/ISubmitCompanyApprovalUseCase";
 import type { IGetMyCompanyApprovalUseCase } from "../../../application/company/ports/usecase/IGetMyCompanyApprovalUseCase";
@@ -50,7 +51,7 @@ export class CompanyApprovalController {
     const dto = CompanyApprovalMapper.toSubmitDTO(request.body, ctx);
     const result = await this._submitApprovalUseCase.execute(dto);
     reply.code(HttpStatus.CREATED).send(success({
-      message: "Approval submitted",
+      message: MESSAGES.APPROVAL_SUBMITTED_SUCCESS,
       approvalId: result.approvalId,
     }));
   };

@@ -18,17 +18,17 @@ export async function adminCompanyApprovalRoutes(
         handler: controller.getApproved,
     });
 
-    fastify.post('/:id/approve', {
+    fastify.patch('/:id/approve', {
         schema: approveCompanySchema,
         handler: controller.approve,
     });
 
-    fastify.post('/:id/reject', {
+    fastify.patch('/:id/reject', {
         schema: rejectCompanySchema,
         handler: controller.reject,
     });
 
-    fastify.post('/:id/toggle-active', {
+    fastify.patch('/:id/toggle-active', {
         handler: controller.toggleActive,
     });
 

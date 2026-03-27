@@ -1,6 +1,9 @@
 import { Button, Table, Pagination, SearchInput } from "../../components/common";
 import { useInterviewerAssignments } from "../../hooks/interviewer";
 import type { InterviewerAssignmentItem } from "../../services/interviewerAssignments.service";
+import { interviewerAssignmentsService } from "../../services/interviewerAssignments.service";
+import { useState } from "react";
+import { MESSAGES } from "../../constants/messages";
 
 const selectClass =
   "w-full py-2 px-3.5 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer";
@@ -13,6 +16,7 @@ const getInterviewTypeLabel = (type?: string) => {
 
 
 const InterviewerAssignments = () => {
+  const [resumeLoadingId, setResumeLoadingId] = useState<string | null>(null);
   const {
     filtered,
     pendingCount,
@@ -40,6 +44,18 @@ const InterviewerAssignments = () => {
     formatDate,
     ITEMS_PER_PAGE,
   } = useInterviewerAssignments();
+
+  const handleViewResume = async (interviewId: string) => {
+    try {
+      setResumeLoadingId(interviewId);
+      const url = await interviewerAssignmentsService.getResumeViewUrl(interviewId);
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch {
+      window.alert(MESSAGES.UNABLE_TO_LOAD_RESUME);
+    } finally {
+      setResumeLoadingId(null);
+    }
+  };
 
   const columns = [
     {
@@ -94,9 +110,21 @@ const InterviewerAssignments = () => {
     {
       header: "Actions",
       render: (item: InterviewerAssignmentItem) => {
+        const viewBtn = (
+          <Button
+            variant="secondary"
+            className="!py-1.5 !px-3 text-xs !bg-slate-700"
+            onClick={() => handleViewResume(item.id)}
+            disabled={resumeLoadingId === item.id}
+          >
+            {resumeLoadingId === item.id ? "Loading..." : "View Resume"}
+          </Button>
+        );
+
         if (item.status === "pending" || item.status === "scheduled")
           return (
             <div className="flex gap-2">
+              {viewBtn}
               <Button
                 variant="primary"
                 className="!py-1.5 !px-3 text-xs"
@@ -116,10 +144,20 @@ const InterviewerAssignments = () => {
             </div>
           );
         if (item.status === "rejected")
-          return <span className="text-xs text-red-400 italic">Rejected</span>;
+          return (
+            <div className="flex gap-2 items-center">
+              {viewBtn}
+              <span className="text-xs text-red-400 italic">Rejected</span>
+            </div>
+          );
         if (item.status === "accepted")
-          return <span className="text-xs text-emerald-400 italic">✓ Accepted</span>;
-        return <span className="text-xs text-slate-500">—</span>;
+          return (
+            <div className="flex gap-2 items-center">
+              {viewBtn}
+              <span className="text-xs text-emerald-400 italic">✓ Accepted</span>
+            </div>
+          );
+        return <div className="flex gap-2">{viewBtn}</div>;
       },
     },
   ];

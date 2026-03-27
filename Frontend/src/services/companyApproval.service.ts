@@ -31,7 +31,7 @@ export type CompanyApprovalStatus = {
 
 export const companyApprovalService = {
     submit(data: SubmitCompanyApprovalRequest) {
-        return api.post<SubmitCompanyApprovalResponse>(API_ROUTES.COMPANY.SUBMIT_APPROVAL, data);
+        return api.patch<SubmitCompanyApprovalResponse>(API_ROUTES.COMPANY.SUBMIT_APPROVAL, data);
     },
 
     getMyApproval() {

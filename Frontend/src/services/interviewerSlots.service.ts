@@ -27,6 +27,6 @@ export const interviewerSlotsService = {
       .then((res) => res.data),
 
   upsertMySlots: (body: { slotDate: string; times: string[]; booked?: boolean }) =>
-    api.post<InterviewerSlotsDoc>(API_ROUTES.INTERVIEWER.SLOTS, body).then((res) => res.data),
+    api.patch<InterviewerSlotsDoc>(API_ROUTES.INTERVIEWER.SLOTS, body).then((res) => res.data),
 };
 

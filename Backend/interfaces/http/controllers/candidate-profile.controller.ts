@@ -11,6 +11,7 @@ import type { IToggleCandidateStatusUseCase } from "../../../application/candida
 import { CandidateProfileMapper } from "../../../application/candidate/mappers/CandidateProfileMapper.js";
 import type { IFileStorage } from "../../../application/upload/ports/services/IFileStorage.js";
 import { AppError } from "../../../shared/errors/AppError";
+import { MESSAGES } from "../../../shared/constants/messages.js";
 
 interface IProfileBody {
     fullName: string;
@@ -60,7 +61,7 @@ export class CandidateProfileController {
         const user = request.currentUser;
         const profile = await this._getProfileUseCase.execute(user.userId);
         const raw = profile?.resumeUrl ?? '';
-        if (!raw.trim()) throw AppError.notFound("Resume not found");
+        if (!raw.trim()) throw AppError.notFound(MESSAGES.RESUME_NOT_FOUND);
         const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
         reply.send(success({ url }));
     };
@@ -69,7 +70,7 @@ export class CandidateProfileController {
         const user = request.currentUser;
         const profile = await this._getProfileUseCase.execute(user.userId);
         const raw = profile?.profilePicUrl ?? '';
-        if (!raw.trim()) throw AppError.notFound("Profile picture not found");
+        if (!raw.trim()) throw AppError.notFound(MESSAGES.PROFILE_PICTURE_NOT_FOUND);
         const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
         reply.send(success({ url }));
     };

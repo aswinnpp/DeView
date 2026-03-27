@@ -95,9 +95,18 @@ export const interviewerAssignmentsService = {
         return { data, total };
       }),
 
+  getResumeViewUrl: async (interviewId: string): Promise<string> => {
+    const res = await api.get<{ url?: string }>(
+      API_ROUTES.INTERVIEWER.ASSIGNMENT_RESUME_VIEW_URL(interviewId)
+    );
+    const url = (res.data as { url?: string })?.url;
+    if (!url) throw new Error("No resume URL returned");
+    return url;
+  },
+
   accept: (interviewId: string) =>
-    api.post<{ data?: unknown }>(API_ROUTES.INTERVIEWER.ACCEPT(interviewId)).then((res) => res.data),
+    api.patch<{ data?: unknown }>(API_ROUTES.INTERVIEWER.ACCEPT(interviewId)).then((res) => res.data),
 
   reject: (interviewId: string, reason: string) =>
-    api.post<{ data?: unknown }>(API_ROUTES.INTERVIEWER.REJECT(interviewId), { reason }).then((res) => res.data),
+    api.patch<{ data?: unknown }>(API_ROUTES.INTERVIEWER.REJECT(interviewId), { reason }).then((res) => res.data),
 };

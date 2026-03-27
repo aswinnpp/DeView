@@ -225,11 +225,11 @@ export const candidateJobsService = {
   },
 
   submitOfferCounter: async (offerMailId: string, letter: string): Promise<void> => {
-    await api.post(API_ROUTES.CANDIDATE.OFFER_COUNTER(offerMailId), { letter });
+    await api.patch(API_ROUTES.CANDIDATE.OFFER_COUNTER(offerMailId), { letter });
   },
 
   respondToOffer: async (offerMailId: string, action: "decline"): Promise<void> => {
-    await api.post(API_ROUTES.CANDIDATE.OFFER_RESPOND(offerMailId), { action });
+    await api.patch(API_ROUTES.CANDIDATE.OFFER_RESPOND(offerMailId), { action });
   },
 
   beginOfferSigning: async (
@@ -239,7 +239,7 @@ export const candidateJobsService = {
     | { outcome: "accepted" }
     | { outcome: "consent_required" }
   > => {
-    const res = await api.post<
+    const res = await api.patch<
       | { outcome: "sign"; signingUrl: string }
       | { outcome: "accepted" }
       | { outcome: "consent_required" }
@@ -251,7 +251,7 @@ export const candidateJobsService = {
   },
 
   confirmOfferSigning: async (offerMailId: string): Promise<void> => {
-    await api.post(API_ROUTES.CANDIDATE.OFFER_SIGNING_CONFIRM(offerMailId));
+    await api.patch(API_ROUTES.CANDIDATE.OFFER_SIGNING_CONFIRM(offerMailId));
   },
 
   fetchOfferSignedPdf: async (offerMailId: string): Promise<Blob> => {

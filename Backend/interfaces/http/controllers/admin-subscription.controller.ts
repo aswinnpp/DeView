@@ -3,6 +3,7 @@ import { injectable, inject } from 'inversify';
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
 import { TYPES } from "../../../infrastructure/di/types";
+import { MESSAGES } from "../../../shared/constants/messages.js";
 import { SubscriptionMapper } from "../../../application/admin/mappers/SubscriptionMapper.js";
 import type { IAdminCreateSubscription } from "../../../application/admin/ports/usecase/IAdmin-CreateSubscriptionUsecase";
 import type { ICreateSubscriptionInputDTO } from "../../../application/admin/dtos/CreateSubscriptionDTO.js";
@@ -47,7 +48,7 @@ export class AdminSubscriptionController {
 
     reply
       .status(HttpStatus.CREATED)
-      .send(success({ message: "Subscription plan created successfully" }));
+      .send(success({ message: MESSAGES.SUBSCRIPTION_CREATED_SUCCESS }));
   };
 
   update = async (
@@ -59,7 +60,7 @@ export class AdminSubscriptionController {
 
     reply
       .status(HttpStatus.OK)
-      .send(success({ message: "Subscription plan updated successfully" }));
+      .send(success({ message: MESSAGES.SUBSCRIPTION_UPDATED_SUCCESS }));
   };
 
   list = async (

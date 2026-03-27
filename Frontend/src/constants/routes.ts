@@ -99,6 +99,8 @@ export const API_ROUTES = {
         PROFILE: '/interviewer/profile',
         ASSIGNMENTS: '/interviewer/assignments',
         SLOTS: '/interviewer/slots',
+        ASSIGNMENT_RESUME_VIEW_URL: (interviewId: string) =>
+            `/interviewer/assignments/${interviewId}/resume-view-url`,
         NOTIFICATIONS: {
             LIST: '/interviewer/notifications',
             MARK_READ: (notificationId: string) => `/interviewer/notifications/${notificationId}/read`,

@@ -13,22 +13,27 @@ export async function interviewerAssignmentsRoutes(
     handler: controller.list,
   });
 
+  fastify.get('/assignments/:interviewId/resume-view-url', {
+    preHandler: requireRoles('interviewer'),
+    handler: controller.getResumeViewUrl,
+  });
+
   fastify.get('/completed-interviews', {
     preHandler: requireRoles('interviewer'),
     handler: controller.listCompleted,
   });
 
-  fastify.post('/assignments/:interviewId/accept', {
+  fastify.patch('/assignments/:interviewId/accept', {
     preHandler: requireRoles('interviewer'),
     handler: controller.accept,
   });
 
-  fastify.post('/assignments/:interviewId/reject', {
+  fastify.patch('/assignments/:interviewId/reject', {
     preHandler: requireRoles('interviewer'),
     handler: controller.reject,
   });
 
-  fastify.post('/interviews/:interviewId/feedback', {
+  fastify.patch('/interviews/:interviewId/feedback', {
     preHandler: requireRoles('interviewer'),
     handler: controller.submitFeedback,
   });

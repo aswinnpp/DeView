@@ -12,6 +12,7 @@ import type { IMarkDocumentUseCase } from '../../../application/admin/ports/usec
 import type { IGetApprovedCompaniesUseCase } from '../../../application/admin/ports/usecase/IGetApprovedCompaniesUseCase.js';
 import type { IAdminToggleActivityUseCase } from '../../../application/admin/ports/usecase/IAdminToggleActivityUseCase.js';
 import type { CompanyDocuments } from '../../../domain/entities/CompanyApprovalEntitie.js';
+import { MESSAGES } from '../../../shared/constants/messages.js';
 
 interface IRejectBody {
   reason: string;
@@ -59,7 +60,7 @@ export class AdminCompanyApprovalController {
     const input = AdminCompanyApprovalMutationMapper.toApproveInput(request.params.id);
     await this._approveUseCase.execute(input);
 
-    reply.status(HttpStatus.OK).send(success({ message: 'Company approved successfully' }));
+    reply.status(HttpStatus.OK).send(success({ message: MESSAGES.COMPANY_APPROVED_SUCCESS }));
   };
 
   reject = async (
@@ -69,7 +70,7 @@ export class AdminCompanyApprovalController {
     const input = AdminCompanyApprovalMutationMapper.toRejectInput(request.params.id, request.body.reason);
     await this._rejectUseCase.execute(input);
 
-    reply.status(HttpStatus.OK).send(success({ message: 'Company rejected successfully' }));
+    reply.status(HttpStatus.OK).send(success({ message: MESSAGES.COMPANY_REJECTED_SUCCESS }));
   };
 
   toggleActive = async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
@@ -78,7 +79,7 @@ export class AdminCompanyApprovalController {
 
     reply.status(HttpStatus.OK).send(
       success({
-        message: 'Company status toggled successfully',
+        message: MESSAGES.COMPANY_STATUS_TOGGLED_SUCCESS,
         isActive: result.isActive,
       }),
     );

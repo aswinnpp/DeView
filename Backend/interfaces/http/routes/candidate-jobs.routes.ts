@@ -32,22 +32,22 @@ export async function candidateJobsRoutes(
     handler: controller.listMailbox,
   });
 
-  fastify.post('/mailbox/offers/:offerMailId/counter', {
+  fastify.patch('/mailbox/offers/:offerMailId/counter', {
     preHandler: requireRoles('candidate'),
     handler: controller.submitOfferCounter,
   });
 
-  fastify.post('/mailbox/offers/:offerMailId/respond', {
+  fastify.patch('/mailbox/offers/:offerMailId/respond', {
     preHandler: requireRoles('candidate'),
     handler: controller.respondToOffer,
   });
 
-  fastify.post('/mailbox/offers/:offerMailId/signing/begin', {
+  fastify.patch('/mailbox/offers/:offerMailId/signing/begin', {
     preHandler: requireRoles('candidate'),
     handler: controller.beginOfferSigning,
   });
 
-  fastify.post('/mailbox/offers/:offerMailId/signing/confirm', {
+  fastify.patch('/mailbox/offers/:offerMailId/signing/confirm', {
     preHandler: requireRoles('candidate'),
     handler: controller.confirmOfferSigning,
   });

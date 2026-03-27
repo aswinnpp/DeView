@@ -77,6 +77,7 @@ import { GetSignedOfferPdfUseCase } from '../../application/job-application/use-
 import { ListMyInterviewsUseCase } from '../../application/interview/use-cases/list-my-interviews.usecase.js';
 import { GetInterviewRoomDetailsUseCase } from '../../application/interview/use-cases/get-interview-room-details.usecase.js';
 import { ListInterviewerAssignmentsUseCase } from '../../application/interview/use-cases/list-interviewer-assignments.usecase.js';
+import { GetInterviewerAssignmentResumeViewUrlUseCase } from '../../application/interview/use-cases/get-interviewer-assignment-resume-view-url.usecase.js';
 import { AcceptInterviewAssignmentUseCase } from '../../application/interview/use-cases/accept-interview-assignment.usecase.js';
 import { RejectInterviewAssignmentUseCase } from '../../application/interview/use-cases/reject-interview-assignment.usecase.js';
 import { UpdateInterviewStatusUseCase } from '../../application/interview/use-cases/update-interview-status.usecase.js';
@@ -184,6 +185,9 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ListMyInterviewsUseCasePort).to(ListMyInterviewsUseCase);
   container.bind(TYPES.GetInterviewRoomDetailsUseCasePort).to(GetInterviewRoomDetailsUseCase);
   container.bind(TYPES.ListInterviewerAssignmentsUseCasePort).to(ListInterviewerAssignmentsUseCase);
+  container
+    .bind(TYPES.GetInterviewerAssignmentResumeViewUrlUseCasePort)
+    .to(GetInterviewerAssignmentResumeViewUrlUseCase);
   container.bind(TYPES.AcceptInterviewAssignmentUseCasePort).to(AcceptInterviewAssignmentUseCase);
   container.bind(TYPES.RejectInterviewAssignmentUseCasePort).to(RejectInterviewAssignmentUseCase);
   container.bind(TYPES.UpdateInterviewStatusUseCasePort).to(UpdateInterviewStatusUseCase);

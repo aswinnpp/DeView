@@ -16,7 +16,7 @@ export async function applicationsRoutes(
     handler: controller.downloadOfferSignedPdf,
   });
 
-  fastify.post('/offer-mails/:offerMailId/counter/respond', {
+  fastify.patch('/offer-mails/:offerMailId/counter/respond', {
     handler: controller.respondToCounterLetter,
   });
 
@@ -36,7 +36,7 @@ export async function applicationsRoutes(
     handler: controller.precheckScheduleInterview,
   });
 
-  fastify.post('/jobs/:jobId/score-candidates', {
+  fastify.patch('/jobs/:jobId/score-candidates', {
     handler: controller.scoreCandidates,
   });
 
@@ -44,7 +44,7 @@ export async function applicationsRoutes(
     handler: controller.updateStatus,
   });
 
-  fastify.post('/jobs/:jobId/applications/:applicationId/interview', {
+  fastify.patch('/jobs/:jobId/applications/:applicationId/interview', {
     handler: controller.scheduleInterview,
   });
 

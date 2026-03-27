@@ -290,7 +290,7 @@ export const applicationsService = {
       linkedinUrl: c.linkedinUrl,
       githubUrl: c.githubUrl,
     }));
-    const res = await api.post<{ scores: Array<{ applicationId: string; matchScore: number }> }>(
+    const res = await api.patch<{ scores: Array<{ applicationId: string; matchScore: number }> }>(
       API_ROUTES.APPLICATIONS.SCORE_CANDIDATES(jobId),
       { candidates: payload }
     );
@@ -329,7 +329,7 @@ export const applicationsService = {
     offerMailId: string,
     action: "accept" | "reject"
   ): Promise<void> => {
-    await api.post(API_ROUTES.APPLICATIONS.COUNTER_RESPOND(offerMailId), { action });
+    await api.patch(API_ROUTES.APPLICATIONS.COUNTER_RESPOND(offerMailId), { action });
   },
 
   listOfferMails: async (
@@ -431,7 +431,7 @@ export const applicationsService = {
       slotStartIso?: string;
     }
   ): Promise<ApplicationItem> => {
-    const res = await api.post<{ application?: ApplicationItem }>(
+    const res = await api.patch<{ application?: ApplicationItem }>(
       API_ROUTES.APPLICATIONS.SCHEDULE_INTERVIEW(jobId, applicationId),
       payload
     );

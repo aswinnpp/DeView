@@ -92,7 +92,7 @@ export const authService = {
     },
 
     checkCompanyStatus() {
-        return api.post<CompanyStatusResponse>(API_ROUTES.COMPANY.CHECK_STATUS, {});
+        return api.get<CompanyStatusResponse>(API_ROUTES.COMPANY.CHECK_STATUS);
     },
 
     logout() {

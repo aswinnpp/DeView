@@ -8,12 +8,15 @@ import type { IAcceptInterviewAssignmentUseCase } from '../../../application/int
 import type { IRejectInterviewAssignmentUseCase } from '../../../application/interview/ports/usecase/IRejectInterviewAssignmentUseCase.js';
 import type { IListCompletedInterviewsForInterviewerUseCase } from '../../../application/interview/ports/usecase/IListCompletedInterviewsForInterviewerUseCase.js';
 import type { ISaveInterviewFeedbackUseCase } from '../../../application/interview/ports/usecase/ISaveInterviewFeedbackUseCase.js';
+import type { IGetInterviewerAssignmentResumeViewUrlUseCase } from '../../../application/interview/ports/usecase/IGetInterviewerAssignmentResumeViewUrlUseCase.js';
 
 @injectable()
 export class InterviewerAssignmentsController {
   constructor(
     @inject(TYPES.ListInterviewerAssignmentsUseCasePort)
     private readonly _listAssignmentsUseCase: IListInterviewerAssignmentsUseCase,
+    @inject(TYPES.GetInterviewerAssignmentResumeViewUrlUseCasePort)
+    private readonly _getResumeViewUrlUseCase: IGetInterviewerAssignmentResumeViewUrlUseCase,
     @inject(TYPES.AcceptInterviewAssignmentUseCasePort)
     private readonly _acceptAssignmentUseCase: IAcceptInterviewAssignmentUseCase,
     @inject(TYPES.RejectInterviewAssignmentUseCasePort)
@@ -50,6 +53,17 @@ export class InterviewerAssignmentsController {
     );
     const result = await this._listCompletedUseCase.execute(input);
     reply.send(success({ data: result.data, total: result.total }));
+  };
+
+  getResumeViewUrl = async (
+    request: FastifyRequest<{ Params: { interviewId: string } }>,
+    reply: FastifyReply
+  ) => {
+    const result = await this._getResumeViewUrlUseCase.execute({
+      interviewId: request.params.interviewId,
+      interviewerUserId: request.currentUser.userId,
+    });
+    reply.send(success(result));
   };
 
   accept = async (request: FastifyRequest<{ Params: { interviewId: string } }>, reply: FastifyReply) => {

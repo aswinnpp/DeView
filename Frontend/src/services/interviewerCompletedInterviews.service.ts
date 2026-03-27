@@ -102,7 +102,7 @@ export const interviewerCompletedInterviewsService = {
 
   submitFeedback: (interviewId: string, payload: { totalScore: number; feedback: string }) =>
     api
-      .post(API_ROUTES.INTERVIEWER.SUBMIT_FEEDBACK(interviewId), payload)
+      .patch(API_ROUTES.INTERVIEWER.SUBMIT_FEEDBACK(interviewId), payload)
       .then((res) => res.data),
 };
 
