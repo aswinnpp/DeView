@@ -20,6 +20,8 @@ export interface ApplicationView {
   education?: string;
   university?: string;
   graduationYear?: string;
+  educationList?: Array<{ degree: string; institution: string; year: string }>;
+  workExperience?: Array<{ jobTitle: string; company: string; startDate: string; endDate?: string; description?: string }>;
   linkedinUrl?: string;
   githubUrl?: string;
   resumeUrl: string;

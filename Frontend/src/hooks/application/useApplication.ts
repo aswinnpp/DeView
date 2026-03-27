@@ -48,6 +48,8 @@ export interface Candidate {
   languages?: string[];
   university?: string;
   graduationYear?: string;
+  educationList?: Array<{ degree: string; institution: string; year: string }>;
+  workExperience?: Array<{ jobTitle: string; company: string; startDate: string; endDate?: string; description?: string }>;
   linkedinUrl?: string;
   githubUrl?: string;
   dateOfBirth?: string;
@@ -155,6 +157,8 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     skillsArray,
     university: apiApp.university,
     graduationYear: apiApp.graduationYear,
+    educationList: apiApp.educationList ?? [],
+    workExperience: apiApp.workExperience ?? [],
     linkedinUrl: apiApp.linkedinUrl,
     githubUrl: apiApp.githubUrl,
     resumeUrl: apiApp.resumeUrl,

@@ -36,6 +36,8 @@ function toDomain(doc: IApplicationDocument): Application {
     doc.education,
     doc.university,
     doc.graduationYear,
+    doc.educationList ?? [],
+    doc.workExperience ?? [],
     doc.linkedinUrl,
     doc.githubUrl,
     doc.resumeUrl,

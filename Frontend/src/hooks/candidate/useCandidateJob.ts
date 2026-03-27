@@ -119,6 +119,7 @@ export function useCandidateJob() {
   const hasActiveFilters = searchQuery || jobTypeFilter !== "all" || sortOrder !== "desc";
 
   const handleJobClick = useCallback((job: CandidateJob) => {
+    setButton(true);
     setSelectedJob(job);
 
 

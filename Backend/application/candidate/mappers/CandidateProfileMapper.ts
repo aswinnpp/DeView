@@ -4,6 +4,20 @@ import type {
 } from '../dtos/CandidateProfileDTO.js';
 import type { CallerContext } from '../../shared/types/CallerContext.js';
 
+export interface IEducationEntryBody {
+  degree: string;
+  institution: string;
+  year: string;
+}
+
+export interface IWorkExperienceEntryBody {
+  jobTitle: string;
+  company: string;
+  startDate: string;
+  endDate?: string;
+  description?: string;
+}
+
 export interface ICreateProfileBody {
   fullName: string;
   email: string;
@@ -25,6 +39,8 @@ export interface ICreateProfileBody {
   education: string;
   university: string;
   graduationYear: string;
+  educationList?: IEducationEntryBody[];
+  workExperience?: IWorkExperienceEntryBody[];
   linkedinUrl?: string;
   githubUrl?: string;
   resumeUrl?: string;

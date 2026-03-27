@@ -1,3 +1,6 @@
+export type EducationEntryApp = { degree: string; institution: string; year: string };
+export type WorkExperienceEntryApp = { jobTitle: string; company: string; startDate: string; endDate?: string; description?: string };
+
 export type ApplicationStatus =
   | 'PENDING'
   | 'SHORTLISTED'
@@ -57,6 +60,8 @@ export class Application {
     public education?: string,
     public university?: string,
     public graduationYear?: string,
+    public educationList: EducationEntryApp[] = [],
+    public workExperience: WorkExperienceEntryApp[] = [],
     public linkedinUrl?: string,
     public githubUrl?: string,
     public resumeUrl: string = '',

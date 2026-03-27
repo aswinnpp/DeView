@@ -1,5 +1,19 @@
 import { DomainError } from "../../shared/errors/DomainError";
 
+export interface IEducationEntry {
+    degree: string;
+    institution: string;
+    year: string;
+}
+
+export interface IWorkExperienceEntry {
+    jobTitle: string;
+    company: string;
+    startDate: string;
+    endDate?: string;
+    description?: string;
+}
+
 export class CandidateProfile {
     constructor(
         public id: string | null,
@@ -24,6 +38,8 @@ export class CandidateProfile {
         public education?: string,
         public university?: string,
         public graduationYear?: string,
+        public educationList: IEducationEntry[] = [],
+        public workExperience: IWorkExperienceEntry[] = [],
         public linkedinUrl?: string,
         public githubUrl?: string,
         public resumeUrl?: string,
@@ -53,6 +69,8 @@ export class CandidateProfile {
         if (fields.education !== undefined) this.education = fields.education;
         if (fields.university !== undefined) this.university = fields.university;
         if (fields.graduationYear !== undefined) this.graduationYear = fields.graduationYear;
+        if (fields.educationList !== undefined) this.educationList = fields.educationList;
+        if (fields.workExperience !== undefined) this.workExperience = fields.workExperience;
         if (fields.linkedinUrl !== undefined) this.linkedinUrl = fields.linkedinUrl;
         if (fields.githubUrl !== undefined) this.githubUrl = fields.githubUrl;
         if (fields.resumeUrl !== undefined) this.resumeUrl = fields.resumeUrl;

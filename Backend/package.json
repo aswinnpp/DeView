@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "tsx watch server.ts",
-    "build": "tsc",
+     "build": "tsup server.ts --format esm --out-dir dist",
     "start": "node dist/server.js",
     "test": "echo \\\"Error: no test specified\\\" && exit 1",
     "docusign:token": "tsx scripts/docusign-jwt-token.ts"
@@ -55,6 +55,7 @@
     "rotating-file-stream": "^3.2.9",
     "socket.io": "^4.8.3",
     "stripe": "^20.4.0",
+    "tsup": "^8.5.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {

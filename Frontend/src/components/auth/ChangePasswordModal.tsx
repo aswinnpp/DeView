@@ -77,7 +77,7 @@ export function ChangePasswordModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/85 flex items-center justify-center z-[1000] p-5 overflow-y-auto"
+      className="fixed inset-0 bg-black/85 flex items-start justify-center z-[1000] p-5 pt-[10vh] overflow-y-auto"
       onClick={onClose}
       role="dialog"
       aria-modal="true"

@@ -31,6 +31,25 @@ const NOTICE_PERIOD_OPTIONS = [
     '3 months',
 ] as const;
 
+// ─── Education & Work Experience sub-schemas ────────────────────
+export const educationEntrySchema = z.object({
+    degree: z.string().trim().min(1, { message: 'Degree/Qualification is required' }),
+    institution: z.string().trim().min(1, { message: 'Institution is required' }),
+    year: z.string().trim().min(1, { message: 'Year is required' }),
+});
+
+export type EducationEntry = z.infer<typeof educationEntrySchema>;
+
+export const workExperienceEntrySchema = z.object({
+    jobTitle: z.string().trim().min(1, { message: 'Job title is required' }),
+    company: z.string().trim().min(1, { message: 'Company is required' }),
+    startDate: z.string().trim().min(1, { message: 'Start date is required' }),
+    endDate: optionalString,
+    description: optionalString,
+});
+
+export type WorkExperienceEntry = z.infer<typeof workExperienceEntrySchema>;
+
 // ─── Schema ─────────────────────────────────────────────────────
 export const candidateProfileSchema = z.object({
     fullName: z
@@ -104,9 +123,14 @@ export const candidateProfileSchema = z.object({
         (arr) => arr.some((s) => s !== ''),
         { message: 'At least one language is required' }
     ),
+    // Legacy single education fields (kept for backward compatibility)
     education: z.string().trim().min(1, { message: 'Education is required' }),
     university: z.string().trim().min(1, { message: 'University/School is required' }),
     graduationYear: z.string().trim().min(1, { message: 'Graduation year is required' }),
+    // Multiple education entries
+    educationList: z.array(educationEntrySchema).catch([]),
+    // Multiple work experience entries
+    workExperience: z.array(workExperienceEntrySchema).catch([]),
     linkedinUrl: optionalLinkedInUrl,
     githubUrl: optionalGithubUrl,
     resumeUrl: optionalString,
@@ -116,3 +140,4 @@ export const candidateProfileSchema = z.object({
 export type CandidateProfileData = z.infer<typeof candidateProfileSchema>;
 
 export const candidateProfileUpdateSchema = candidateProfileSchema.partial();
+

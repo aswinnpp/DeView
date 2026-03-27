@@ -74,6 +74,8 @@ export class ApplyForJobUseCase implements IApplyForJobUseCase {
       education: profile.education,
       university: profile.university,
       graduationYear: profile.graduationYear,
+      educationList: profile.educationList ?? [],
+      workExperience: profile.workExperience ?? [],
       linkedinUrl: profile.linkedinUrl,
       githubUrl: profile.githubUrl,
       resumeUrl: effectiveResumeUrl,

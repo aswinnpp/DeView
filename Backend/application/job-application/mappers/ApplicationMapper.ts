@@ -72,6 +72,8 @@ export const ApplicationMapper = {
       education: app.education,
       university: app.university,
       graduationYear: app.graduationYear,
+      educationList: app.educationList ?? [],
+      workExperience: app.workExperience ?? [],
       linkedinUrl: app.linkedinUrl,
       githubUrl: app.githubUrl,
       resumeUrl: app.resumeUrl,

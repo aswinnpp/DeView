@@ -34,6 +34,12 @@ const Profile = () => {
         handleArrayChange,
         addArrayItem,
         removeArrayItem,
+        addEducation,
+        removeEducation,
+        updateEducation,
+        addWorkExperience,
+        removeWorkExperience,
+        updateWorkExperience,
         handleFormSubmit,
         handleCancel,
         handleLogout,
@@ -477,11 +483,149 @@ const Profile = () => {
 
                             {/* Education */}
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Education</h3>
-                                <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-md:gap-y-2 max-md:gap-x-0 max-[900px]:grid-cols-1">
-                                    <Input label="Highest Qualification *" {...register('education')} disabled={!isEditing} placeholder="e.g., Bachelor of Science in Computer Science" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.education?.message} style={errorBorderStyle(validationErrors.education?.message)} />
-                                    <Input label="University/School *" {...register('university')} disabled={!isEditing} placeholder="e.g., Stanford University" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.university?.message} style={errorBorderStyle(validationErrors.university?.message)} />
-                                    <Input label="Graduation Year *" {...register('graduationYear')} disabled={!isEditing} placeholder="e.g., 2021" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.graduationYear?.message} style={errorBorderStyle(validationErrors.graduationYear?.message)} />
+                                <div className="flex items-center justify-between mb-2.5 max-md:mb-2">
+                                    <h3 className="m-0 text-base max-md:text-sm font-bold text-white">Education</h3>
+                                    {isEditing && (
+                                        <Button type="button" variant="secondary" className="!bg-[rgba(255,255,255,0.03)] border border-dashed border-[rgba(255,255,255,0.06)] !text-[rgba(255,255,255,0.9)] py-1.5 px-3 rounded-[10px] font-bold text-xs" onClick={addEducation}>
+                                            + Add Education
+                                        </Button>
+                                    )}
+                                </div>
+                                {(profileData.educationList ?? []).length === 0 && !isEditing && (
+                                    <p className="text-[rgba(255,255,255,0.5)] italic text-sm m-0">No additional education added yet</p>
+                                )}
+                                <div className="flex flex-col gap-4">
+                                    {(profileData.educationList ?? []).map((entry, index) => (
+                                        <div key={index} className="bg-[rgba(255,255,255,0.02)] rounded-lg p-4 border border-[rgba(255,255,255,0.04)]">
+                                            {isEditing ? (
+                                                <div className="flex flex-col gap-3">
+                                                    <div className="grid grid-cols-3 gap-3 max-[900px]:grid-cols-1">
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Degree / Qualification</label>
+                                                            <input
+                                                                className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)]"
+                                                                value={entry.degree}
+                                                                onChange={(e) => updateEducation(index, 'degree', e.target.value)}
+                                                                placeholder="e.g., Master of Science in CS"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Institution</label>
+                                                            <input
+                                                                className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)]"
+                                                                value={entry.institution}
+                                                                onChange={(e) => updateEducation(index, 'institution', e.target.value)}
+                                                                placeholder="e.g., MIT"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Year</label>
+                                                            <input
+                                                                className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)]"
+                                                                value={entry.year}
+                                                                onChange={(e) => updateEducation(index, 'year', e.target.value)}
+                                                                placeholder="e.g., 2023"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex justify-end">
+                                                        <Button type="button" variant="danger" className="py-1.5 px-3 rounded-md text-xs" onClick={() => removeEducation(index)}>
+                                                            Remove
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-white font-semibold text-sm">{entry.degree}</span>
+                                                    <span className="text-[rgba(255,255,255,0.7)] text-[13px]">{entry.institution} • {entry.year}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+
+                            {/* Work Experience */}
+                            <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
+                                <div className="flex items-center justify-between mb-2.5 max-md:mb-2">
+                                    <h3 className="m-0 text-base max-md:text-sm font-bold text-white">Work Experience</h3>
+                                    {isEditing && (
+                                        <Button type="button" variant="secondary" className="!bg-[rgba(255,255,255,0.03)] border border-dashed border-[rgba(255,255,255,0.06)] !text-[rgba(255,255,255,0.9)] py-1.5 px-3 rounded-[10px] font-bold text-xs" onClick={addWorkExperience}>
+                                            + Add Experience
+                                        </Button>
+                                    )}
+                                </div>
+                                {(profileData.workExperience ?? []).length === 0 && !isEditing && (
+                                    <p className="text-[rgba(255,255,255,0.5)] italic text-sm m-0">No work experience added yet</p>
+                                )}
+                                <div className="flex flex-col gap-4">
+                                    {(profileData.workExperience ?? []).map((entry, index) => (
+                                        <div key={index} className="bg-[rgba(255,255,255,0.02)] rounded-lg p-4 border border-[rgba(255,255,255,0.04)]">
+                                            {isEditing ? (
+                                                <div className="flex flex-col gap-3">
+                                                    <div className="grid grid-cols-2 gap-3 max-[900px]:grid-cols-1">
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Job Title</label>
+                                                            <input
+                                                                className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)]"
+                                                                value={entry.jobTitle}
+                                                                onChange={(e) => updateWorkExperience(index, 'jobTitle', e.target.value)}
+                                                                placeholder="e.g., Senior Frontend Developer"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Company</label>
+                                                            <input
+                                                                className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)]"
+                                                                value={entry.company}
+                                                                onChange={(e) => updateWorkExperience(index, 'company', e.target.value)}
+                                                                placeholder="e.g., Google"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Start Date</label>
+                                                            <input
+                                                                type="date"
+                                                                className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none"
+                                                                value={entry.startDate}
+                                                                onChange={(e) => updateWorkExperience(index, 'startDate', e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">End Date <span className="text-[rgba(255,255,255,0.4)] font-normal">(leave empty if current)</span></label>
+                                                            <input
+                                                                type="date"
+                                                                className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none"
+                                                                value={entry.endDate ?? ''}
+                                                                onChange={(e) => updateWorkExperience(index, 'endDate', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1.5">
+                                                        <label className="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold">Description</label>
+                                                        <textarea
+                                                            className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none resize-y min-h-16 placeholder:text-[rgba(255,255,255,0.45)]"
+                                                            value={entry.description ?? ''}
+                                                            onChange={(e) => updateWorkExperience(index, 'description', e.target.value)}
+                                                            rows={3}
+                                                            placeholder="Describe your role and responsibilities..."
+                                                        />
+                                                    </div>
+                                                    <div className="flex justify-end">
+                                                        <Button type="button" variant="danger" className="py-1.5 px-3 rounded-md text-xs" onClick={() => removeWorkExperience(index)}>
+                                                            Remove
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-white font-semibold text-sm">{entry.jobTitle}</span>
+                                                    <span className="text-[rgba(255,255,255,0.7)] text-[13px]">{entry.company} • {entry.startDate} – {entry.endDate || 'Present'}</span>
+                                                    {entry.description && <p className="text-[rgba(255,255,255,0.6)] text-[13px] m-0 mt-1">{entry.description}</p>}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
                             </section>
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
@@ -541,12 +685,8 @@ const Profile = () => {
                             </section>
 
                             <section className="bg-[rgba(255,255,255,0.01)] rounded-xl p-[18px] max-md:p-4 border border-[rgba(255,255,255,0.02)]">
-                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Professional & Links (optional)</h3>
+                                <h3 className="m-0 mb-2.5 max-md:mb-2 text-base max-md:text-sm font-bold text-white">Links (optional)</h3>
                                 <div className="grid grid-cols-2 gap-y-3 gap-x-[18px] max-md:gap-y-2 max-md:gap-x-0 max-[900px]:grid-cols-1">
-                                    <Input label="Job Title" {...register('title')} disabled={!isEditing} placeholder="e.g., Frontend Developer" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.title?.message} style={errorBorderStyle(validationErrors.title?.message)} />
-                                    <Input label="Current Company" {...register('currentCompany')} disabled={!isEditing} placeholder="e.g., Google" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.currentCompany?.message} style={errorBorderStyle(validationErrors.currentCompany?.message)} />
-                                    <Input label="Current Salary" {...register('currentSalary')} disabled={!isEditing} placeholder="e.g., $80,000/year" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.currentSalary?.message} style={errorBorderStyle(validationErrors.currentSalary?.message)} />
-                                    <Input label="Years of Experience" {...register('experience')} disabled={!isEditing} placeholder="e.g., 3 years" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.experience?.message} style={errorBorderStyle(validationErrors.experience?.message)} />
                                     <Input label="LinkedIn URL" {...register('linkedinUrl')} disabled={!isEditing} placeholder="https://linkedin.com/in/yourprofile" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.linkedinUrl?.message} style={errorBorderStyle(validationErrors.linkedinUrl?.message)} />
                                     <Input label="GitHub URL" {...register('githubUrl')} disabled={!isEditing} placeholder="https://github.com/yourusername" className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.95)] py-2.5 px-3 rounded-lg text-sm outline-none placeholder:text-[rgba(255,255,255,0.45)] disabled:opacity-70" labelClassName="text-[13px] text-[rgba(255,255,255,0.8)] font-semibold" errorClassName="text-[#ef4444] text-xs mt-1 block" wrapperClassName="flex flex-col gap-2" error={validationErrors.githubUrl?.message} style={errorBorderStyle(validationErrors.githubUrl?.message)} />
                                 </div>

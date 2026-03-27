@@ -1,5 +1,19 @@
 import { ObjectId } from "mongodb";
 
+export interface IEducationEntryDocument {
+    degree: string;
+    institution: string;
+    year: string;
+}
+
+export interface IWorkExperienceEntryDocument {
+    jobTitle: string;
+    company: string;
+    startDate: string;
+    endDate?: string;
+    description?: string;
+}
+
 export interface ICandidateProfileDocument {
     _id?: ObjectId;
     userId: string;
@@ -23,6 +37,8 @@ export interface ICandidateProfileDocument {
     education?: string;
     university?: string;
     graduationYear?: string;
+    educationList?: IEducationEntryDocument[];
+    workExperience?: IWorkExperienceEntryDocument[];
     linkedinUrl?: string;
     githubUrl?: string;
     resumeUrl?: string;

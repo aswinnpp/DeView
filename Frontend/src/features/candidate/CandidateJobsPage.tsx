@@ -42,12 +42,18 @@ const CandidateJobsPage: React.FC = () => {
         buttonn
     } = useCandidateJob();
 
+    // Auto-select the first job whenever jobs list changes
+    React.useEffect(() => {
+        if (jobs.length > 0) {
+            if (!selectedJob || !jobs.some(j => j.id === selectedJob.id)) {
+                handleJobClick(jobs[0]);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [jobs]);
 
 
-
-
-
-
+    /* ───────────────── Application Confirm Screen (unchanged) ───────────────── */
     if (selectedJob && showApplicationConfirm) {
         return (
             <div className="min-h-screen w-full bg-linear-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)]">
@@ -206,201 +212,22 @@ const CandidateJobsPage: React.FC = () => {
         );
     }
 
-    if (selectedJob) {
-        return (
-            <div className="min-h-screen w-full bg-linear-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)]">
-                <div className="w-full min-h-screen bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px] overflow-hidden">
-                    <CandidateNavHeader title="JOB DETAILS" currentPage="jobs" />
 
-                    <div className="pt-[72px] py-7 px-4 sm:px-6 lg:px-8 pb-20 max-md:pb-12">
-                        <div className="w-full max-w-3xl mx-auto">
-                            {/* Header */}
-                            <header className="text-center">
-                                <p className="m-0 text-xs font-semibold tracking-wide uppercase text-[rgba(148,163,184,0.85)]">
-                                    {selectedJob.companyName || "Company"}
-                                </p>
-                                <h1 className="m-0 mt-2 text-[28px] sm:text-[32px] md:text-[36px] font-extrabold text-[rgba(226,232,240,0.98)] leading-tight tracking-tight">
-                                    {selectedJob.title}
-                                </h1>
-                                <p className="mt-3 mb-1 text-[13px] sm:text-sm text-[rgba(148,163,184,0.9)] flex flex-wrap gap-x-3 gap-y-1 items-center justify-center">
-                                    <span>{selectedJob.location}</span>
-                                    {selectedJob.jobType && (
-                                        <>
-                                            <span className="text-[rgba(148,163,184,0.7)]">•</span>
-                                            <span>{selectedJob.jobType}</span>
-                                        </>
-                                    )}
-                                    {selectedJob.workMode && (
-                                        <>
-                                            <span className="text-[rgba(148,163,184,0.7)]">•</span>
-                                            <span>{selectedJob.workMode}</span>
-                                        </>
-                                    )}
-                                </p>
-                                <p className="m-0 text-[11px] text-[rgba(148,163,184,0.8)]">
-                                    Posted on {new Date(selectedJob.createdAt).toLocaleDateString()}
-                                    {selectedJob.applicationDeadline && (
-                                        <>
-                                            {" "}• Apply by{" "}
-                                            {new Date(selectedJob.applicationDeadline).toLocaleDateString()}
-                                        </>
-                                    )}
-                                </p>
-                            </header>
-
-                            {/* Meta row */}
-                            <section className="mt-8">
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center text-sm text-[rgba(226,232,240,0.9)]">
-                                    <div>
-                                        <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.8)] mb-1">
-                                            Experience
-                                        </p>
-                                        <p className="m-0 text-[13px] text-[rgba(226,232,240,0.9)]">
-                                            {selectedJob.experienceLevel}
-                                            {(selectedJob.minExperience || selectedJob.maxExperience) &&
-                                                ` • ${[selectedJob.minExperience, selectedJob.maxExperience].filter(Boolean).join("–")} yrs`}
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.8)] mb-1">
-                                            Positions
-                                        </p>
-                                        <p className="m-0 text-[13px] text-[rgba(226,232,240,0.9)]">
-                                            {selectedJob.numberOfPositions ?? "-"}
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.8)] mb-1">
-                                            Salary
-                                        </p>
-                                        <p className="m-0 text-[13px] text-[rgba(226,232,240,0.9)]">
-                                            {selectedJob.salaryNonDisclosure
-                                                ? "Not disclosed"
-                                                : selectedJob.salary || "-"}
-                                        </p>
-                                    </div>
-                                </div>
-                            </section>
-
-                            {/* Primary action */}
-                            <section className="mt-8 flex justify-center">
-                                {buttonn ? (
-                                    <Button
-                                        type="button"
-                                        onClick={handleApplyClick}
-                                        className="inline-flex items-center justify-center rounded-full bg-linear-to-br from-brand-primary to-brand-secondary px-8 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(79,70,229,0.5)] hover:shadow-[0_14px_35px_rgba(79,70,229,0.7)] transition-all duration-150"
-                                    >
-                                        Apply Now
-                                    </Button>
-                                ) : (
-                                    <span className="inline-flex items-center rounded-full border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.9)] px-5 py-2 text-xs font-medium text-[rgba(148,163,184,0.95)]">
-                                        Already applied
-                                    </span>
-                                )}
-                            </section>
-
-                            {/* Content sections */}
-                            <div className="mt-10 space-y-8 text-[15px] leading-relaxed text-[rgba(148,163,184,0.96)] text-left">
-                                    <section>
-                                        <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
-                                            Job Description
-                                        </h2>
-                                        <p className="m-0 whitespace-pre-wrap">
-                                            {selectedJob.description || "No description available."}
-                                        </p>
-                                    </section>
-
-                                    {selectedJob.responsibilities && (
-                                        <section>
-                                            <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
-                                                Key Responsibilities
-                                            </h2>
-                                            <p className="m-0 whitespace-pre-wrap">
-                                                {selectedJob.responsibilities}
-                                            </p>
-                                        </section>
-                                    )}
-
-                                    {selectedJob.qualifications && (
-                                        <section>
-                                            <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
-                                                Qualifications
-                                            </h2>
-                                            <p className="m-0 whitespace-pre-wrap">
-                                                {selectedJob.qualifications}
-                                            </p>
-                                        </section>
-                                    )}
-
-                                    {selectedJob.skills && (
-                                        <section>
-                                            <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
-                                                Required Skills
-                                            </h2>
-                                            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-                                                {(Array.isArray(selectedJob.skills)
-                                                    ? selectedJob.skills
-                                                    : String(selectedJob.skills).split(",")
-                                                )
-                                                    .map((skill: string, idx: number) => {
-                                                        const label = skill.trim();
-                                                        if (!label) return null;
-                                                        return (
-                                                            <span
-                                                                key={idx}
-                                                                className="inline-flex items-center rounded-full bg-[rgba(129,140,248,0.16)] px-3 py-1.5 text-xs font-semibold text-indigo-200 border border-[rgba(129,140,248,0.45)]"
-                                                            >
-                                                                {label}
-                                                            </span>
-                                                        );
-                                                    })}
-                                            </div>
-                                        </section>
-                                    )}
-
-                                    {selectedJob.benefits && (
-                                        <section>
-                                            <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
-                                                Benefits
-                                            </h2>
-                                            <p className="m-0 whitespace-pre-wrap">
-                                                {selectedJob.benefits}
-                                            </p>
-                                        </section>
-                                    )}
-
-                                    {selectedJob.interviewRounds && selectedJob.interviewRounds.length > 0 && (
-                                        <section>
-                                            <h2 className="m-0 text-base sm:text-lg font-bold uppercase tracking-wide text-[rgba(226,232,240,0.96)] mb-2">
-                                                Interview Rounds
-                                            </h2>
-                                            <ul className="m-0 pl-5 space-y-1 text-[15px] text-left">
-                                                {selectedJob.interviewRounds.map((round, idx) => (
-                                                    <li key={idx}>{round}</li>
-                                                ))}
-                                            </ul>
-                                        </section>
-                                    )}
-                                </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
+    /* ───────────────── Main Split Layout ───────────────── */
     return (
-        <div className="min-h-screen w-full bg-linear-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)]">
-            <div className="w-full min-h-screen bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px] overflow-hidden">
+        <div className="h-screen w-full bg-linear-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)] overflow-hidden">
+            <div className="h-full w-full bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px] overflow-hidden flex flex-col">
                 <CandidateNavHeader title="AVAILABLE JOBS" currentPage="jobs" />
 
-                <div className="pt-[72px] py-7 px-4 sm:px-6 lg:px-12 pb-20 max-md:pb-12">
-                    <div className="">
-                        <div className="mb-5 sm:mb-6 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.9)] px-4 py-3.5 sm:px-5 sm:py-4">
-                            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                                <div className="w-full md:max-w-xs">
+                <div className="pt-[72px] flex flex-col lg:flex-row flex-1 overflow-hidden">
+
+                    {/* ─── Left Panel: Job List (fixed, no scroll) ─── */}
+                    <div className="w-full lg:w-[55%] flex flex-col border-r border-[rgba(255,255,255,0.06)] overflow-hidden">
+
+                        {/* Filters */}
+                        <div className="shrink-0 px-4 py-4 sm:px-5 border-b border-[rgba(255,255,255,0.06)]">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                                <div className="w-full sm:max-w-[300px]">
                                     <label className="block text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.9)] mb-1.5">
                                         Search
                                     </label>
@@ -409,7 +236,6 @@ const CandidateJobsPage: React.FC = () => {
                                         onSearch={handleSearch}
                                     />
                                 </div>
-
                                 <div className="flex flex-wrap items-end gap-3">
                                     <div className="w-[120px]">
                                         <label className="block text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.9)] mb-1.5">
@@ -417,10 +243,7 @@ const CandidateJobsPage: React.FC = () => {
                                         </label>
                                         <select
                                             value={jobTypeFilter}
-                                            onChange={(e) => {
-                                                setJobTypeFilter(e.target.value);
-                                                setPage(1);
-                                            }}
+                                            onChange={(e) => { setJobTypeFilter(e.target.value); setPage(1); }}
                                             className="w-full rounded-lg border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.98)] px-2.5 py-1.5 text-[11px] text-slate-100 outline-none focus:border-brand-primary focus:ring-2 focus:ring-[rgba(102,126,234,0.4)] cursor-pointer"
                                         >
                                             <option value="all">All Types</option>
@@ -431,24 +254,19 @@ const CandidateJobsPage: React.FC = () => {
                                             <option value="Internship">Internship</option>
                                         </select>
                                     </div>
-
                                     <div className="w-[120px]">
                                         <label className="block text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.9)] mb-1.5">
                                             Date order
                                         </label>
                                         <select
                                             value={sortOrder}
-                                            onChange={(e) => {
-                                                setSortOrder(e.target.value as "asc" | "desc");
-                                                setPage(1);
-                                            }}
+                                            onChange={(e) => { setSortOrder(e.target.value as "asc" | "desc"); setPage(1); }}
                                             className="w-full rounded-lg border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.98)] px-2.5 py-1.5 text-[11px] text-slate-100 outline-none focus:border-brand-primary focus:ring-2 focus:ring-[rgba(102,126,234,0.4)] cursor-pointer"
                                         >
                                             <option value="desc">Newest first</option>
                                             <option value="asc">Oldest first</option>
                                         </select>
                                     </div>
-
                                     {hasActiveFilters && (
                                         <Button
                                             type="button"
@@ -463,102 +281,218 @@ const CandidateJobsPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {error && (
-                            <div className="mb-4 rounded-lg border border-red-500/50 bg-[rgba(248,113,113,0.08)] px-4 py-3 text-sm text-red-200">
-                                Failed to load jobs: {error}
-                            </div>
-                        )}
-
-                        {(!isLoading && total === 0 && !error) ? (
-                            <div className="flex flex-col items-center justify-center rounded-2xl border border-[rgba(148,163,184,0.35)] bg-[rgba(15,23,42,0.9)] px-6 py-14 text-center">
-                                <h3 className="m-0 text-lg font-semibold text-slate-100 mb-2">
-                                    {searchQuery || jobTypeFilter !== "all"
-                                        ? "No jobs found"
-                                        : "No jobs available"}
-                                </h3>
-                                <p className="m-0 text-sm text-[rgba(148,163,184,0.9)]">
-                                    {searchQuery || jobTypeFilter !== "all"
-                                        ? "No jobs match your search criteria. Try adjusting your filters."
-                                        : "Check back later for new opportunities."}
-                                </p>
-                            </div>
-                        ) : isLoading && jobs.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center rounded-2xl border border-[rgba(148,163,184,0.35)] bg-[rgba(15,23,42,0.9)] px-6 py-14 text-center">
-                                <p className="m-0 text-sm text-[rgba(148,163,184,0.9)]">Loading jobs...</p>
-                            </div>
-                        ) : (
-                            <div className="rounded-2xl border border-[rgba(148,163,184,0.4)] bg-[rgba(15,23,42,0.9)]/95 overflow-hidden shadow-[0_18px_40px_rgba(0,0,0,0.7)]">
-                                <div className="flex flex-col gap-2 border-b border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.9)] px-4 py-3.5 sm:px-5 sm:py-4 sm:flex-row sm:items-center sm:justify-between">
-                                    <div>
-                                        <h3 className="m-0 text-base sm:text-lg font-semibold text-white">
-                                            Jobs for you
-                                        </h3>
-                                        <p className="m-0 text-[11px] sm:text-xs text-[rgba(148,163,184,0.9)] mt-1">
-                                            Based on your profile and preferences
-                                        </p>
-                                    </div>
-
+                        {/* Job Cards */}
+                        <div className="flex-1 overflow-hidden px-4 py-3 space-y-3">
+                            {error && (
+                                <div className="rounded-lg border border-red-500/50 bg-[rgba(248,113,113,0.08)] px-4 py-3 text-sm text-red-200">
+                                    Failed to load jobs: {error}
                                 </div>
+                            )}
 
-                                <div>
-                                    {jobs.map((job) => (
-                                        <button
-                                            key={job.id}
-                                            type="button"
-                                            onClick={() => handleJobClick(job)}
-                                            className="flex w-full items-start px-4 py-3.5 sm:px-5 sm:py-4 border-b border-[rgba(148,163,184,0.25)] bg-transparent hover:bg-[rgba(30,41,59,0.9)] transition-colors text-left"
-                                        >
+                            {!isLoading && total === 0 && !error ? (
+                                <div className="flex flex-col items-center justify-center rounded-xl border border-[rgba(148,163,184,0.25)] bg-[rgba(15,23,42,0.7)] px-6 py-14 text-center">
+                                    <h3 className="m-0 text-lg font-semibold text-slate-100 mb-2">
+                                        {searchQuery || jobTypeFilter !== "all" ? "No jobs found" : "No jobs available"}
+                                    </h3>
+                                    <p className="m-0 text-sm text-[rgba(148,163,184,0.9)]">
+                                        {searchQuery || jobTypeFilter !== "all"
+                                            ? "No jobs match your search criteria. Try adjusting your filters."
+                                            : "Check back later for new opportunities."}
+                                    </p>
+                                </div>
+                            ) : isLoading && jobs.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center rounded-xl border border-[rgba(148,163,184,0.25)] bg-[rgba(15,23,42,0.7)] px-6 py-14 text-center">
+                                    <p className="m-0 text-sm text-[rgba(148,163,184,0.9)]">Loading jobs...</p>
+                                </div>
+                            ) : (
+                                jobs.map((job) => (
+                                    <button
+                                        key={job.id}
+                                        type="button"
+                                        onClick={() => handleJobClick(job)}
+                                        className={`w-full text-left rounded-xl border px-4 py-3.5 transition-all duration-200 cursor-pointer ${
+                                            selectedJob?.id === job.id
+                                                ? 'border-brand-primary bg-[rgba(102,126,234,0.08)] border-l-[3px] border-l-brand-primary'
+                                                : 'border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.6)] hover:bg-[rgba(30,41,59,0.7)] hover:border-[rgba(255,255,255,0.12)]'
+                                        }`}
+                                    >
+                                        <div>
                                             <div className="min-w-0 flex-1">
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <h4 className="m-0 text-[13px] sm:text-sm font-semibold text-indigo-200 group-hover:text-indigo-100">
-                                                        {job.title}
-
-                                                    </h4>
-                                                </div>
-                                                <p className="mt-0.5 mb-0 text-[12px] sm:text-xs text-slate-100">
+                                                <h4 className="m-0 text-[14px] font-semibold text-white truncate">
+                                                    {job.title}
+                                                </h4>
+                                                <p className="m-0 mt-0.5 text-[12px] text-[rgba(148,163,184,0.9)] truncate">
                                                     {job.companyName || "Company"}
-                                                    <span className="mx-1.5 text-[rgba(148,163,184,0.9)]">•</span>
+                                                    <span className="mx-1.5">•</span>
                                                     {job.location}
-                                                    {job.jobType && (
-                                                        <>
-                                                            <span className="mx-1.5 text-[rgba(148,163,184,0.9)]">
-                                                                •
-                                                            </span>
-                                                            <span className="text-[rgba(148,163,184,0.95)]">
-                                                                {job.jobType}
-                                                            </span>
-                                                        </>
-                                                    )}
-                                                    {!job.salaryNonDisclosure && job.salary && (
-                                                        <>
-                                                            <span className="mx-1.5 text-[rgba(148,163,184,0.9)]">
-                                                                •
-                                                            </span>
-                                                            <span className="text-emerald-400">{job.salary}</span>
-                                                        </>
-                                                    )}
-                                                </p>
-                                                <p className="mt-0.5 mb-0 text-[11px] sm:text-[11px] text-[rgba(148,163,184,0.9)]">
+                                                    {job.jobType && (<><span className="mx-1.5">•</span>{job.jobType}</>)}
+                                                    <span className="mx-1.5">•</span>
                                                     {formatPostedTime(job.createdAt)}
                                                 </p>
+                                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                                    {job.jobType && (
+                                                        <span className="inline-flex rounded-full bg-[rgba(16,185,129,0.15)] px-2.5 py-0.5 text-[11px] font-medium text-emerald-400 border border-[rgba(16,185,129,0.3)]">
+                                                            {job.jobType}
+                                                        </span>
+                                                    )}
+                                                    {job.workMode && (
+                                                        <span className="inline-flex rounded-full bg-[rgba(16,185,129,0.15)] px-2.5 py-0.5 text-[11px] font-medium text-emerald-400 border border-[rgba(16,185,129,0.3)]">
+                                                            {job.workMode}
+                                                        </span>
+                                                    )}
+                                                    {!job.salaryNonDisclosure && job.salary && (
+                                                        <span className="inline-flex rounded-full bg-[rgba(16,185,129,0.15)] px-2.5 py-0.5 text-[11px] font-medium text-emerald-400 border border-[rgba(16,185,129,0.3)]">
+                                                            Salary · {job.salary}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
+                                        </div>
+                                    </button>
+                                ))
+                            )}
+                        </div>
 
-                                            <div className="hidden sm:flex items-center text-[rgba(148,163,184,0.9)] text-lg">
-                                                →
-                                            </div>
-                                        </button>
-                                    ))}
+                        {/* Pagination — anchored at bottom of left panel */}
+                        <div className="shrink-0 mt-auto px-4 py-3 border-t border-[rgba(255,255,255,0.06)]">
+                            {totalPages > 0 && jobs.length > 0 && (
+                                <Pagination
+                                    page={page}
+                                    totalPages={totalPages || 1}
+                                    onPageChange={handlePageChange}
+                                />
+                            )}
+                        </div>
+                    </div>
 
+                    {/* ─── Right Panel: Job Detail (only scrollable area) ─── */}
+                    <div className="w-full lg:w-[45%] overflow-y-auto bg-[rgba(10,12,20,0.4)]">
+                        {selectedJob ? (
+                            <div className="px-5 py-5 lg:px-7 lg:py-6">
+                                <h2 className="m-0 text-base font-semibold text-[rgba(226,232,240,0.9)] mb-5">
+                                    Job Detail
+                                </h2>
 
-
-                                    <Pagination
-                                        page={page}
-                                        totalPages={totalPages || 1}
-                                        onPageChange={handlePageChange}
-                                    />
+                                {/* Job Header Card */}
+                                <div className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.7)] px-5 py-5 mb-6">
+                                    <h3 className="m-0 text-lg font-bold text-white">{selectedJob.title}</h3>
+                                    <p className="m-0 mt-1 text-[13px] text-[rgba(148,163,184,0.9)]">
+                                        {selectedJob.companyName || "Company"}
+                                        <span className="mx-1.5">•</span>
+                                        {selectedJob.location}
+                                        {selectedJob.jobType && (<><span className="mx-1.5">•</span>{selectedJob.jobType}</>)}
+                                    </p>
                                 </div>
 
+                                {/* Key Highlights */}
+                                <div className="mb-6">
+                                    <h4 className="m-0 text-sm font-semibold text-[rgba(226,232,240,0.9)] mb-3">Key Highlights</h4>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <div className="rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.5)] px-3 py-3">
+                                            <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.7)] mb-1">Salary</p>
+                                            <p className="m-0 text-[13px] font-medium text-emerald-400">
+                                                {selectedJob.salaryNonDisclosure ? "Not disclosed" : selectedJob.salary || "-"}
+                                            </p>
+                                        </div>
+                                        <div className="rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.5)] px-3 py-3">
+                                            <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.7)] mb-1">Experience Level</p>
+                                            <p className="m-0 text-[13px] font-medium text-[rgba(226,232,240,0.9)]">
+                                                {selectedJob.experienceLevel}
+                                                {(selectedJob.minExperience || selectedJob.maxExperience) &&
+                                                    ` · ${[selectedJob.minExperience, selectedJob.maxExperience].filter(Boolean).join("–")} yrs`}
+                                            </p>
+                                        </div>
+                                        <div className="rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.5)] px-3 py-3">
+                                            <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.7)] mb-1">Location</p>
+                                            <p className="m-0 text-[13px] font-medium text-[rgba(226,232,240,0.9)]">{selectedJob.location}</p>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                {/* Detailed Job Description */}
+                                <div className="space-y-5 text-[14px] leading-relaxed text-[rgba(148,163,184,0.96)]">
+                                    <div>
+                                        <h4 className="m-0 text-[15px] font-bold text-[rgba(226,232,240,0.96)] mb-1.5">Detailed Job Description</h4>
+                                        <h5 className="m-0 text-[14px] font-semibold text-[rgba(226,232,240,0.85)] mb-1">Role Summary</h5>
+                                        <p className="m-0 whitespace-pre-wrap">{selectedJob.description || "No description available."}</p>
+                                    </div>
+
+                                    {selectedJob.responsibilities && (
+                                        <div>
+                                            <h5 className="m-0 text-[14px] font-semibold text-[rgba(226,232,240,0.85)] mb-1">Responsibilities</h5>
+                                            <p className="m-0 whitespace-pre-wrap">{selectedJob.responsibilities}</p>
+                                        </div>
+                                    )}
+
+                                    {selectedJob.qualifications && (
+                                        <div>
+                                            <h5 className="m-0 text-[14px] font-semibold text-[rgba(226,232,240,0.85)] mb-1">Requirements</h5>
+                                            <p className="m-0 whitespace-pre-wrap">{selectedJob.qualifications}</p>
+                                        </div>
+                                    )}
+
+                                    {selectedJob.skills && (
+                                        <div>
+                                            <h5 className="m-0 text-[14px] font-semibold text-[rgba(226,232,240,0.85)] mb-1">Required Skills</h5>
+                                            <div className="flex flex-wrap gap-2">
+                                                {(Array.isArray(selectedJob.skills)
+                                                    ? selectedJob.skills
+                                                    : String(selectedJob.skills).split(",")
+                                                ).map((skill: string, idx: number) => {
+                                                    const label = skill.trim();
+                                                    if (!label) return null;
+                                                    return (
+                                                        <span
+                                                            key={idx}
+                                                            className="inline-flex rounded-full bg-[rgba(129,140,248,0.16)] px-3 py-1.5 text-xs font-semibold text-indigo-200 border border-[rgba(129,140,248,0.45)]"
+                                                        >
+                                                            {label}
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {selectedJob.benefits && (
+                                        <div>
+                                            <h5 className="m-0 text-[14px] font-semibold text-[rgba(226,232,240,0.85)] mb-1">Benefits</h5>
+                                            <p className="m-0 whitespace-pre-wrap">{selectedJob.benefits}</p>
+                                        </div>
+                                    )}
+
+                                    {selectedJob.interviewRounds && selectedJob.interviewRounds.length > 0 && (
+                                        <div>
+                                            <h5 className="m-0 text-[14px] font-semibold text-[rgba(226,232,240,0.85)] mb-1">Interview Rounds</h5>
+                                            <ul className="m-0 pl-5 space-y-1 text-[14px]">
+                                                {selectedJob.interviewRounds.map((round, idx) => (
+                                                    <li key={idx}>{round}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Bottom Apply Button */}
+                                <div className="mt-6 flex items-center justify-end">
+                                    {buttonn ? (
+                                        <Button
+                                            type="button"
+                                            onClick={handleApplyClick}
+                                            className="inline-flex items-center justify-center rounded-lg bg-brand-green px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-dark transition-colors"
+                                        >
+                                            Apply Now
+                                        </Button>
+                                    ) : (
+                                        <span className="inline-flex rounded-lg bg-[rgba(148,163,184,0.12)] border border-[rgba(148,163,184,0.3)] px-5 py-2 text-sm font-medium text-[rgba(148,163,184,0.95)]">
+                                            Already Applied
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center h-full">
+                                <p className="text-sm text-[rgba(148,163,184,0.7)]">Select a job to view details</p>
                             </div>
                         )}
                     </div>

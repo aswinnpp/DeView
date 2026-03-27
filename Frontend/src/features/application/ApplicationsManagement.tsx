@@ -94,6 +94,8 @@ interface Candidate {
     languages?: string[];
     university?: string;
     graduationYear?: string;
+    educationList?: Array<{ degree: string; institution: string; year: string }>;
+    workExperience?: Array<{ jobTitle: string; company: string; startDate: string; endDate?: string; description?: string }>;
     linkedinUrl?: string;
     githubUrl?: string;
     dateOfBirth?: string;
@@ -501,14 +503,6 @@ const HRApplicationsPage = () => {
                         }`}
                 >
                     {job.type}
-                </span>
-            ),
-        },
-        {
-            header: "Department",
-            render: (job: Job) => (
-                <span className="text-slate-400 text-sm">
-                    {job.department}
                 </span>
             ),
         },
@@ -985,24 +979,36 @@ const HRApplicationsPage = () => {
                         {/* Education */}
                         <div style={{ marginBottom: 20, padding: 16, backgroundColor: '#0f172a', borderRadius: 12, border: '1px solid #334155' }}>
                             <h4 style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600, margin: '0 0 12px', textTransform: 'uppercase', borderBottom: '1px solid #334155', paddingBottom: 8 }}>Education</h4>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                                <div>
-                                    <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Highest Qualification</span>
-                                    <p style={{ color: '#e2e8f0', margin: '4px 0 0', fontSize: 14, fontWeight: 500 }}>{selectedCandidate.education}</p>
+                            {(selectedCandidate.educationList && selectedCandidate.educationList.length > 0) ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    {selectedCandidate.educationList.map((edu, idx) => (
+                                        <div key={idx} style={{ padding: 12, backgroundColor: '#1e293b', borderRadius: 8, border: '1px solid #334155' }}>
+                                            <p style={{ color: '#e2e8f0', margin: 0, fontSize: 14, fontWeight: 600 }}>{edu.degree}</p>
+                                            <p style={{ color: '#94a3b8', margin: '4px 0 0', fontSize: 13 }}>{edu.institution} • {edu.year}</p>
+                                        </div>
+                                    ))}
                                 </div>
-                                {selectedCandidate.university && (
-                                    <div>
-                                        <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>University/School</span>
-                                        <p style={{ color: '#e2e8f0', margin: '4px 0 0', fontSize: 14, fontWeight: 500 }}>{selectedCandidate.university}</p>
-                                    </div>
-                                )}
-                                {selectedCandidate.graduationYear && (
-                                    <div>
-                                        <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Graduation Year</span>
-                                        <p style={{ color: '#e2e8f0', margin: '4px 0 0', fontSize: 14, fontWeight: 500 }}>{selectedCandidate.graduationYear}</p>
-                                    </div>
-                                )}
-                            </div>
+                            ) : (
+                                <p style={{ color: '#64748b', fontSize: 13, margin: 0, fontStyle: 'italic' }}>No education details added</p>
+                            )}
+                        </div>
+
+                        {/* Work Experience */}
+                        <div style={{ marginBottom: 20, padding: 16, backgroundColor: '#0f172a', borderRadius: 12, border: '1px solid #334155' }}>
+                            <h4 style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600, margin: '0 0 12px', textTransform: 'uppercase', borderBottom: '1px solid #334155', paddingBottom: 8 }}>Work Experience</h4>
+                            {(selectedCandidate.workExperience && selectedCandidate.workExperience.length > 0) ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    {selectedCandidate.workExperience.map((work, idx) => (
+                                        <div key={idx} style={{ padding: 12, backgroundColor: '#1e293b', borderRadius: 8, border: '1px solid #334155' }}>
+                                            <p style={{ color: '#e2e8f0', margin: 0, fontSize: 14, fontWeight: 600 }}>{work.jobTitle}</p>
+                                            <p style={{ color: '#94a3b8', margin: '4px 0 0', fontSize: 13 }}>{work.company} • {work.startDate} – {work.endDate || 'Present'}</p>
+                                            {work.description && <p style={{ color: '#64748b', margin: '6px 0 0', fontSize: 13, lineHeight: 1.5 }}>{work.description}</p>}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p style={{ color: '#64748b', fontSize: 13, margin: 0, fontStyle: 'italic' }}>No work experience added</p>
+                            )}
                         </div>
 
                         {/* Links (Optional) */}

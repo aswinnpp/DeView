@@ -27,6 +27,8 @@ export class MongoJobApplicationRepository implements IJobApplicationRepository 
       education: input.education,
       university: input.university,
       graduationYear: input.graduationYear,
+      educationList: input.educationList,
+      workExperience: input.workExperience,
       linkedinUrl: input.linkedinUrl,
       githubUrl: input.githubUrl,
       resumeUrl: input.resumeUrl,

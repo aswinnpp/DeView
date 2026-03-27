@@ -10,6 +10,8 @@ import { logout } from '../../context/authSlice';
 import {
   candidateProfileSchema,
   type CandidateProfileData,
+  type EducationEntry,
+  type WorkExperienceEntry,
 } from '@shared/contracts/candidateProfile/profile';
 import { extractApiError } from '../../api/axios';
 
@@ -39,6 +41,8 @@ function getDefaultValues(email: string): CandidateProfileData {
     githubUrl: '',
     resumeUrl: '',
     profilePicUrl: '',
+    educationList: [],
+    workExperience: [],
   };
 }
 
@@ -128,6 +132,41 @@ export function useCandidateProfile() {
     [form]
   );
 
+  // ─── Education list helpers ───────────────────────────────────
+  const addEducation = useCallback(() => {
+    const current = form.getValues('educationList') ?? [];
+    form.setValue('educationList', [...current, { degree: '', institution: '', year: '' }], { shouldDirty: true });
+  }, [form]);
+
+  const removeEducation = useCallback((index: number) => {
+    const current = form.getValues('educationList') ?? [];
+    form.setValue('educationList', current.filter((_: EducationEntry, i: number) => i !== index), { shouldDirty: true });
+  }, [form]);
+
+  const updateEducation = useCallback((index: number, field: keyof EducationEntry, value: string) => {
+    const current = form.getValues('educationList') ?? [];
+    const updated = [...current];
+    updated[index] = { ...updated[index], [field]: value };
+    form.setValue('educationList', updated, { shouldDirty: true });
+  }, [form]);
+
+  // ─── Work experience helpers ──────────────────────────────────
+  const addWorkExperience = useCallback(() => {
+    const current = form.getValues('workExperience') ?? [];
+    form.setValue('workExperience', [...current, { jobTitle: '', company: '', startDate: '', endDate: '', description: '' }], { shouldDirty: true });
+  }, [form]);
+
+  const removeWorkExperience = useCallback((index: number) => {
+    const current = form.getValues('workExperience') ?? [];
+    form.setValue('workExperience', current.filter((_: WorkExperienceEntry, i: number) => i !== index), { shouldDirty: true });
+  }, [form]);
+
+  const updateWorkExperience = useCallback((index: number, field: keyof WorkExperienceEntry, value: string) => {
+    const current = form.getValues('workExperience') ?? [];
+    const updated = [...current];
+    updated[index] = { ...updated[index], [field]: value };
+    form.setValue('workExperience', updated, { shouldDirty: true });
+  }, [form]);
 
 
   // ─── Submit (save) ────────────────────────────────────────────
@@ -217,6 +256,12 @@ export function useCandidateProfile() {
     handleArrayChange,
     addArrayItem,
     removeArrayItem,
+    addEducation,
+    removeEducation,
+    updateEducation,
+    addWorkExperience,
+    removeWorkExperience,
+    updateWorkExperience,
     handleFormSubmit,
     handleCancel,
     handleLogout,

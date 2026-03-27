@@ -59,7 +59,7 @@ function normalizePemFromEnv(raw: string): string {
 }
 
 export class DocuSignJwtAuthService {
-  constructor(private readonly config: DocuSignJwtAuthConfig) {}
+  constructor(private readonly config: DocuSignJwtAuthConfig) { }
 
   static fromEnv(e: IEnvConfig): DocuSignJwtAuthService | null {
     const integrationKey = e.DOCUSIGN_INTEGRATION_KEY?.trim();
@@ -73,7 +73,7 @@ export class DocuSignJwtAuthService {
       userId,
       privateKeyPem: normalizePemFromEnv(rawKey),
       oauthHost: (e.DOCUSIGN_OAUTH_HOST ?? DOCUSIGN_DEMO_OAUTH_HOST).replace(/^https?:\/\//, ''),
-      redirectUri: (e.DOCUSIGN_REDIRECT_URI ?? 'http://localhost:3000/offer/success').trim(),
+      redirectUri: (e.DOCUSIGN_REDIRECT_URI ?? 'https://elizebeth-ungreeted-noncapitalistically.ngrok-free.dev/offer/success').trim(),
       jwtLifetimeSeconds: e.DOCUSIGN_JWT_LIFETIME_SECONDS
         ? parseInt(e.DOCUSIGN_JWT_LIFETIME_SECONDS, 10)
         : 600,
