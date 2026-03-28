@@ -25,7 +25,7 @@ export class GetInterviewerAssignmentResumeViewUrlUseCase
     const { interviewId, interviewerUserId } = input;
 
     const interview = await this._interviewRepo.findById(interviewId);
-    if (!interview) throw AppError.notFound(MESSAGES.INTERVIEW_NOT_FOUND);
+    if (!interview) throw AppError.notFound(MESSAGES.NOT_FOUND);
     if (interview.interviewerUserId !== interviewerUserId) throw AppError.forbidden(MESSAGES.NOT_ALLOWED);
 
     const application = await this._applicationRepo.findByIdAndJobId(
@@ -34,7 +34,7 @@ export class GetInterviewerAssignmentResumeViewUrlUseCase
       interview.companyId
     );
     if (!application?.resumeUrl?.trim())
-      throw AppError.notFound(MESSAGES.APPLICATION_OR_RESUME_NOT_FOUND);
+      throw AppError.notFound(MESSAGES.NOT_FOUND);
 
     const url = await this._fileStorage.getSignedViewUrl(application.resumeUrl, 3600);
     return { url };

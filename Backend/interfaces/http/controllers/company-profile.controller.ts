@@ -63,7 +63,7 @@ export class CompanyProfileController {
     const user = request.currentUser;
     const profile = await this._getProfileUseCase.execute(user.userId);
     const raw = (profile as unknown as { logoUrl?: string } | null)?.logoUrl ?? '';
-    if (!raw.trim()) throw AppError.notFound(MESSAGES.COMPANY_LOGO_NOT_FOUND);
+    if (!raw.trim()) throw AppError.notFound(MESSAGES.NOT_FOUND);
     const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
     reply.send(success({ url }));
   };

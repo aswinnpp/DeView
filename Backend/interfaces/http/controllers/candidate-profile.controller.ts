@@ -61,7 +61,7 @@ export class CandidateProfileController {
         const user = request.currentUser;
         const profile = await this._getProfileUseCase.execute(user.userId);
         const raw = profile?.resumeUrl ?? '';
-        if (!raw.trim()) throw AppError.notFound(MESSAGES.RESUME_NOT_FOUND);
+        if (!raw.trim()) throw AppError.notFound(MESSAGES.NOT_FOUND);
         const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
         reply.send(success({ url }));
     };
@@ -70,7 +70,7 @@ export class CandidateProfileController {
         const user = request.currentUser;
         const profile = await this._getProfileUseCase.execute(user.userId);
         const raw = profile?.profilePicUrl ?? '';
-        if (!raw.trim()) throw AppError.notFound(MESSAGES.PROFILE_PICTURE_NOT_FOUND);
+        if (!raw.trim()) throw AppError.notFound(MESSAGES.NOT_FOUND);
         const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
         reply.send(success({ url }));
     };

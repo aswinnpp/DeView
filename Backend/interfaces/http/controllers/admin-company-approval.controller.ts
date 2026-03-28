@@ -60,7 +60,7 @@ export class AdminCompanyApprovalController {
     const input = AdminCompanyApprovalMutationMapper.toApproveInput(request.params.id);
     await this._approveUseCase.execute(input);
 
-    reply.status(HttpStatus.OK).send(success({ message: MESSAGES.COMPANY_APPROVED_SUCCESS }));
+    reply.status(HttpStatus.OK).send(success({ message: MESSAGES.SUCCESS }));
   };
 
   reject = async (
@@ -70,7 +70,7 @@ export class AdminCompanyApprovalController {
     const input = AdminCompanyApprovalMutationMapper.toRejectInput(request.params.id, request.body.reason);
     await this._rejectUseCase.execute(input);
 
-    reply.status(HttpStatus.OK).send(success({ message: MESSAGES.COMPANY_REJECTED_SUCCESS }));
+    reply.status(HttpStatus.OK).send(success({ message: MESSAGES.SUCCESS }));
   };
 
   toggleActive = async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
@@ -79,7 +79,7 @@ export class AdminCompanyApprovalController {
 
     reply.status(HttpStatus.OK).send(
       success({
-        message: MESSAGES.COMPANY_STATUS_TOGGLED_SUCCESS,
+        message: MESSAGES.SUCCESS,
         isActive: result.isActive,
       }),
     );

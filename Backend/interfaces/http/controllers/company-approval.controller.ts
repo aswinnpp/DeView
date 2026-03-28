@@ -51,7 +51,7 @@ export class CompanyApprovalController {
     const dto = CompanyApprovalMapper.toSubmitDTO(request.body, ctx);
     const result = await this._submitApprovalUseCase.execute(dto);
     reply.code(HttpStatus.CREATED).send(success({
-      message: MESSAGES.APPROVAL_SUBMITTED_SUCCESS,
+      message: MESSAGES.SUCCESS,
       approvalId: result.approvalId,
     }));
   };

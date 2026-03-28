@@ -48,7 +48,7 @@ export class AdminSubscriptionController {
 
     reply
       .status(HttpStatus.CREATED)
-      .send(success({ message: MESSAGES.SUBSCRIPTION_CREATED_SUCCESS }));
+      .send(success({ message: MESSAGES.SUCCESS }));
   };
 
   update = async (
@@ -60,7 +60,7 @@ export class AdminSubscriptionController {
 
     reply
       .status(HttpStatus.OK)
-      .send(success({ message: MESSAGES.SUBSCRIPTION_UPDATED_SUCCESS }));
+      .send(success({ message: MESSAGES.SUCCESS }));
   };
 
   list = async (
