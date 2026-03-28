@@ -29,6 +29,9 @@ export class AdminListSubscriptionsUsecase
       }
     }
 
+    console.log("tst");
+    
+
     if (limit != null) {
       if (!Number.isInteger(limit) || limit <= 0) {
         throw AppError.badRequest("limit must be a positive integer");
