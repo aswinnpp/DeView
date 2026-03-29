@@ -7,6 +7,7 @@ import { authService } from '../../services/auth.service';
 import { verifyOtpRequestSchema } from '@shared/contracts/auth/otp';
 import { extractApiError } from '../../api/axios';
 import { API_ROUTES } from '../../constants/routes';
+import { safeParseForKey } from '../../utils/safeStorage';
 
 const otpSchema = z.object({
   otpCode: verifyOtpRequestSchema.shape.otp,
@@ -29,7 +30,8 @@ export function useEmailVerification() {
 
   const locationState = location.state && typeof location.state === 'object' ? (location.state as { email?: string }) : null;
   const storageKey = mode === 'password-reset' ? STORAGE_KEY_RESET : STORAGE_KEY_VERIFY;
-  const userEmail = locationState?.email || localStorage.getItem(storageKey) || '';
+  const storedEmail = safeParseForKey<string>(storageKey, localStorage.getItem(storageKey));
+  const userEmail = locationState?.email || storedEmail || '';
 
   const form = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),

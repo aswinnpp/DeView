@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { authService } from '../../services/auth.service';
 import { forgotPasswordRequestSchema, type ForgotPasswordRequest } from '@shared/contracts/auth/forgotPassword';
 import { extractApiError } from '../../api/axios';
+import { setStorageJson } from '../../utils/safeStorage';
 
 const STORAGE_KEY_PENDING_RESET = 'pendingResetEmail';
 
@@ -26,7 +27,7 @@ export function useForgotPassword() {
     try {
       await authService.forgotPassword({ email });
 
-      localStorage.setItem(STORAGE_KEY_PENDING_RESET, JSON.stringify( email));
+      setStorageJson(STORAGE_KEY_PENDING_RESET, email);
       navigate('/verify-email?mode=password-reset', { state: { email } });
     } catch (err) {
       setError(extractApiError(err));

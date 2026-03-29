@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { authService } from '../../services/auth.service';
 import { registerRequestSchema } from '@shared/contracts/auth/register';
 import { extractApiError } from '../../api/axios';
+import { setStorageJson } from '../../utils/safeStorage';
 
 const STORAGE_KEY_PENDING_EMAIL = 'pendingVerificationEmail';
 
@@ -47,7 +48,7 @@ export function useRegister() {
         ...(values.companyId && { companyId: values.companyId }),
       });
 
-      localStorage.setItem(STORAGE_KEY_PENDING_EMAIL,JSON.stringify( values.email));
+      setStorageJson(STORAGE_KEY_PENDING_EMAIL, values.email);
       navigate('/verify-email', { state: { email: values.email } });
     } catch (err) {
       setError(extractApiError(err));

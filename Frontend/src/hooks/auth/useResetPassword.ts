@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { authService } from '../../services/auth.service';
 import { resetPasswordRequestSchema } from '@shared/contracts/auth/resetPassword';
 import { extractApiError } from '../../api/axios';
+import { safeParseForKey } from '../../utils/safeStorage';
 
 const resetPasswordSchema = z
   .object({
@@ -32,7 +33,10 @@ export function useResetPassword() {
   
 
   const passedEmail = location.state?.email || '';
-  const storedEmail = localStorage.getItem(STORAGE_KEY_PENDING_RESET);
+  const storedEmail = safeParseForKey<string>(
+    STORAGE_KEY_PENDING_RESET,
+    localStorage.getItem(STORAGE_KEY_PENDING_RESET)
+  );
   const email = passedEmail || storedEmail || '';
   const otp = location.state?.otp || '';
 

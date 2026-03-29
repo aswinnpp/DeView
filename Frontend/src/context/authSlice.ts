@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import { safeParseForKey, setStorageJson } from "../utils/safeStorage";
 
 export interface IUser {
   id: string;
@@ -15,12 +16,11 @@ interface IAuthState {
 }
 
 const getStoredUser = (): IUser | null => {
-  
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      return JSON.parse(userStr);
-    }
-  
+  const userStr = localStorage.getItem("user");
+  const parsedUser = safeParseForKey<IUser>("user", userStr);
+  if (parsedUser && typeof parsedUser === "object") {
+    return parsedUser;
+  }
   return null;
 };
 
@@ -38,7 +38,7 @@ const authSlice = createSlice({
     setUser: (state, action: PayloadAction<IUser>) => {
       state.user = action.payload;
       state.isAuthenticated = true;
-      localStorage.setItem("user", JSON.stringify(action.payload));
+      setStorageJson("user", action.payload);
     },
 
     logout: (state) => {
