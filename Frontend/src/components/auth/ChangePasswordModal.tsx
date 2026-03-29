@@ -1,9 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Input, Button } from '../common';
 import { useChangePassword } from '@/hooks/auth/useChangePassword';
-import { authService } from '../../services/auth.service';
-import store from '../../context/store';
-import { logout as logoutAction } from '../../context/authSlice';
+import { useLogout } from '@/hooks/auth/useLogout';
 
 type ChangePasswordModalProps = {
   isOpen: boolean;
@@ -37,6 +35,8 @@ export function ChangePasswordModal({
     step1,
     step2,
   } = useChangePassword();
+
+  const { logout: signOut } = useLogout();
 
   const {
     register: registerOld,
@@ -175,13 +175,7 @@ export function ChangePasswordModal({
                 if (ok) {
                   onClose();
                   reset();
-                  try {
-                    await authService.logout();
-                  } catch {
-                    // Ignore logout failures; tokens are already revoked.
-                  }
-                  store.dispatch(logoutAction());
-                  window.location.replace('/login');
+                  signOut();
                 }
               })}
               className="flex flex-col gap-4"

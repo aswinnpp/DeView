@@ -74,8 +74,9 @@ api.interceptors.response.use(
         const alreadyRetried = originalRequest?._retry;
         const isRefreshRoute = originalRequest?.url?.includes(API_ROUTES.AUTH.REFRESH);
         const isLoginRoute = originalRequest?.url?.includes(API_ROUTES.AUTH.LOGIN);
+        const isLogoutRoute = originalRequest?.url?.includes(API_ROUTES.AUTH.LOGOUT);
 
-        if (!isUnauthorized || alreadyRetried || isRefreshRoute || isLoginRoute) {
+        if (!isUnauthorized || alreadyRetried || isRefreshRoute || isLoginRoute || isLogoutRoute) {
             return Promise.reject(error);
         }
 

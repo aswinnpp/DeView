@@ -1,18 +1,16 @@
-import { NavLink, Outlet, useNavigate, Navigate } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../../context/store";
-import { logout } from "../../context/authSlice";
-import { authService } from "../../services/auth.service";
+import { NavLink, Outlet, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../context/store";
 import { APP_ROUTES } from "../../constants/routes";
 import { Button, NotificationBell } from "../../components/common";
 import { useNotifications } from "../../hooks/notifications/useNotifications";
+import { useLogout } from "../../hooks/auth/useLogout";
 
 const AdminLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
-    const dispatch = useDispatch<AppDispatch>();
-    const navigate = useNavigate();
+    const { logout: handleLogout } = useLogout();
     const user = useSelector((state: RootState) => state.auth.user);
     const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("admin");
 
@@ -33,14 +31,6 @@ const AdminLayout = () => {
         if (!showNotifications) return;
         refresh().catch(() => {});
     }, [showNotifications, refresh]);
-
-    const handleLogout = useCallback(async () => {
-        
-            await authService.logout();
-            dispatch(logout());
-            navigate(APP_ROUTES.LOGIN, { replace: true });
-        
-    }, [dispatch, navigate]);
 
     const navLinkClass = (isActive: boolean) =>
         `text-[#94a3b8] text-sm font-semibold rounded-[10px] py-3 px-3.5 no-underline flex items-center gap-2.5 transition-all duration-200 ${isActive

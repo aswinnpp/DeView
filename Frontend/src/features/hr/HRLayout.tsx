@@ -1,12 +1,11 @@
-import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
-import { useState, useEffect, useCallback } from 'react';
+import { NavLink, Outlet, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Button, NotificationBell } from '../../components/common';
 import { APP_ROUTES } from '../../constants/routes';
-import { logout } from "../../context/authSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { authService } from "../../services/auth.service";
+import { useSelector } from "react-redux";
 import type { RootState } from "../../context/store";
 import { useNotifications } from "../../hooks/notifications/useNotifications";
+import { useLogout } from "../../hooks/auth/useLogout";
 import type { NotificationScope } from "../../services/notifications.service";
 
 
@@ -15,8 +14,7 @@ import type { NotificationScope } from "../../services/notifications.service";
 const HRLayout = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+    const { logout: handleLogout } = useLogout();
     const user = useSelector((state: RootState) => state.auth.user);
     const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("hr" as NotificationScope);
 
@@ -35,12 +33,6 @@ const HRLayout = () => {
         if (!showNotifications) return;
         refresh().catch(() => {});
     }, [showNotifications, refresh]);
-
-    const handleLogout = useCallback(async () => {
-        await authService.logout();
-        dispatch(logout());
-        navigate(APP_ROUTES.LOGIN, { replace: true });
-    }, [dispatch, navigate]);
 
     const role = (user?.role || '').toLowerCase();
 

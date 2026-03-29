@@ -702,64 +702,75 @@ const Profile = () => {
                         )}
                     </form>
 
-                    {isCropModalOpen && cropSrc && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-                            <div className="w-full max-w-[720px] rounded-xl bg-[#0f1220] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden">
-                                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-                                    <div className="text-white font-bold">Crop profile photo</div>
-                                    <button
-                                        type="button"
-                                        className="text-white/70 hover:text-white text-sm"
-                                        onClick={closeCropModal}
-                                        disabled={isProfilePicUploading}
-                                    >
-                                        Close
-                                    </button>
-                                </div>
-                                <div className="p-4">
-                                    <Cropper
-                                        src={cropSrc}
-                                        style={{ height: 420, width: "100%" }}
-                                        aspectRatio={1}
-                                        viewMode={1}
-                                        guides={false}
-                                        background={false}
-                                        responsive={true}
-                                        autoCropArea={1}
-                                        checkOrientation={false}
-                                        ref={cropperRef}
-                                    />
-                                </div>
-                                <div className="flex justify-end gap-3 px-4 pb-4">
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        className="py-2.5 px-4 rounded-[10px] font-bold"
-                                        onClick={closeCropModal}
-                                        disabled={isProfilePicUploading}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="primary"
-                                        className="py-2.5 px-4 rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed"
-                                        onClick={handleCropAndUploadProfilePic}
-                                        disabled={isProfilePicUploading}
-                                    >
-                                        {isProfilePicUploading ? 'Uploading…' : 'Save photo'}
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     <ChangePasswordModal
                       isOpen={isChangePasswordModalOpen}
                       onClose={() => setIsChangePasswordModalOpen(false)}
                     />
                 </div>
             </div>
+
+            {/* Outside backdrop-blur wrapper so position:fixed is viewport-relative; align top so cropper + actions stay visible */}
+            {isCropModalOpen && cropSrc && (
+                <div
+                    className="fixed inset-0 z-[1250] flex items-start justify-center overflow-y-auto bg-black/70 backdrop-blur-sm p-4 pt-6 sm:pt-10 pb-10"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="candidate-crop-modal-title"
+                >
+                    <div className="w-full max-w-[720px] shrink-0 rounded-xl bg-[#0f1220] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                            <div id="candidate-crop-modal-title" className="text-white font-bold">
+                                Crop profile photo
+                            </div>
+                            <button
+                                type="button"
+                                className="text-white/70 hover:text-white text-sm"
+                                onClick={closeCropModal}
+                                disabled={isProfilePicUploading}
+                            >
+                                Close
+                            </button>
+                        </div>
+                        <div className="p-4">
+                            <Cropper
+                                src={cropSrc}
+                                style={{
+                                    height: 'min(420px, calc(100dvh - 220px))',
+                                    width: '100%',
+                                }}
+                                aspectRatio={1}
+                                viewMode={1}
+                                guides={false}
+                                background={false}
+                                responsive={true}
+                                autoCropArea={1}
+                                checkOrientation={false}
+                                ref={cropperRef}
+                            />
+                        </div>
+                        <div className="flex justify-end gap-3 px-4 pb-4">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                className="py-2.5 px-4 rounded-[10px] font-bold"
+                                onClick={closeCropModal}
+                                disabled={isProfilePicUploading}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="primary"
+                                className="py-2.5 px-4 rounded-[10px] font-bold disabled:opacity-60 disabled:cursor-not-allowed"
+                                onClick={handleCropAndUploadProfilePic}
+                                disabled={isProfilePicUploading}
+                            >
+                                {isProfilePicUploading ? 'Uploading…' : 'Save photo'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

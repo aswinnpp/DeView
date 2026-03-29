@@ -1,12 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { candidateService } from '../../services/candidate.service';
-import { authService } from '../../services/auth.service';
-import type { RootState, AppDispatch } from '../../context/store';
-import { logout } from '../../context/authSlice';
+import type { RootState } from '../../context/store';
+import { useLogout } from '../auth/useLogout';
 import {
   candidateProfileSchema,
   type CandidateProfileData,
@@ -47,8 +45,7 @@ function getDefaultValues(email: string): CandidateProfileData {
 }
 
 export function useCandidateProfile() {
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
+  const { logout: handleLogout, isLoggingOut } = useLogout();
   const user = useSelector((state: RootState) => state.auth.user);
   const userEmail = user?.email ?? '';
 
@@ -56,7 +53,6 @@ export function useCandidateProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
   const form = useForm<CandidateProfileData>({
@@ -227,20 +223,6 @@ export function useCandidateProfile() {
 
 
 
-
-  // ─── Logout ───────────────────────────────────────────────────
-  const handleLogout = useCallback(async () => {
-    setIsLoggingOut(true);
-    try {
-      await authService.logout();
-    } catch (err) {
-      extractApiError(err)
-    } finally {
-      dispatch(logout());
-      setIsLoggingOut(false);
-      navigate('/login', { replace: true });
-    }
-  }, [dispatch, navigate]);
 
   return {
     form,

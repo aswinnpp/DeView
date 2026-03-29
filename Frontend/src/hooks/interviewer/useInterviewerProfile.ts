@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { authService } from "../../services/auth.service";
 import {
   interviewerProfileService,
   type ProfileData,
   type GetProfileResponse,
 } from "../../services/interviewerProfile.service";
-import { logout } from "../../context/authSlice";
-import type { AppDispatch } from "../../context/store";
 import { APP_ROUTES } from "../../constants/routes";
+import { useLogout } from "../auth/useLogout";
 import {
   interviewerProfileSchema,
   type InterviewerProfileFormValues,
@@ -68,7 +65,7 @@ function toProfileData(values: InterviewerProfileFormValues): ProfileData {
 
 export function useInterviewerProfile() {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
+  const { logout: handleLogout } = useLogout();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState<GetProfileResponse | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -105,15 +102,6 @@ export function useInterviewerProfile() {
   useEffect(() => {
     void fetchProfile();
   }, [fetchProfile]);
-
-  const handleLogout = useCallback(async () => {
-    try {
-      await authService.logout();
-    } finally {
-      dispatch(logout());
-      navigate(APP_ROUTES.LOGIN, { replace: true });
-    }
-  }, [dispatch, navigate]);
 
   const handleArrayInput = useCallback(
     (field: "technicalSkills" | "languages", value: string, action: "add" | "remove", index?: number) => {
