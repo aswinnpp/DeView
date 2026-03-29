@@ -47,11 +47,11 @@ export const adminApprovalService = {
     },
 
     approve(id: string) {
-        return api.post(API_ROUTES.ADMIN.COMPANY_APPROVE(id));
+        return api.patch(API_ROUTES.ADMIN.COMPANY_APPROVE(id));
     },
 
     reject(id: string, data: RejectCompanyRequestBody) {
-        return api.post(API_ROUTES.ADMIN.COMPANY_REJECT(id), data);
+        return api.patch(API_ROUTES.ADMIN.COMPANY_REJECT(id), data);
     },
 
     markDocument(companyId: string, documentKey: string, verified: boolean) {

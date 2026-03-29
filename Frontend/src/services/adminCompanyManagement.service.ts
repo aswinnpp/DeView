@@ -61,11 +61,10 @@ export const adminCompanyManagementService = {
     },
 
     reject(id: string, reason: string) {
-        return api.post(API_ROUTES.ADMIN.COMPANY_REJECT(id), { reason });
+        return api.patch(API_ROUTES.ADMIN.COMPANY_REJECT(id), { reason });
     },
 
-
-toggleActive(id: string) {
-  return api.post<ToggleActiveResponse>(API_ROUTES.ADMIN.COMPANYTOGGLE(id));
-}
+    toggleActive(id: string) {
+        return api.patch<ToggleActiveResponse>(API_ROUTES.ADMIN.COMPANYTOGGLE(id));
+    },
 };

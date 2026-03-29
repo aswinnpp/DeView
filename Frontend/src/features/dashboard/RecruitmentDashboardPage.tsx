@@ -114,8 +114,8 @@ const RecruitmentDashboardPage = () => {
                     <p className="m-0 mb-5 max-md:mb-4 text-[13px] max-md:text-xs text-[#64748b]">
                         Last 7 days (UTC), by application date
                     </p>
-                    <div className="h-[240px] max-md:h-[200px]">
-                        <ResponsiveContainer width="100%" height="100%">
+                    <div className="h-[240px] max-md:h-[200px] min-w-0 w-full">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
                             <AreaChart data={stats.applicationsOverTime}>
                                 <defs>
                                     <linearGradient id={gradApps} x1="0" y1="0" x2="0" y2="1">
@@ -153,9 +153,9 @@ const RecruitmentDashboardPage = () => {
                     <p className="m-0 mb-5 max-md:mb-4 text-[13px] max-md:text-xs text-[#64748b]">
                         Pipeline distribution
                     </p>
-                    <div className="h-[240px] max-md:h-[200px] flex items-center justify-center">
+                    <div className="h-[240px] max-md:h-[200px] min-w-0 w-full flex items-center justify-center">
                         {applicationStatusForChart.length > 0 ? (
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
                                 <PieChart>
                                     <Pie
                                         data={applicationStatusForChart}
@@ -191,9 +191,9 @@ const RecruitmentDashboardPage = () => {
                 <p className="m-0 mb-5 max-md:mb-4 text-[13px] max-md:text-xs text-[#64748b]">
                     Count per job posting
                 </p>
-                <div className="h-[240px] max-md:h-[200px] overflow-x-auto">
+                <div className="h-[240px] max-md:h-[200px] min-w-0 w-full overflow-x-auto">
                     {stats.applicationsByJob.length > 0 ? (
-                        <ResponsiveContainer width="100%" height="100%" minWidth={280}>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={280} minHeight={200}>
                             <BarChart data={stats.applicationsByJob} layout="vertical">
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                                 <XAxis type="number" stroke="#64748b" fontSize={12} tickLine={false} />
@@ -230,8 +230,8 @@ const RecruitmentDashboardPage = () => {
                     <h4 className="text-sm md:text-base font-semibold text-slate-100 m-0 mb-4">
                         Monthly interview trend
                     </h4>
-                    <div style={{ height: CHART_H }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                    <div style={{ height: CHART_H }} className="min-w-0 w-full">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={CHART_H}>
                             <AreaChart data={stats.monthlyInterviews}>
                                 <defs>
                                     <linearGradient id={gradMonthly} x1="0" y1="0" x2="0" y2="1">
@@ -260,9 +260,9 @@ const RecruitmentDashboardPage = () => {
                     <h4 className="text-sm md:text-base font-semibold text-slate-100 m-0 mb-4">
                         Interview status
                     </h4>
-                    <div style={{ height: CHART_H }} className="flex items-center justify-center">
+                    <div style={{ height: CHART_H }} className="min-w-0 w-full flex items-center justify-center">
                         {interviewStatusForChart.length > 0 ? (
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={CHART_H}>
                                 <PieChart>
                                     <Pie
                                         data={interviewStatusForChart}
@@ -291,8 +291,8 @@ const RecruitmentDashboardPage = () => {
                     <h4 className="text-sm md:text-base font-semibold text-slate-100 m-0 mb-4">
                         This week&apos;s scheduled interviews
                     </h4>
-                    <div style={{ height: CHART_H }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                    <div style={{ height: CHART_H }} className="min-w-0 w-full">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={CHART_H}>
                             <LineChart data={stats.weeklyInterviews}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                                 <XAxis dataKey="day" stroke="#64748b" fontSize={11} />

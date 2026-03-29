@@ -67,16 +67,16 @@ const AdminDashboard = () => {
             {/* Analytics Grid: Company Registrations & Subscriptions */}
             <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 mt-6 mb-6 flex-wrap max-md:grid-cols-1">
                 {/* Company Registrations - Pie Chart */}
-                <div className="bg-linear-to-br from-[#1e293b] to-[#020617] border border-[#334155] rounded-2xl p-6 min-h-[300px]">
+                <div className="bg-linear-to-br from-[#1e293b] to-[#020617] border border-[#334155] rounded-2xl p-6 min-h-[300px] min-w-0">
                     <h3 className="m-0 text-lg text-[#f1f5f9] mb-2">
                         Company Registrations
                     </h3>
                     <p className="m-0 text-[13px] text-[#64748b] mb-4">
                         Distribution of company approval statuses
                     </p>
-                    <div className="h-60">
+                    <div className="h-60 min-h-[240px] min-w-0 w-full">
                         {registrationStatusData.length > 0 ? (
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
                                 <PieChart>
                                     <Pie
                                         data={registrationStatusData}
@@ -106,16 +106,16 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Company Subscriptions - Bar Chart */}
-                <div className="bg-linear-to-br from-[#1e293b] to-[#020617] border border-[#334155] rounded-2xl p-6 min-h-[300px]">
+                <div className="bg-linear-to-br from-[#1e293b] to-[#020617] border border-[#334155] rounded-2xl p-6 min-h-[300px] min-w-0">
                     <h3 className="m-0 text-lg text-[#f1f5f9] mb-2">
                         Company Subscriptions
                     </h3>
                     <p className="m-0 text-[13px] text-[#64748b] mb-4">
                         Number of companies on each subscription plan
                     </p>
-                    <div className="h-60">
+                    <div className="h-60 min-h-[240px] min-w-0 w-full">
                         {subscriptionByPlanData.length > 0 ? (
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
                                 <BarChart data={subscriptionByPlanData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                                     <XAxis
