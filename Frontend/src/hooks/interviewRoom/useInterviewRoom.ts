@@ -60,7 +60,6 @@ interface UseInterviewRoomDetailsResult {
   roomId: string | undefined;
 }
 
-const getSocketUrl = () => window.location.origin;
 
 export function useInterviewRoomDetails(
   interviewId: string | undefined
@@ -185,7 +184,7 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
           }
         };
 
-        const socket = io(getSocketUrl(), {
+        const socket = io("https://deview.ddns.net", {
           withCredentials: true,
         });
         socketRef.current = socket;
