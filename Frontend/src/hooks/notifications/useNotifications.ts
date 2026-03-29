@@ -5,7 +5,6 @@ import type { RootState } from "../../context/store";
 import type { AppNotification, NotificationScope } from "../../services/notifications.service";
 import { notificationsService } from "../../services/notifications.service";
 
-const getSocketUrl = () => window.location.origin;
 
 function formatTime(value: string | Date) {
   const d = value instanceof Date ? value : new Date(value);
@@ -46,7 +45,7 @@ export function useNotifications(scope: NotificationScope) {
   useEffect(() => {
     if (!recipient.id) return;
 
-    const socket: Socket = io(getSocketUrl(), { withCredentials: true });
+    const socket: Socket = io("https://api.deview.ddns.net", { withCredentials: true });
 
     socket.on("connect", () => {
       if (recipient.kind === "company") socket.emit("join-company-notifications", { companyId: recipient.id });
