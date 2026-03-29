@@ -26,7 +26,7 @@ export function useForgotPassword() {
     try {
       await authService.forgotPassword({ email });
 
-      localStorage.setItem(STORAGE_KEY_PENDING_RESET, email);
+      localStorage.setItem(STORAGE_KEY_PENDING_RESET, JSON.stringify( email));
       navigate('/verify-email?mode=password-reset', { state: { email } });
     } catch (err) {
       setError(extractApiError(err));

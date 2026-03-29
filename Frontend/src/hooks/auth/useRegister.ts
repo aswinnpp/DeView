@@ -47,7 +47,7 @@ export function useRegister() {
         ...(values.companyId && { companyId: values.companyId }),
       });
 
-      localStorage.setItem(STORAGE_KEY_PENDING_EMAIL, values.email);
+      localStorage.setItem(STORAGE_KEY_PENDING_EMAIL,JSON.stringify( values.email));
       navigate('/verify-email', { state: { email: values.email } });
     } catch (err) {
       setError(extractApiError(err));
