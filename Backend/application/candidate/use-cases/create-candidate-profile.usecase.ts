@@ -43,6 +43,8 @@ export class CreateCandidateProfileUseCase implements ICreateCandidateProfileUse
             dto.education,
             dto.university,
             dto.graduationYear,
+            dto.educationList ?? [],
+            dto.workExperience ?? [],
             dto.linkedinUrl,
             dto.githubUrl,
             dto.resumeUrl,

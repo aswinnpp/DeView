@@ -51,7 +51,7 @@ export const workExperienceEntrySchema = z.object({
 export type WorkExperienceEntry = z.infer<typeof workExperienceEntrySchema>;
 
 // ─── Schema ─────────────────────────────────────────────────────
-export const candidateProfileSchema = z.object({
+const candidateProfileObjectSchema = z.object({
     fullName: z
         .string()
         .trim()
@@ -123,10 +123,11 @@ export const candidateProfileSchema = z.object({
         (arr) => arr.some((s) => s !== ''),
         { message: 'At least one language is required' }
     ),
-    // Legacy single education fields (kept for backward compatibility)
-    education: z.string().trim().min(1, { message: 'Education is required' }),
-    university: z.string().trim().min(1, { message: 'University/School is required' }),
-    graduationYear: z.string().trim().min(1, { message: 'Graduation year is required' }),
+    // Legacy single education fields (kept for backward compatibility with API/storage).
+    // The profile UI primarily uses educationList; these may stay empty until valid entries exist.
+    education: z.string().trim(),
+    university: z.string().trim(),
+    graduationYear: z.string().trim(),
     // Multiple education entries
     educationList: z.array(educationEntrySchema).catch([]),
     // Multiple work experience entries
@@ -137,7 +138,42 @@ export const candidateProfileSchema = z.object({
     profilePicUrl: optionalString,
 });
 
+function hasCompleteEducationList(
+    list: Array<{ degree: string; institution: string; year: string }> | undefined
+): boolean {
+    return (list ?? []).some(
+        (e) =>
+            e.degree.trim().length > 0 &&
+            e.institution.trim().length > 0 &&
+            e.year.trim().length > 0
+    );
+}
+
+function hasCompleteLegacyEducation(data: {
+    education: string;
+    university: string;
+    graduationYear: string;
+}): boolean {
+    return (
+        data.education.trim().length > 0 &&
+        data.university.trim().length > 0 &&
+        data.graduationYear.trim().length > 0
+    );
+}
+
+/** Require either legacy education trio or at least one fully filled educationList row. */
+export const candidateProfileSchema = candidateProfileObjectSchema.superRefine((data, ctx) => {
+    if (hasCompleteLegacyEducation(data) || hasCompleteEducationList(data.educationList)) {
+        return;
+    }
+    ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Education is required — add an education entry or fill degree, school, and year.',
+        path: ['education'],
+    });
+});
+
 export type CandidateProfileData = z.infer<typeof candidateProfileSchema>;
 
-export const candidateProfileUpdateSchema = candidateProfileSchema.partial();
+export const candidateProfileUpdateSchema = candidateProfileObjectSchema.partial();
 
