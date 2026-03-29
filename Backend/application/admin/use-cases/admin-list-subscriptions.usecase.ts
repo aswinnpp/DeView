@@ -29,7 +29,6 @@ export class AdminListSubscriptionsUsecase
       }
     }
 
-    console.log("tstfftssdasd");
     
 
     if (limit != null) {
