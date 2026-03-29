@@ -51,6 +51,7 @@ async function bootstrap() {
   await fastify.register(cors, {
     origin: [
       'http://localhost:5174',
+      'https://deview.ddns.net',
       'https://elizebeth-ungreeted-noncapitalistically.ngrok-free.dev',
       env.FRONTEND_URL
     ],
