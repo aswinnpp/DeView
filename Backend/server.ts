@@ -52,7 +52,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:5174',
       'https://deview.ddns.net',
-       'https://deview.serveftp.com',
+      'https://deview.serveftp.com',
       'https://elizebeth-ungreeted-noncapitalistically.ngrok-free.dev',
       env.FRONTEND_URL
     ],
