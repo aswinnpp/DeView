@@ -215,14 +215,14 @@ const CandidateJobsPage: React.FC = () => {
 
     /* ───────────────── Main Split Layout ───────────────── */
     return (
-        <div className="h-screen w-full bg-linear-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)] overflow-hidden">
-            <div className="h-full w-full bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px] overflow-hidden flex flex-col">
+        <div className="min-h-screen w-full bg-linear-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)] overflow-x-hidden lg:h-screen lg:overflow-hidden">
+            <div className="min-h-screen w-full bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px] flex flex-col lg:h-full lg:overflow-hidden">
                 <CandidateNavHeader title="AVAILABLE JOBS" currentPage="jobs" />
 
-                <div className="pt-[72px] flex flex-col lg:flex-row flex-1 overflow-hidden">
+                <div className="pt-[72px] flex flex-col lg:flex-row flex-1 lg:overflow-hidden">
 
                     {/* ─── Left Panel: Job List (fixed, no scroll) ─── */}
-                    <div className="w-full lg:w-[55%] flex flex-col border-r border-[rgba(255,255,255,0.06)] overflow-hidden">
+                    <div className="w-full lg:w-[55%] flex flex-col border-b border-[rgba(255,255,255,0.06)] lg:border-b-0 lg:border-r lg:border-[rgba(255,255,255,0.06)] lg:overflow-hidden">
 
                         {/* Filters */}
                         <div className="shrink-0 px-4 py-4 sm:px-5 border-b border-[rgba(255,255,255,0.06)]">
@@ -282,7 +282,7 @@ const CandidateJobsPage: React.FC = () => {
                         </div>
 
                         {/* Job Cards */}
-                        <div className="flex-1 overflow-hidden px-4 py-3 space-y-3">
+                        <div className="px-4 py-3 space-y-3 lg:flex-1 lg:overflow-y-auto">
                             {error && (
                                 <div className="rounded-lg border border-red-500/50 bg-[rgba(248,113,113,0.08)] px-4 py-3 text-sm text-red-200">
                                     Failed to load jobs: {error}
@@ -366,7 +366,7 @@ const CandidateJobsPage: React.FC = () => {
                     </div>
 
                     {/* ─── Right Panel: Job Detail (only scrollable area) ─── */}
-                    <div className="w-full lg:w-[45%] overflow-y-auto bg-[rgba(10,12,20,0.4)]">
+                    <div className="w-full lg:w-[45%] bg-[rgba(10,12,20,0.4)] lg:overflow-y-auto">
                         {selectedJob ? (
                             <div className="px-5 py-5 lg:px-7 lg:py-6">
                                 <h2 className="m-0 text-base font-semibold text-[rgba(226,232,240,0.9)] mb-5">
