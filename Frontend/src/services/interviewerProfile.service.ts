@@ -6,13 +6,28 @@ export interface ProfileData {
   phone: string;
   location: string;
   title: string;
-  currentCompany: string;
-  yearsOfExperience: number;
+  currentCompany?: string;
+  yearsOfExperience?: number;
   bio: string;
   technicalSkills: string[];
   languages: string[];
-  education: string;
-  university: string;
+  // Legacy single-value fields (kept for backwards compatibility).
+  education?: string;
+  university?: string;
+
+  // Multi-value fields.
+  educationList: Array<{
+    degree: string;
+    university: string;
+    year?: string;
+  }>;
+  workExperience: Array<{
+    company: string;
+    jobTitle?: string;
+    years: number;
+    description?: string;
+  }>;
+
   linkedinUrl: string;
   githubUrl: string;
   profilePicUrl: string;

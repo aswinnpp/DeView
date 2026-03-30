@@ -10,31 +10,77 @@ export interface InterviewerProfileView {
   phone: string;
   location: string;
   title: string;
-  currentCompany: string;
-  yearsOfExperience: number;
+  // Legacy summary (optional; derived from the arrays).
+  currentCompany?: string;
+  yearsOfExperience?: number;
   bio: string;
   technicalSkills: string[];
   languages: string[];
-  education: string;
-  university: string;
+  // Legacy single education (optional; derived from educationList[0]).
+  education?: string;
+  university?: string;
+
+  educationList: Array<{
+    degree: string;
+    university: string;
+    year?: string;
+  }>;
+  workExperience: Array<{
+    company: string;
+    jobTitle?: string;
+    years: number;
+    description?: string;
+  }>;
   linkedinUrl: string;
   githubUrl: string;
   profilePicUrl: string;
 }
 
 export function toView(profile: InterviewerProfile): InterviewerProfileView {
+  const educationList =
+    profile.educationList?.length && profile.educationList.length > 0
+      ? profile.educationList
+      : profile.education
+        ? [
+            {
+              degree: profile.education,
+              university: profile.university ?? "",
+            },
+          ]
+        : [];
+
+  const workExperience =
+    profile.workExperience?.length && profile.workExperience.length > 0
+      ? profile.workExperience
+      : profile.currentCompany
+        ? [
+            {
+              company: profile.currentCompany,
+              jobTitle: undefined,
+              years: profile.yearsOfExperience ?? 0,
+            },
+          ]
+        : [];
+
+  const yearsOfExperience = workExperience.reduce((sum, w) => sum + (w.years ?? 0), 0);
+  const currentCompany = workExperience[0]?.company ?? profile.currentCompany;
+  const education = educationList[0]?.degree ?? profile.education;
+  const university = educationList[0]?.university ?? profile.university;
+
   return {
     fullName: profile.fullName,
     phone: profile.phone,
     location: profile.location,
     title: profile.title,
-    currentCompany: profile.currentCompany,
-    yearsOfExperience: profile.yearsOfExperience,
+    currentCompany,
+    yearsOfExperience,
     bio: profile.bio,
     technicalSkills: profile.technicalSkills,
     languages: profile.languages,
-    education: profile.education,
-    university: profile.university,
+    education,
+    university,
+    educationList,
+    workExperience,
     linkedinUrl: profile.linkedinUrl,
     githubUrl: profile.githubUrl,
     profilePicUrl: profile.profilePicUrl,
@@ -55,19 +101,36 @@ export function toCreateDTO(
   body: InterviewerProfileView,
   userId: string
 ): ICreateInterviewerProfileInputDTO {
+  const educationList = body.educationList ?? [];
+  const workExperience = body.workExperience ?? [];
+
+  const yearsOfExperience =
+    body.yearsOfExperience ??
+    workExperience.reduce((sum, w) => sum + (w.years ?? 0), 0);
+
+  const currentCompany =
+    body.currentCompany ??
+    workExperience[0]?.company ??
+    "";
+
+  const education = body.education ?? educationList[0]?.degree ?? "";
+  const university = body.university ?? educationList[0]?.university ?? "";
+
   return {
     userId,
     fullName: body.fullName,
     phone: body.phone ?? "",
     location: body.location ?? "",
     title: body.title,
-    currentCompany: body.currentCompany ?? "",
-    yearsOfExperience: body.yearsOfExperience,
+    currentCompany,
+    yearsOfExperience,
     bio: body.bio,
     technicalSkills: body.technicalSkills ?? [],
     languages: body.languages ?? [],
-    education: body.education,
-    university: body.university ?? "",
+    education,
+    university,
+    educationList,
+    workExperience,
     linkedinUrl: body.linkedinUrl ?? "",
     githubUrl: body.githubUrl ?? "",
     profilePicUrl: body.profilePicUrl ?? "",

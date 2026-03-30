@@ -21,6 +21,17 @@ export class CreateInterviewerProfileUseCase implements ICreateInterviewerProfil
     if (existing) {
       throw AppError.conflict("Interviewer profile already exists");
     }
+
+    const educationList = dto.educationList ?? [];
+    const workExperience = dto.workExperience ?? [];
+
+    const currentCompany = dto.currentCompany ?? workExperience[0]?.company ?? "";
+    const yearsOfExperience =
+      dto.yearsOfExperience ??
+      workExperience.reduce((sum, w) => sum + (Number.isFinite(w.years) ? w.years : 0), 0);
+    const education = dto.education ?? educationList[0]?.degree ?? "";
+    const university = dto.university ?? educationList[0]?.university ?? "";
+
     const profile = new InterviewerProfile(
       null,
       dto.userId,
@@ -28,13 +39,15 @@ export class CreateInterviewerProfileUseCase implements ICreateInterviewerProfil
       dto.phone ?? "",
       dto.location ?? "",
       dto.title,
-      dto.currentCompany ?? "",
-      dto.yearsOfExperience,
+      currentCompany,
+      dto.yearsOfExperience ?? yearsOfExperience,
       dto.bio,
       dto.technicalSkills ?? [],
       dto.languages ?? [],
-      dto.education,
-      dto.university ?? "",
+      education,
+      university ?? "",
+      educationList,
+      workExperience,
       dto.linkedinUrl ?? "",
       dto.githubUrl ?? "",
       dto.profilePicUrl ?? ""

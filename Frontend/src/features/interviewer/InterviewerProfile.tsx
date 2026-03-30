@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useFieldArray } from "react-hook-form";
 import { Button, Input } from "../../components/common";
 import { ChangePasswordModal } from "../../components/auth/ChangePasswordModal";
 import { useInterviewerProfile } from "../../hooks/interviewer";
@@ -31,6 +32,24 @@ const InterviewerProfileSettings: React.FC = () => {
   } = useInterviewerProfile();
 
   const { register, handleSubmit, formState: { errors } } = form;
+  const { control } = form;
+  const { fields: educationFields, append: appendEducation, remove: removeEducation } =
+    useFieldArray({
+      control,
+      name: "educationList",
+    });
+  const { fields: workFields, append: appendWork, remove: removeWork } = useFieldArray({
+    control,
+    name: "workExperience",
+  });
+
+  const totalWorkYears =
+    (formValues.workExperience ?? []).reduce(
+      (sum, w) => sum + (Number.isFinite(w.years) ? w.years : 0),
+      0
+    ) ?? 0;
+  const primaryCompany =
+    formValues.workExperience?.[0]?.company ?? formValues.currentCompany ?? "";
   const { upload: uploadProfilePic, isUploading: isProfilePicUploading } = useFileUpload();
   const [profilePicPreviewUrl, setProfilePicPreviewUrl] = useState<string | null>(null);
   const [profilePicViewUrl, setProfilePicViewUrl] = useState<string>("");
@@ -179,13 +198,13 @@ const InterviewerProfileSettings: React.FC = () => {
                     {formValues.title}
                   </p>
                   <div className="flex flex-wrap gap-4">
-                    {formValues.currentCompany && (
+                    {primaryCompany && (
                       <span className="text-slate-200 text-sm font-semibold py-1.5 px-3.5 bg-white/5 rounded-full border border-white/10">
-                        {formValues.currentCompany}
+                        {primaryCompany}
                       </span>
                     )}
                     <span className="text-slate-200 text-sm font-semibold py-1.5 px-3.5 bg-white/5 rounded-full border border-white/10">
-                      {formValues.yearsOfExperience} years experience
+                      {totalWorkYears} years experience
                     </span>
                     {formValues.location && (
                       <span className="text-slate-200 text-sm font-semibold py-1.5 px-3.5 bg-white/5 rounded-full border border-white/10">
@@ -266,15 +285,51 @@ const InterviewerProfileSettings: React.FC = () => {
               <h3 className="text-[13px] font-semibold text-slate-400 uppercase tracking-wider m-0 mb-3">
                 Education
               </h3>
-              <p className="text-slate-200 text-[15px] font-medium m-0">
-                {formValues.education}
-              </p>
-              {formValues.university && (
-                <p className="text-slate-400 text-[15px] m-0 mt-1">
-                  {formValues.university}
-                </p>
-              )}
+              <div className="space-y-2">
+                {(formValues.educationList ?? [])
+                  .filter((e) => e.degree?.trim() || e.university?.trim())
+                  .map((item, index) => (
+                    <div key={index}>
+                      <p className="text-slate-200 text-[15px] font-medium m-0">
+                        {item.degree}
+                      </p>
+                      {item.university && (
+                        <p className="text-slate-400 text-[15px] m-0 mt-1">
+                          {item.university}
+                        </p>
+                      )}
+                      {item.year && item.year.trim() && (
+                        <p className="text-slate-500 text-[13px] m-0 mt-1">
+                          {item.year.trim()}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+              </div>
             </div>
+
+            {(formValues.workExperience ?? []).filter((w) => w.company?.trim()).length > 0 && (
+              <div className="py-6 border-b border-white/10">
+                <h3 className="text-[13px] font-semibold text-slate-400 uppercase tracking-wider m-0 mb-3">
+                  Work Experience
+                </h3>
+                <div className="space-y-2">
+                  {formValues.workExperience
+                    .filter((w) => w.company?.trim())
+                    .map((w, index) => (
+                      <div key={index}>
+                        <p className="text-slate-200 text-[15px] font-medium m-0">
+                          {w.jobTitle?.trim() ? `${w.jobTitle.trim()} - ` : ""}
+                          {w.company}
+                        </p>
+                        <p className="text-slate-400 text-[15px] m-0 mt-1">
+                          {w.years} years experience
+                        </p>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
 
             {(formValues.linkedinUrl || formValues.githubUrl) && (
               <div className="py-6">
@@ -377,30 +432,90 @@ const InterviewerProfileSettings: React.FC = () => {
                   errorClassName={errorClass}
                   {...register("title")}
                 />
-                <Input
-                  label="Current Company"
-                  placeholder="Google, Microsoft, etc."
-                  className={inputClass}
-                  labelClassName={labelClass}
-                  wrapperClassName={wrapperClass}
-                  error={errors.currentCompany?.message}
-                  errorClassName={errorClass}
-                  {...register("currentCompany")}
-                />
               </div>
-              <div className="mt-4 space-y-4">
-                <Input
-                  label="Years of Experience *"
-                  type="number"
-                  min={0}
-                  placeholder="0"
-                  className={inputClass}
-                  labelClassName={labelClass}
-                  wrapperClassName={wrapperClass}
-                  error={errors.yearsOfExperience?.message}
-                  errorClassName={errorClass}
-                  {...register("yearsOfExperience", { valueAsNumber: true })}
-                />
+
+              <div className="mt-6 space-y-6">
+                <div>
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <h4 className="text-slate-50 font-semibold">Work Experience</h4>
+                    <Button
+                      type="button"
+                      variant="ghostOutline"
+                      className="!py-2 !px-4 !text-sm"
+                      onClick={() =>
+                        appendWork({
+                          company: "",
+                          jobTitle: "",
+                          years: 0,
+                          description: "",
+                        })
+                      }
+                    >
+                      Add
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {workFields.map((field, index) => {
+                      const entryErrors = (errors as any)?.workExperience?.[index];
+                      const canRemove = workFields.length > 1;
+                      return (
+                        <div
+                          key={field.id}
+                          className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"
+                        >
+                          <Input
+                            label="Company *"
+                            placeholder="Google, Microsoft, etc."
+                            className={inputClass}
+                            labelClassName={labelClass}
+                            wrapperClassName={wrapperClass}
+                            error={entryErrors?.company?.message}
+                            errorClassName={errorClass}
+                            {...register(`workExperience.${index}.company`)}
+                          />
+                          <Input
+                            label="Years *"
+                            type="number"
+                            min={0}
+                            placeholder="0"
+                            className={inputClass}
+                            labelClassName={labelClass}
+                            wrapperClassName={wrapperClass}
+                            error={entryErrors?.years?.message}
+                            errorClassName={errorClass}
+                            {...register(`workExperience.${index}.years`, {
+                              valueAsNumber: true,
+                            })}
+                          />
+                          <Input
+                            label="Job Title"
+                            placeholder="e.g., Senior Engineer"
+                            className={inputClass}
+                            labelClassName={labelClass}
+                            wrapperClassName={wrapperClass}
+                            error={entryErrors?.jobTitle?.message}
+                            errorClassName={errorClass}
+                            {...register(`workExperience.${index}.jobTitle`)}
+                          />
+
+                          <div className="sm:col-span-3 flex justify-end">
+                            <Button
+                              type="button"
+                              variant="danger"
+                              className="!py-2 !px-4 !text-sm"
+                              disabled={!canRemove}
+                              onClick={() => removeWork(index)}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div className={wrapperClass}>
                   <label className={labelClass}>Professional Bio *</label>
                   <textarea
@@ -498,27 +613,74 @@ const InterviewerProfileSettings: React.FC = () => {
             {/* Education */}
             <section className="bg-white/[0.03] border border-white/10 rounded-xl p-6">
               <h3 className="text-slate-50 font-semibold mb-4">Education</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="Highest Degree *"
-                  placeholder="B.Tech in Computer Science"
-                  className={inputClass}
-                  labelClassName={labelClass}
-                  wrapperClassName={wrapperClass}
-                  error={errors.education?.message}
-                  errorClassName={errorClass}
-                  {...register("education")}
-                />
-                <Input
-                  label="University/Institution"
-                  placeholder="IIT Delhi"
-                  className={inputClass}
-                  labelClassName={labelClass}
-                  wrapperClassName={wrapperClass}
-                  error={errors.university?.message}
-                  errorClassName={errorClass}
-                  {...register("university")}
-                />
+              <div className="space-y-4">
+                {educationFields.map((field, index) => {
+                  const entryErrors = (errors as any)?.educationList?.[index];
+                  const canRemove = educationFields.length > 1;
+                  return (
+                    <div key={field.id} className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                      <Input
+                        label="Degree *"
+                        placeholder="B.Tech in Computer Science"
+                        className={inputClass}
+                        labelClassName={labelClass}
+                        wrapperClassName={wrapperClass}
+                        error={entryErrors?.degree?.message}
+                        errorClassName={errorClass}
+                        {...register(`educationList.${index}.degree`)}
+                      />
+                      <Input
+                        label="Institution *"
+                        placeholder="IIT Delhi"
+                        className={inputClass}
+                        labelClassName={labelClass}
+                        wrapperClassName={wrapperClass}
+                        error={entryErrors?.university?.message}
+                        errorClassName={errorClass}
+                        {...register(`educationList.${index}.university`)}
+                      />
+                      <Input
+                        label="Year"
+                        placeholder="e.g., 2020"
+                        className={inputClass}
+                        labelClassName={labelClass}
+                        wrapperClassName={wrapperClass}
+                        error={entryErrors?.year?.message}
+                        errorClassName={errorClass}
+                        {...register(`educationList.${index}.year`)}
+                      />
+
+                      <div className="sm:col-span-3 flex justify-end">
+                        <Button
+                          type="button"
+                          variant="danger"
+                          className="!py-2 !px-4 !text-sm"
+                          disabled={!canRemove}
+                          onClick={() => removeEducation(index)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="ghostOutline"
+                    className="!py-2 !px-5 !text-sm !font-semibold"
+                    onClick={() =>
+                      appendEducation({
+                        degree: "",
+                        university: "",
+                        year: "",
+                      })
+                    }
+                  >
+                    Add Education
+                  </Button>
+                </div>
               </div>
             </section>
 

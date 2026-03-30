@@ -13,6 +13,17 @@ export class InterviewerProfile {
     public languages: string[],
     public education: string,
     public university: string,
+    public educationList: Array<{
+      degree: string;
+      university: string;
+      year?: string;
+    }> = [],
+    public workExperience: Array<{
+      company: string;
+      jobTitle?: string;
+      years: number;
+      description?: string;
+    }> = [],
     public linkedinUrl: string,
     public githubUrl: string,
     public profilePicUrl: string,
@@ -39,6 +50,8 @@ export class InterviewerProfile {
     if (fields.languages !== undefined) this.languages = fields.languages;
     if (fields.education !== undefined) this.education = fields.education;
     if (fields.university !== undefined) this.university = fields.university;
+    if (fields.educationList !== undefined) this.educationList = fields.educationList;
+    if (fields.workExperience !== undefined) this.workExperience = fields.workExperience;
     if (fields.linkedinUrl !== undefined) this.linkedinUrl = fields.linkedinUrl;
     if (fields.githubUrl !== undefined) this.githubUrl = fields.githubUrl;
     if (fields.profilePicUrl !== undefined) this.profilePicUrl = fields.profilePicUrl;
