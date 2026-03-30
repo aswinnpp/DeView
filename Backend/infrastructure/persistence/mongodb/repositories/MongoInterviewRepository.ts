@@ -120,8 +120,6 @@ export class MongoInterviewRepository
     const filter: Filter<IInterviewDocument> = {
       interviewerUserId,
       status: 'COMPLETED',
-      // Only interviews still pending feedback
-      feedbackSubmitted: { $ne: true },
     };
     if (options?.search && options.search.trim()) {
       const q = options.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -137,7 +135,7 @@ export class MongoInterviewRepository
     const [docs, total] = await Promise.all([
       this.collection
         .find(filter)
-        .sort({ createdAt: sortDir })
+        .sort({ updatedAt: sortDir })
         .skip(skip)
         .limit(limit)
         .toArray(),

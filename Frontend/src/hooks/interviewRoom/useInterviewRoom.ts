@@ -184,7 +184,7 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
           }
         };
 
-        const socket = io("https://deview.ddns.net", {
+        const socket = io(window.location.origin, {
           withCredentials: true,
         });
         socketRef.current = socket;

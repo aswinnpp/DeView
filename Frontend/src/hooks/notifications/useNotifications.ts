@@ -45,7 +45,7 @@ export function useNotifications(scope: NotificationScope) {
   useEffect(() => {
     if (!recipient.id) return;
 
-    const socket: Socket = io("https://api.deview.ddns.net", { withCredentials: true });
+    const socket: Socket = io(window.location.origin, { withCredentials: true });
 
     socket.on("connect", () => {
       if (recipient.kind === "company") socket.emit("join-company-notifications", { companyId: recipient.id });

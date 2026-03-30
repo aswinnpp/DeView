@@ -37,8 +37,38 @@ export interface IListCompletedInterviewsForInterviewerInputDTO {
   sortOrder?: 'asc' | 'desc';
 }
 
+/** Serialized interview row for interviewer “manage” list, including latest feedback snapshot. */
+export interface ICompletedInterviewForInterviewerListItemDTO {
+  id: string;
+  companyId: string;
+  companyName: string;
+  jobId: string;
+  jobTitle: string;
+  roomName: string;
+  applicationId: string;
+  candidateUserId: string;
+  candidateName: string;
+  interviewerUserId: string;
+  interviewerName: string;
+  round: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  interviewType: 'ONLINE' | 'CALL' | 'F2F';
+  interviewLocation?: string;
+  status: string;
+  feedbackSubmitted: boolean;
+  interviewerAccepted: boolean;
+  interviewerRejectReason?: string;
+  candidateRejection?: { date: string; reason: string };
+  candidateRejectionStatus?: 'PENDING' | 'DECLINED';
+  createdAt: string;
+  updatedAt: string;
+  latestFeedback: string | null;
+  latestTotalScore: number | null;
+}
+
 export interface IListCompletedInterviewsForInterviewerOutputDTO {
-  data: Interview[];
+  data: ICompletedInterviewForInterviewerListItemDTO[];
   total: number;
 }
 

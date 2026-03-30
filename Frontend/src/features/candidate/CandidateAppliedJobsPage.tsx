@@ -368,7 +368,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                                             {r.totalScore != null && (
                                                                 <div>
                                                                     <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Score</div>
-                                                                    <div className="mt-1 text-slate-100">{r.totalScore}/5</div>
+                                                                    <div className="mt-1 text-slate-100">{r.totalScore}/10</div>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -397,7 +397,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                             </div>
                                             <div>
                                                 <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Score</div>
-                                                <div className="mt-1 text-slate-100">{selectedApplication.latestFeedback.totalScore}/5</div>
+                                                <div className="mt-1 text-slate-100">{selectedApplication.latestFeedback.totalScore}/10</div>
                                             </div>
                                         </div>
                                         <div className="mt-3">

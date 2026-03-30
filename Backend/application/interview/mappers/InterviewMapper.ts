@@ -1,7 +1,11 @@
-import type { InterviewStatus } from '../../../domain/entities/Interview.js';
+import type { Interview, InterviewStatus } from '../../../domain/entities/Interview.js';
+import type { InterviewFeedback } from '../../../domain/entities/InterviewFeedback.js';
 import { parseSearchParams } from '../../shared/utils/parseSearchParams.js';
 import type { IListInterviewerAssignmentsInputDTO } from '../dtos/InterviewListDTO.js';
-import type { IListCompletedInterviewsForInterviewerInputDTO } from '../dtos/InterviewListDTO.js';
+import type {
+  ICompletedInterviewForInterviewerListItemDTO,
+  IListCompletedInterviewsForInterviewerInputDTO,
+} from '../dtos/InterviewListDTO.js';
 import type { IListMyInterviewsInputDTO } from '../dtos/InterviewListDTO.js';
 import type { IListMyInterviewFeedbacksInputDTO } from '../dtos/InterviewListDTO.js';
 import type { IGetInterviewRoomDetailsInputDTO } from '../dtos/InterviewRoomDTO.js';
@@ -29,7 +33,45 @@ export interface IListMyInterviewsQuery {
   sortOrder?: string;
 }
 
+function iso(d: Date): string {
+  return d instanceof Date ? d.toISOString() : String(d);
+}
+
 export const InterviewMapper = {
+  toCompletedInterviewerListItemDTO(
+    interview: Interview,
+    latest: InterviewFeedback | null
+  ): ICompletedInterviewForInterviewerListItemDTO {
+    return {
+      id: interview.id ?? '',
+      companyId: interview.companyId,
+      companyName: interview.companyName,
+      jobId: interview.jobId,
+      jobTitle: interview.jobTitle,
+      roomName: interview.roomName,
+      applicationId: interview.applicationId,
+      candidateUserId: interview.candidateUserId,
+      candidateName: interview.candidateName,
+      interviewerUserId: interview.interviewerUserId,
+      interviewerName: interview.interviewerName,
+      round: interview.round,
+      scheduledDate: interview.scheduledDate,
+      scheduledTime: interview.scheduledTime,
+      interviewType: interview.interviewType,
+      interviewLocation: interview.interviewLocation,
+      status: interview.status,
+      feedbackSubmitted: interview.feedbackSubmitted,
+      interviewerAccepted: interview.interviewerAccepted,
+      interviewerRejectReason: interview.interviewerRejectReason,
+      candidateRejection: interview.candidateRejection,
+      candidateRejectionStatus: interview.candidateRejectionStatus,
+      createdAt: iso(interview.createdAt),
+      updatedAt: iso(interview.updatedAt),
+      latestFeedback: latest?.feedback ?? null,
+      latestTotalScore: latest?.totalScore ?? null,
+    };
+  },
+
   toListInterviewerAssignmentsInput(
     query: IListAssignmentsQuery,
     interviewerUserId: string

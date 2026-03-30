@@ -10,7 +10,18 @@ type InterviewItem = {
   jobDescription: { name: string };
   scheduledAt: string;
   status: string;
+  feedbackSubmitted: boolean;
+  latestFeedback: string | null;
+  latestTotalScore: number | null;
 };
+
+const FEEDBACK_PREVIEW_LEN = 120;
+
+function previewFeedback(text: string | null): string {
+  if (!text?.trim()) return "—";
+  const t = text.trim();
+  return t.length <= FEEDBACK_PREVIEW_LEN ? t : `${t.slice(0, FEEDBACK_PREVIEW_LEN)}…`;
+}
 
 const overallRatingField = { key: "overall", label: "Your Overall Score (1-10)" };
 
@@ -37,7 +48,6 @@ const InterviewerManageInterviews = () => {
   const [evaluationDrafts, setEvaluationDrafts] = useState<Record<string, { overallScore: number; comments: string }>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentInterview, setCurrentInterview] = useState<InterviewItem | null>(null);
-  const [submittedFeedbackIds, setSubmittedFeedbackIds] = useState<Set<string>>(new Set());
   const [showSubmittedModal, setShowSubmittedModal] = useState(false);
   const [submittedModalMessage, setSubmittedModalMessage] = useState("Feedback submitted successfully.");
   const [formErrors, setFormErrors] = useState<{ overallScore?: string; comments?: string } | null>(null);
@@ -46,14 +56,22 @@ const InterviewerManageInterviews = () => {
   const needsEvaluation = useMemo(() => interviews, [interviews]);
 
   const ensureDraft = (draft?: { overallScore?: number; comments?: string }) => ({
-    overallScore: Number(draft?.overallScore ?? 3),
+    overallScore: Number(
+      draft?.overallScore != null && Number.isFinite(draft.overallScore) ? draft.overallScore : 3
+    ),
     comments: draft?.comments ?? "",
   });
 
   const openEvaluationModal = (interview: InterviewItem) => {
     setCurrentInterview(interview);
     if (!evaluationDrafts[interview.id]) {
-      setEvaluationDrafts((prev) => ({ ...prev, [interview.id]: ensureDraft() }));
+      setEvaluationDrafts((prev) => ({
+        ...prev,
+        [interview.id]: ensureDraft({
+          overallScore: interview.latestTotalScore ?? undefined,
+          comments: interview.latestFeedback ?? "",
+        }),
+      }));
     }
     setFormErrors(null);
     setSubmitError(null);
@@ -109,7 +127,6 @@ const InterviewerManageInterviews = () => {
         totalScore: parsed.data.overallScore,
         feedback: parsed.data.comments,
       });
-      setSubmittedFeedbackIds((prev) => new Set(prev).add(interviewId));
       closeEvaluationModal();
       setEvaluationDrafts((prev) => {
         const next = { ...prev };
@@ -158,12 +175,26 @@ const InterviewerManageInterviews = () => {
       render: (item: InterviewItem) => <span className="text-slate-300">{item.status}</span>,
     },
     {
+      header: "Your score",
+      render: (item: InterviewItem) => (
+        <span className="text-slate-300">
+          {item.latestTotalScore != null ? item.latestTotalScore.toFixed(1) : "—"}
+        </span>
+      ),
+    },
+    {
+      header: "Feedback",
+      render: (item: InterviewItem) => (
+        <span className="text-slate-400 text-sm max-w-[min(28rem,55vw)] inline-block align-top">
+          {previewFeedback(item.latestFeedback)}
+        </span>
+      ),
+    },
+    {
       header: "Action",
       render: (item: InterviewItem) => {
-        if (submittedFeedbackIds.has(item.id)) {
-          return <span className="text-slate-400 text-sm">Submitted</span>;
-        }
-        const draft = evaluationDrafts[item.id] ?? ensureDraft();
+        const hasSavedFeedback =
+          item.feedbackSubmitted || (item.latestFeedback != null && item.latestFeedback.trim() !== "");
         return (
           <Button
             variant="primary"
@@ -171,7 +202,7 @@ const InterviewerManageInterviews = () => {
             onClick={() => openEvaluationModal(item)}
             disabled={isLoading}
           >
-            {draft.comments ? "Edit Evaluation" : "Add Marks / Feedback"}
+            {hasSavedFeedback ? "Edit" : "Add feedback"}
           </Button>
         );
       },
@@ -180,9 +211,9 @@ const InterviewerManageInterviews = () => {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold text-white mb-1">Managed (Pending Feedback)</h2>
+      <h2 className="text-lg font-semibold text-white mb-1">Completed interviews & feedback</h2>
       <p className="text-slate-400 text-sm mb-6">
-        Recently completed interviews that still need your structured evaluation.
+        All completed interviews, newest first. Add or edit your score and written feedback anytime.
       </p>
 
       <div className="flex flex-wrap gap-4 items-end mb-4">
@@ -297,7 +328,11 @@ const InterviewerManageInterviews = () => {
                 // Let the submit handler run so Zod errors can be displayed inline.
                 disabled={isLoading}
               >
-                {isLoading ? "Submitting..." : "Finalize Evaluation"}
+                {isLoading
+                  ? "Submitting..."
+                  : currentInterview?.feedbackSubmitted
+                    ? "Save changes"
+                    : "Finalize evaluation"}
               </Button>
             </div>
 

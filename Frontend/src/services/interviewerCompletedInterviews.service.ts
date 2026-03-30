@@ -18,6 +18,9 @@ export interface CompletedInterviewItem {
   status: string;
   createdAt: string;
   updatedAt: string;
+  feedbackSubmitted?: boolean;
+  latestFeedback?: string | null;
+  latestTotalScore?: number | null;
 }
 
 type BackendInterview = {
@@ -38,6 +41,9 @@ type BackendInterview = {
   status?: string;
   createdAt?: string;
   updatedAt?: string;
+  feedbackSubmitted?: boolean;
+  latestFeedback?: string | null;
+  latestTotalScore?: number | null;
 };
 
 function fromBackendInterview(raw: BackendInterview): CompletedInterviewItem | null {
@@ -66,6 +72,15 @@ function fromBackendInterview(raw: BackendInterview): CompletedInterviewItem | n
     status: String(raw.status ?? ""),
     createdAt: String(raw.createdAt ?? ""),
     updatedAt: String(raw.updatedAt ?? ""),
+    feedbackSubmitted: Boolean(raw.feedbackSubmitted),
+    latestFeedback:
+      raw.latestFeedback != null && raw.latestFeedback !== ""
+        ? String(raw.latestFeedback)
+        : null,
+    latestTotalScore:
+      typeof raw.latestTotalScore === "number" && Number.isFinite(raw.latestTotalScore)
+        ? raw.latestTotalScore
+        : null,
   };
 }
 

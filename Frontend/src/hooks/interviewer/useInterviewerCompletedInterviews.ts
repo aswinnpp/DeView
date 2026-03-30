@@ -4,7 +4,7 @@ import {
   type CompletedInterviewItem,
 } from "../../services/interviewerCompletedInterviews.service";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 4;
 
 export type CompletedSortOrderOption = "asc" | "desc";
 
@@ -14,6 +14,9 @@ export interface CompletedInterviewViewItem {
   jobDescription: { name: string };
   scheduledAt: string;
   status: string;
+  feedbackSubmitted: boolean;
+  latestFeedback: string | null;
+  latestTotalScore: number | null;
 }
 
 export function useInterviewerCompletedInterviews() {
@@ -64,16 +67,18 @@ export function useInterviewerCompletedInterviews() {
         jobDescription: { name: it.jobTitle },
         scheduledAt,
         status: it.status,
+        feedbackSubmitted: it.feedbackSubmitted ?? false,
+        latestFeedback: it.latestFeedback ?? null,
+        latestTotalScore: it.latestTotalScore ?? null,
       };
     });
   }, [items]);
 
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
-  const emptyMessage =
-    total === 0
-      ? "✅ All evaluations are submitted."
-      : "🔍 No interviews found matching your search.";
+  const emptyMessage = searchQuery.trim()
+    ? "🔍 No interviews found matching your search."
+    : "No completed interviews yet.";
 
   return {
     items,
