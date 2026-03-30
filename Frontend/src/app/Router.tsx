@@ -26,6 +26,7 @@ const Profile = lazy(() => import("../features/candidate/Profile"));
 const CandidateInterviews = lazy(() => import("../features/candidate/CandidateInterviews"));
 const CandidateJobsPage = lazy(() => import("../features/candidate/CandidateJobsPage"));
 const CandidateAppliedJobsPage = lazy(() => import("../features/candidate/CandidateAppliedJobsPage"));
+const CandidateApplicationDetailPage = lazy(() => import("../features/candidate/CandidateApplicationDetailPage"));
 const CandidateMailsPage = lazy(() => import("../features/candidate/CandidateMailsPage"));
 const OfferSigningCompletePage = lazy(() => import("../features/candidate/OfferSigningCompletePage"));
 const CandidateLayout = lazy(() => import("../features/candidate/CandidateLayout"));
@@ -91,6 +92,7 @@ const AppRouter = () => {
             <Route path="profile" element={<Profile />} />
             <Route path="jobs" element={<CandidateJobsPage />} />
             <Route path="interviews" element={<CandidateInterviews />} />
+            <Route path="applied/:applicationId" element={<CandidateApplicationDetailPage />} />
             <Route path="applied" element={<CandidateAppliedJobsPage />} />
             <Route path="mails" element={<CandidateMailsPage />} />
             <Route path="mails/signing-complete" element={<OfferSigningCompletePage />} />
