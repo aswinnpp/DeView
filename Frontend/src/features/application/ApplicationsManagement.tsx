@@ -1095,7 +1095,7 @@ const HRApplicationsPage = () => {
                                         </div>
                                         <div style={{ marginBottom: 8 }}>
                                             <span style={{ color: '#94a3b8', fontSize: 12 }}>Score: </span>
-                                            <span style={{ color: round.score >= 4 ? '#10b981' : round.score >= 3 ? '#f59e0b' : '#ef4444', fontSize: 12, fontWeight: 600 }}>{round.score.toFixed(1)}/5</span>
+                                            <span style={{ color: round.score >= 4 ? '#10b981' : round.score >= 3 ? '#f59e0b' : '#ef4444', fontSize: 12, fontWeight: 600 }}>{round.score.toFixed(1)}/10</span>
                                         </div>
                                         <p style={{ color: '#94a3b8', fontSize: 12, margin: 0, fontStyle: 'italic' }}>"{round.feedback}"</p>
                                     </div>
@@ -1191,7 +1191,7 @@ const HRApplicationsPage = () => {
                                             <div>
                                                 <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Score</span>
                                                 <p style={{ color: '#e2e8f0', margin: '4px 0 0', fontSize: 14, fontWeight: 600 }}>
-                                                    {latestInterviewerFeedback.totalScore}/5
+                                                    {latestInterviewerFeedback.totalScore}/10
                                                 </p>
                                             </div>
                                         </div>
@@ -2237,7 +2237,7 @@ const HRApplicationsPage = () => {
                                                             borderRadius: 4
                                                         }} />
                                                     </div>
-                                                    <span style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600 }}>{round.score.toFixed(1)}/5</span>
+                                                    <span style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600 }}>{round.score.toFixed(1)}/10</span>
                                                 </div>
                                             </div>
                                         </div>

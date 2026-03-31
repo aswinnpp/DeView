@@ -191,13 +191,18 @@ async function buildOfferLetterPdfBase64(input: {
   drawWrapped(`Email: ${candidateEmail}`, { size: 11 });
   y -= 2;
   drawWrapped('Subject: Job Offer', { bold: true, size: 12 });
-  y -= 4;
+  y -= 6;
+
+  // Introduction
+  drawWrapped(`Dear ${candidateName},`, { size: 11 });
+  y -= 2;
 
   const body = offerBody.trim() || '(No additional letter body.)';
   drawWrapped(body, { size: 11 });
-  y -= 6;
+  y -= 8;
 
-  drawWrapped('Position Details:', { bold: true, size: 12 });
+  // Position details section
+  drawWrapped('Position Details', { bold: true, size: 12 });
   if (positionTitle.trim()) drawWrapped(`- Role: ${positionTitle.trim()}`, { size: 11, indent: 12 });
   if (startDate.trim()) drawWrapped(`- Start Date: ${startDate.trim()}`, { size: 11, indent: 12 });
   if (location.trim()) drawWrapped(`- Work Location: ${location.trim()}`, { size: 11, indent: 12 });
@@ -205,16 +210,16 @@ async function buildOfferLetterPdfBase64(input: {
     drawWrapped('- Details will be shared by HR.', { size: 11, indent: 12 });
   }
 
-  y -= 4;
-  drawWrapped('Compensation & Benefits:', { bold: true, size: 12 });
+  y -= 6;
+  drawWrapped('Compensation & Benefits', { bold: true, size: 12 });
   if (salary.trim()) {
     drawWrapped(`- Salary: ${salary.trim()}`, { size: 11, indent: 12 });
   } else {
     drawWrapped('- Salary details will be shared by HR.', { size: 11, indent: 12 });
   }
 
-  y -= 4;
-  drawWrapped('Benefits:', { bold: true, size: 12 });
+  y -= 6;
+  drawWrapped('Benefits', { bold: true, size: 12 });
   if (benefits.trim()) {
     const benefitsBullets = benefits
       .split(/[\n,]+/)
@@ -232,8 +237,28 @@ async function buildOfferLetterPdfBase64(input: {
     drawWrapped('- Benefits will be shared by HR.', { size: 11, indent: 12 });
   }
 
-  y -= 6;
-  drawWrapped('Please sign below to confirm acceptance of this offer:', { bold: true, size: 11, color: rgb(0, 0, 0) });
+  // Terms & Conditions
+  y -= 8;
+  drawWrapped('Terms & Conditions', { bold: true, size: 12 });
+  drawWrapped(
+    'This offer is subject to successful completion of all background and reference checks and will be governed by the company policies and employment agreement shared with you.',
+    { size: 11 }
+  );
+
+  // Acceptance section
+  y -= 8;
+  drawWrapped('Acceptance', { bold: true, size: 12 });
+  drawWrapped(
+    'Please review this offer carefully and sign below to confirm your acceptance. You may also be required to sign additional onboarding and confidentiality documents on or before your joining date.',
+    { size: 11 }
+  );
+
+  y -= 8;
+  drawWrapped('Please sign below to confirm acceptance of this offer:', {
+    bold: true,
+    size: 11,
+    color: rgb(0, 0, 0),
+  });
   y -= 6;
 
   const signatureBoxHeight = 44;
