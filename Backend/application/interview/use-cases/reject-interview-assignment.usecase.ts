@@ -30,6 +30,9 @@ export class RejectInterviewAssignmentUseCase implements IRejectInterviewAssignm
 
     const updated = await this._repo.setInterviewerAccepted(input.interviewId, false, input.reason.trim());
     if (updated) {
+      // Mark this interview as needing reschedule for downstream consumers (candidate views, reports, etc.)
+      await this._repo.updateStatus(updated.id ?? input.interviewId, 'RESCHEDULED');
+
       await this._applicationRepo.setInterviewAcceptance({
         applicationId: updated.applicationId,
         jobId: updated.jobId,

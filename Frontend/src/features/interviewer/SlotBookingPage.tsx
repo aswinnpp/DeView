@@ -46,6 +46,9 @@ function buildSlotsForDate(dateKey: string, stepMinutes: number): string[] {
 const SlotBookingPage: React.FC = () => {
   // local edits (before submit)
   const [selected, setSelected] = useState<string[]>([]);
+  const [customStartTime, setCustomStartTime] = useState<string>("10:30");
+  const [customEndTime, setCustomEndTime] = useState<string>("11:30");
+  const [customSlotError, setCustomSlotError] = useState<string | null>(null);
   const today = useMemo(() => new Date(), []);
   const tomorrowUi = useMemo(() => {
     const t = new Date(today);
@@ -64,6 +67,11 @@ const SlotBookingPage: React.FC = () => {
 
   const slots = useMemo(() => buildSlotsForDate(selectedDate, STEP_MINUTES), [selectedDate]);
   const effectiveSelected = selected.length ? selected : (availableTimes ?? []);
+  const gridSlotsSet = useMemo(() => new Set(slots), [slots]);
+  const customSelected = useMemo(
+    () => selected.filter((iso) => !gridSlotsSet.has(iso)),
+    [selected, gridSlotsSet]
+  );
 
 
   const toggle = (slotIso: string) => {
@@ -93,6 +101,44 @@ const SlotBookingPage: React.FC = () => {
   };
 
   const totalMinutes = effectiveSelected.length * STEP_MINUTES;
+
+  const addCustomSlot = () => {
+    setCustomSlotError(null);
+    try {
+      if (!selectedDate) throw new Error("Select a date first.");
+      if (!customStartTime || !customEndTime) {
+        throw new Error("Start time and end time are required.");
+      }
+
+      const [sh, sm] = customStartTime.split(":").map((n) => parseInt(n, 10));
+      const [eh, em] = customEndTime.split(":").map((n) => parseInt(n, 10));
+      if (Number.isNaN(sh) || Number.isNaN(sm) || Number.isNaN(eh) || Number.isNaN(em)) {
+        throw new Error("Invalid time format.");
+      }
+
+      const [yStr, mStr, dStr] = selectedDate.split("-");
+      const y = parseInt(yStr, 10);
+      const m = parseInt(mStr, 10);
+      const d = parseInt(dStr, 10);
+      if ([y, m, d].some((n) => Number.isNaN(n))) throw new Error("Invalid selected date.");
+
+      const start = new Date(y, m - 1, d, sh, sm, 0, 0);
+      const end = new Date(y, m - 1, d, eh, em, 0, 0);
+      const durationMin = Math.round((end.getTime() - start.getTime()) / (60 * 1000));
+      if (durationMin !== STEP_MINUTES) {
+        throw new Error(`Custom slot duration must be exactly ${STEP_MINUTES} minutes.`);
+      }
+      if (!(end.getTime() > start.getTime())) {
+        throw new Error("End time must be after start time.");
+      }
+
+      const startIso = start.toISOString();
+      toggle(startIso);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Could not add custom slot.";
+      setCustomSlotError(msg);
+    }
+  };
 
   return (
     <div>
@@ -176,6 +222,58 @@ const SlotBookingPage: React.FC = () => {
                     stepMinutes={STEP_MINUTES}
                   />
                 ))}
+            </div>
+
+            {/* Custom slot (non-grid) */}
+            <div className="mt-3 rounded-lg border border-white/[0.06] bg-slate-900/20 p-3">
+              <div className="flex flex-col gap-2">
+                <div className="text-sm font-semibold text-white">Custom slot</div>
+                <div className="flex flex-wrap gap-2 items-end">
+                  <label className="text-xs text-slate-300 flex flex-col gap-1">
+                    Start
+                    <input
+                      type="time"
+                      value={customStartTime}
+                      onChange={(e) => setCustomStartTime(e.target.value)}
+                      className="rounded-lg border border-white/10 bg-slate-900/60 px-3 py-2 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
+                    />
+                  </label>
+                  <label className="text-xs text-slate-300 flex flex-col gap-1">
+                    End
+                    <input
+                      type="time"
+                      value={customEndTime}
+                      onChange={(e) => setCustomEndTime(e.target.value)}
+                      className="rounded-lg border border-white/10 bg-slate-900/60 px-3 py-2 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
+                    />
+                  </label>
+                  <Button variant="primary" size="sm" onClick={addCustomSlot}>
+                    Add
+                  </Button>
+                </div>
+                {customSlotError ? (
+                  <div className="text-xs text-rose-200">{customSlotError}</div>
+                ) : null}
+              </div>
+
+              {customSelected.length > 0 ? (
+                <div className="mt-3">
+                  <div className="text-xs text-slate-400 mb-2">Selected custom slots</div>
+                  <div className="flex flex-wrap gap-2">
+                    {customSelected.map((iso) => (
+                      <button
+                        key={iso}
+                        type="button"
+                        onClick={() => toggle(iso)}
+                        className="rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-xs text-amber-100 hover:bg-amber-500/20 cursor-pointer"
+                        title="Remove custom slot"
+                      >
+                        {formatRange(iso)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             {/* Footer */}

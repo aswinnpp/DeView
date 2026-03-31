@@ -48,6 +48,10 @@ export async function applicationsRoutes(
     handler: controller.scheduleInterview,
   });
 
+  fastify.patch('/jobs/:jobId/applications/:applicationId/reschedule', {
+    handler: controller.rescheduleInterview,
+  });
+
   fastify.patch('/jobs/:jobId/applications/:applicationId/reschedule/decline', {
     handler: controller.declineRescheduleRequest,
   });

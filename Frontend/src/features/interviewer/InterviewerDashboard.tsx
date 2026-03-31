@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Table, Pagination, SearchInput } from "../../components/common";
 import { useInterviewerDashboard } from "../../hooks/interviewer";
 import type { InterviewerAssignmentItem } from "../../services/interviewerAssignments.service";
+import { interviewerAssignmentsService } from "../../services/interviewerAssignments.service";
 import { interviewsService } from "../../services/interviews.service";
 
 const selectClass =
@@ -30,6 +31,12 @@ const InterviewerDashboard = () => {
   } = useInterviewerDashboard();
   const [updatingInterviewId, setUpdatingInterviewId] = useState<string | null>(null);
 
+  // Reschedule modal state
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [rescheduleInterview, setRescheduleInterview] = useState<InterviewerAssignmentItem | null>(null);
+  const [rescheduleReason, setRescheduleReason] = useState("");
+  const [isRescheduling, setIsRescheduling] = useState(false);
+
   const getInterviewTypeLabel = (type?: string) => {
     if (type === "CALL") return "Call";
     if (type === "F2F") return "Face to Face";
@@ -43,6 +50,33 @@ const InterviewerDashboard = () => {
       await fetchAssignments();
     } finally {
       setUpdatingInterviewId(null);
+    }
+  };
+
+  const openRescheduleModal = (item: InterviewerAssignmentItem) => {
+    setRescheduleInterview(item);
+    setRescheduleReason("");
+    setRescheduleModalOpen(true);
+  };
+
+  const closeRescheduleModal = () => {
+    setRescheduleModalOpen(false);
+    setRescheduleInterview(null);
+    setRescheduleReason("");
+  };
+
+  const submitReschedule = async () => {
+    if (!rescheduleInterview) return;
+    if (!rescheduleReason.trim()) return;
+    setIsRescheduling(true);
+    try {
+      await interviewerAssignmentsService.reject(rescheduleInterview.id, rescheduleReason.trim());
+      await fetchAssignments();
+      closeRescheduleModal();
+    } catch {
+      window.alert("Could not request reschedule. Please try again.");
+    } finally {
+      setIsRescheduling(false);
     }
   };
 
@@ -111,34 +145,45 @@ const InterviewerDashboard = () => {
     {
       header: "Action",
       render: (item: InterviewerAssignmentItem) =>
-        (item.interviewType ?? "ONLINE") === "ONLINE" ? (
-          <Button
-            variant="primary"
-            className="!py-2 !px-4 text-sm"
-            onClick={() => handleJoinRoom(item.id)}
-          >
-            Join Room
-          </Button>
-        ) : (
-          <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          {(item.interviewType ?? "ONLINE") === "ONLINE" ? (
             <Button
               variant="primary"
-              className="!py-2 !px-3 text-xs"
-              onClick={() => handleUpdateStatus(item.id, "COMPLETED")}
-              disabled={updatingInterviewId === item.id}
+              className="!py-2 !px-4 text-sm"
+              onClick={() => handleJoinRoom(item.id)}
             >
-              Complete
+              Join Room
             </Button>
-            <Button
-              variant="danger"
-              className="!py-2 !px-3 text-xs"
-              onClick={() => handleUpdateStatus(item.id, "CANCELLED")}
-              disabled={updatingInterviewId === item.id}
-            >
-              Not Attempt
-            </Button>
-          </div>
-        ),
+          ) : (
+            <div className="flex gap-2">
+              <Button
+                variant="primary"
+                className="!py-2 !px-3 text-xs"
+                onClick={() => handleUpdateStatus(item.id, "COMPLETED")}
+                disabled={updatingInterviewId === item.id}
+              >
+                Complete
+              </Button>
+              <Button
+                variant="danger"
+                className="!py-2 !px-3 text-xs"
+                onClick={() => handleUpdateStatus(item.id, "CANCELLED")}
+                disabled={updatingInterviewId === item.id}
+              >
+                Not Attempt
+              </Button>
+            </div>
+          )}
+
+          <Button
+            variant="amber"
+            className="!py-2 !px-3 text-xs"
+            onClick={() => openRescheduleModal(item)}
+            disabled={isRescheduling && rescheduleInterview?.id === item.id}
+          >
+            Request Reschedule
+          </Button>
+        </div>,
     },
   ];
 
@@ -218,6 +263,58 @@ const InterviewerDashboard = () => {
           </>
         )}
       </div>
+
+      {rescheduleModalOpen && rescheduleInterview && (
+        <div className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-4">
+          <div className="bg-slate-800 border border-slate-600 rounded-xl p-6 max-w-md w-full shadow-xl">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-white m-0 text-lg font-semibold">Request Reschedule</h3>
+              <button
+                type="button"
+                className="bg-transparent border-none text-slate-400 cursor-pointer p-1 rounded hover:bg-white/10 hover:text-white"
+                onClick={closeRescheduleModal}
+                disabled={isRescheduling}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-slate-400 text-sm mb-4">
+              Please provide a reason for requesting a reschedule for{" "}
+              <strong className="text-white">{rescheduleInterview.candidateName}</strong>. This is sent to the HR team.
+            </p>
+
+            <label className="block text-sm font-semibold text-slate-300 mb-1.5">Reason (required)</label>
+            <textarea
+              rows={4}
+              value={rescheduleReason}
+              onChange={(e) => setRescheduleReason(e.target.value)}
+              placeholder="E.g., time conflict, outside my domain..."
+              disabled={isRescheduling}
+              className="w-full py-2 px-3 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500 resize-y placeholder:text-slate-500"
+            />
+
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="secondary"
+                className="!bg-slate-600"
+                onClick={closeRescheduleModal}
+                disabled={isRescheduling}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="amberGradient"
+                onClick={submitReschedule}
+                disabled={!rescheduleReason.trim() || isRescheduling}
+              >
+                {isRescheduling ? "Submitting..." : "Submit Request"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -86,6 +86,7 @@ export const TYPES = {
   ScoreCandidatesUseCasePort: Symbol('ScoreCandidatesUseCasePort'),
   UpdateApplicationStatusUseCasePort: Symbol('UpdateApplicationStatusUseCasePort'),
   ScheduleInterviewUseCasePort: Symbol('ScheduleInterviewUseCasePort'),
+  RescheduleInterviewUseCasePort: Symbol('RescheduleInterviewUseCasePort'),
   PrecheckScheduleInterviewUseCasePort: Symbol('PrecheckScheduleInterviewUseCasePort'),
   DeclineRescheduleRequestUseCasePort: Symbol('DeclineRescheduleRequestUseCasePort'),
   GetResumeViewUrlUseCasePort: Symbol('GetResumeViewUrlUseCasePort'),

@@ -7,6 +7,7 @@ import type { IListPendingApplicationsForJobUseCase } from '../../../application
 import type { IScoreCandidatesUseCase } from '../../../application/job-application/ports/usecase/IScoreCandidatesUseCase.js';
 import type { IUpdateApplicationStatusUseCase } from '../../../application/job-application/ports/usecase/IUpdateApplicationStatusUseCase.js';
 import type { IScheduleInterviewUseCase } from '../../../application/job-application/use-cases/schedule-interview.usecase.js';
+import type { IRescheduleInterviewUseCase } from '../../../application/job-application/use-cases/reschedule-interview.usecase.js';
 import type { IDeclineRescheduleRequestUseCase } from '../../../application/job-application/use-cases/decline-reschedule-request.usecase.js';
 import type { IGetResumeViewUrlUseCase } from '../../../application/job-application/use-cases/get-resume-view-url.usecase.js';
 import type { IGetLatestInterviewerFeedbackUseCase } from '../../../application/job-application/use-cases/get-latest-interviewer-feedback.usecase.js';
@@ -34,6 +35,8 @@ export class ApplicationsController {
     private readonly _updateApplicationStatusUseCase: IUpdateApplicationStatusUseCase,
     @inject(TYPES.ScheduleInterviewUseCasePort)
     private readonly _scheduleInterviewUseCase: IScheduleInterviewUseCase,
+    @inject(TYPES.RescheduleInterviewUseCasePort)
+    private readonly _rescheduleInterviewUseCase: IRescheduleInterviewUseCase,
     @inject(TYPES.PrecheckScheduleInterviewUseCasePort)
     private readonly _precheckScheduleInterviewUseCase: IPrecheckScheduleInterviewUseCase,
     @inject(TYPES.DeclineRescheduleRequestUseCasePort)
@@ -206,6 +209,41 @@ export class ApplicationsController {
     const ctx = toContext(request.currentUser);
     const input = ApplicationMapper.toScheduleInterviewInput(request.params, request.body, ctx);
     const result = await this._scheduleInterviewUseCase.execute(input);
+    reply.send(success({ application: ApplicationMapper.toView(result.application) }));
+  };
+
+  rescheduleInterview = async (
+    request: FastifyRequest<{
+      Params: { jobId: string; applicationId: string };
+      Body: {
+        interviewerUserId: string;
+        interviewerName: string;
+        interviewerEmail?: string;
+        scheduledDate: string;
+        scheduledTime: string;
+        interviewType?: 'ONLINE' | 'CALL' | 'F2F';
+        interviewLocation?: string;
+        slotStartIso?: string;
+      };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const ctx = toContext(request.currentUser);
+
+    const result = await this._rescheduleInterviewUseCase.execute({
+      companyId: ctx.companyId ?? '',
+      jobId: request.params.jobId,
+      applicationId: request.params.applicationId,
+      interviewerUserId: request.body.interviewerUserId,
+      interviewerName: request.body.interviewerName,
+      interviewerEmail: request.body.interviewerEmail,
+      scheduledDate: request.body.scheduledDate,
+      scheduledTime: request.body.scheduledTime,
+      interviewType: request.body.interviewType,
+      interviewLocation: request.body.interviewLocation,
+      slotStartIso: request.body.slotStartIso,
+    });
+
     reply.send(success({ application: ApplicationMapper.toView(result.application) }));
   };
 

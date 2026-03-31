@@ -74,6 +74,8 @@ export interface Candidate {
     requestedAt: string;
   };
   interviewDetails?: ApplicationItem["interviewDetails"];
+  /** Interviewer-provided reason when an interviewer requested reschedule. */
+  interviewerRejectReason?: string;
 }
 
 export interface Job {
@@ -131,6 +133,14 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
   const skillsArray = Array.isArray(apiApp.skills) ? apiApp.skills : [];
   const skillsStr = skillsArray.join(", ");
 
+  const latestInterviewerRejectReason =
+    apiApp.interviewDetails?.interviewerRejectReason ??
+    (apiApp.interviewRounds ?? []).find(
+      (r) => r.interviewerRejectReason && r.interviewerAccepted === false
+    )?.interviewerRejectReason ??
+    (apiApp.interviewRounds ?? []).find((r) => r.interviewerRejectReason)?.interviewerRejectReason ??
+    undefined;
+
   return {
     id: String(apiApp.id ?? ""),
     applicationId: String(apiApp.id ?? ""),
@@ -165,6 +175,7 @@ function mapApiApplicationToCandidate(apiApp: ApplicationItem, jobId: string): C
     aiScore: apiApp.aiScore,
     interviewDetails: apiApp.interviewDetails,
     rescheduleRequest: apiApp.rescheduleRequest,
+    interviewerRejectReason: latestInterviewerRejectReason,
     attemptedRounds: apiApp.completedRounds ?? [],
     completedRounds: buildCompletedRoundsFromApi(apiApp),
   };

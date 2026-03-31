@@ -119,9 +119,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       });
       const doc = docs?.[0];
       const currentTimes = Array.isArray(doc?.times) ? doc!.times : [];
-      if (!currentTimes.includes(trimmedSlotStartIso)) {
-        throw AppError.conflict('This slot is already booked. Please choose another time.');
-      }
+      
       const nextTimes = currentTimes.filter((t) => t !== trimmedSlotStartIso);
       await this._interviewerSlotsRepository.upsertForInterviewerDate({
         interviewerId: trimmedInterviewerUserId,

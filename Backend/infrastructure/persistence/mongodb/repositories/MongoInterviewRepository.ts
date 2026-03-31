@@ -248,10 +248,15 @@ export class MongoInterviewRepository
       interviewerName: input.interviewerName.trim(),
       round: input.round.trim(),
       interviewType: input.interviewType ?? 'ONLINE',
-      interviewLocation: input.interviewType === 'F2F' ? input.interviewLocation?.trim() : undefined,
       status: 'SCHEDULED',
       updatedAt: new Date(),
     };
+
+    // Important: only include `interviewLocation` in $set when it's actually needed.
+    // Otherwise Mongo will detect a conflict when we also $unset `interviewLocation`.
+    if ((input.interviewType ?? 'ONLINE') === 'F2F') {
+      update.interviewLocation = input.interviewLocation?.trim();
+    }
     const unsetFields: Record<string, ''> = {
       candidateRejection: '',
       candidateRejectionStatus: '',

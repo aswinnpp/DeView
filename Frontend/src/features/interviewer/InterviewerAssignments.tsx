@@ -113,7 +113,7 @@ const InterviewerAssignments = () => {
         const viewBtn = (
           <Button
             variant="secondary"
-            className="!py-1.5 !px-3 text-xs !bg-slate-700"
+            className="!py-1.5 !px-3 text-xs !bg-slate-700 "
             onClick={() => handleViewResume(item.id)}
             disabled={resumeLoadingId === item.id}
           >
@@ -123,11 +123,11 @@ const InterviewerAssignments = () => {
 
         if (item.status === "pending" || item.status === "scheduled")
           return (
-            <div className="flex gap-2">
+            <div className="flex gap-1 ">
               {viewBtn}
               <Button
                 variant="primary"
-                className="!py-1.5 !px-3 text-xs"
+                className="!py-1.5 !px-3 text-xs "
                 onClick={() => handleAccept(item.id)}
                 disabled={isAccepting}
               >
@@ -135,7 +135,6 @@ const InterviewerAssignments = () => {
               </Button>
               <Button
                 variant="amber"
-                className="!py-1.5 !px-3 text-xs"
                 onClick={() => openRejectModal(item)}
                 disabled={isAccepting}
               >

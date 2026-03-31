@@ -63,6 +63,8 @@ export const API_ROUTES = {
             `/applications/jobs/${jobId}/applications/${applicationId}/status`,
         SCHEDULE_INTERVIEW: (jobId: string, applicationId: string) =>
             `/applications/jobs/${jobId}/applications/${applicationId}/interview`,
+        RESCHEDULE_INTERVIEW: (jobId: string, applicationId: string) =>
+            `/applications/jobs/${jobId}/applications/${applicationId}/reschedule`,
         DECLINE_RESCHEDULE: (jobId: string, applicationId: string) =>
             `/applications/jobs/${jobId}/applications/${applicationId}/reschedule/decline`,
     },

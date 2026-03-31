@@ -440,6 +440,30 @@ export const applicationsService = {
     return app;
   },
 
+  /** Reschedule an existing interview for an application (separate endpoint). */
+  rescheduleInterview: async (
+    jobId: string,
+    applicationId: string,
+    payload: {
+      interviewerUserId: string;
+      interviewerName: string;
+      interviewerEmail?: string;
+      scheduledDate: string;
+      scheduledTime: string;
+      interviewType?: "ONLINE" | "CALL" | "F2F";
+      interviewLocation?: string;
+      slotStartIso?: string;
+    }
+  ): Promise<ApplicationItem> => {
+    const res = await api.patch<{ application?: ApplicationItem }>(
+      API_ROUTES.APPLICATIONS.RESCHEDULE_INTERVIEW(jobId, applicationId),
+      payload
+    );
+    const app = (res.data as { application?: ApplicationItem })?.application;
+    if (!app) throw new Error("No application returned");
+    return app;
+  },
+
   precheckScheduleInterview: async (
     jobId: string,
     applicationId: string,

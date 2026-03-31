@@ -85,9 +85,13 @@ export function registerErrorHandler(app: FastifyInstance) {
 
     request.log.error({ err: error, url: request.url }, 'Unhandled error');
 
+    const errMsg = error instanceof Error && typeof error.message === 'string' && error.message.trim()
+      ? error.message
+      : 'Internal server error';
+
     return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
       success: false,
-      message: "Internal server error"
+      message: errMsg
     });
   });
 }

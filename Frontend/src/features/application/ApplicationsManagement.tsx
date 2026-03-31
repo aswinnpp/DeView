@@ -100,6 +100,7 @@ interface Candidate {
     githubUrl?: string;
     dateOfBirth?: string;
     resumeUrl?: string;
+    interviewerRejectReason?: string;
 }
 
 
@@ -1119,41 +1120,52 @@ const HRApplicationsPage = () => {
                         )}
 
                         {/* Reschedule Request Info */}
-                        {selectedCandidate.status === 'RESCHEDULE_REQUESTED' && selectedCandidate.rescheduleRequest && (
+                        {selectedCandidate.status === 'RESCHEDULE_REQUESTED' && (
                             <div style={{ marginBottom: 20, padding: 16, backgroundColor: '#f9731620', borderRadius: 12, border: '1px solid #f97316' }}>
                                 <h4 style={{ color: '#f97316', fontSize: 14, fontWeight: 600, margin: '0 0 16px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
                                     ⏰ Reschedule Request
                                 </h4>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                                    <div style={{ padding: 12, backgroundColor: '#0f172a', borderRadius: 8 }}>
-                                        <h5 style={{ color: '#94a3b8', fontSize: 11, fontWeight: 600, margin: '0 0 8px', textTransform: 'uppercase' }}>Original Schedule</h5>
-                                        <p style={{ color: '#e2e8f0', margin: 0, fontSize: 14, fontWeight: 500 }}>
-                                            {new Date(selectedCandidate.rescheduleRequest.originalDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
-                                        </p>
-                                        <p style={{ color: '#64748b', margin: '4px 0 0', fontSize: 13 }}>
-                                            {selectedCandidate.rescheduleRequest.originalTime}
-                                        </p>
+
+                                {selectedCandidate.rescheduleRequest ? (
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                                        <div style={{ padding: 12, backgroundColor: '#0f172a', borderRadius: 8 }}>
+                                            <h5 style={{ color: '#94a3b8', fontSize: 11, fontWeight: 600, margin: '0 0 8px', textTransform: 'uppercase' }}>Original Schedule</h5>
+                                            <p style={{ color: '#e2e8f0', margin: 0, fontSize: 14, fontWeight: 500 }}>
+                                                {new Date(selectedCandidate.rescheduleRequest.originalDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </p>
+                                            <p style={{ color: '#64748b', margin: '4px 0 0', fontSize: 13 }}>
+                                                {selectedCandidate.rescheduleRequest.originalTime}
+                                            </p>
+                                        </div>
+                                        <div style={{ padding: 12, backgroundColor: '#10b98120', borderRadius: 8, border: '1px solid #10b981' }}>
+                                            <h5 style={{ color: '#10b981', fontSize: 11, fontWeight: 600, margin: '0 0 8px', textTransform: 'uppercase' }}>Requested Schedule</h5>
+                                            <p style={{ color: '#e2e8f0', margin: 0, fontSize: 14, fontWeight: 500 }}>
+                                                {new Date(selectedCandidate.rescheduleRequest.requestedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </p>
+                                            <p style={{ color: '#64748b', margin: '4px 0 0', fontSize: 13 }}>
+                                                {selectedCandidate.rescheduleRequest.requestedTime}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div style={{ padding: 12, backgroundColor: '#10b98120', borderRadius: 8, border: '1px solid #10b981' }}>
-                                        <h5 style={{ color: '#10b981', fontSize: 11, fontWeight: 600, margin: '0 0 8px', textTransform: 'uppercase' }}>Requested Schedule</h5>
-                                        <p style={{ color: '#e2e8f0', margin: 0, fontSize: 14, fontWeight: 500 }}>
-                                            {new Date(selectedCandidate.rescheduleRequest.requestedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
-                                        </p>
-                                        <p style={{ color: '#64748b', margin: '4px 0 0', fontSize: 13 }}>
-                                            {selectedCandidate.rescheduleRequest.requestedTime}
-                                        </p>
-                                    </div>
-                                </div>
+                                ) : null}
+
                                 <div style={{ marginBottom: 12 }}>
                                     <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Reason</span>
-                                    <p style={{ color: '#e2e8f0', margin: '4px 0 0', fontSize: 14, fontWeight: 500 }}>{selectedCandidate.rescheduleRequest.reason}</p>
-                                </div>
-                                <div>
-                                    <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Requested At</span>
-                                    <p style={{ color: '#94a3b8', margin: '4px 0 0', fontSize: 13 }}>
-                                        {new Date(selectedCandidate.rescheduleRequest.requestedAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    <p style={{ color: '#e2e8f0', margin: '4px 0 0', fontSize: 14, fontWeight: 500 }}>
+                                        {selectedCandidate.rescheduleRequest?.reason?.trim()
+                                            ? selectedCandidate.rescheduleRequest.reason
+                                            : (selectedCandidate.interviewerRejectReason || 'Reason not provided')}
                                     </p>
                                 </div>
+
+                                {selectedCandidate.rescheduleRequest ? (
+                                    <div>
+                                        <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase' }}>Requested At</span>
+                                        <p style={{ color: '#94a3b8', margin: '4px 0 0', fontSize: 13 }}>
+                                            {new Date(selectedCandidate.rescheduleRequest.requestedAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                    </div>
+                                ) : null}
                             </div>
                         )}
 
@@ -1690,6 +1702,10 @@ const HRApplicationsPage = () => {
                                                 return;
                                             }
                                             try {
+                                                const isRescheduleMode =
+                                                    selectedCandidate.status === 'INTERVIEW_SCHEDULED' ||
+                                                    selectedCandidate.status === 'RESCHEDULE_REQUESTED';
+
                                                 if (!selectedJob) {
                                                     alert("No job selected");
                                                     return;
@@ -1700,28 +1716,51 @@ const HRApplicationsPage = () => {
                                                     scheduledDate: selectedDate,
                                                 });
 
-                                                await applicationsService.scheduleInterview(
-                                                    selectedJob.id,
-                                                    selectedCandidate.applicationId,
-                                                    {
-                                                        round: selectedRound,
-                                                        interviewerUserId: selectedInterviewer.id,
-                                                        interviewerName: selectedInterviewer.name,
-                                                        interviewerEmail: selectedInterviewer.email,
-                                                        scheduledDate: selectedDate,
-                                                        scheduledTime: selectedTime,
-                                                        interviewType: selectedInterviewType,
-                                                        interviewLocation: selectedInterviewType === "F2F" ? interviewLocation.trim() : undefined,
-                                                        slotStartIso: selectedTimeIso || undefined,
-                                                    }
-                                                );
+                                                if (isRescheduleMode) {
+                                                    await applicationsService.rescheduleInterview(
+                                                        selectedJob.id,
+                                                        selectedCandidate.applicationId,
+                                                        {
+                                                            interviewerUserId: selectedInterviewer.id,
+                                                            interviewerName: selectedInterviewer.name,
+                                                            interviewerEmail: selectedInterviewer.email,
+                                                            scheduledDate: selectedDate,
+                                                            scheduledTime: selectedTime,
+                                                            interviewType: selectedInterviewType,
+                                                            interviewLocation:
+                                                                selectedInterviewType === "F2F" ? interviewLocation.trim() : undefined,
+                                                            slotStartIso: selectedTimeIso || undefined,
+                                                        }
+                                                    );
+                                                } else {
+                                                    await applicationsService.scheduleInterview(
+                                                        selectedJob.id,
+                                                        selectedCandidate.applicationId,
+                                                        {
+                                                            round: selectedRound,
+                                                            interviewerUserId: selectedInterviewer.id,
+                                                            interviewerName: selectedInterviewer.name,
+                                                            interviewerEmail: selectedInterviewer.email,
+                                                            scheduledDate: selectedDate,
+                                                            scheduledTime: selectedTime,
+                                                            interviewType: selectedInterviewType,
+                                                            interviewLocation:
+                                                                selectedInterviewType === "F2F" ? interviewLocation.trim() : undefined,
+                                                            slotStartIso: selectedTimeIso || undefined,
+                                                        }
+                                                    );
+                                                }
 
                                                 await refreshSelectedJobApplications();
 
                                                 setScheduleSuccessMessage(
-                                                    `Interview scheduled with ${selectedInterviewer.name} on ${new Date(
-                                                        selectedDate
-                                                    ).toLocaleDateString()} at ${selectedTime}`
+                                                    isRescheduleMode
+                                                        ? `Interview rescheduled with ${selectedInterviewer.name} on ${new Date(
+                                                              selectedDate
+                                                          ).toLocaleDateString()} at ${selectedTime}`
+                                                        : `Interview scheduled with ${selectedInterviewer.name} on ${new Date(
+                                                              selectedDate
+                                                          ).toLocaleDateString()} at ${selectedTime}`
                                                 );
                                                 setShowScheduleSuccessModal(true);
 

@@ -69,6 +69,7 @@ import { UpdateApplicationStatusUseCase } from '../../application/job-applicatio
 import { ScheduleInterviewUseCase } from '../../application/job-application/use-cases/schedule-interview.usecase.js';
 import { PrecheckScheduleInterviewUseCase } from '../../application/job-application/use-cases/precheck-schedule-interview.usecase.js';
 import { DeclineRescheduleRequestUseCase } from '../../application/job-application/use-cases/decline-reschedule-request.usecase.js';
+import { RescheduleInterviewUseCase } from '../../application/job-application/use-cases/reschedule-interview.usecase.js';
 import { GetResumeViewUrlUseCase } from '../../application/job-application/use-cases/get-resume-view-url.usecase.js';
 import { GetLatestInterviewerFeedbackUseCase } from '../../application/job-application/use-cases/get-latest-interviewer-feedback.usecase.js';
 import { ListOfferMailsUseCase } from '../../application/job-application/use-cases/list-offer-mails.usecase.js';
@@ -173,6 +174,7 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.ScoreCandidatesUseCasePort).to(ScoreCandidatesUseCase);
   container.bind(TYPES.UpdateApplicationStatusUseCasePort).to(UpdateApplicationStatusUseCase);
   container.bind(TYPES.ScheduleInterviewUseCasePort).to(ScheduleInterviewUseCase);
+  container.bind(TYPES.RescheduleInterviewUseCasePort).to(RescheduleInterviewUseCase);
   container.bind(TYPES.PrecheckScheduleInterviewUseCasePort).to(PrecheckScheduleInterviewUseCase);
   container.bind(TYPES.DeclineRescheduleRequestUseCasePort).to(DeclineRescheduleRequestUseCase);
   container.bind(TYPES.GetResumeViewUrlUseCasePort).to(GetResumeViewUrlUseCase);
