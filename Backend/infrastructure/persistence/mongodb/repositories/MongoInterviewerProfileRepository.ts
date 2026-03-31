@@ -3,7 +3,6 @@ import type { IInterviewerProfileRepository } from "../../../../application/inte
 import { InterviewerProfile } from "../../../../domain/entities/InterviewerProfile";
 import type { IInterviewerProfileDocument } from "../schemas/InterviewerProfileDocument";
 import { BaseMongoRepository } from "./BaseMongoRepository";
-import { count } from "console";
 
 export class MongoInterviewerProfileRepository
   extends BaseMongoRepository<InterviewerProfile, IInterviewerProfileDocument>

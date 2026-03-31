@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm, type Resolver, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   interviewerProfileService,
@@ -155,7 +155,9 @@ export function useInterviewerProfile() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const form = useForm<InterviewerProfileFormValues>({
-    resolver: zodResolver(interviewerProfileSchema),
+    // Ensure resolver type matches our form values even if the resolver
+    // generics come from a different react-hook-form type instance.
+    resolver: zodResolver(interviewerProfileSchema) as unknown as Resolver<InterviewerProfileFormValues>,
     defaultValues,
     mode: "onSubmit",
   });

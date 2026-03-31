@@ -31,7 +31,10 @@ const InterviewerProfileSettings: React.FC = () => {
     fetchProfile,
   } = useInterviewerProfile();
 
-  const { register, handleSubmit, formState: { errors } } = form;
+  const {
+    register,
+    formState: { errors },
+  } = form;
   const { control } = form;
   const { fields: educationFields, append: appendEducation, remove: removeEducation } =
     useFieldArray({
@@ -377,7 +380,12 @@ const InterviewerProfileSettings: React.FC = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(
+              onSubmit as unknown as Parameters<typeof form.handleSubmit>[0]
+            )}
+            className="flex flex-col gap-4"
+          >
             {/* Personal */}
             <section className="bg-white/[0.03] border border-white/10 rounded-xl p-6">
               <h3 className="text-slate-50 font-semibold mb-4">Personal Information</h3>
@@ -457,7 +465,7 @@ const InterviewerProfileSettings: React.FC = () => {
 
                   <div className="space-y-4">
                     {workFields.map((field, index) => {
-                      const entryErrors = (errors as any)?.workExperience?.[index];
+                      const entryErrors = errors.workExperience?.[index];
                       const canRemove = workFields.length > 1;
                       return (
                         <div
@@ -614,8 +622,8 @@ const InterviewerProfileSettings: React.FC = () => {
             <section className="bg-white/[0.03] border border-white/10 rounded-xl p-6">
               <h3 className="text-slate-50 font-semibold mb-4">Education</h3>
               <div className="space-y-4">
-                {educationFields.map((field, index) => {
-                  const entryErrors = (errors as any)?.educationList?.[index];
+                  {educationFields.map((field, index) => {
+                    const entryErrors = errors.educationList?.[index];
                   const canRemove = educationFields.length > 1;
                   return (
                     <div key={field.id} className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
