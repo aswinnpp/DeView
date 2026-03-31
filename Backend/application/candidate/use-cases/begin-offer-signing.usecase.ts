@@ -143,6 +143,7 @@ export class BeginOfferSigningUseCase {
         benefits: offer.benefits,
         location: offer.location,
         startDate: offer.startDate,
+        positionTitle: offer.positionTitle,
       });
     } catch (e) {
       if (e instanceof DocuSignConsentRequiredError) {

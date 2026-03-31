@@ -157,15 +157,24 @@ export class ListCandidateMailboxUseCase {
           id: o.id,
           applicationId: o.applicationId,
           jobId: o.jobId,
-          jobTitle: jobTitles.get(o.jobId) ?? 'Position',
+          jobTitle:
+            o.status === 'counter'
+              ? fromNew?.positionTitle?.trim()
+                ? fromNew.positionTitle
+                : o.positionTitle?.trim()
+                  ? o.positionTitle
+                  : jobTitles.get(o.jobId) ?? 'Position'
+              : o.positionTitle?.trim()
+                ? o.positionTitle
+                : jobTitles.get(o.jobId) ?? 'Position',
           companyName: companyNames.get(o.companyId) ?? 'Company',
           candidateName: o.candidateName,
           candidateEmail: o.candidateEmail,
           content: o.content,
-          salary: o.salary,
-          location: o.location,
-          startDate: o.startDate,
-          benefits: o.benefits,
+          salary: o.status === 'counter' ? fromNew?.salary ?? o.salary : o.salary,
+          location: o.status === 'counter' ? fromNew?.location ?? o.location : o.location,
+          startDate: o.status === 'counter' ? fromNew?.startDate ?? o.startDate : o.startDate,
+          benefits: o.status === 'counter' ? fromNew?.benefits ?? o.benefits : o.benefits,
           status: o.status,
           ...(counterLetter !== undefined && { counterLetter }),
           ...(counterSentAt !== undefined && { counterSentAt }),

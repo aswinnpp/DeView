@@ -146,6 +146,7 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
         location: input.offerLocation,
         startDate: input.offerStartDate,
         benefits: input.offerBenefits,
+        positionTitle: jobTitle,
       });
 
       const notification = await this._notificationRepository.create({

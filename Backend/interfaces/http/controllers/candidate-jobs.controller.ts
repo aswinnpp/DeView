@@ -156,7 +156,17 @@ export class CandidateJobsController {
   };
 
   submitOfferCounter = async (
-    request: FastifyRequest<{ Params: { offerMailId: string }; Body: { letter?: string } }>,
+    request: FastifyRequest<{
+      Params: { offerMailId: string };
+      Body: {
+        letter?: string;
+        salary?: string;
+        location?: string;
+        startDate?: string;
+        benefits?: string;
+        positionTitle?: string;
+      };
+    }>,
     reply: FastifyReply
   ) => {
     const userId = request.currentUser.userId;

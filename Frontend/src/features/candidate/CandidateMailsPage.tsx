@@ -105,6 +105,16 @@ export default function CandidateMailsPage() {
     setSelectedKey,
     counterDraft,
     setCounterDraft,
+    counterJobTitleDraft,
+    setCounterJobTitleDraft,
+    counterSalaryDraft,
+    setCounterSalaryDraft,
+    counterLocationDraft,
+    setCounterLocationDraft,
+    counterStartDateDraft,
+    setCounterStartDateDraft,
+    counterBenefitsDraft,
+    setCounterBenefitsDraft,
     counterSubmitting,
     counterError,
     setCounterError,
@@ -311,7 +321,14 @@ export default function CandidateMailsPage() {
   const recipientFirstName = firstNameFromFullName(recipientName) || recipientName;
 
   const emailDate = formatEmailDate(selected.createdAt);
-  const shouldAppendClosing = !contentLooksLikeItHasClosing(selected.content);
+  const letterContentForRender =
+    selected.kind === "offer" &&
+    "counterResponseStatus" in selected &&
+    selected.counterLetter?.trim() &&
+    (selected.status === "counter" || selected.counterResponseStatus === "accepted")
+      ? selected.counterLetter
+      : selected.content;
+  const shouldAppendClosing = !contentLooksLikeItHasClosing(letterContentForRender);
   const offerSignatoryName = selected.companyContactPerson?.trim() || selected.companyName;
   const benefitsList = selected.kind === "offer" ? splitBenefits(selected.benefits) : [];
   const showCounterLetter =
@@ -441,7 +458,7 @@ export default function CandidateMailsPage() {
 
                   {offerDetails}
 
-                  {renderLetterContent(selected.content)}
+                  {renderLetterContent(letterContentForRender)}
 
                   {shouldAppendClosing ? (
                     <div className="mt-10">
@@ -618,13 +635,18 @@ export default function CandidateMailsPage() {
           }}
           onConfirm={submitCounter}
           companyName={selected.companyName}
-          jobTitle={selected.jobTitle}
-          salary={selected.salary}
-          location={selected.location}
-          startDate={selected.startDate}
-          benefits={selected.benefits}
+          jobTitle={counterJobTitleDraft}
+          salary={counterSalaryDraft}
+          location={counterLocationDraft}
+          startDate={counterStartDateDraft}
+          benefits={counterBenefitsDraft}
           letterContent={counterDraft}
           onLetterContentChange={setCounterDraft}
+          jobTitleChange={setCounterJobTitleDraft}
+          salaryChange={setCounterSalaryDraft}
+          locationChange={setCounterLocationDraft}
+          startDateChange={setCounterStartDateDraft}
+          benefitsChange={setCounterBenefitsDraft}
           error={counterError}
           isLoading={counterSubmitting}
         />

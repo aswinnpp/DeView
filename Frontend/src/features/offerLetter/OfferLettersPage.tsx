@@ -13,6 +13,7 @@ export type OfferLetterRow = {
   location?: string;
   startDate?: string;
   benefits?: string;
+  positionTitle?: string;
   status: "pending" | "accepted" | "declined" | "counter";
   counterLetter?: string;
   counterSentAt?: string;
@@ -137,8 +138,15 @@ export default function OfferLettersPage() {
   if (selectedOffer) {
     const paperTitle = offerPaperTitle(selectedOffer.status);
     const paperStatus = offerPaperStatusLabel(selectedOffer.status);
-    const positionTitle = jobTitleMap.get(selectedOffer.jobId) ?? selectedOffer.jobId;
+    const positionTitle =
+      selectedOffer.positionTitle ?? jobTitleMap.get(selectedOffer.jobId) ?? selectedOffer.jobId;
     const benefitsList = splitBenefits(selectedOffer.benefits);
+    const letterContentForRender =
+      selectedOffer.status === "counter" && selectedOffer.counterLetter?.trim()
+        ? selectedOffer.counterLetter
+        : selectedOffer.counterResponseStatus === "accepted" && selectedOffer.counterLetter?.trim()
+          ? selectedOffer.counterLetter
+          : selectedOffer.content;
 
     return (
       <div className="w-full">
@@ -227,7 +235,7 @@ export default function OfferLettersPage() {
             </dl>
 
             <pre className="whitespace-pre-wrap text-slate-200 text-[15px] font-serif m-0 leading-relaxed">
-              {selectedOffer.content}
+              {letterContentForRender}
             </pre>
 
             {selectedOffer.status === "counter" && selectedOffer.counterLetter?.trim() && (
@@ -412,7 +420,9 @@ export default function OfferLettersPage() {
               {
                 header: "Position",
                 render: (row) => (
-                  <div className="text-slate-200">{jobTitleMap.get(row.jobId) ?? row.jobId}</div>
+                  <div className="text-slate-200">
+                    {row.positionTitle ?? jobTitleMap.get(row.jobId) ?? row.jobId}
+                  </div>
                 ),
                 cellClassName: "p-4",
               },

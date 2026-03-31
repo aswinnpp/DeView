@@ -24,6 +24,7 @@ function toDomain(doc: IOfferMailDocument): OfferMail {
     doc.location,
     doc.startDate,
     doc.benefits,
+    doc.positionTitle,
     normalizeStatus(doc.status),
     doc.createdAt,
     doc.docusignAcceptanceEnvelopeId
@@ -45,6 +46,7 @@ export class MongoOfferMailRepository implements IOfferMailRepository {
     location?: string;
     startDate?: string;
     benefits?: string;
+    positionTitle?: string;
   }): Promise<OfferMail> {
     const doc: IOfferMailDocument = {
       applicationId: input.applicationId,
@@ -58,6 +60,7 @@ export class MongoOfferMailRepository implements IOfferMailRepository {
       ...(input.location !== undefined && { location: input.location }),
       ...(input.startDate !== undefined && { startDate: input.startDate }),
       ...(input.benefits !== undefined && { benefits: input.benefits }),
+      ...(input.positionTitle !== undefined && { positionTitle: input.positionTitle }),
       status: 'pending',
       createdAt: new Date(),
     };
@@ -149,6 +152,45 @@ export class MongoOfferMailRepository implements IOfferMailRepository {
       { $set: { status } },
       { returnDocument: 'after' }
     );
+    return result ? toDomain(result) : null;
+  }
+
+  async applyCounterTerms(
+    offerMailId: string,
+    terms: {
+      salary?: string;
+      location?: string;
+      startDate?: string;
+      benefits?: string;
+      positionTitle?: string;
+    }
+  ): Promise<OfferMail | null> {
+    let oid: ObjectId;
+    try {
+      oid = new ObjectId(offerMailId);
+    } catch {
+      return null;
+    }
+
+    const $set: Partial<Record<keyof IOfferMailDocument, unknown>> = {};
+    if (terms.salary !== undefined) $set.salary = terms.salary;
+    if (terms.location !== undefined) $set.location = terms.location;
+    if (terms.startDate !== undefined) $set.startDate = terms.startDate;
+    if (terms.benefits !== undefined) $set.benefits = terms.benefits;
+    if (terms.positionTitle !== undefined) $set.positionTitle = terms.positionTitle;
+
+    if (Object.keys($set).length === 0) {
+      // Nothing to update; caller will still transition status as needed.
+      const doc = await this._collection.findOne({ _id: oid });
+      return doc ? toDomain(doc) : null;
+    }
+
+    const result = await this._collection.findOneAndUpdate(
+      { _id: oid },
+      { $set },
+      { returnDocument: 'after' }
+    );
+
     return result ? toDomain(result) : null;
   }
 

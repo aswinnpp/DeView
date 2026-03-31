@@ -17,6 +17,11 @@ function toDomain(doc: ICounterLetterDocument): CounterLetter {
     doc.companyId,
     doc.candidateUserId,
     doc.content,
+    doc.salary,
+    doc.location,
+    doc.startDate,
+    doc.benefits,
+    doc.positionTitle,
     doc.createdAt,
     responseStatus
   );
@@ -32,7 +37,17 @@ export class MongoCounterLetterRepository implements ICounterLetterRepository {
     companyId: string;
     candidateUserId: string;
     content: string;
+    salary?: string;
+    location?: string;
+    startDate?: string;
+    benefits?: string;
+    positionTitle?: string;
   }): Promise<CounterLetter> {
+    const normalizeOptionalText = (v: string | undefined): string | undefined => {
+      const t = (v ?? '').trim();
+      return t.length > 0 ? t : undefined;
+    };
+
     const doc: ICounterLetterDocument = {
       offerMailId: input.offerMailId,
       applicationId: input.applicationId,
@@ -40,6 +55,11 @@ export class MongoCounterLetterRepository implements ICounterLetterRepository {
       companyId: input.companyId,
       candidateUserId: input.candidateUserId,
       content: input.content.trim(),
+      ...(input.salary !== undefined && { salary: normalizeOptionalText(input.salary) }),
+      ...(input.location !== undefined && { location: normalizeOptionalText(input.location) }),
+      ...(input.startDate !== undefined && { startDate: normalizeOptionalText(input.startDate) }),
+      ...(input.benefits !== undefined && { benefits: normalizeOptionalText(input.benefits) }),
+      ...(input.positionTitle !== undefined && { positionTitle: normalizeOptionalText(input.positionTitle) }),
       createdAt: new Date(),
     };
 

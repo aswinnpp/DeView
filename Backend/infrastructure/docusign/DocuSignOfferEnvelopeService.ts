@@ -72,6 +72,7 @@ async function buildOfferLetterPdfBase64(input: {
   benefits?: string;
   location?: string;
   startDate?: string;
+  positionTitle?: string;
 }): Promise<string> {
   const companyName = safePdfText(input.companyName);
   const companyAddress = input.companyAddress ? safePdfText(input.companyAddress) : '';
@@ -85,6 +86,7 @@ async function buildOfferLetterPdfBase64(input: {
   const benefits = input.benefits ? safePdfText(input.benefits) : '';
   const location = input.location ? safePdfText(input.location) : '';
   const startDate = input.startDate ? safePdfText(input.startDate) : '';
+  const positionTitle = input.positionTitle ? safePdfText(input.positionTitle) : '';
   const formattedDate = new Date().toLocaleDateString('en-US', {
     month: 'short',
     day: '2-digit',
@@ -196,6 +198,7 @@ async function buildOfferLetterPdfBase64(input: {
   y -= 6;
 
   drawWrapped('Position Details:', { bold: true, size: 12 });
+  if (positionTitle.trim()) drawWrapped(`- Role: ${positionTitle.trim()}`, { size: 11, indent: 12 });
   if (startDate.trim()) drawWrapped(`- Start Date: ${startDate.trim()}`, { size: 11, indent: 12 });
   if (location.trim()) drawWrapped(`- Work Location: ${location.trim()}`, { size: 11, indent: 12 });
   if (!startDate.trim() && !location.trim()) {
@@ -392,6 +395,7 @@ export class DocuSignOfferEnvelopeService {
     benefits?: string;
     location?: string;
     startDate?: string;
+    positionTitle?: string;
   }): Promise<string> {
     const ctx = await this.getContext();
     const signerEmail = normalizeSignerEmail(input.signerEmail);
@@ -409,6 +413,7 @@ export class DocuSignOfferEnvelopeService {
       benefits: input.benefits,
       location: input.location,
       startDate: input.startDate,
+      positionTitle: input.positionTitle,
     });
 
     const definition = {

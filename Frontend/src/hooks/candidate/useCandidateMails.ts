@@ -28,6 +28,11 @@ export function useCandidateMails() {
 
   // Counter proposal modal state
   const [counterDraft, setCounterDraft] = useState("");
+  const [counterJobTitleDraft, setCounterJobTitleDraft] = useState("");
+  const [counterSalaryDraft, setCounterSalaryDraft] = useState<string | undefined>(undefined);
+  const [counterLocationDraft, setCounterLocationDraft] = useState<string | undefined>(undefined);
+  const [counterStartDateDraft, setCounterStartDateDraft] = useState<string | undefined>(undefined);
+  const [counterBenefitsDraft, setCounterBenefitsDraft] = useState<string | undefined>(undefined);
   const [counterSubmitting, setCounterSubmitting] = useState(false);
   const [counterError, setCounterError] = useState<string | null>(null);
   const [counterModalOpen, setCounterModalOpen] = useState(false);
@@ -100,10 +105,20 @@ export function useCandidateMails() {
     setOfferRespondError(null);
     if (!selected || selected.kind !== "offer") {
       setCounterDraft("");
+      setCounterJobTitleDraft("");
+      setCounterSalaryDraft(undefined);
+      setCounterLocationDraft(undefined);
+      setCounterStartDateDraft(undefined);
+      setCounterBenefitsDraft(undefined);
       setCounterError(null);
       return;
     }
     setCounterDraft(selected.status === "counter" ? (selected.counterLetter ?? "") : "");
+    setCounterJobTitleDraft(selected.jobTitle ?? "");
+    setCounterSalaryDraft(selected.salary);
+    setCounterLocationDraft(selected.location);
+    setCounterStartDateDraft(selected.startDate);
+    setCounterBenefitsDraft(selected.benefits);
     setCounterError(null);
   }, [selected]);
 
@@ -145,13 +160,53 @@ export function useCandidateMails() {
 
   const submitCounter = useCallback(async () => {
     if (selected?.kind !== "offer" || !selected.id) return;
-    const letter = counterDraft.trim();
-    if (!letter) return;
+    const trimmedLetter = counterDraft.trim();
+
+    const hasAnyTerms =
+      (counterJobTitleDraft ?? "").trim().length > 0 ||
+      (counterSalaryDraft ?? "").trim().length > 0 ||
+      (counterLocationDraft ?? "").trim().length > 0 ||
+      (counterStartDateDraft ?? "").trim().length > 0 ||
+      (counterBenefitsDraft ?? "").trim().length > 0;
+
+    const generateCounterLetter = (): string => {
+      const title = (counterJobTitleDraft ?? "").trim();
+      const salary = (counterSalaryDraft ?? "").trim();
+      const loc = (counterLocationDraft ?? "").trim();
+      const sd = (counterStartDateDraft ?? "").trim();
+      const ben = (counterBenefitsDraft ?? "").trim();
+
+      const lines: string[] = [];
+      lines.push(`Dear Hiring Manager${selected.companyName ? ` at ${selected.companyName}` : ""},`);
+      lines.push("");
+      lines.push("Regarding this offer");
+      if (title) lines.push(`Position: ${title}`);
+      if (salary) lines.push(`Offered compensation: ${salary}`);
+      if (loc) lines.push(`Offered location: ${loc}`);
+      if (sd) lines.push(`Start date (offer): ${sd}`);
+      if (ben) lines.push(`Benefits (offer): ${ben}`);
+      lines.push("");
+      lines.push("I would like to propose these updated terms and would appreciate your confirmation.");
+      lines.push("");
+      lines.push("Sincerely,");
+      lines.push(selected.candidateName?.trim() ? selected.candidateName.trim() : "Candidate");
+      return lines.join("\n");
+    };
+
+    const letter = trimmedLetter || (hasAnyTerms ? generateCounterLetter() : "");
+    if (!letter.trim()) return;
 
     setCounterSubmitting(true);
     setCounterError(null);
     try {
-      await candidateJobsService.submitOfferCounter(selected.id, letter);
+      await candidateJobsService.submitOfferCounter(selected.id, {
+        letter,
+        salary: counterSalaryDraft ?? undefined,
+        location: counterLocationDraft ?? undefined,
+        startDate: counterStartDateDraft ?? undefined,
+        benefits: counterBenefitsDraft ?? undefined,
+        positionTitle: counterJobTitleDraft ?? undefined,
+      });
       setCounterModalOpen(false);
       await load();
     } catch {
@@ -159,7 +214,16 @@ export function useCandidateMails() {
     } finally {
       setCounterSubmitting(false);
     }
-  }, [selected, counterDraft, load]);
+  }, [
+    selected,
+    counterDraft,
+    counterSalaryDraft,
+    counterLocationDraft,
+    counterStartDateDraft,
+    counterBenefitsDraft,
+    counterJobTitleDraft,
+    load,
+  ]);
 
   const declineOffer = useCallback(async () => {
     if (selected?.kind !== "offer" || !selected.id) return;
@@ -252,6 +316,16 @@ export function useCandidateMails() {
     // counter modal
     counterDraft,
     setCounterDraft,
+    counterJobTitleDraft,
+    setCounterJobTitleDraft,
+    counterSalaryDraft,
+    setCounterSalaryDraft,
+    counterLocationDraft,
+    setCounterLocationDraft,
+    counterStartDateDraft,
+    setCounterStartDateDraft,
+    counterBenefitsDraft,
+    setCounterBenefitsDraft,
     counterSubmitting,
     counterError,
     setCounterError,

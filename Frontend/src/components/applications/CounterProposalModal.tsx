@@ -13,6 +13,11 @@ export interface CounterProposalModalProps {
   benefits?: string;
   letterContent: string;
   onLetterContentChange: (value: string) => void;
+  jobTitleChange: (value: string) => void;
+  salaryChange: (value: string) => void;
+  locationChange: (value: string) => void;
+  startDateChange: (value: string) => void;
+  benefitsChange: (value: string) => void;
   error?: string | null;
   isLoading?: boolean;
 }
@@ -33,10 +38,45 @@ const CounterProposalModal: React.FC<CounterProposalModalProps> = ({
   benefits,
   letterContent,
   onLetterContentChange,
+  jobTitleChange,
+  salaryChange,
+  locationChange,
+  startDateChange,
+  benefitsChange,
   error,
   isLoading = false,
 }) => {
   if (!isOpen) return null;
+
+  const normalizeOptional = (v: string | undefined) => (v ?? "").trim();
+
+  const localValidationError = (() => {
+    // Only validate position title when user provides a value.
+    const pos = normalizeOptional(jobTitle);
+    if (pos.length > 0 && pos.length < 2) return "Position title must be at least 2 characters.";
+
+    const s = normalizeOptional(salary);
+    if (s.length > 0 && !/\d/.test(s)) return "Salary must contain at least one digit.";
+
+    const l = normalizeOptional(location);
+    if (l.length > 0 && l.length < 2) return "Location must be at least 2 characters.";
+
+    const sd = normalizeOptional(startDate);
+    if (sd.length > 0) {
+      const iso = /^\d{4}-\d{2}-\d{2}$/;
+      const parsed = new Date(sd);
+      if (!iso.test(sd) && Number.isNaN(parsed.getTime())) return "Start date must be a valid date.";
+    }
+
+    const b = normalizeOptional(benefits);
+    if (b.length > 0 && b.length < 3) return "Benefits must be at least 3 characters.";
+
+    const hasAnyTerms =
+      pos.length > 0 || s.length > 0 || l.length > 0 || sd.length > 0 || b.length > 0;
+    if (!letterContent.trim() && !hasAnyTerms) return "Letter content is required.";
+
+    return null;
+  })();
 
   return (
     <div
@@ -81,43 +121,58 @@ const CounterProposalModal: React.FC<CounterProposalModalProps> = ({
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-xs text-gray-500 mb-1.5 font-semibold">Position</label>
-                <div className="py-2.5 px-3 bg-gray-200 rounded-md text-gray-700 text-sm">{jobTitle}</div>
+                  <input
+                    value={jobTitle}
+                    onChange={(e) => jobTitleChange(e.target.value)}
+                    className="w-full py-2.5 px-3 bg-gray-200 rounded-md text-gray-800 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                    placeholder="Position title"
+                  />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1.5 font-semibold">Company</label>
                 <div className="py-2.5 px-3 bg-gray-200 rounded-md text-gray-700 text-sm">{companyName}</div>
               </div>
             </div>
-            {(salary || location || startDate || benefits) && (
+
               <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-200">
-                {salary ? (
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1.5 font-semibold">Offered compensation</label>
-                    <div className="py-2.5 px-3 bg-gray-200 rounded-md text-gray-700 text-sm">{salary}</div>
-                  </div>
-                ) : null}
-                {location ? (
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1.5 font-semibold">Offered location</label>
-                    <div className="py-2.5 px-3 bg-gray-200 rounded-md text-gray-700 text-sm">{location}</div>
-                  </div>
-                ) : null}
-                {startDate ? (
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1.5 font-semibold">Start date (offer)</label>
-                    <div className="py-2.5 px-3 bg-gray-200 rounded-md text-gray-700 text-sm">{startDate}</div>
-                  </div>
-                ) : null}
-                {benefits ? (
-                  <div className="col-span-2">
-                    <label className="block text-xs text-gray-500 mb-1.5 font-semibold">Benefits (offer)</label>
-                    <div className="py-2.5 px-3 bg-gray-200 rounded-md text-gray-700 text-sm whitespace-pre-wrap">
-                      {benefits}
-                    </div>
-                  </div>
-                ) : null}
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1.5 font-semibold">Offered compensation</label>
+                  <input
+                    value={salary ?? ""}
+                    onChange={(e) => salaryChange(e.target.value)}
+                    className="w-full py-2.5 px-3 bg-gray-200 rounded-md text-gray-800 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                    placeholder="e.g. 100000 or $100,000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1.5 font-semibold">Offered location</label>
+                  <input
+                    value={location ?? ""}
+                    onChange={(e) => locationChange(e.target.value)}
+                    className="w-full py-2.5 px-3 bg-gray-200 rounded-md text-gray-800 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                    placeholder="e.g. Remote / City, Country"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1.5 font-semibold">Start date (offer)</label>
+                  <input
+                    value={startDate ?? ""}
+                    onChange={(e) => startDateChange(e.target.value)}
+                    className="w-full py-2.5 px-3 bg-gray-200 rounded-md text-gray-800 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                    placeholder="YYYY-MM-DD"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs text-gray-500 mb-1.5 font-semibold">Benefits (offer)</label>
+                  <textarea
+                    value={benefits ?? ""}
+                    onChange={(e) => benefitsChange(e.target.value)}
+                    rows={3}
+                    className="w-full p-3 bg-gray-200 rounded-md text-gray-800 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 resize-y"
+                    placeholder="List benefits (one per line, or separated by commas)."
+                  />
+                </div>
               </div>
-            )}
           </div>
 
           <div className="mb-5">
@@ -133,6 +188,7 @@ const CounterProposalModal: React.FC<CounterProposalModalProps> = ({
             />
           </div>
 
+          {localValidationError ? <p className="mb-4 text-sm text-red-600 m-0">{localValidationError}</p> : null}
           {error ? <p className="mb-4 text-sm text-red-600 m-0">{error}</p> : null}
 
           <div className="mt-10">
@@ -155,7 +211,7 @@ const CounterProposalModal: React.FC<CounterProposalModalProps> = ({
               isLoading ? "cursor-not-allowed opacity-70" : "cursor-pointer"
             }`}
             onClick={() => void onConfirm()}
-            disabled={isLoading || !letterContent.trim()}
+            disabled={isLoading || Boolean(localValidationError)}
           >
             {isLoading ? "Sending…" : "Send counter letter"}
           </button>

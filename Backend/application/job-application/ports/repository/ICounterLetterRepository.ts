@@ -8,6 +8,11 @@ export interface ICounterLetterRepository {
     companyId: string;
     candidateUserId: string;
     content: string;
+    salary?: string;
+    location?: string;
+    startDate?: string;
+    benefits?: string;
+    positionTitle?: string;
   }): Promise<CounterLetter>;
 
   /** Latest counter per offer mail id (by `createdAt`). */

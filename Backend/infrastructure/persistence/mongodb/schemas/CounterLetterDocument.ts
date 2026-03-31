@@ -10,6 +10,11 @@ export interface ICounterLetterDocument {
   companyId: string;
   candidateUserId: string;
   content: string;
+  salary?: string;
+  location?: string;
+  startDate?: string;
+  benefits?: string;
+  positionTitle?: string;
   createdAt: Date;
   /** Company response to the counter; omitted means pending. */
   responseStatus?: CounterResponseStatusDoc;

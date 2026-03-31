@@ -16,6 +16,7 @@ export type OfferLetterRow = {
   location?: string;
   startDate?: string;
   benefits?: string;
+  positionTitle?: string;
   status: "pending" | "accepted" | "declined" | "counter";
   counterLetter?: string;
   counterSentAt?: string;

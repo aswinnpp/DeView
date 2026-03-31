@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IOfferMailRepository } from '../ports/repository/IOfferMailRepository.js';
 import type { ICounterLetterRepository } from '../ports/repository/ICounterLetterRepository.js';
+import type { OfferMail } from '../../../domain/entities/OfferMail.js';
 
 export interface IRespondToCounterLetterInput {
   offerMailId: string;
@@ -39,16 +40,28 @@ export class RespondToCounterLetterUseCase {
     }
 
     const responseStatus = action === 'accept' ? 'accepted' : 'rejected';
-
-    const [counter, updatedOffer] = await Promise.all([
-      this._counterLetters.updateResponseStatusByOfferMailId(oid, responseStatus),
-      action === 'accept'
-        ? this._offerMails.setStatusPending(oid)
-        : this._offerMails.updateStatus(oid, 'declined'),
-    ]);
-
-    if (!counter || !updatedOffer) {
+    const counter = await this._counterLetters.updateResponseStatusByOfferMailId(oid, responseStatus);
+    if (!counter) {
       throw new Error('Failed to update counter response');
+    }
+
+    let updatedOffer: OfferMail | null = null;
+    if (action === 'accept') {
+      // Apply the candidate's counter terms onto the real offer mail so signing/PDF reflects them.
+      await this._offerMails.applyCounterTerms(oid, {
+        salary: counter.salary,
+        location: counter.location,
+        startDate: counter.startDate,
+        benefits: counter.benefits,
+        positionTitle: counter.positionTitle,
+      });
+      updatedOffer = await this._offerMails.setStatusPending(oid);
+    } else {
+      updatedOffer = await this._offerMails.updateStatus(oid, 'declined');
+    }
+
+    if (!updatedOffer) {
+      throw new Error('Failed to update offer after counter response');
     }
 
     return {

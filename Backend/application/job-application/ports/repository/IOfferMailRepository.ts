@@ -13,6 +13,7 @@ export interface IOfferMailRepository {
     location?: string;
     startDate?: string;
     benefits?: string;
+    positionTitle?: string;
   }): Promise<OfferMail>;
 
   listByCompanyId(companyId: string): Promise<OfferMail[]>;
@@ -37,6 +38,18 @@ export interface IOfferMailRepository {
 
   /** Update offer mail status (e.g. when company accepts/rejects counter). */
   updateStatus(offerMailId: string, status: 'accepted' | 'declined'): Promise<OfferMail | null>;
+
+  /**
+   * Apply candidate counter terms onto the real offer mail record.
+   * Used when the company accepts the counter proposal.
+   */
+  applyCounterTerms(offerMailId: string, terms: {
+    salary?: string;
+    location?: string;
+    startDate?: string;
+    benefits?: string;
+    positionTitle?: string;
+  }): Promise<OfferMail | null>;
 
   /**
    * Set offer back to `pending` (waiting for candidate digital signature).

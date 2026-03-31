@@ -14,6 +14,8 @@ export interface IOfferMailDocument {
   location?: string;
   startDate?: string;
   benefits?: string;
+  /** Optional position title override (used for counter terms & rendering). */
+  positionTitle?: string;
   /** Candidate response; omitted on legacy docs — treat as pending when reading. */
   status?: OfferMailStatus;
   /**

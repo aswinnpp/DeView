@@ -74,7 +74,6 @@ export interface Candidate {
     requestedAt: string;
   };
   interviewDetails?: ApplicationItem["interviewDetails"];
-  /** Interviewer-provided reason when an interviewer requested reschedule. */
   interviewerRejectReason?: string;
 }
 

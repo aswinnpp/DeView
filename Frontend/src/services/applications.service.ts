@@ -360,6 +360,7 @@ export const applicationsService = {
       counterSentAt?: string;
       counterResponseStatus?: "accepted" | "rejected";
       signedOfferAvailable?: boolean;
+      positionTitle?: string;
       createdAt: string;
     }>;
     total: number;
@@ -399,6 +400,7 @@ export const applicationsService = {
           counterSentAt?: string;
           counterResponseStatus?: "accepted" | "rejected";
           signedOfferAvailable?: boolean;
+          positionTitle?: string;
           createdAt: string;
         }>)
       : [];

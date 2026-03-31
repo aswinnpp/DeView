@@ -358,6 +358,7 @@ export const ApplicationMapper = {
       location?: string;
       startDate?: string;
       benefits?: string;
+      positionTitle?: string;
       status: OfferMailStatus;
       counterLetter?: string;
       counterSentAt?: string;
@@ -398,10 +399,12 @@ export const ApplicationMapper = {
         candidateName: m.candidateName,
         candidateEmail: m.candidateEmail,
         content: m.content,
-        salary: m.salary,
-        location: m.location,
-        startDate: m.startDate,
-        benefits: m.benefits,
+        salary: m.status === 'counter' ? latestCounter?.salary ?? m.salary : m.salary,
+        location: m.status === 'counter' ? latestCounter?.location ?? m.location : m.location,
+        startDate: m.status === 'counter' ? latestCounter?.startDate ?? m.startDate : m.startDate,
+        benefits: m.status === 'counter' ? latestCounter?.benefits ?? m.benefits : m.benefits,
+        positionTitle:
+          m.status === 'counter' ? latestCounter?.positionTitle ?? m.positionTitle : m.positionTitle,
         status: m.status,
         ...(counterLetter !== undefined && { counterLetter }),
         ...(counterSentAt !== undefined && { counterSentAt }),
@@ -540,17 +543,34 @@ export const ApplicationMapper = {
 
   toSubmitOfferCounterInput(
     params: { offerMailId: string },
-    body: { letter?: string },
+    body: {
+      letter?: string;
+      salary?: string;
+      location?: string;
+      startDate?: string;
+      benefits?: string;
+      positionTitle?: string;
+    },
     userId: string
   ): {
     candidateUserId: string;
     offerMailId: string;
     letter: string;
+    salary?: string;
+    location?: string;
+    startDate?: string;
+    benefits?: string;
+    positionTitle?: string;
   } {
     return {
       candidateUserId: userId,
       offerMailId: params.offerMailId,
       letter: body.letter ?? '',
+      salary: body.salary,
+      location: body.location,
+      startDate: body.startDate,
+      benefits: body.benefits,
+      positionTitle: body.positionTitle,
     };
   },
 
@@ -568,6 +588,7 @@ export const ApplicationMapper = {
       location?: string;
       startDate?: string;
       benefits?: string;
+      positionTitle?: string;
       status: OfferMailStatus;
       counterLetter: string;
       counterSentAt: string;
@@ -590,6 +611,7 @@ export const ApplicationMapper = {
         location: offer.location,
         startDate: offer.startDate,
         benefits: offer.benefits,
+        positionTitle: offer.positionTitle,
         status: offer.status,
         counterLetter: counter.content,
         counterSentAt: toIsoString(counter.createdAt) || '',

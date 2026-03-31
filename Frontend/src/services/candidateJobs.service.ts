@@ -224,8 +224,18 @@ export const candidateJobsService = {
     return { offers: [], rejections: [], total: 0 };
   },
 
-  submitOfferCounter: async (offerMailId: string, letter: string): Promise<void> => {
-    await api.patch(API_ROUTES.CANDIDATE.OFFER_COUNTER(offerMailId), { letter });
+  submitOfferCounter: async (
+    offerMailId: string,
+    payload: {
+      letter: string;
+      salary?: string;
+      location?: string;
+      startDate?: string;
+      benefits?: string;
+      positionTitle?: string;
+    }
+  ): Promise<void> => {
+    await api.patch(API_ROUTES.CANDIDATE.OFFER_COUNTER(offerMailId), payload);
   },
 
   respondToOffer: async (offerMailId: string, action: "decline"): Promise<void> => {
