@@ -235,4 +235,5 @@ export function bindUseCases(container: Container): void {
   // Compiler
   container.bind(TYPES.GetCompilerLanguagesUseCasePort).to(GetCompilerLanguagesUseCase);
   container.bind(TYPES.ExecuteCodeUseCasePort).to(ExecuteCodeUseCase);
+  
 }

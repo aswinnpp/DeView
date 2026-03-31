@@ -83,7 +83,7 @@ const InterviewerAssignments = () => {
       header: "Time",
       render: (item: InterviewerAssignmentItem) => (
         <span className="font-medium text-blue-400">
-          {formatTime(item.startTime)} – {formatTime(item.endTime)}
+          {formatTime(item.startTime)}
         </span>
       ),
     },
@@ -134,12 +134,12 @@ const InterviewerAssignments = () => {
                 {isAccepting ? "Accepting..." : "Accept"}
               </Button>
               <Button
-                variant="danger"
+                variant="amber"
                 className="!py-1.5 !px-3 text-xs"
                 onClick={() => openRejectModal(item)}
                 disabled={isAccepting}
               >
-                Reject
+                Reschedule
               </Button>
             </div>
           );
@@ -147,7 +147,7 @@ const InterviewerAssignments = () => {
           return (
             <div className="flex gap-2 items-center">
               {viewBtn}
-              <span className="text-xs text-red-400 italic">Rejected</span>
+              <span className="text-xs text-amber-300 italic">Reschedule requested</span>
             </div>
           );
         if (item.status === "accepted")
@@ -241,7 +241,7 @@ const InterviewerAssignments = () => {
         <div className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-4">
           <div className="bg-slate-800 border border-slate-600 rounded-xl p-6 max-w-md w-full shadow-xl">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-white m-0 text-lg font-semibold">Reject Assignment</h3>
+              <h3 className="text-white m-0 text-lg font-semibold">Request Reschedule</h3>
               <button
                 type="button"
                 className="bg-transparent border-none text-slate-400 cursor-pointer p-1 rounded hover:bg-white/10 hover:text-white"
@@ -253,17 +253,17 @@ const InterviewerAssignments = () => {
               </button>
             </div>
             <p className="text-slate-400 text-sm mb-4">
-              Please provide a reason for rejecting the interview for{" "}
+              Please provide a reason for rescheduling the interview for{" "}
               <strong className="text-white">{rejectInterview?.candidateName}</strong>. This is sent to the HR team.
             </p>
             <label className="block text-sm font-semibold text-slate-300 mb-1.5">
-              Rejection Reason (required)
+              Reason (required)
             </label>
             <textarea
               rows={4}
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
-              placeholder="E.g., time conflict, outside my domain..."
+              placeholder="E.g., time conflict, out of office..."
               disabled={isRejecting}
               className="w-full py-2 px-3 bg-slate-900 border border-slate-600 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500 resize-y placeholder:text-slate-500"
             />
@@ -272,11 +272,11 @@ const InterviewerAssignments = () => {
                 Cancel
               </Button>
               <Button
-                variant="danger"
+                variant="amberGradient"
                 onClick={submitReject}
                 disabled={!rejectionReason.trim() || isRejecting}
               >
-                {isRejecting ? "Submitting..." : "Confirm Reject"}
+                {isRejecting ? "Submitting..." : "Submit request"}
               </Button>
             </div>
           </div>

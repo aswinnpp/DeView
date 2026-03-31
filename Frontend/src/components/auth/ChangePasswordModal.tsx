@@ -91,13 +91,7 @@ export function ChangePasswordModal({
           <h2 className="text-white text-lg font-semibold">
             Change Password
           </h2>
-          <Button
-            variant="ghostOutline"
-            className="!px-3 !py-2 text-white border-white/20 hover:bg-white/10"
-            onClick={onClose}
-          >
-            Close
-          </Button>
+        
         </div>
 
         {/* Body */}

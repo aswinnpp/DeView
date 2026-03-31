@@ -30,4 +30,5 @@ export interface IInterviewerProfileDocument {
   profilePicUrl?: string;
   createdAt: Date;
   updatedAt: Date;
+
 }

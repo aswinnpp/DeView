@@ -507,11 +507,6 @@ const HRApplicationsPage = () => {
             ),
         },
         {
-            header: "Salary",
-            cellClassName: "text-emerald-400 font-medium text-sm",
-            render: (job: Job) => job.salary,
-        },
-        {
             header: "Applications",
             cellClassName: "text-center",
             render: (job: Job) => (
@@ -548,14 +543,6 @@ const HRApplicationsPage = () => {
                             {candidate.email}
                         </div>
                     </div>
-                ),
-            },
-            {
-                header: "Experience",
-                render: (candidate: Candidate) => (
-                    <span className="text-slate-100 text-sm">
-                        {candidate.experience}
-                    </span>
                 ),
             },
             {
