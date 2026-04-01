@@ -161,7 +161,7 @@ const InterviewerProfileSettings: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1000px] mx-auto">
+    <div className="max-w-[1000px] mx-auto px-3 sm:px-0">
       {!isEditing && profileData?.hasProfile ? (
         <>
           {/* Hero */}
@@ -217,20 +217,24 @@ const InterviewerProfileSettings: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex gap-3 shrink-0">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 shrink-0 w-full sm:w-auto">
 
               <Button
                   variant="secondary"
                   onClick={handleChangePassword}
-                  className="!py-3 !px-6 !font-semibold"
+                  className="!py-3 !px-6 !font-semibold !w-full sm:!w-auto"
                 >
                   Change Password
                 </Button>
-                <Button variant="ghostOutline" onClick={() => setIsEditing(true)} className="!py-3 !px-6 !font-semibold">
+                <Button
+                  variant="ghostOutline"
+                  onClick={() => setIsEditing(true)}
+                  className="!py-3 !px-6 !font-semibold !w-full sm:!w-auto"
+                >
                   Edit Profile
                 </Button>
               
-                <Button variant="danger" onClick={handleLogout}>
+                <Button variant="danger" onClick={handleLogout} className="!w-full sm:!w-auto">
                   Logout
                 </Button>
               </div>
@@ -723,12 +727,12 @@ const InterviewerProfileSettings: React.FC = () => {
               </div>
             </section>
 
-            <div className="flex gap-3 mt-6">
+            <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <Button
                 type="submit"
                 variant="violet"
                 disabled={isCreating || isUpdating}
-                className="!py-3.5 !px-8 !text-base"
+                className="!py-3.5 !px-8 !text-base !w-full sm:!w-auto"
               >
                 {isCreating || isUpdating
                   ? "Saving..."
@@ -742,7 +746,7 @@ const InterviewerProfileSettings: React.FC = () => {
                   variant="ghostOutline"
                   onClick={() => setIsEditing(false)}
                   disabled={isCreating || isUpdating}
-                  className="!py-3.5 !px-8"
+                  className="!py-3.5 !px-8 !w-full sm:!w-auto"
                 >
                   Cancel
                 </Button>

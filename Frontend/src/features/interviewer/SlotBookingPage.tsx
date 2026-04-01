@@ -141,7 +141,7 @@ const SlotBookingPage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="px-3 sm:px-0">
       <h1 className="text-xl font-bold text-white mb-4">Book your availability</h1>
       <p className="text-slate-400 text-sm mb-6">
         Select the time slots when you are available for interviews.
@@ -153,7 +153,7 @@ const SlotBookingPage: React.FC = () => {
         </div>
       )}
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-stretch min-h-[calc(100vh-300px)]">
+      <div className="flex flex-col gap-4 md:flex-row md:items-stretch min-h-0 md:min-h-[calc(100vh-300px)]">
         {/* Left: available slots */}
         <div className="md:w-1/2 md:flex-1">
           <div className="rounded-[10px] p-3 bg-[rgba(2,6,23,0.45)] border border-white/[0.04] h-full flex flex-col">
@@ -161,7 +161,7 @@ const SlotBookingPage: React.FC = () => {
             <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:justify-between sm:items-center">
               <h3 className="font-extrabold text-white text-[15px] m-0">Available slots</h3>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <label className="flex items-center gap-2 text-sm text-slate-300">
+                <label className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-slate-300">
                   <span className="text-slate-400">Date</span>
                   <input
                     type="date"
@@ -181,6 +181,7 @@ const SlotBookingPage: React.FC = () => {
                   onClick={selectAll}
                   aria-label="Select all slots"
                   title="Select all"
+                  className="w-full sm:w-auto"
                 >
                   Select all
                 </Button>
@@ -190,6 +191,7 @@ const SlotBookingPage: React.FC = () => {
                   onClick={clear}
                   aria-label="Clear selection"
                   title="Clear selection"
+                  className="w-full sm:w-auto"
                 >
                   Clear
                 </Button>
@@ -198,7 +200,7 @@ const SlotBookingPage: React.FC = () => {
 
             {/* Grid */}
             <div
-              className="grid grid-cols-2 gap-2.5 overflow-auto pr-1.5 flex-1"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-auto pr-1.5 flex-1"
               role="list"
               aria-label="Available time slots"
             >
@@ -247,7 +249,7 @@ const SlotBookingPage: React.FC = () => {
                       className="rounded-lg border border-white/10 bg-slate-900/60 px-3 py-2 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
                     />
                   </label>
-                  <Button variant="primary" size="sm" onClick={addCustomSlot}>
+                  <Button variant="primary" size="sm" onClick={addCustomSlot} className="w-full sm:w-auto">
                     Add
                   </Button>
                 </div>
@@ -277,8 +279,8 @@ const SlotBookingPage: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="mt-2.5 flex justify-between items-center">
-              <div className="flex gap-3 items-center font-bold text-white">
+            <div className="mt-2.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div className="flex flex-wrap gap-3 items-center font-bold text-white">
                 <span>{effectiveSelected.length} selected</span>
                 <span className="text-gray-400 font-semibold text-[13px]">{totalMinutes} minutes total</span>
               </div>
@@ -289,6 +291,7 @@ const SlotBookingPage: React.FC = () => {
                 onClick={async () => {
                   await submit(effectiveSelected);
                 }}
+                className="w-full sm:w-auto"
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
@@ -299,7 +302,7 @@ const SlotBookingPage: React.FC = () => {
         {/* Right: submitted slots (after submit) */}
         <div className="md:w-1/2 md:flex-1">
           <div className="rounded-[10px] p-3 bg-[rgba(2,6,23,0.45)] border border-white/[0.04] h-full flex flex-col">
-            <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
               <h3 className="m-0 text-white font-semibold">Submitted slots</h3>
               {submittedDoc?.slotDate && (
                 <span className="text-xs text-slate-400">

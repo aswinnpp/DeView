@@ -655,12 +655,53 @@ const HRApplicationsPage = () => {
                     <h1 className="text-[28px] font-bold text-slate-50 mb-6">
                         Job Applications
                     </h1>
-                    <Table<Job>
-                        columns={jobColumns}
-                        data={jobs}
-                        rowKey={(job) => job.id}
-                        emptyMessage="No jobs available."
-                    />
+                    <div className="hidden md:block">
+                        <Table<Job>
+                            columns={jobColumns}
+                            data={jobs}
+                            rowKey={(job) => job.id}
+                            emptyMessage="No jobs available."
+                        />
+                    </div>
+
+                    <div className="md:hidden space-y-3">
+                        {jobs.length === 0 ? (
+                            <div className="rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-8 text-center text-sm text-slate-300">
+                                No jobs available.
+                            </div>
+                        ) : (
+                            jobs.map((job) => (
+                                <div
+                                    key={job.id}
+                                    className="rounded-xl border border-slate-700 bg-slate-900/60 p-4"
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <h3 className="m-0 text-sm font-semibold text-slate-100 break-words">
+                                                {job.title}
+                                            </h3>
+                                            <p className="m-0 mt-1 text-xs text-slate-400">
+                                                {job.location} • {job.type}
+                                            </p>
+                                        </div>
+                                        <span className="shrink-0 rounded-full bg-slate-700/70 px-2.5 py-1 text-[10px] font-semibold text-slate-200">
+                                            {job.status}
+                                        </span>
+                                    </div>
+
+                                    <div className="mt-3">
+                                        <Button
+                                            variant="primary"
+                                            className="w-full bg-violet-600 hover:bg-violet-500 text-xs font-semibold px-3 py-2 rounded-lg"
+                                            onClick={() => handleViewApplications(job)}
+                                        >
+                                            View applications
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                     <Pagination
                         page={jobsPage}
                         totalPages={jobsTotalPages}
@@ -735,30 +776,111 @@ const HRApplicationsPage = () => {
                         )}
 
                         {/* Candidates Table */}
-                        <Table<Candidate>
-                            columns={buildCandidateColumns(activeTab)}
-                            data={
-                                selectedJob
-                                    ? paginatedCandidates
-                                        .filter((c) => {
-                                            if (activeTab === 'PENDING') return c.status === 'PENDING';
-                                            if (activeTab === 'SHORTLISTED') return c.status === 'SHORTLISTED';
-                                            if (activeTab === 'INTERVIEW_ATTENDEES') return c.status === 'INTERVIEW_SCHEDULED';
-                                            if (activeTab === 'RESCHEDULE_REQUESTS') return c.status === 'RESCHEDULE_REQUESTED';
-                                            if (activeTab === 'INTERVIEW_COMPLETE') return c.status === 'COMPLETED' || c.status === 'INTERVIEW_COMPLETE';
-                                            if (activeTab === 'HIRED') return c.status === 'HIRED';
-                                            if (activeTab === 'REJECTED') return c.status === 'REJECTED';
-                                            return true;
-                                        })
-                                        .map((c) => ({
-                                            ...c,
-                                            aiScore: c.aiScore ?? candidateScores[c.id],
-                                        }))
-                                    : []
-                            }
-                            rowKey={(candidate) => candidate.id}
-                            emptyMessage="No candidates in this stage"
-                        />
+                        {(() => {
+                            const candidatesForStage = selectedJob
+                                ? paginatedCandidates
+                                      .filter((c) => {
+                                          if (activeTab === "PENDING") return c.status === "PENDING";
+                                          if (activeTab === "SHORTLISTED") return c.status === "SHORTLISTED";
+                                          if (activeTab === "INTERVIEW_ATTENDEES") return c.status === "INTERVIEW_SCHEDULED";
+                                          if (activeTab === "RESCHEDULE_REQUESTS") return c.status === "RESCHEDULE_REQUESTED";
+                                          if (activeTab === "INTERVIEW_COMPLETE")
+                                              return c.status === "COMPLETED" || c.status === "INTERVIEW_COMPLETE";
+                                          if (activeTab === "HIRED") return c.status === "HIRED";
+                                          if (activeTab === "REJECTED") return c.status === "REJECTED";
+                                          return true;
+                                      })
+                                      .map((c) => ({
+                                          ...c,
+                                          aiScore: c.aiScore ?? candidateScores[c.id],
+                                      }))
+                                : [];
+
+                            return (
+                                <>
+                                    <div className="hidden md:block">
+                                        <Table<Candidate>
+                                            columns={buildCandidateColumns(activeTab)}
+                                            data={candidatesForStage}
+                                            rowKey={(candidate) => candidate.id}
+                                            emptyMessage="No candidates in this stage"
+                                        />
+                                    </div>
+
+                                    <div className="md:hidden space-y-3">
+                                        {candidatesForStage.length === 0 ? (
+                                            <div className="rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-8 text-center text-sm text-slate-300">
+                                                No candidates in this stage
+                                            </div>
+                                        ) : (
+                                            candidatesForStage.map((candidate) => {
+                                                const badge = getStatusBadge(candidate.status);
+                                                return (
+                                                    <div
+                                                        key={candidate.id}
+                                                        className="rounded-xl border border-slate-700 bg-slate-900/60 p-4"
+                                                    >
+                                                        <div className="flex items-start justify-between gap-3">
+                                                            <div className="min-w-0">
+                                                                <h3 className="m-0 text-sm font-semibold text-slate-100 truncate">
+                                                                    {candidate.name}
+                                                                </h3>
+                                                                <p className="m-0 mt-1 text-xs text-slate-400 truncate">
+                                                                    {candidate.email}
+                                                                </p>
+                                                            </div>
+                                                            <span className={badge.className}>{badge.label}</span>
+                                                        </div>
+
+                                                        <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-300">
+                                                            <div className="rounded-lg bg-slate-800/60 px-2.5 py-2">
+                                                                <p className="m-0 text-slate-400">Applied</p>
+                                                                <p className="m-0 mt-1 font-semibold text-slate-100">
+                                                                    {candidate.appliedDate}
+                                                                </p>
+                                                            </div>
+                                                            <div className="rounded-lg bg-slate-800/60 px-2.5 py-2">
+                                                                <p className="m-0 text-slate-400">AI Score</p>
+                                                                <p className="m-0 mt-1 font-semibold text-slate-100">
+                                                                    {candidate.aiScore ?? "—"}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="mt-3 grid grid-cols-1 gap-2">
+                                                            <Button
+                                                                variant="secondary"
+                                                                className="w-full bg-slate-700 hover:bg-slate-600 text-xs font-semibold px-3 py-2 rounded-lg"
+                                                                onClick={() => {
+                                                                    handleSelectCandidate(candidate);
+                                                                    setShowCandidateDetail(true);
+                                                                }}
+                                                            >
+                                                                View details
+                                                            </Button>
+                                                            {candidate.resume ? (
+                                                                <Button
+                                                                    variant="secondary"
+                                                                    className="w-full bg-slate-800 hover:bg-slate-700 text-xs font-semibold px-3 py-2 rounded-lg"
+                                                                    onClick={() =>
+                                                                        handleViewResume(
+                                                                            candidate.jobId,
+                                                                            candidate.applicationId
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    View resume
+                                                                </Button>
+                                                            ) : null}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+                                </>
+                            );
+                        })()}
                         <Pagination
                             page={candidatesPage}
                             totalPages={candidatesTotalPages}

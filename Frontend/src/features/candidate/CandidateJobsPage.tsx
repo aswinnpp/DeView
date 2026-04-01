@@ -5,6 +5,7 @@ import { useCandidateJob } from "../../hooks/candidate/useCandidateJob";
 
 
 const CandidateJobsPage: React.FC = () => {
+    const [showMobileDetail, setShowMobileDetail] = React.useState(false);
     const {
         selectedJob,
         showApplicationConfirm,
@@ -60,7 +61,7 @@ const CandidateJobsPage: React.FC = () => {
                 <div className="w-full min-h-screen bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px] overflow-hidden">
                     <CandidateNavHeader title="CONFIRM APPLICATION" currentPage="jobs" />
 
-                    <div className="pt-[72px] py-7 px-4 sm:px-6 lg:px-12 pb-20 max-md:pb-12">
+                    <div className="pt-[72px] py-6 px-3 sm:px-6 lg:px-12 pb-16 sm:pb-20 max-md:pb-12">
                         <div className="max-w-2xl mx-auto">
                             <div className="text-center mb-6 sm:mb-8">
                                 <h1 className="m-0 text-2xl sm:text-3xl font-extrabold text-white mb-2">
@@ -222,12 +223,14 @@ const CandidateJobsPage: React.FC = () => {
                 <div className="pt-[72px] flex flex-col lg:flex-row flex-1 lg:overflow-hidden">
 
                     {/* ─── Left Panel: Job List (fixed, no scroll) ─── */}
-                    <div className="w-full lg:w-[55%] flex flex-col border-b border-[rgba(255,255,255,0.06)] lg:border-b-0 lg:border-r lg:border-[rgba(255,255,255,0.06)] lg:overflow-hidden">
+                    <div
+                        className={`${showMobileDetail ? "hidden lg:flex" : "flex"} w-full lg:w-[55%] flex-col border-b border-[rgba(255,255,255,0.06)] lg:border-b-0 lg:border-r lg:border-[rgba(255,255,255,0.06)] lg:overflow-hidden`}
+                    >
 
                         {/* Filters */}
-                        <div className="shrink-0 px-4 py-4 sm:px-5 border-b border-[rgba(255,255,255,0.06)]">
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                                <div className="w-full sm:max-w-[300px]">
+                        <div className="shrink-0 px-3 py-4 sm:px-5 border-b border-[rgba(255,255,255,0.06)]">
+                            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                                <div className="w-full md:max-w-[320px]">
                                     <label className="block text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.9)] mb-1.5">
                                         Search
                                     </label>
@@ -236,15 +239,15 @@ const CandidateJobsPage: React.FC = () => {
                                         onSearch={handleSearch}
                                     />
                                 </div>
-                                <div className="flex flex-wrap items-end gap-3">
-                                    <div className="w-[120px]">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full md:w-auto md:flex md:flex-wrap md:items-end">
+                                    <div className="w-full sm:w-auto sm:min-w-[160px]">
                                         <label className="block text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.9)] mb-1.5">
                                             Job type
                                         </label>
                                         <select
                                             value={jobTypeFilter}
                                             onChange={(e) => { setJobTypeFilter(e.target.value); setPage(1); }}
-                                            className="w-full rounded-lg border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.98)] px-2.5 py-1.5 text-[11px] text-slate-100 outline-none focus:border-brand-primary focus:ring-2 focus:ring-[rgba(102,126,234,0.4)] cursor-pointer"
+                                            className="w-full rounded-lg border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.98)] px-3 py-2 text-xs sm:text-sm text-slate-100 outline-none focus:border-brand-primary focus:ring-2 focus:ring-[rgba(102,126,234,0.4)] cursor-pointer"
                                         >
                                             <option value="all">All Types</option>
                                             <option value="Full-time">Full-time</option>
@@ -254,14 +257,14 @@ const CandidateJobsPage: React.FC = () => {
                                             <option value="Internship">Internship</option>
                                         </select>
                                     </div>
-                                    <div className="w-[120px]">
+                                    <div className="w-full sm:w-auto sm:min-w-[160px]">
                                         <label className="block text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.9)] mb-1.5">
                                             Date order
                                         </label>
                                         <select
                                             value={sortOrder}
                                             onChange={(e) => { setSortOrder(e.target.value as "asc" | "desc"); setPage(1); }}
-                                            className="w-full rounded-lg border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.98)] px-2.5 py-1.5 text-[11px] text-slate-100 outline-none focus:border-brand-primary focus:ring-2 focus:ring-[rgba(102,126,234,0.4)] cursor-pointer"
+                                            className="w-full rounded-lg border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.98)] px-3 py-2 text-xs sm:text-sm text-slate-100 outline-none focus:border-brand-primary focus:ring-2 focus:ring-[rgba(102,126,234,0.4)] cursor-pointer"
                                         >
                                             <option value="desc">Newest first</option>
                                             <option value="asc">Oldest first</option>
@@ -272,7 +275,7 @@ const CandidateJobsPage: React.FC = () => {
                                             type="button"
                                             variant="secondary"
                                             onClick={handleClearFilters}
-                                            className="inline-flex items-center justify-center rounded-lg border border-[rgba(148,163,184,0.6)] bg-[rgba(15,23,42,0.9)] px-3 py-1.5 text-[11px] font-medium text-slate-100 hover:bg-[rgba(30,41,59,0.95)] transition-colors whitespace-nowrap"
+                                            className="inline-flex items-center justify-center rounded-lg border border-[rgba(148,163,184,0.6)] bg-[rgba(15,23,42,0.9)] px-3 py-2 text-xs sm:text-sm font-medium text-slate-100 hover:bg-[rgba(30,41,59,0.95)] transition-colors whitespace-nowrap w-full sm:w-auto"
                                         >
                                             Clear
                                         </Button>
@@ -282,7 +285,7 @@ const CandidateJobsPage: React.FC = () => {
                         </div>
 
                         {/* Job Cards */}
-                        <div className="px-4 py-3 space-y-3 lg:flex-1 lg:overflow-y-auto">
+                        <div className="px-3 sm:px-4 py-3 space-y-3 lg:flex-1 lg:overflow-y-auto">
                             {error && (
                                 <div className="rounded-lg border border-red-500/50 bg-[rgba(248,113,113,0.08)] px-4 py-3 text-sm text-red-200">
                                     Failed to load jobs: {error}
@@ -309,7 +312,10 @@ const CandidateJobsPage: React.FC = () => {
                                     <button
                                         key={job.id}
                                         type="button"
-                                        onClick={() => handleJobClick(job)}
+                                        onClick={() => {
+                                            handleJobClick(job);
+                                            setShowMobileDetail(true);
+                                        }}
                                         className={`w-full text-left rounded-xl border px-4 py-3.5 transition-all duration-200 cursor-pointer ${
                                             selectedJob?.id === job.id
                                                 ? 'border-brand-primary bg-[rgba(102,126,234,0.08)] border-l-[3px] border-l-brand-primary'
@@ -321,7 +327,7 @@ const CandidateJobsPage: React.FC = () => {
                                                 <h4 className="m-0 text-[14px] font-semibold text-white truncate">
                                                     {job.title}
                                                 </h4>
-                                                <p className="m-0 mt-0.5 text-[12px] text-[rgba(148,163,184,0.9)] truncate">
+                                                <p className="m-0 mt-0.5 text-[12px] text-[rgba(148,163,184,0.9)] break-words">
                                                     {job.companyName || "Company"}
                                                     <span className="mx-1.5">•</span>
                                                     {job.location}
@@ -366,9 +372,10 @@ const CandidateJobsPage: React.FC = () => {
                     </div>
 
                     {/* ─── Right Panel: Job Detail (only scrollable area) ─── */}
-                    <div className="w-full lg:w-[45%] bg-[rgba(10,12,20,0.4)] lg:overflow-y-auto">
+                    <div className={`${showMobileDetail ? "block" : "hidden lg:block"} w-full lg:w-[45%] bg-[rgba(10,12,20,0.4)] lg:overflow-y-auto`}>
                         {selectedJob ? (
-                            <div className="px-5 py-5 lg:px-7 lg:py-6">
+                            <div className="px-4 py-5 sm:px-5 lg:px-7 lg:py-6">
+                               
                                 <h2 className="m-0 text-base font-semibold text-[rgba(226,232,240,0.9)] mb-5">
                                     Job Detail
                                 </h2>
@@ -387,7 +394,7 @@ const CandidateJobsPage: React.FC = () => {
                                 {/* Key Highlights */}
                                 <div className="mb-6">
                                     <h4 className="m-0 text-sm font-semibold text-[rgba(226,232,240,0.9)] mb-3">Key Highlights</h4>
-                                    <div className="grid grid-cols-3 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <div className="rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.5)] px-3 py-3">
                                             <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.7)] mb-1">Salary</p>
                                             <p className="m-0 text-[13px] font-medium text-emerald-400">
@@ -474,17 +481,17 @@ const CandidateJobsPage: React.FC = () => {
                                 </div>
 
                                 {/* Bottom Apply Button */}
-                                <div className="mt-6 flex items-center justify-end">
+                                <div className="mt-6 flex items-center justify-stretch sm:justify-end">
                                     {buttonn ? (
                                         <Button
                                             type="button"
                                             onClick={handleApplyClick}
-                                            className="inline-flex items-center justify-center rounded-lg bg-brand-green px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-dark transition-colors"
+                                            className="inline-flex w-full sm:w-auto items-center justify-center rounded-lg bg-brand-green px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-dark transition-colors"
                                         >
                                             Apply Now
                                         </Button>
                                     ) : (
-                                        <span className="inline-flex rounded-lg bg-[rgba(148,163,184,0.12)] border border-[rgba(148,163,184,0.3)] px-5 py-2 text-sm font-medium text-[rgba(148,163,184,0.95)]">
+                                        <span className="inline-flex w-full sm:w-auto justify-center rounded-lg bg-[rgba(148,163,184,0.12)] border border-[rgba(148,163,184,0.3)] px-5 py-2 text-sm font-medium text-[rgba(148,163,184,0.95)]">
                                             Already Applied
                                         </span>
                                     )}

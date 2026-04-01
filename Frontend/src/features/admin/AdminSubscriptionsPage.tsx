@@ -39,7 +39,7 @@ const AdminSubscriptionsPage = () => {
     const jobUnlimited = watch("jobUnlimited");
     const interviewUnlimited = watch("interviewUnlimited");
     return (
-        <div className="max-w-[1400px] mx-auto w-full min-w-0 px-4 py-6">
+        <div className="max-w-[1400px] mx-auto w-full min-w-0 px-3 py-5 sm:px-4 sm:py-6">
             <header className="mb-6 max-md:mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h1 className="m-0 text-[28px] max-md:text-[22px] font-bold text-slate-50">
@@ -51,7 +51,7 @@ const AdminSubscriptionsPage = () => {
                 </div>
                 <Button
                     type="button"
-                    className="inline-flex items-center rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-sm border-none bg-gradient-to-br from-indigo-500 to-indigo-600"
+                    className="inline-flex w-full sm:w-auto items-center justify-center rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-sm border-none bg-gradient-to-br from-indigo-500 to-indigo-600"
                     onClick={() => {
                         startCreate();
                         setEditingPlan(true);
@@ -62,14 +62,14 @@ const AdminSubscriptionsPage = () => {
             </header>
 
             {/* Controls */}
-            <div className="flex flex-wrap items-end gap-4 mb-6 max-md:gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-end gap-3 sm:gap-4 mb-6">
                 <div className="flex-1 min-w-0 w-full max-md:min-w-0">
                     <SearchInput
                         placeholder="Search by plan name or price..."
                         onSearch={handleSearch}
                     />
                 </div>
-                <div className="min-w-[150px]">
+                <div className="min-w-0">
                     <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
                         Status
                     </label>
@@ -87,7 +87,7 @@ const AdminSubscriptionsPage = () => {
                         <option value="Inactive">Inactive</option>
                     </select>
                 </div>
-                <div className="min-w-[150px]">
+                <div className="min-w-0">
                     <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
                         Duration
                     </label>
@@ -106,7 +106,7 @@ const AdminSubscriptionsPage = () => {
                         <option value="Annual">Annual</option>
                     </select>
                 </div>
-                <div className="min-w-[150px]">
+                <div className="min-w-0">
                     <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
                         Sort
                     </label>
@@ -230,6 +230,84 @@ const AdminSubscriptionsPage = () => {
                             Loading subscription plans...
                         </span>
                     </div>
+                )}
+            </div>
+
+            <div className="md:hidden mb-6 space-y-3">
+                {isLoading ? (
+                    <div className="rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-8 text-center text-sm text-slate-300">
+                        Loading subscription plans...
+                    </div>
+                ) : plans.length === 0 ? (
+                    <div className="rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-8 text-center text-sm text-slate-300">
+                        No subscription plans found.
+                    </div>
+                ) : (
+                    plans.map((p) => (
+                        <div
+                            key={p.id}
+                            className="rounded-xl border border-slate-700 bg-slate-900/60 p-4"
+                        >
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                    <h3 className="m-0 truncate text-sm font-semibold text-slate-100">{p.name}</h3>
+                                    <p className="m-0 mt-1 text-xs text-slate-400">
+                                        Created {new Date(p.createdAt).toLocaleDateString()}
+                                    </p>
+                                </div>
+                                <span className="text-base font-bold text-emerald-500">₹{p.price}</span>
+                            </div>
+
+                            <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                                <div className="rounded-lg bg-slate-800/80 px-2.5 py-2">
+                                    <p className="m-0 text-slate-400">Duration</p>
+                                    <p className="m-0 mt-1 font-semibold text-slate-100">{p.duration}</p>
+                                </div>
+                                <div className="rounded-lg bg-slate-800/80 px-2.5 py-2">
+                                    <p className="m-0 text-slate-400">AI</p>
+                                    <p className="m-0 mt-1 font-semibold text-slate-100">{p.hasAI ? "Enabled" : "—"}</p>
+                                </div>
+                                <div className="rounded-lg bg-slate-800/80 px-2.5 py-2">
+                                    <p className="m-0 text-slate-400">Job limit</p>
+                                    <p className="m-0 mt-1 font-semibold text-slate-100">
+                                        {p.jobUnlimited ? "Unlimited" : p.jobPostLimit}
+                                    </p>
+                                </div>
+                                <div className="rounded-lg bg-slate-800/80 px-2.5 py-2">
+                                    <p className="m-0 text-slate-400">Interview limit</p>
+                                    <p className="m-0 mt-1 font-semibold text-slate-100">
+                                        {p.interviewUnlimited ? "Unlimited" : p.interviewLimit}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="mt-3 flex items-center gap-2">
+                                <Button
+                                    type="button"
+                                    disabled={actionLoading}
+                                    className="flex-1 rounded-lg px-3 py-2 text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
+                                    onClick={() => {
+                                        startEdit(p);
+                                        setEditingPlan(true);
+                                    }}
+                                >
+                                    Edit
+                                </Button>
+                                <Button
+                                    type="button"
+                                    disabled={actionLoading}
+                                    className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold border-none ${
+                                        p.isActive
+                                            ? "bg-slate-700 text-slate-100 hover:bg-slate-600"
+                                            : "bg-emerald-500 text-white hover:bg-emerald-600"
+                                    }`}
+                                    onClick={() => setConfirmToggleId(p.id)}
+                                >
+                                    {p.isActive ? "Deactivate" : "Activate"}
+                                </Button>
+                            </div>
+                        </div>
+                    ))
                 )}
             </div>
 

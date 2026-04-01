@@ -46,7 +46,7 @@ const JobsPage = () => {
     <div className="py-4 md:py-6 px-0">
 
       {/* ── Page header ── */}
-      <header className="flex flex-wrap justify-between items-start gap-3 mb-5 md:mb-6">
+      <header className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-5 md:mb-6">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-slate-100 m-0 mb-1">Job Management</h2>
           <p className="text-slate-400 text-sm m-0">Manage open roles and view applications.</p>
@@ -54,7 +54,7 @@ const JobsPage = () => {
         {isActive && (
           <Button
             type="button"
-            className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:opacity-90 border-0 py-2.5 px-4 md:px-5 rounded-lg font-semibold text-sm whitespace-nowrap"
+            className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:opacity-90 border-0 py-2.5 px-4 md:px-5 rounded-lg font-semibold text-sm whitespace-nowrap"
             onClick={openCreateModal}
           >
             + Add New Job
@@ -400,7 +400,7 @@ const JobsPage = () => {
           <label className="block text-xs font-semibold text-slate-400 mb-1.5">Search by Job Title</label>
           <SearchInput placeholder="Search by job title..." onSearch={setSearchQuery} />
         </div>
-        <div className="sm:w-[180px]">
+        <div className="w-full sm:w-[180px]">
           <label className="block text-xs font-semibold text-slate-400 mb-1.5">Filter by Status</label>
           <select
             className={inputClass}
@@ -423,43 +423,100 @@ const JobsPage = () => {
         </div>
       ) : (
         <>
-          <Table
-            columns={[
-              { header: "Title",    render: (job) => <span className="text-slate-200 font-semibold">{job.title}</span> },
-              { header: "Location", render: (job) => <span className="text-slate-300">{job.location}</span> },
-              {
-                header: "Type",
-                render: (job) => (
+          <div className="hidden md:block">
+            <Table
+              columns={[
+                { header: "Title",    render: (job) => <span className="text-slate-200 font-semibold">{job.title}</span> },
+                { header: "Location", render: (job) => <span className="text-slate-300">{job.location}</span> },
+                {
+                  header: "Type",
+                  render: (job) => (
+                    <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${job.jobType === "Full-time" ? "bg-blue-500/20 text-blue-300" : "bg-violet-500/20 text-violet-300"}`}>
+                      {job.jobType || "Full-time"}
+                    </span>
+                  ),
+                },
+                {
+                  header: "Status",
+                  render: (job) => (
+                    <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${job.status === "OPEN" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                      {job.status}
+                    </span>
+                  ),
+                },
+                {
+                  header: "Actions",
+                  render: (job) =>
+                    isActive ? (
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="!py-1 !px-2 text-xs !bg-blue-500/10 !border-blue-500/50 border text-blue-300 hover:!bg-blue-500/20"
+                          onClick={() => setViewingJob(job)}
+                        >
+                          View
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="!py-1 !px-2 text-xs border border-slate-500 text-slate-300 hover:!bg-slate-700"
+                          onClick={(e) => handleStatusChange(e, job)}
+                        >
+                          {job.status === "OPEN" ? "Close" : "Reopen"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="!py-1 !px-2 text-xs border border-slate-500 text-slate-300 hover:!bg-slate-700"
+                          onClick={() => openEditModal(job)}
+                        >
+                          Edit
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-500">Disabled</span>
+                    ),
+                },
+              ]}
+              data={paginatedJobs}
+              rowKey={(job) => job.id}
+              emptyMessage={myJobs.length === 0 ? "No jobs match your filters." : undefined}
+              emptySubMessage={myJobs.length === 0 ? "Try adjusting search or filters." : undefined}
+            />
+          </div>
+
+          <div className="md:hidden space-y-3">
+            {paginatedJobs.map((job) => (
+              <div key={job.id} className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="m-0 text-sm font-semibold text-slate-100 break-words">{job.title}</h3>
+                  <span className={`inline-block px-2 py-1 rounded text-[10px] font-medium whitespace-nowrap ${job.status === "OPEN" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                    {job.status}
+                  </span>
+                </div>
+                <p className="m-0 mt-1 text-xs text-slate-300">{job.location}</p>
+                <div className="mt-2">
                   <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${job.jobType === "Full-time" ? "bg-blue-500/20 text-blue-300" : "bg-violet-500/20 text-violet-300"}`}>
                     {job.jobType || "Full-time"}
                   </span>
-                ),
-              },
-              {
-                header: "Status",
-                render: (job) => (
-                  <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${job.status === "OPEN" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-                    {job.status}
-                  </span>
-                ),
-              },
-              {
-                header: "Actions",
-                render: (job) =>
-                  isActive ? (
-                    <div className="flex flex-wrap gap-2">
+                </div>
+
+                <div className="mt-3 grid grid-cols-1 gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="!py-2 !px-3 text-xs !bg-blue-500/10 !border-blue-500/50 border text-blue-300 hover:!bg-blue-500/20"
+                    onClick={() => setViewingJob(job)}
+                  >
+                    View
+                  </Button>
+                  {isActive ? (
+                    <div className="grid grid-cols-2 gap-2">
                       <Button
                         type="button"
                         variant="secondary"
-                        className="!py-1 !px-2 text-xs !bg-blue-500/10 !border-blue-500/50 border text-blue-300 hover:!bg-blue-500/20"
-                        onClick={() => setViewingJob(job)}
-                      >
-                        View
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        className="!py-1 !px-2 text-xs border border-slate-500 text-slate-300 hover:!bg-slate-700"
+                        className="!py-2 !px-2 text-xs border border-slate-500 text-slate-300 hover:!bg-slate-700"
                         onClick={(e) => handleStatusChange(e, job)}
                       >
                         {job.status === "OPEN" ? "Close" : "Reopen"}
@@ -467,7 +524,7 @@ const JobsPage = () => {
                       <Button
                         type="button"
                         variant="secondary"
-                        className="!py-1 !px-2 text-xs border border-slate-500 text-slate-300 hover:!bg-slate-700"
+                        className="!py-2 !px-2 text-xs border border-slate-500 text-slate-300 hover:!bg-slate-700"
                         onClick={() => openEditModal(job)}
                       >
                         Edit
@@ -475,14 +532,11 @@ const JobsPage = () => {
                     </div>
                   ) : (
                     <span className="text-xs text-slate-500">Disabled</span>
-                  ),
-              },
-            ]}
-            data={paginatedJobs}
-            rowKey={(job) => job.id}
-            emptyMessage={myJobs.length === 0 ? "No jobs match your filters." : undefined}
-            emptySubMessage={myJobs.length === 0 ? "Try adjusting search or filters." : undefined}
-          />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
           {isLoading && (
             <p className="mt-3 text-xs text-slate-500 text-right">Updating results…</p>
           )}

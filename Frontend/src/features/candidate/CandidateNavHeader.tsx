@@ -158,7 +158,7 @@ const CandidateNavHeader = ({ title, currentPage }: ICandidateNavHeaderProps) =>
                                     ✕
                                 </Button>
                             </div>
-                            <div>
+                            <div className="max-h-[300px] overflow-y-auto">
                                 {notifications.length === 0 ? (
                                     <div className="text-center py-6">
                                         <span>🔕</span>

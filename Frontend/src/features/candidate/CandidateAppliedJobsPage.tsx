@@ -123,10 +123,11 @@ const CandidateAppliedJobsPage: React.FC = () => {
             <div className="min-h-screen w-full bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px] flex flex-col">
                 <CandidateNavHeader title="APPLIED JOBS" currentPage="applied" />
 
-                <div className="pt-[72px] px-4 sm:px-6 pb-8">
+                <div className="pt-[72px] px-3 sm:px-6 pb-6 sm:pb-8">
+                    <div className="mx-auto w-full max-w-6xl">
                     <div className="shrink-0 py-4 border-b border-[rgba(255,255,255,0.06)]">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                            <div className="w-full sm:max-w-[300px]">
+                        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                            <div className="w-full md:max-w-[320px]">
                                 <label className="block text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.9)] mb-1.5">
                                     Search
                                 </label>
@@ -138,8 +139,8 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                     }}
                                 />
                             </div>
-                            <div className="flex flex-wrap items-end gap-3">
-                                <div className="w-[120px]">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full md:w-auto md:flex md:flex-wrap md:items-end">
+                                <div className="w-full sm:w-auto sm:min-w-[160px]">
                                     <label className="block text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.9)] mb-1.5">
                                         Status
                                     </label>
@@ -149,7 +150,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                             setStatusFilter(e.target.value);
                                             setCurrentPage(1);
                                         }}
-                                        className="w-full rounded-lg border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.98)] px-2.5 py-1.5 text-[11px] text-slate-100 outline-none focus:border-brand-primary focus:ring-2 focus:ring-[rgba(102,126,234,0.4)] cursor-pointer"
+                                        className="w-full rounded-lg border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.98)] px-3 py-2 text-xs sm:text-sm text-slate-100 outline-none focus:border-brand-primary focus:ring-2 focus:ring-[rgba(102,126,234,0.4)] cursor-pointer"
                                     >
                                         <option value="all">All Status</option>
                                         <option value="PENDING">Pending</option>
@@ -162,7 +163,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                     </select>
                                 </div>
 
-                                <div className="w-[120px]">
+                                <div className="w-full sm:w-auto sm:min-w-[160px]">
                                     <label className="block text-[11px] font-semibold uppercase tracking-wide text-[rgba(148,163,184,0.9)] mb-1.5">
                                         Date order
                                     </label>
@@ -172,7 +173,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                             setSortOrder(e.target.value as "asc" | "desc");
                                             setCurrentPage(1);
                                         }}
-                                        className="w-full rounded-lg border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.98)] px-2.5 py-1.5 text-[11px] text-slate-100 outline-none focus:border-brand-primary focus:ring-2 focus:ring-[rgba(102,126,234,0.4)] cursor-pointer"
+                                        className="w-full rounded-lg border border-[rgba(148,163,184,0.45)] bg-[rgba(15,23,42,0.98)] px-3 py-2 text-xs sm:text-sm text-slate-100 outline-none focus:border-brand-primary focus:ring-2 focus:ring-[rgba(102,126,234,0.4)] cursor-pointer"
                                     >
                                         <option value="desc">Newest first</option>
                                         <option value="asc">Oldest first</option>
@@ -202,21 +203,75 @@ const CandidateAppliedJobsPage: React.FC = () => {
                         </div>
                     ) : (
                         <>
-                            <div className="shrink-0 flex items-center justify-between border-b border-[rgba(255,255,255,0.06)] py-3">
+                            <div className="shrink-0 flex items-center justify-between border-b border-[rgba(255,255,255,0.06)] py-3 gap-3">
                                 <div className="text-xs text-slate-300">
                                     {totalApplications} application{totalApplications !== 1 ? "s" : ""}
                                 </div>
-                                <div className="text-[11px] text-slate-500">
+                                <div className="text-[11px] text-slate-500 whitespace-nowrap">
                                     Page {currentPage} of {totalPages || 1}
                                 </div>
                             </div>
                             <div className="py-4 w-full">
-                                <Table<ApplicationWithJob>
-                                    columns={tableColumns}
-                                    data={paginatedApplications}
-                                    rowKey={(app) => app.id}
-                                    emptyMessage="No applications to show."
-                                />
+                                <div className="hidden md:block">
+                                    <Table<ApplicationWithJob>
+                                        columns={tableColumns}
+                                        data={paginatedApplications}
+                                        rowKey={(app) => app.id}
+                                        emptyMessage="No applications to show."
+                                    />
+                                </div>
+
+                                <div className="md:hidden space-y-3">
+                                    {paginatedApplications.map((app) => (
+                                        <div
+                                            key={app.id}
+                                            className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(15,23,42,0.65)] p-4"
+                                        >
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="min-w-0">
+                                                    <h4 className="m-0 text-sm font-semibold text-slate-100 truncate">
+                                                        {app.job?.title || "Job title"}
+                                                    </h4>
+                                                    <p className="m-0 mt-1 text-xs text-slate-400 truncate">
+                                                        {app.job?.companyName || "—"}
+                                                    </p>
+                                                </div>
+                                                <span
+                                                    className="inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium border whitespace-nowrap"
+                                                    style={{
+                                                        background: getStatusColor(app.status).bg,
+                                                        color: getStatusColor(app.status).color,
+                                                        borderColor: getStatusColor(app.status).border,
+                                                    }}
+                                                >
+                                                    {formatStatus(app.status)}
+                                                </span>
+                                            </div>
+
+                                            <div className="mt-3 space-y-1.5 text-xs text-slate-400">
+                                                <p className="m-0">
+                                                    <span className="text-slate-500">Location:</span>{" "}
+                                                    {app.job?.location || "—"}
+                                                </p>
+                                                <p className="m-0">
+                                                    <span className="text-slate-500">Applied:</span>{" "}
+                                                    {formatDate(app.createdAt)}
+                                                </p>
+                                            </div>
+
+                                            <div className="mt-3">
+                                                <Button
+                                                    type="button"
+                                                    variant="primary"
+                                                    className="w-full !py-2 !px-3 text-xs"
+                                                    onClick={() => navigate(`/candidate/applied/${app.id}`)}
+                                                >
+                                                    View Application
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </>
                     )}
@@ -229,6 +284,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                                 onPageChange={(nextPage) => setCurrentPage(nextPage)}
                             />
                         )}
+                    </div>
                     </div>
                 </div>
             </div>

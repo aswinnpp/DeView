@@ -223,74 +223,130 @@ export default function CandidateMailsPage() {
             </div>
           </div>
 
-          <Table<InboxItem>
-            columns={[
-              {
-                header: "Message",
-                render: (mail) => (
-                  <div className="min-w-0">
-                    <div className="font-semibold text-slate-100 truncate">{subjectFor(mail)}</div>
-                    <div className="text-xs text-slate-400 mt-1 truncate">
-                      From: <span className="text-slate-300 font-semibold">{mail.companyName}</span> • {mail.jobTitle}
-                    </div>
-                  </div>
-                ),
-                cellClassName: "p-4",
-              },
-              {
-                header: "Sent",
-                render: (mail) => (
-                  <div className="text-xs text-slate-500">
-                    {formatDate(mail.createdAt)} at {formatTime(mail.createdAt)}
-                  </div>
-                ),
-              },
-              {
-                header: "Status",
-                render: (mail) => {
-                  if (mail.kind === "offer") {
-                    return (
-                      <div className="flex flex-wrap gap-2 items-center">
-                        <span
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${offerResponseBadgeClass(
-                            mail.status
-                          )}`}
-                        >
-                          {offerResponseLabel(
-                            mail.status,
-                            mail.counterResponseStatus
-                          )}
-                        </span>
+          <div className="hidden md:block">
+            <Table<InboxItem>
+              columns={[
+                {
+                  header: "Message",
+                  render: (mail) => (
+                    <div className="min-w-0">
+                      <div className="font-semibold text-slate-100 truncate">{subjectFor(mail)}</div>
+                      <div className="text-xs text-slate-400 mt-1 truncate">
+                        From: <span className="text-slate-300 font-semibold">{mail.companyName}</span> • {mail.jobTitle}
                       </div>
-                    );
-                  }
-                  return (
-                    <span className="rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-red-500/20 text-red-300">
-                      rejection
-                    </span>
-                  );
+                    </div>
+                  ),
+                  cellClassName: "p-4",
                 },
-              },
-              {
-                header: "Actions",
-                render: (mail) => (
+                {
+                  header: "Sent",
+                  render: (mail) => (
+                    <div className="text-xs text-slate-500">
+                      {formatDate(mail.createdAt)} at {formatTime(mail.createdAt)}
+                    </div>
+                  ),
+                },
+                {
+                  header: "Status",
+                  render: (mail) => {
+                    if (mail.kind === "offer") {
+                      return (
+                        <div className="flex flex-wrap gap-2 items-center">
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${offerResponseBadgeClass(
+                              mail.status
+                            )}`}
+                          >
+                            {offerResponseLabel(
+                              mail.status,
+                              mail.counterResponseStatus
+                            )}
+                          </span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <span className="rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-red-500/20 text-red-300">
+                        rejection
+                      </span>
+                    );
+                  },
+                },
+                {
+                  header: "Actions",
+                  render: (mail) => (
+                    <Button
+                      type="button"
+                      variant="ghostOutline"
+                      className="!px-3 !py-2 !text-xs"
+                      onClick={() => setSelectedKey(mail.rowKey)}
+                    >
+                      Open
+                    </Button>
+                  ),
+                  headerClassName: "w-[120px]",
+                },
+              ]}
+              data={filtered}
+              rowKey={(mail) => mail.rowKey}
+              emptyMessage="No messages yet."
+              emptySubMessage="When an employer sends an offer or rejection, it will appear here."
+            />
+          </div>
+
+          <div className="md:hidden space-y-3">
+            {filtered.length === 0 ? (
+              <div className="rounded-xl border border-slate-700/60 bg-slate-900/40 px-4 py-6 text-center">
+                <p className="m-0 text-sm text-slate-300">No messages yet.</p>
+                <p className="m-0 mt-1 text-xs text-slate-500">
+                  When an employer sends an offer or rejection, it will appear here.
+                </p>
+              </div>
+            ) : (
+              filtered.map((mail) => (
+                <div
+                  key={mail.rowKey}
+                  className="rounded-xl border border-slate-700/60 bg-slate-900/40 p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h4 className="m-0 truncate text-sm font-semibold text-slate-100">{subjectFor(mail)}</h4>
+                      <p className="m-0 mt-1 truncate text-xs text-slate-400">
+                        From: <span className="font-semibold text-slate-300">{mail.companyName}</span>
+                      </p>
+                      <p className="m-0 mt-0.5 truncate text-xs text-slate-500">{mail.jobTitle}</p>
+                    </div>
+                    {mail.kind === "offer" ? (
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${offerResponseBadgeClass(
+                          mail.status
+                        )}`}
+                      >
+                        {offerResponseLabel(mail.status, mail.counterResponseStatus)}
+                      </span>
+                    ) : (
+                      <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-red-500/20 text-red-300">
+                        rejection
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="m-0 mt-3 text-xs text-slate-500">
+                    {formatDate(mail.createdAt)} at {formatTime(mail.createdAt)}
+                  </p>
+
                   <Button
                     type="button"
                     variant="ghostOutline"
-                    className="!px-3 !py-2 !text-xs"
+                    className="!mt-3 !w-full !px-3 !py-2 !text-xs"
                     onClick={() => setSelectedKey(mail.rowKey)}
                   >
                     Open
                   </Button>
-                ),
-                headerClassName: "w-[120px]",
-              },
-            ]}
-            data={filtered}
-            rowKey={(mail) => mail.rowKey}
-            emptyMessage="No messages yet."
-            emptySubMessage="When an employer sends an offer or rejection, it will appear here."
-          />
+                </div>
+              ))
+            )}
+          </div>
 
           {total > 0 ? (
             <div className="mt-4">

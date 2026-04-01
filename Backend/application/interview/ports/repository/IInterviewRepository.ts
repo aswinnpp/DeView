@@ -32,7 +32,7 @@ export interface IInterviewRepository {
   findActiveByApplicationId(applicationId: string): Promise<Interview | null>;
   findLatestCompletedByApplicationId(applicationId: string): Promise<Interview | null>;
   setInterviewerAccepted(id: string, accepted: boolean, rejectReason?: string): Promise<Interview | null>;
-  setCandidateRejection(id: string, input: { date: string; reason: string }): Promise<Interview | null>;
+  setCandidateRejection(id: string, input: { date: string; reason: stri ng }): Promise<Interview | null>;
   declineCandidateRejection(id: string): Promise<Interview | null>;
   rescheduleFromCompany(
     id: string,

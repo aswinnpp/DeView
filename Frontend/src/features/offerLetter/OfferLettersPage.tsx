@@ -317,7 +317,7 @@ export default function OfferLettersPage() {
   // List view
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+      <div className="mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-50 m-0">Offer Letters</h1>
           <p className="text-slate-400 text-sm mt-2 mb-0">
@@ -326,15 +326,6 @@ export default function OfferLettersPage() {
           {/* DocuSign JWT consent is handled server-side; we only need this UI
               on first setup flows. */}
         </div>
-        <Button
-          variant="secondary"
-          className="bg-slate-800 border-slate-700 text-slate-200 shrink-0"
-          type="button"
-          onClick={() => void refreshOffers()}
-          disabled={loading}
-        >
-          {loading ? "Loading…" : "Refresh"}
-        </Button>
       </div>
 
       {error && (
@@ -345,7 +336,7 @@ export default function OfferLettersPage() {
 
       {/* Filters */}
       <div
-        className={`flex flex-col sm:flex-row gap-3 items-stretch sm:items-end mb-6 ${
+        className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-end mb-6 ${
           loading ? "pointer-events-none opacity-70" : ""
         }`}
       >
@@ -361,7 +352,7 @@ export default function OfferLettersPage() {
               }}
             />
           </div>
-          <div className="sm:w-[220px]">
+          <div className="w-full">
             <label className="block text-xs font-semibold text-slate-400 mb-1.5">
               Filter by Job
             </label>
@@ -381,7 +372,7 @@ export default function OfferLettersPage() {
               ))}
             </select>
           </div>
-          <div className="sm:w-[220px]">
+          <div className="w-full">
             <label className="block text-xs font-semibold text-slate-400 mb-1.5">
               Filter by Status
             </label>
@@ -405,77 +396,134 @@ export default function OfferLettersPage() {
         {loading ? (
           <div className="text-slate-400 text-sm">Loading…</div>
         ) : (
-          <Table<OfferLetterRow>
-            columns={[
-              {
-                header: "Candidate",
-                render: (row) => (
-                  <div className="min-w-0">
-                    <div className="font-semibold text-slate-100 truncate">{row.candidateName}</div>
-                    <div className="text-slate-400 text-xs truncate">{row.candidateEmail}</div>
-                  </div>
-                ),
-                cellClassName: "p-4",
-              },
-              {
-                header: "Position",
-                render: (row) => (
-                  <div className="text-slate-200">
-                    {row.positionTitle ?? jobTitleMap.get(row.jobId) ?? row.jobId}
-                  </div>
-                ),
-                cellClassName: "p-4",
-              },
-              {
-                header: "Salary",
-                render: (row) => <div className="text-emerald-400 font-medium">{row.salary ?? "—"}</div>,
-                cellClassName: "p-4",
-              },
-              {
-                header: "Sent Date",
-                render: (row) => (
-                  <div>
-                    <div className="text-slate-300">{formatDate(row.createdAt)}</div>
-                    <div className="text-slate-500 text-xs">{formatTime(row.createdAt)}</div>
-                  </div>
-                ),
-                cellClassName: "p-4",
-              },
-              {
-                header: "Status",
-                render: (row) => (
-                  <div>
-                    <StatusBadge status={row.status} />
-                    {row.signedOfferAvailable ? (
-                      <div className="text-[10px] text-emerald-400/90 mt-1 font-semibold uppercase tracking-wide">
-                        Signed PDF
+          <>
+            <div className="hidden md:block">
+              <Table<OfferLetterRow>
+                columns={[
+                  {
+                    header: "Candidate",
+                    render: (row) => (
+                      <div className="min-w-0">
+                        <div className="font-semibold text-slate-100 truncate">{row.candidateName}</div>
+                        <div className="text-slate-400 text-xs truncate">{row.candidateEmail}</div>
                       </div>
-                    ) : null}
-                  </div>
-                ),
-                cellClassName: "p-4",
-              },
-              {
-                header: "Actions",
-                headerClassName: "w-[140px]",
-                render: (row) => (
-                  <Button
-                    type="button"
-                    variant="ghostOutline"
-                    className="!px-3 !py-2 !text-xs"
-                    onClick={() => setSelectedOffer(row)}
+                    ),
+                    cellClassName: "p-4",
+                  },
+                  {
+                    header: "Position",
+                    render: (row) => (
+                      <div className="text-slate-200">
+                        {row.positionTitle ?? jobTitleMap.get(row.jobId) ?? row.jobId}
+                      </div>
+                    ),
+                    cellClassName: "p-4",
+                  },
+                  {
+                    header: "Salary",
+                    render: (row) => <div className="text-emerald-400 font-medium">{row.salary ?? "—"}</div>,
+                    cellClassName: "p-4",
+                  },
+                  {
+                    header: "Sent Date",
+                    render: (row) => (
+                      <div>
+                        <div className="text-slate-300">{formatDate(row.createdAt)}</div>
+                        <div className="text-slate-500 text-xs">{formatTime(row.createdAt)}</div>
+                      </div>
+                    ),
+                    cellClassName: "p-4",
+                  },
+                  {
+                    header: "Status",
+                    render: (row) => (
+                      <div>
+                        <StatusBadge status={row.status} />
+                        {row.signedOfferAvailable ? (
+                          <div className="text-[10px] text-emerald-400/90 mt-1 font-semibold uppercase tracking-wide">
+                            Signed PDF
+                          </div>
+                        ) : null}
+                      </div>
+                    ),
+                    cellClassName: "p-4",
+                  },
+                  {
+                    header: "Actions",
+                    headerClassName: "w-[140px]",
+                    render: (row) => (
+                      <Button
+                        type="button"
+                        variant="ghostOutline"
+                        className="!px-3 !py-2 !text-xs"
+                        onClick={() => setSelectedOffer(row)}
+                      >
+                        View Details
+                      </Button>
+                    ),
+                    cellClassName: "p-4",
+                  },
+                ]}
+                data={visibleRows}
+                rowKey={(row) => row.id ?? `${row.applicationId}-${row.createdAt}`}
+                emptyMessage="No offer letters yet"
+                emptySubMessage="Send an offer from Applications or complete all interview rounds with passing scores (3+)."
+              />
+            </div>
+
+            <div className="md:hidden space-y-3">
+              {visibleRows.length === 0 ? (
+                <div className="rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-8 text-center">
+                  <p className="m-0 text-sm text-slate-300">No offer letters yet</p>
+                  <p className="m-0 mt-1 text-xs text-slate-500">
+                    Send an offer from Applications or complete all interview rounds with passing scores (3+).
+                  </p>
+                </div>
+              ) : (
+                visibleRows.map((row) => (
+                  <div
+                    key={row.id ?? `${row.applicationId}-${row.createdAt}`}
+                    className="rounded-xl border border-slate-700 bg-slate-900/60 p-4"
                   >
-                    View Details
-                  </Button>
-                ),
-                cellClassName: "p-4",
-              },
-            ]}
-            data={visibleRows}
-            rowKey={(row) => row.id ?? `${row.applicationId}-${row.createdAt}`}
-            emptyMessage="No offer letters yet"
-            emptySubMessage="Send an offer from Applications or complete all interview rounds with passing scores (3+)."
-          />
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="m-0 text-sm font-semibold text-slate-100 truncate">{row.candidateName}</h3>
+                        <p className="m-0 mt-1 text-xs text-slate-400 truncate">{row.candidateEmail}</p>
+                      </div>
+                      <StatusBadge status={row.status} />
+                    </div>
+
+                    <div className="mt-3 space-y-1.5 text-xs text-slate-300">
+                      <p className="m-0">
+                        <span className="text-slate-500">Position:</span>{" "}
+                        {row.positionTitle ?? jobTitleMap.get(row.jobId) ?? row.jobId}
+                      </p>
+                      <p className="m-0">
+                        <span className="text-slate-500">Salary:</span> {row.salary ?? "—"}
+                      </p>
+                      <p className="m-0">
+                        <span className="text-slate-500">Sent:</span> {formatDate(row.createdAt)} at {formatTime(row.createdAt)}
+                      </p>
+                      {row.signedOfferAvailable ? (
+                        <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-emerald-400/90">
+                          Signed PDF available
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghostOutline"
+                      className="!mt-3 !w-full !px-3 !py-2 !text-xs"
+                      onClick={() => setSelectedOffer(row)}
+                    >
+                      View Details
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
         )}
         {!loading && totalPages > 1 ? (
           <Pagination

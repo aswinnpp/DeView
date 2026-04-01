@@ -188,7 +188,7 @@ const InterviewerDashboard = () => {
   ];
 
   return (
-    <div className="py-6 px-0">
+    <div className="py-4 sm:py-6 px-0">
       <h2 className="text-lg font-semibold text-white mb-1">Upcoming Accepted Interviews</h2>
       <p className="text-slate-400 text-sm mb-4">
         Interviews you have accepted. Online interviews can be joined; call and face-to-face can be marked directly.
@@ -200,7 +200,7 @@ const InterviewerDashboard = () => {
         </p>
       )}
 
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-wrap gap-3 sm:gap-4 mb-4">
         <span className="text-sm text-slate-400">
           Accepted: <strong className="text-emerald-400">{acceptedOnly.length}</strong>
         </span>
@@ -209,8 +209,8 @@ const InterviewerDashboard = () => {
         </span>
       </div>
 
-      <div className="flex flex-wrap gap-4 items-end mb-6">
-        <div className="flex-1 min-w-[250px]">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_180px] gap-3 sm:gap-4 items-end mb-6">
+        <div className="min-w-0">
           <label className="block text-xs text-slate-400 font-semibold mb-1.5">Search Interviews</label>
           <SearchInput
             placeholder="Search by candidate name or job title..."
@@ -220,7 +220,7 @@ const InterviewerDashboard = () => {
             }}
           />
         </div>
-        <div className="min-w-[160px]">
+        <div className="min-w-0">
           <label className="block text-xs text-slate-400 font-semibold mb-1.5">Filter</label>
           <select
             value={sortOrder}
@@ -236,17 +236,105 @@ const InterviewerDashboard = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div>
         {isLoading ? (
           <p className="text-slate-400 py-8 text-center">Loading interviews...</p>
         ) : (
           <>
-            <Table<InterviewerAssignmentItem>
-              columns={columns}
-              data={filtered}
-              rowKey={(item) => item.id}
-              emptyMessage={emptyMessage}
-            />
+            <div className="hidden md:block overflow-x-auto">
+              <Table<InterviewerAssignmentItem>
+                columns={columns}
+                data={filtered}
+                rowKey={(item) => item.id}
+                emptyMessage={emptyMessage}
+              />
+            </div>
+
+            <div className="md:hidden space-y-3">
+              {filtered.length === 0 ? (
+                <div className="rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-8 text-center text-sm text-slate-300">
+                  {emptyMessage}
+                </div>
+              ) : (
+                filtered.map((item) => (
+                  <div key={item.id} className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="m-0 text-sm font-semibold text-slate-100 truncate">{item.candidateName}</h3>
+                        {item.candidateEmail ? (
+                          <p className="m-0 mt-1 text-xs text-slate-500 truncate">{item.candidateEmail}</p>
+                        ) : null}
+                      </div>
+                      <span className="inline-block py-1 px-2.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-400">
+                        Accepted
+                      </span>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                      <div className="rounded-lg bg-slate-800/70 px-2.5 py-2">
+                        <p className="m-0 text-slate-400">Role</p>
+                        <p className="m-0 mt-1 font-semibold text-slate-100">{item.jobTitle || "—"}</p>
+                      </div>
+                      <div className="rounded-lg bg-slate-800/70 px-2.5 py-2">
+                        <p className="m-0 text-slate-400">Round</p>
+                        <p className="m-0 mt-1 font-semibold text-violet-300">{item.interviewRound || "—"}</p>
+                      </div>
+                      <div className="rounded-lg bg-slate-800/70 px-2.5 py-2">
+                        <p className="m-0 text-slate-400">Date</p>
+                        <p className="m-0 mt-1 font-semibold text-slate-100">{formatDate(item.date)}</p>
+                      </div>
+                      <div className="rounded-lg bg-slate-800/70 px-2.5 py-2">
+                        <p className="m-0 text-slate-400">Time</p>
+                        <p className="m-0 mt-1 font-semibold text-blue-400">
+                          {formatTime(item.startTime)}
+                          {item.endTime && item.endTime !== item.startTime ? ` – ${formatTime(item.endTime)}` : ""}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-1 gap-2">
+                      {(item.interviewType ?? "ONLINE") === "ONLINE" ? (
+                        <Button
+                          variant="primary"
+                          className="!py-2 !px-3 text-xs w-full"
+                          onClick={() => handleJoinRoom(item.id)}
+                        >
+                          Join Room
+                        </Button>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            variant="primary"
+                            className="!py-2 !px-3 text-xs w-full"
+                            onClick={() => handleUpdateStatus(item.id, "COMPLETED")}
+                            disabled={updatingInterviewId === item.id}
+                          >
+                            Complete
+                          </Button>
+                          <Button
+                            variant="danger"
+                            className="!py-2 !px-3 text-xs w-full"
+                            onClick={() => handleUpdateStatus(item.id, "CANCELLED")}
+                            disabled={updatingInterviewId === item.id}
+                          >
+                            Not Attempt
+                          </Button>
+                        </div>
+                      )}
+                      <Button
+                        variant="amber"
+                        className="!py-2 !px-3 text-xs w-full"
+                        onClick={() => openRescheduleModal(item)}
+                        disabled={isRescheduling && rescheduleInterview?.id === item.id}
+                      >
+                        Request Reschedule
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
             {!isLoading && filtered.length > 0 && (
               <Pagination
                 page={page}

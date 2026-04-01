@@ -109,7 +109,7 @@ const CompanyLayout = () => {
                                         <h3 className="m-0 text-white text-[15px]">Notifications</h3>
                                         <Button variant="secondary" className="!bg-none !border-none text-[rgba(255,255,255,0.7)] cursor-pointer" onClick={() => setShowNotifications(false)}>✕</Button>
                                     </div>
-                                    <div>
+                                    <div className="max-h-[300px] overflow-y-auto">
                                         {notifications.length === 0 ? (
                                             <div className="py-6 text-center text-[#94a3b8] text-sm">
                                                 No notifications yet

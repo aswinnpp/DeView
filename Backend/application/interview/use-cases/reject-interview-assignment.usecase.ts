@@ -19,7 +19,7 @@ export class RejectInterviewAssignmentUseCase implements IRejectInterviewAssignm
     @inject(TYPES.NotificationRepositoryPort)
     private readonly _notificationRepository: INotificationRepository,
     @inject(TYPES.NotificationPublisherPort)
-    private readonly _notificationPublisher: INotificationPublisher
+    private readonly _notificationPublisher: INotificationPublisher,
   ) {}
 
   async execute(input: IRejectInterviewAssignmentInputDTO): Promise<IRejectInterviewAssignmentOutputDTO> {
@@ -28,11 +28,14 @@ export class RejectInterviewAssignmentUseCase implements IRejectInterviewAssignm
       return { data: null };
     }
 
+
     const updated = await this._repo.setInterviewerAccepted(input.interviewId, false, input.reason.trim());
     if (updated) {
-      // Mark this interview as needing reschedule for downstream consumers (candidate views, reports, etc.)
       await this._repo.updateStatus(updated.id ?? input.interviewId, 'RESCHEDULED');
 
+
+ 
+   
       await this._applicationRepo.setInterviewAcceptance({
         applicationId: updated.applicationId,
         jobId: updated.jobId,

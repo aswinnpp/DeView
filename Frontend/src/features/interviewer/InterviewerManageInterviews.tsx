@@ -216,8 +216,8 @@ const InterviewerManageInterviews = () => {
         All completed interviews, newest first. Add or edit your score and written feedback anytime.
       </p>
 
-      <div className="flex flex-wrap gap-4 items-end mb-4">
-        <div className="flex-1 min-w-[250px]">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_180px] gap-3 sm:gap-4 items-end mb-4">
+        <div className="min-w-0">
           <label className="block text-xs text-slate-400 font-semibold mb-1.5">Search Interviews</label>
           <SearchInput
             placeholder="Search by candidate name or job title..."
@@ -227,7 +227,7 @@ const InterviewerManageInterviews = () => {
             }}
           />
         </div>
-        <div className="min-w-[160px]">
+        <div className="min-w-0">
           <label className="block text-xs text-slate-400 font-semibold mb-1.5">Filter</label>
           <select
             value={sortOrder}
@@ -245,13 +245,72 @@ const InterviewerManageInterviews = () => {
 
       {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
 
-      <div className="mt-4 overflow-x-auto">
-        <Table<InterviewItem>
-          columns={columns}
-          data={needsEvaluation}
-          rowKey={(item) => item.id}
-          emptyMessage={emptyMessage}
-        />
+      <div className="mt-4">
+        <div className="hidden md:block overflow-x-auto">
+          <Table<InterviewItem>
+            columns={columns}
+            data={needsEvaluation}
+            rowKey={(item) => item.id}
+            emptyMessage={emptyMessage}
+          />
+        </div>
+
+        <div className="md:hidden space-y-3">
+          {needsEvaluation.length === 0 ? (
+            <div className="rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-8 text-center text-sm text-slate-300">
+              {emptyMessage}
+            </div>
+          ) : (
+            needsEvaluation.map((item) => {
+              const date = item.scheduledAt ? new Date(item.scheduledAt) : null;
+              const hasSavedFeedback =
+                item.feedbackSubmitted || (item.latestFeedback != null && item.latestFeedback.trim() !== "");
+              return (
+                <div key={item.id} className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="m-0 text-sm font-semibold text-slate-100 truncate">{item.candidateName}</h3>
+                      <p className="m-0 mt-1 text-xs text-slate-400 truncate">{item.jobDescription?.name ?? "—"}</p>
+                    </div>
+                    <span className="text-xs text-slate-300">{item.status}</span>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-lg bg-slate-800/70 px-2.5 py-2">
+                      <p className="m-0 text-slate-400">Date</p>
+                      <p className="m-0 mt-1 font-semibold text-slate-100">{date ? date.toLocaleDateString() : "—"}</p>
+                    </div>
+                    <div className="rounded-lg bg-slate-800/70 px-2.5 py-2">
+                      <p className="m-0 text-slate-400">Time</p>
+                      <p className="m-0 mt-1 font-semibold text-slate-100">
+                        {date ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-slate-800/70 px-2.5 py-2 col-span-2">
+                      <p className="m-0 text-slate-400">Your score</p>
+                      <p className="m-0 mt-1 font-semibold text-slate-100">
+                        {item.latestTotalScore != null ? item.latestTotalScore.toFixed(1) : "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-slate-800/70 px-2.5 py-2 col-span-2">
+                      <p className="m-0 text-slate-400">Feedback</p>
+                      <p className="m-0 mt-1 text-slate-300">{previewFeedback(item.latestFeedback)}</p>
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="primary"
+                    className="!mt-3 !py-2 !px-3 text-xs w-full"
+                    onClick={() => openEvaluationModal(item)}
+                    disabled={isLoading}
+                  >
+                    {hasSavedFeedback ? "Edit" : "Add feedback"}
+                  </Button>
+                </div>
+              );
+            })
+          )}
+        </div>
         {!isLoading && interviews.length > 0 && (
           <Pagination
             page={page}

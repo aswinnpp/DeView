@@ -771,12 +771,83 @@ const CompanyProfilePage = () => {
 
                 {totalSubscriptionRows > 0 ? (
                     <>
-                        <Table<ICompanySubscriptionView>
-                            columns={subscriptionColumns}
-                            data={subscriptionRowsPage}
-                            rowKey={(sub) => sub.id}
-                            emptyMessage=""
-                        />
+                        <div className="hidden md:block">
+                            <Table<ICompanySubscriptionView>
+                                columns={subscriptionColumns}
+                                data={subscriptionRowsPage}
+                                rowKey={(sub) => sub.id}
+                                emptyMessage=""
+                            />
+                        </div>
+
+                        <div className="md:hidden space-y-3">
+                            {subscriptionRowsPage.map((sub) => (
+                                <div
+                                    key={sub.id}
+                                    className="rounded-xl border border-slate-700 bg-slate-900/60 p-4"
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <h4 className="m-0 text-sm font-semibold text-slate-100 truncate">
+                                                {sub.planName}
+                                            </h4>
+                                            <p className="m-0 mt-1 text-xs text-slate-400">{sub.duration}</p>
+                                        </div>
+                                        <span className="text-emerald-300 font-semibold text-sm">₹{sub.price}</span>
+                                    </div>
+
+                                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                                        <div className="rounded-lg bg-slate-800/70 px-2.5 py-2">
+                                            <p className="m-0 text-slate-400">Start</p>
+                                            <p className="m-0 mt-1 font-semibold text-slate-100">
+                                                {formatDate(sub.startAt)}
+                                            </p>
+                                        </div>
+                                        <div className="rounded-lg bg-slate-800/70 px-2.5 py-2">
+                                            <p className="m-0 text-slate-400">Expiry</p>
+                                            <p className="m-0 mt-1 font-semibold text-slate-100">
+                                                {formatDate(sub.endsAt)}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-3 flex items-center justify-between gap-2">
+                                        <div>
+                                            {sub.status === "Active" ? (
+                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-200 border border-emerald-500/20">
+                                                    Active
+                                                </span>
+                                            ) : sub.status === "Pending" ? (
+                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-200 border border-amber-500/20">
+                                                    Pending
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-red-500/10 text-red-200 border border-red-500/20">
+                                                    Expired
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {sub.status === "Active" ? (
+                                            <span className="text-slate-400 text-xs">Current plan</span>
+                                        ) : sub.status === "Pending" ? (
+                                            <Button
+                                                type="button"
+                                                disabled={subscriptionActionLoadingId === sub.id}
+                                                className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none px-3 py-2 rounded-lg text-[12px] font-semibold disabled:opacity-60"
+                                                onClick={() => {
+                                                    setConfirmActivateId(sub.id);
+                                                }}
+                                            >
+                                                {subscriptionActionLoadingId === sub.id ? "Activating..." : "Activate Now"}
+                                            </Button>
+                                        ) : (
+                                            <span className="text-slate-400 text-xs">—</span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
 
                         {subscriptionsTotalPages > 1 && (
                             <Pagination
