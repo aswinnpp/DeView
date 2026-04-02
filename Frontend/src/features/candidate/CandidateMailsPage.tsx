@@ -454,14 +454,7 @@ export default function CandidateMailsPage() {
     <>
       <CandidateNavHeader title="MAIL DETAILS" currentPage="mails" />
       <main className="flex-1 px-6 py-8 sm:px-10">
-        <Button
-          type="button"
-          variant="ghostOutline"
-          onClick={() => setSelectedKey(null)}
-          className="!mb-6 !flex !items-center !gap-2 !border-0 !bg-transparent !p-0 !text-sm !font-medium !text-slate-400 hover:!text-slate-200"
-        >
-          ← Back to inbox
-        </Button>
+        
 
         <div className="p-0 bg-transparent border-0">
           <div className="mb-6 border-b border-white/0 pb-5">
