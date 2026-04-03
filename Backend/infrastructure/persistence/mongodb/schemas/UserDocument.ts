@@ -13,4 +13,5 @@ export interface IUserDocument {
     googleId?: string;
     createdAt: Date;
     updatedAt: Date;
+   
 }

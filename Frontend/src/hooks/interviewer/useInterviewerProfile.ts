@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, type Resolver, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +15,11 @@ import {
 } from "../../../../Shared/contracts/interviewer/interviewerProfile.schema";
 
 export type { ProfileData } from "../../services/interviewerProfile.service";
+
+export type InterviewerProfileFeedback = {
+  variant: "success" | "error";
+  message: string;
+};
 
 const defaultValues: InterviewerProfileFormValues = {
   fullName: "",
@@ -153,6 +158,15 @@ export function useInterviewerProfile() {
   const [profileLoading, setProfileLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [profileFeedback, setProfileFeedback] = useState<InterviewerProfileFeedback | null>(null);
+  const navigateAfterDismissRef = useRef<string | null>(null);
+
+  const dismissProfileFeedback = useCallback(() => {
+    const path = navigateAfterDismissRef.current;
+    navigateAfterDismissRef.current = null;
+    setProfileFeedback(null);
+    if (path) navigate(path);
+  }, [navigate]);
 
   const form = useForm<InterviewerProfileFormValues>({
     // Ensure resolver type matches our form values even if the resolver
@@ -210,24 +224,33 @@ export function useInterviewerProfile() {
         if (profileData?.hasProfile) {
           setIsUpdating(true);
           await interviewerProfileService.updateProfile(payload);
-          alert("Profile updated successfully!");
+          setProfileFeedback({
+            variant: "success",
+            message: "Profile updated successfully!",
+          });
           setIsEditing(false);
           await fetchProfile();
         } else {
           setIsCreating(true);
           await interviewerProfileService.createProfile(payload);
-          alert("Profile created successfully!");
-          navigate(APP_ROUTES.INTERVIEWER_DASHBOARD);
+          navigateAfterDismissRef.current = APP_ROUTES.INTERVIEWER_DASHBOARD;
+          setProfileFeedback({
+            variant: "success",
+            message: "Profile created successfully!",
+          });
         }
       } catch (error: unknown) {
         const err = error as { response?: { data?: { error?: string } } };
-        alert(err?.response?.data?.error || "Failed to save profile");
+        setProfileFeedback({
+          variant: "error",
+          message: err?.response?.data?.error || "Failed to save profile",
+        });
       } finally {
         setIsCreating(false);
         setIsUpdating(false);
       }
     },
-    [profileData?.hasProfile, fetchProfile, navigate]
+    [profileData?.hasProfile, fetchProfile]
   );
 
   const getInitials = useCallback((name: string) => {
@@ -255,5 +278,7 @@ export function useInterviewerProfile() {
     handleArrayInput,
     onSubmit,
     getInitials,
+    profileFeedback,
+    dismissProfileFeedback,
   };
 }

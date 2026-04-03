@@ -8,6 +8,7 @@ import { AppError } from '../../../shared/errors/AppError';
 import { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository';
 import type { ILoginInputDTO, ILoginOutputDTO } from '../dtos/LoginDTO.js';
 import type { ILoginUseCase } from '../ports/usecase/ILoginUseCase';
+import { log } from 'node:console';
 
 @injectable()
 export class LoginUseCase implements ILoginUseCase {
@@ -22,9 +23,14 @@ export class LoginUseCase implements ILoginUseCase {
     const { email: emailStr, password } = input;
     const email = new Email(emailStr);
     const user = await this._userRepo.findByEmail(email);
+  
+
+    
     if (!user || !user.passwordHash) {
       throw AppError.unauthorized('Invalid email or password');
     }
+
+    
 
     if (!user.isEmailVerified) {
       throw AppError.forbidden('Email not verified');
@@ -42,6 +48,7 @@ export class LoginUseCase implements ILoginUseCase {
     if (!user.id) {
       throw AppError.internal('User ID is missing');
     }
+ 
 
     const accessToken = await this._tokenService.signAccessToken({
       userId: user.id,
@@ -57,6 +64,8 @@ export class LoginUseCase implements ILoginUseCase {
       email: user.email.getValue(),
       role: user.role.getValue(),
     };
+
+  
 
     return {
       user: userData,

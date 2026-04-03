@@ -16,7 +16,7 @@ export class MongoJobRepository
   }
 
   async listByCompanyId(companyId: string): Promise<Job[]> {
-    const cursor = this.collection.find({ companyId });
+    const cursor = this.collection.find({ companyId }).sort({createdAt:1});
     const docs = await cursor.toArray();
     return docs.map((doc) => this.toDomain(doc));
   }

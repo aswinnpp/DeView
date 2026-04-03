@@ -25,4 +25,5 @@ export interface IUserRepository {
   /** Lightweight list of active user IDs for broadcasting notifications. */
   listActiveUserIdsByRole(role: string): Promise<string[]>;
   save(user: User): Promise<void>;
+  
 }

@@ -86,6 +86,8 @@ export class MongoUserRepository
     return docs.map((d) => d._id?.toString()).filter((id): id is string => !!id);
   }
 
+ 
+
   protected toDomain(doc: IUserDocument): User {
     return new User(
       doc._id?.toString() || null,
@@ -96,7 +98,8 @@ export class MongoUserRepository
       doc.createdAt,
       doc.companyId,
       doc.isActive,
-      doc.isEmailVerified
+      doc.isEmailVerified,
+     
     );
   }
 
@@ -111,7 +114,8 @@ export class MongoUserRepository
       isActive: user.isActive,
       isEmailVerified: user.isEmailVerified,
       createdAt: user.createdAt,
-      updatedAt: user.createdAt
+      updatedAt: user.createdAt,
+      
     };
   }
 }

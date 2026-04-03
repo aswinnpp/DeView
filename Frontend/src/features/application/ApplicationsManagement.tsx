@@ -239,7 +239,6 @@ const HRApplicationsPage = () => {
                 setShowFeedbackPendingModal(true);
                 return false;
             }
-            alert(msg);
             return false;
         }
     };
@@ -300,7 +299,6 @@ const HRApplicationsPage = () => {
                 setShowFeedbackPendingModal(true);
                 return;
             }
-            alert(msg);
             return;
         }
 
@@ -1248,6 +1246,13 @@ const HRApplicationsPage = () => {
                                     ⏰ Reschedule Request
                                 </h4>
 
+                                <p style={{ color: '#94a3b8', fontSize: 13, margin: '0 0 12px' }}>
+                                    Requested by:{" "}
+                                    <span style={{ color: '#e2e8f0', fontWeight: 700 }}>
+                                        {selectedCandidate.rescheduleRequest ? "Candidate" : "Interviewer"}
+                                    </span>
+                                </p>
+
                                 {selectedCandidate.rescheduleRequest ? (
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                                         <div style={{ padding: 12, backgroundColor: '#0f172a', borderRadius: 8 }}>
@@ -1395,21 +1400,7 @@ const HRApplicationsPage = () => {
                             )}
                             {selectedCandidate.status === 'RESCHEDULE_REQUESTED' && (
                                 <>
-                                    <button
-                                        onClick={async () => {
-                                            try {
-                                                if (!selectedJob) return;
-                                                await applicationsService.declineRescheduleRequest(selectedJob.id, selectedCandidate.applicationId);
-                                                await refreshSelectedJobApplications();
-                                                setShowCandidateDetail(false);
-                                            } catch {
-                                                alert('Could not decline reschedule request. Please try again.');
-                                            }
-                                        }}
-                                        style={{ flex: 1, padding: 14, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
-                                    >
-                                        ✗ Decline
-                                    </button>
+                                 
                                     <button
                                         onClick={() => {
                                             handleScheduleInterview(selectedCandidate);
@@ -1820,7 +1811,6 @@ const HRApplicationsPage = () => {
                                     <button
                                         onClick={async () => {
                                             if (!selectedDate || !selectedTime) {
-                                                alert('Please select a date and time');
                                                 return;
                                             }
                                             try {
@@ -1829,7 +1819,6 @@ const HRApplicationsPage = () => {
                                                     selectedCandidate.status === 'RESCHEDULE_REQUESTED';
 
                                                 if (!selectedJob) {
-                                                    alert("No job selected");
                                                     return;
                                                 }
 
@@ -1957,9 +1946,7 @@ const HRApplicationsPage = () => {
                                                     setSelectedTime('');
                                                     setSelectedTimeIso('');
                                                     setInterviewerSlotsError('This slot is already booked. Please choose another time.');
-                                                } else {
-                                                    alert(rawMsg);
-                                                }
+                                                }                                                
                                             }
                                         }}
                                         disabled={!selectedDate || !selectedTime}

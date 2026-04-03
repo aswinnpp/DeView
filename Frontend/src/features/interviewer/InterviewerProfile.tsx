@@ -29,6 +29,8 @@ const InterviewerProfileSettings: React.FC = () => {
     onSubmit,
     getInitials,
     fetchProfile,
+    profileFeedback,
+    dismissProfileFeedback,
   } = useInterviewerProfile();
 
   const {
@@ -86,6 +88,17 @@ const InterviewerProfileSettings: React.FC = () => {
       if (profilePicPreviewUrl) URL.revokeObjectURL(profilePicPreviewUrl);
     };
   }, [profilePicPreviewUrl]);
+
+  useEffect(() => {
+    if (!profileFeedback) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") dismissProfileFeedback();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [profileFeedback, dismissProfileFeedback]);
 
   const closeCropModal = () => {
     setIsCropModalOpen(false);
@@ -811,6 +824,41 @@ const InterviewerProfileSettings: React.FC = () => {
           </div>
         </div>
       )}
+
+      {profileFeedback ? (
+        <div
+          className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/70 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="interviewer-profile-feedback-title"
+          onClick={() => dismissProfileFeedback()}
+        >
+          <div
+            className="w-full max-w-md rounded-xl border border-slate-200/10 bg-slate-900/95 p-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2
+              id="interviewer-profile-feedback-title"
+              className={`m-0 text-base font-bold ${
+                profileFeedback.variant === "success" ? "text-emerald-300" : "text-red-300"
+              }`}
+            >
+              {profileFeedback.variant === "success" ? "Success" : "Something went wrong"}
+            </h2>
+            <p className="m-0 mt-2 text-sm text-slate-300">{profileFeedback.message}</p>
+            <div className="mt-5 flex justify-end">
+              <Button
+                type="button"
+                variant={profileFeedback.variant === "success" ? "violet" : "secondary"}
+                onClick={() => dismissProfileFeedback()}
+                className="sm:min-w-[108px]"
+              >
+                OK
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <ChangePasswordModal
         isOpen={isChangePasswordModalOpen}
