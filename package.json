@@ -30,6 +30,7 @@
     "typescript-eslint": "^8.56.1"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@heroicons/react": "^2.2.0",
     "classnames": "^2.5.1",
     "react-cropper": "^2.3.3",
