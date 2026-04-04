@@ -3,6 +3,8 @@ import type {
   ICompanyProfileDashboardRow,
   ICompanyProfileRepository,
   ICompanyProfileSearchOptions,
+  ISubscriptionHistoryRow,
+  ISubscriptionHistorySearchOptions,
 } from "../../../../application/company/ports/repository/ICompanyProfileRepository";
 import {
   CompanyApproval,
@@ -113,6 +115,93 @@ export class MongoCompanyProfileRepository
         activeSubscriptionStatus: sub?.status ?? null,
       };
     });
+  }
+
+  async listSubscriptionHistory(
+    options?: ISubscriptionHistorySearchOptions,
+  ): Promise<{ data: ISubscriptionHistoryRow[]; total: number }> {
+    const { search, sortOrder = "desc", page = 1, limit = 10, status } = options ?? {};
+
+    // Build a pipeline that unwinds active + pending + history subscriptions
+    // and unions them into a single flat collection with company info
+    const pipeline: object[] = [
+      { $match: { status: "approved" } },
+      {
+        $project: {
+          companyName: 1,
+          allSubs: {
+            $concatArrays: [
+              { $cond: [{ $ifNull: ["$activeSubscription", false] }, [{ $mergeObjects: ["$activeSubscription", { _src: "active" }] }], []] },
+              { $ifNull: ["$pendingSubscriptions", []] },
+              { $ifNull: ["$subscriptionHistory", []] },
+            ],
+          },
+        },
+      },
+      { $unwind: "$allSubs" },
+      {
+        $project: {
+          subscriptionId: "$allSubs.id",
+          companyName: 1,
+          companyId: { $toString: "$_id" },
+          planName: "$allSubs.planName",
+          duration: "$allSubs.duration",
+          price: "$allSubs.price",
+          startAt: "$allSubs.startAt",
+          endsAt: "$allSubs.endsAt",
+          status: "$allSubs.status",
+          createdAt: "$allSubs.createdAt",
+        },
+      },
+    ];
+
+    // Optional status filter
+    if (status) {
+      pipeline.push({ $match: { status } });
+    }
+
+    // Optional search filter
+    if (search && search.trim()) {
+      const regex = search.trim();
+      pipeline.push({
+        $match: {
+          $or: [
+            { companyName: { $regex: regex, $options: "i" } },
+            { planName: { $regex: regex, $options: "i" } },
+          ],
+        },
+      });
+    }
+
+    // Count total before pagination
+    const countPipeline = [...pipeline, { $count: "total" }];
+    const countResult = await this.collection.aggregate(countPipeline).toArray();
+    const total = countResult.length > 0 ? (countResult[0] as { total: number }).total : 0;
+
+    // Sort and paginate
+    const sortDirection = sortOrder === "asc" ? 1 : -1;
+    pipeline.push({ $sort: { startAt: sortDirection } });
+
+    const skip = (Math.max(1, page) - 1) * limit;
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limit });
+
+    const docs = await this.collection.aggregate(pipeline).toArray();
+
+    const data: ISubscriptionHistoryRow[] = docs.map((d: Record<string, unknown>) => ({
+      subscriptionId: String(d.subscriptionId ?? ""),
+      companyName: String(d.companyName ?? ""),
+      companyId: String(d.companyId ?? ""),
+      planName: String(d.planName ?? ""),
+      duration: String(d.duration ?? ""),
+      price: Number(d.price ?? 0),
+      startAt: d.startAt ? new Date(d.startAt as string).toISOString() : "",
+      endsAt: d.endsAt ? new Date(d.endsAt as string).toISOString() : "",
+      status: String(d.status ?? ""),
+      createdAt: d.createdAt ? new Date(d.createdAt as string).toISOString() : "",
+    }));
+
+    return { data, total };
   }
 
   private subscriptionToDomain(

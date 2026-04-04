@@ -10,6 +10,7 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
   constructor(
     @inject(TYPES.CompanyProfileRepositoryPort) private _repo: ICompanyProfileRepository,
     @inject(TYPES.SubscriptionRepositoryPort) private _subscriptionRepo: ISubscriptionRepository,
+    
   ) {}
 
   async execute(userId: string) {
@@ -18,6 +19,7 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
     }
 
     const profile = await this._repo.findByUserId(userId);
+  
 
     if (!profile) {
       throw AppError.notFound("Company profile not found");

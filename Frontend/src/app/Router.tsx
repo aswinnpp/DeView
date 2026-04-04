@@ -38,6 +38,7 @@ const AdminCompanyRequestsPage = lazy(() => import("../features/admin/AdminCompa
 const AdminCompanyManagement = lazy(() => import("../features/admin/AdminCompanyManagement"));
 const AdminCandidatesPage = lazy(() => import("../features/admin/AdminCandidatesPage"));
 const AdminSubscriptionsPage = lazy(() => import("../features/admin/AdminSubscriptionsPage"));
+const AdminSubscriptionHistoryPage = lazy(() => import("../features/admin/AdminSubscriptionHistoryPage"));
 
 const HRLayout = lazy(() => import("../features/hr/HRLayout"));
 const RecruitmentDashboardPage = lazy(() => import("../features/dashboard"));
@@ -104,6 +105,7 @@ const AppRouter = () => {
             <Route path="companies" element={<AdminCompanyManagement />} />
             <Route path="candidates" element={<AdminCandidatesPage />} />
             <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
+            <Route path="subscription-history" element={<AdminSubscriptionHistoryPage />} />
 
           </Route>
 

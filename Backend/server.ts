@@ -35,6 +35,8 @@ const loggerConfig = useFileLogging
 async function bootstrap() {
   const fastify = Fastify({
     logger: loggerConfig,
+    /** Explicit cap for JSON bodies; profile payloads stay well under this after field limits. */
+    bodyLimit: 1048576,
   });
 
   await fastify.register(fastifyRawBody, {

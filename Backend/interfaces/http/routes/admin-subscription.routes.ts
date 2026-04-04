@@ -23,4 +23,9 @@ export async function subscriptionRoutes(
   fastify.patch("/subscription/:id/toggle-active", {
     handler: controller.toggle,
   });
+
+  fastify.get("/subscription-history", {
+    handler: controller.listHistory,
+  });
 }
+

@@ -2,7 +2,9 @@ import type { FastifyInstance } from "fastify";
 import { InterviewerProfileController } from "../controllers/interviewer-profile.controller.js";
 import { requireAuth, requireRoles } from "../middleware/authMiddleware.js";
 import {
+  createInterviewerProfileBodyParser,
   createInterviewerProfileSchema,
+  updateInterviewerProfileBodyParser,
   updateInterviewerProfileSchema,
 } from "../schemas/interviewer-profile.schema.js";
 
@@ -23,13 +25,13 @@ export async function interviewerProfileRoutes(
   });
 
   fastify.post("/profile", {
-    preHandler: requireRoles("interviewer"),
+    preHandler: [requireRoles("interviewer"), createInterviewerProfileBodyParser],
     schema: createInterviewerProfileSchema,
     handler: controller.createProfile,
   });
 
   fastify.patch("/profile", {
-    preHandler: requireRoles("interviewer"),
+    preHandler: [requireRoles("interviewer"), updateInterviewerProfileBodyParser],
     schema: updateInterviewerProfileSchema,
     handler: controller.updateProfile,
   });

@@ -9,3 +9,4 @@ export { useRejectCompanyModal } from './useRejectCompanyModal';
 
 export { useAdminCompanyManagement } from './useAdminCompanyManagement';
 export { useAdminSubscriptions } from './useAdminSubscriptions';
+export { useAdminSubscriptionHistory } from './useAdminSubscriptionHistory';

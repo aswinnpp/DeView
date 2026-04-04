@@ -15,6 +15,7 @@ import type {
   IAdminUpdateSubscriptionUsecase,
   IUpdateSubscriptionInput,
 } from "../../../application/admin/ports/usecase/IAdmin-UpdateSubscriptionUsecase";
+import type { ICompanyProfileRepository } from "../../../application/company/ports/repository/ICompanyProfileRepository";
 
 type CreateSubscriptionBody = ICreateSubscriptionInputDTO;
 type UpdateSubscriptionBody = IUpdateSubscriptionInput;
@@ -22,6 +23,14 @@ type ListSubscriptionsQuery = {
   search?: string;
   status?: "Active" | "Inactive";
   duration?: "Monthly" | "Quarterly" | "Annual";
+  sortOrder?: "asc" | "desc";
+  page?: string;
+  limit?: string;
+};
+
+type ListSubscriptionHistoryQuery = {
+  search?: string;
+  status?: "Active" | "Pending" | "Expired";
   sortOrder?: "asc" | "desc";
   page?: string;
   limit?: string;
@@ -38,6 +47,8 @@ export class AdminSubscriptionController {
     private readonly _toggleSubscriptionStatusUsecase: IAdminToggleSubscriptionStatusUsecase,
     @inject(TYPES.UpdateSubscriptionUsecasePort)
     private readonly _updateSubscriptionUsecase: IAdminUpdateSubscriptionUsecase,
+    @inject(TYPES.CompanyProfileRepositoryPort)
+    private readonly _companyProfileRepo: ICompanyProfileRepository,
   ) {}
 
   create = async (
@@ -85,4 +96,23 @@ export class AdminSubscriptionController {
       .status(HttpStatus.OK)
       .send(success(result));
   };
+
+  listHistory = async (
+    request: FastifyRequest<{ Querystring: ListSubscriptionHistoryQuery }>,
+    reply: FastifyReply,
+  ) => {
+    const { search, status, sortOrder, page, limit } = request.query;
+    const result = await this._companyProfileRepo.listSubscriptionHistory({
+      search,
+      status,
+      sortOrder,
+      page: page ? parseInt(page, 10) : 1,
+      limit: limit ? parseInt(limit, 10) : 10,
+    });
+
+    reply
+      .status(HttpStatus.OK)
+      .send(success(result));
+  };
 }
+

@@ -79,6 +79,7 @@ export const API_ROUTES = {
         SUBSCRIPTION_LIST: '/admin/company-requests/subscription',
         SUBSCRIPTION_TOGGLE: (id: string) => `/admin/company-requests/subscription/${id}/toggle-active`,
         SUBSCRIPTION_UPDATE: (id: string) => `/admin/company-requests/subscription/${id}`,
+        SUBSCRIPTION_HISTORY: '/admin/company-requests/subscription-history',
         DASHBOARD_STATS: '/admin/dashboard/stats',
         NOTIFICATIONS: {
             LIST: '/admin/notifications',

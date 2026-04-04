@@ -110,6 +110,7 @@ export function useCompanyProfile() {
         }
     }, [fetchProfile]);
 
+console.log(companyData);
 
 
     return {

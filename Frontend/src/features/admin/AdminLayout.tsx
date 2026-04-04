@@ -170,6 +170,13 @@ const AdminLayout = () => {
                             </NavLink>
 
                             <NavLink
+                                to="/admin/subscription-history"
+                                className={({ isActive }) => navLinkClass(isActive)}
+                            >
+                                Subscription History
+                            </NavLink>
+
+                            <NavLink
                                 to="/admin/candidates"
                                 className={({ isActive }) => navLinkClass(isActive)}
                             >
@@ -240,6 +247,13 @@ const AdminLayout = () => {
                                 className={({ isActive }) => navLinkClass(isActive)}
                             >
                                 Subscriptions
+                            </NavLink>
+
+                            <NavLink
+                                to="/admin/subscription-history"
+                                className={({ isActive }) => navLinkClass(isActive)}
+                            >
+                                Subscription History
                             </NavLink>
 
                             <NavLink
