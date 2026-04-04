@@ -85,13 +85,12 @@ async function bootstrap() {
 
 
 
-fastify.register(fastifyCookie, {
-  secret: "your-secret", // optional but recommended
-});
+
 
 
   
   await fastify.register(cookie);
+  fastify.register(fastifyCookie)
 
   if (!redisClient.isOpen) {
     await redisClient.connect();
