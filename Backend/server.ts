@@ -6,6 +6,7 @@ import multipart from '@fastify/multipart';
 import fastifyRawBody from 'fastify-raw-body';
 
 import { env } from './infrastructure/config/env.js';
+import { getHttpsCorsOriginSet, isAllowedBrowserOrigin } from './infrastructure/config/corsOrigins.js';
 import { initializeDatabase } from './infrastructure/database/index.js';
 import { registerHelmet } from './infrastructure/plugins/fastifyHelmet.js';
 import { registerErrorHandler } from './infrastructure/plugins/errorHandler.js';
@@ -56,25 +57,11 @@ async function bootstrap() {
   await registerHelmet(fastify);
   registerErrorHandler(fastify);
 
-  
-  const corsAllowedOrigins = new Set(
-    [
-      'https://deview.serveftp.com',
-      'https://deview.ddns.net',
-      env.FRONTEND_URL,
-      'http://localhost:5174',
-      'http://127.0.0.1:5174',
-    ].filter(Boolean),
-  );
+  const corsAllowedOrigins = getHttpsCorsOriginSet(fastify.log);
 
   await fastify.register(cors, {
     origin: (origin, cb) => {
-      if (!origin) {
-        cb(null, true);
-        return;
-      }
-      const normalized = origin.replace(/\/$/, '');
-      if (corsAllowedOrigins.has(origin) || corsAllowedOrigins.has(normalized)) {
+      if (isAllowedBrowserOrigin(origin, corsAllowedOrigins)) {
         cb(null, true);
         return;
       }
@@ -107,7 +94,7 @@ async function bootstrap() {
   const controllers = getControllers(ioc);
   await registerRoutes(fastify, controllers);
 
-  createInterviewSocketServer(fastify, env.FRONTEND_URL);
+  createInterviewSocketServer(fastify);
 
   const gracefulShutdown = async () => {
     await redisClient.disconnect();
