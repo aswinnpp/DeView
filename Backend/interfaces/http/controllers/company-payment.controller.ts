@@ -49,14 +49,45 @@ export class CompanyPaymentController {
   };
 
   handleWebhook = async (request: FastifyRequest, reply: FastifyReply) => {
-    const signature = request.headers['stripe-signature'] as string;
-    const rawBody = (request as { rawBody?: Buffer | string })?.rawBody as Buffer | string;
+    const signature = request.headers['stripe-signature'];
+    if (!signature || typeof signature !== 'string') {
+      request.log.warn('Stripe webhook: missing stripe-signature header');
+      return reply.status(400).send({ error: 'Missing stripe-signature' });
+    }
 
-   
+    const rawBody = (request as { rawBody?: Buffer | string }).rawBody;
+    if (rawBody === undefined || rawBody === null) {
+      request.log.error(
+        { url: request.url },
+        'Stripe webhook: rawBody missing (fastify-raw-body must run for POST /webhooks/stripe)',
+      );
+      return reply.status(500).send({ error: 'Webhook body not captured' });
+    }
 
-    const event = stripe.webhooks.constructEvent(rawBody, signature, env.STRIPE_WEBHOOK_SECRET as string);
+    const secret = env.STRIPE_WEBHOOK_SECRET;
+    if (!secret) {
+      request.log.error('Stripe webhook: STRIPE_WEBHOOK_SECRET is not set');
+      return reply.status(500).send({ error: 'Webhook not configured' });
+    }
+
+    const payload = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(String(rawBody), 'utf8');
+
+    let event: ReturnType<typeof stripe.webhooks.constructEvent>;
+    try {
+      event = stripe.webhooks.constructEvent(payload, signature, secret);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      request.log.warn({ errMsg: msg }, 'Stripe webhook: signature verification failed');
+      return reply.status(400).send({ error: 'Invalid signature' });
+    }
+
     const input = PaymentMapper.toHandlePaymentWebhookInputFromEvent(event);
-    await (input ? this._handlePaymentWebhookUseCase.execute(input) : Promise.resolve());
+    try {
+      await (input ? this._handlePaymentWebhookUseCase.execute(input) : Promise.resolve());
+    } catch (err) {
+      request.log.error({ err }, 'Stripe webhook: handler error');
+      return reply.status(500).send({ error: 'Webhook handler failed' });
+    }
 
     return reply.status(200).send({ received: true });
   };

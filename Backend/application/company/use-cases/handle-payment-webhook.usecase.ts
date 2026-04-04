@@ -7,8 +7,6 @@ import type {
 import type { IPaymentRepository } from '../ports/repository/IPaymentRepository.js';
 import type { ICompanyProfileRepository } from '../ports/repository/ICompanyProfileRepository.js';
 import type { ISubscriptionRepository } from '../../admin/ports/repository/ISubscriptionRepository.js';
-import { AppError } from '../../../shared/errors/AppError.js';
-
 @injectable()
 export class HandlePaymentWebhookUseCase implements IHandlePaymentWebhookUseCase {
   constructor(
@@ -25,7 +23,11 @@ export class HandlePaymentWebhookUseCase implements IHandlePaymentWebhookUseCase
 
     const payment = await this._paymentRepository.findByStripePaymentIntentId(paymentIntentId);
     if (!payment) {
-      throw AppError.notFound(`Payment not found for intent ${paymentIntentId}`);
+      // Avoid 4xx/5xx loops on Stripe retries: wrong env (test vs live), old events, or DB mismatch.
+      console.warn(
+        `[Stripe webhook] No local payment row for intent ${paymentIntentId}; event=${eventType}`,
+      );
+      return;
     }
 
     const companyId = payment.companyId || input.companyId;

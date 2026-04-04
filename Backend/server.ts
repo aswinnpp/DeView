@@ -42,7 +42,8 @@ async function bootstrap() {
   await fastify.register(fastifyRawBody, {
     field: 'rawBody',
     global: false,
-    encoding: 'utf8',
+    /** Buffer preserves exact bytes for Stripe `constructEvent` signature verification. */
+    encoding: false,
     runFirst: true,
   });
 
