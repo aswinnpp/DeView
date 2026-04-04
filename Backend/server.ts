@@ -35,6 +35,12 @@ const loggerConfig = useFileLogging
 async function bootstrap() {
   const fastify = Fastify({
     logger: loggerConfig,
+    /**
+     * TLS often ends at nginx/ALB; without this, `request.protocol` stays `http` and
+     * auth cookies would be set as non-Secure — browsers then drop them on cross-site
+     * requests (e.g. deview.serveftp.com → API on deview.ddns.net).
+     */
+    trustProxy: true,
     /** Explicit cap for JSON bodies; profile payloads stay well under this after field limits. */
     bodyLimit: 1048576,
   });
