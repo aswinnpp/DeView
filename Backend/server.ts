@@ -50,18 +50,32 @@ async function bootstrap() {
   registerErrorHandler(fastify);
 
   
-  await fastify.register(cors, {
-    origin: [
+  const corsAllowedOrigins = new Set(
+    [
       'https://deview.serveftp.com',
       'https://deview.ddns.net',
       env.FRONTEND_URL,
-      // Local Vite dev (optional; safe to keep for development)
       'http://localhost:5174',
       'http://127.0.0.1:5174',
-    ],
+    ].filter(Boolean),
+  );
+
+  await fastify.register(cors, {
+    origin: (origin, cb) => {
+      if (!origin) {
+        cb(null, true);
+        return;
+      }
+      const normalized = origin.replace(/\/$/, '');
+      if (corsAllowedOrigins.has(origin) || corsAllowedOrigins.has(normalized)) {
+        cb(null, true);
+        return;
+      }
+      cb(null, false);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     exposedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
   });
 

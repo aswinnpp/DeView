@@ -61,7 +61,9 @@ function validateEnv(): IEnvConfig {
         JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
         JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET!,
         NODE_ENV: process.env.NODE_ENV || 'development',
-        FRONTEND_URL: process.env.FRONTEND_URL || 'https://deview.serveftp.com',
+        FRONTEND_URL: (process.env.FRONTEND_URL || 'https://deview.serveftp.com')
+            .trim()
+            .replace(/\/$/, ''),
         REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
         COMPILER_URL: process.env.COMPILER_URL || process.env.JUDGE0_URL || 'https://ce.judge0.com',
         COMPILER_AUTH_TOKEN: process.env.COMPILER_AUTH_TOKEN,
