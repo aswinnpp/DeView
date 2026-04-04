@@ -17,9 +17,18 @@ export function createInterviewSocketServer(
   const io = new SocketIOServer(httpServer, {
     cors: {
       origin: (origin, callback) => {
-        const allowed = ['http://localhost:5174', frontendUrl];
+        const normalized = (u: string) => u.replace(/\/$/, '');
+        const allowed = new Set(
+          [
+            normalized(frontendUrl),
+            'https://deview.serveftp.com',
+            'https://deview.ddns.net',
+            'http://localhost:5174',
+            'http://127.0.0.1:5174',
+          ].filter(Boolean),
+        );
 
-        if (!origin || allowed.includes(origin)) {
+        if (!origin || allowed.has(origin)) {
           callback(null, true);
         } else {
           callback(new Error('CORS not allowed'));

@@ -52,11 +52,12 @@ async function bootstrap() {
   
   await fastify.register(cors, {
     origin: [
-      'http://localhost:5174',
-      'https://deview.ddns.net',
       'https://deview.serveftp.com',
-      'https://elizebeth-ungreeted-noncapitalistically.ngrok-free.dev',
-      env.FRONTEND_URL
+      'https://deview.ddns.net',
+      env.FRONTEND_URL,
+      // Local Vite dev (optional; safe to keep for development)
+      'http://localhost:5174',
+      'http://127.0.0.1:5174',
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
