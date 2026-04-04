@@ -55,7 +55,7 @@ const AdminSubscriptionHistoryPage = () => {
         <div className="max-w-[1400px] mx-auto w-full min-w-0 px-3 py-5 sm:px-4 sm:py-6">
             <header className="mb-6 max-md:mb-5">
                 <h1 className="m-0 text-[28px] max-md:text-[22px] font-bold text-slate-50">
-                    Subscription History
+                    Subscription Histor
                 </h1>
                 <p className="mt-2 mb-0 text-sm max-md:text-xs text-slate-400">
                     View all subscription records across companies — active, pending, and expired.
