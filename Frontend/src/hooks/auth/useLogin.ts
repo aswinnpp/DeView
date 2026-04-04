@@ -8,6 +8,7 @@ import { candidateService } from '../../services/candidate.service';
 
 import { loginRequestSchema, type LoginRequest } from '@shared/contracts/auth/login';
 import { setUser } from '../../context/authSlice';
+import { setAuthTokens } from '../../utils/authTokens';
 import type { AppDispatch } from '../../context/store';
 import { extractApiError } from '../../api/axios';
 import { APP_ROUTES } from '../../constants/routes';
@@ -67,7 +68,9 @@ export function useLogin() {
 
       const result = response.data;
 
-
+      if (result.accessToken && result.refreshToken) {
+        setAuthTokens(result.accessToken, result.refreshToken);
+      }
 
       const user = result.user;
       dispatch(setUser(user));

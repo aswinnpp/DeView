@@ -87,24 +87,37 @@ export class AuthController {
     setAccessTokenCookie(request, reply, result.accessToken);
     setRefreshTokenCookie(request, reply, result.refreshToken);
 
-    reply.send(success({ user: result.user }));
+    reply.send(
+      success({
+        user: result.user,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      })
+    );
   };
 
   // ---------------- REFRESH ----------------
 
   refresh = async (request: FastifyRequest, reply: FastifyReply) => {
-    const refreshToken = getCookie(request, "refreshToken");
+    const body = request.body as { refreshToken?: string } | undefined;
+    const refreshToken = body?.refreshToken ?? getCookie(request, "refreshToken");
     const result = await this._refreshTokenUseCase.execute(refreshToken);
 
     setAccessTokenCookie(request, reply, result.accessToken);
     setRefreshTokenCookie(request, reply, result.newRefreshToken);
 
-    reply.send(success({ success: true }));
+    reply.send(
+      success({
+        accessToken: result.accessToken,
+        refreshToken: result.newRefreshToken,
+      })
+    );
   };
 
   logout = async (request: FastifyRequest, reply: FastifyReply) => {
-    const refreshToken = getCookie(request, "refreshToken");
-    const accessToken = getCookie(request, "accessToken");
+    const body = request.body as { refreshToken?: string; accessToken?: string } | undefined;
+    const refreshToken = body?.refreshToken ?? getCookie(request, "refreshToken");
+    const accessToken = body?.accessToken ?? getCookie(request, "accessToken");
 
     const result = await this._logoutUseCase.execute(refreshToken, accessToken);
 

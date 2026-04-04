@@ -1,10 +1,14 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 
-/** Production HTTPS API + cross-site SPA: SameSite=None requires Secure. */
+/**
+ * Cross-site SPA (e.g. serveftp.com) → API (ddns.net): None + Secure.
+ * `Partitioned` (CHIPS) improves storage when the browser limits third-party cookies.
+ */
 const authCookieOptions = {
   httpOnly: true,
   sameSite: "none" as const,
   secure: true,
+  partitioned: true,
   path: "/",
 } as const;
 

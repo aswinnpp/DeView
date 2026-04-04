@@ -1,11 +1,14 @@
 import { api } from '../api/axios';
 import { API_ROUTES } from '../constants/routes';
+import { getAccessToken, getRefreshToken } from '../utils/authTokens';
 
 // ─── Types ──────────────────────────────────────────────────────
 
 export type LoginPayload = { email: string; password: string };
 export type LoginResponse = {
     user: { id: string; fullName: string; email: string; role: string };
+    accessToken: string;
+    refreshToken: string;
 };
 
 export type RegisterPayload = {
@@ -37,7 +40,8 @@ export type ChangePasswordResponse = { message?: string };
 
 export type GoogleExchangeResponse = {
     user: { id: string; fullName: string; email: string; role: string };
-    role: string;
+    accessToken: string;
+    refreshToken: string;
 };
 
 export type CompanyStatusResponse = {
@@ -96,6 +100,9 @@ export const authService = {
     },
 
     logout() {
-        return api.post(API_ROUTES.AUTH.LOGOUT);
+        return api.post(API_ROUTES.AUTH.LOGOUT, {
+            refreshToken: getRefreshToken() ?? undefined,
+            accessToken: getAccessToken() ?? undefined,
+        });
     },
 };

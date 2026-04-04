@@ -17,15 +17,15 @@ declare module "fastify" {
 
 
 async function attachUser(request: FastifyRequest) {
- 
-  const token = getCookie(request, "accessToken");
-
-
-  if (token && !request.headers.authorization) {
-    request.headers.authorization = `Bearer ${token}`;
+  const authHeader = request.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    const fromCookie = getCookie(request, "accessToken");
+    if (fromCookie) {
+      request.headers.authorization = `Bearer ${fromCookie}`;
+    }
   }
 
-  if (!request.headers.authorization) {
+  if (!request.headers.authorization?.startsWith("Bearer ")) {
     throw AppError.unauthorized("Authentication required - please login");
   }
 
