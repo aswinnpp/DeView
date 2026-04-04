@@ -9,7 +9,6 @@ import { AppError } from '../../../shared/errors/AppError.js';
 import type { IUserRepository } from '../../shared/ports/repository/IUserRepository.js';
 import type { INotificationRepository } from '../../notification/ports/repository/INotificationRepository.js';
 import type { INotificationPublisher } from '../../notification/ports/service/INotificationPublisher.js';
-import { create } from 'node:domain';
 
 
 @injectable()
@@ -34,17 +33,7 @@ export class CreateJobUseCase implements ICreateJobUseCase {
 
 
 
-    const jobs = await this._repo.listByCompanyId(dto.companyId)
-
-    console.log(jobs[0]);
-    const created = new Date(jobs[0].createdAt)
-    const diff = created.getTime() - now.getTime()
-
-  if( diff < 24*60*60*1000){
-  throw AppError.conflict("one job allow per day")
-  console.log("sdss");
   
-  }
    
 
     const job = new Job(
