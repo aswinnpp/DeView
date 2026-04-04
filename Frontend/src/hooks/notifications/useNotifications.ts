@@ -45,7 +45,19 @@ export function useNotifications(scope: NotificationScope) {
   useEffect(() => {
     if (!recipient.id) return;
 
-    const socket: Socket = io(window.location.origin, { withCredentials: true });
+    const socketEnv = import.meta.env.VITE_SOCKET_URL?.trim();
+    const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() ?? "";
+    const socketUrl = (() => {
+      if (socketEnv) {
+        const raw = socketEnv.includes("://") ? socketEnv : `https://${socketEnv}`;
+        return new URL(raw).origin;
+      }
+      if (apiBase.startsWith("/")) return window.location.origin;
+      if (apiBase.startsWith("http")) return new URL(apiBase).origin;
+      return window.location.origin;
+    })();
+
+    const socket: Socket = io(socketUrl, { withCredentials: true });
 
     socket.on("connect", () => {
       if (recipient.kind === "company") socket.emit("join-company-notifications", { companyId: recipient.id });
