@@ -15,9 +15,6 @@ import { registerRoutes } from './infrastructure/di/routes.js';
 import { redisClient } from './infrastructure/cache/RedisClient.js';
 import { getFileLogStream } from './infrastructure/logging/fileLogger.js';
 import { createInterviewSocketServer } from './infrastructure/socket/interviewSocket.js';
-import fastifyCookie from "@fastify/cookie";
-
-
 
 const useFileLogging = env.LOG_TO_FILE === 'true' ;
 
@@ -83,14 +80,8 @@ async function bootstrap() {
     exposedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
   });
 
-
-
-
-
-
   
   await fastify.register(cookie);
-  fastify.register(fastifyCookie)
 
   if (!redisClient.isOpen) {
     await redisClient.connect();

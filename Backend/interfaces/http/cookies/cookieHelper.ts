@@ -1,54 +1,45 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 
+function isHttpsRequest(request: FastifyRequest): boolean {
+  const xfProto = request.headers["x-forwarded-proto"];
+  const proto = (Array.isArray(xfProto) ? xfProto[0] : xfProto) ?? (request.protocol as string | undefined);
+  return proto === "https";
+}
 
-function cookieBase() {
+
+function cookieBase(request: FastifyRequest) {
+  const https = isHttpsRequest(request);
   return {
     httpOnly: true,
-    sameSite: "none" as const,
-    secure: true,
+    sameSite: (https ? "none" : "lax") as "lax" | "none",
+    secure: https,
     path: "/",
   };
 }
 
-/**
- * Get cookie
- */
+
 export function getCookie(request: FastifyRequest, name: string): string | undefined {
   return request.cookies[name];
 }
 
-/**
- * Set Access Token (short-lived)
- */
-export function setAccessTokenCookie(
-  reply: FastifyReply,
-  token: string
-) {
+export function setAccessTokenCookie(request: FastifyRequest, reply: FastifyReply, token: string) {
   reply.setCookie("accessToken", token, {
-    ...cookieBase(),
-
-    maxAge: 60 * 15, // 15 minutes
+    ...cookieBase(request),
+    maxAge: 900,  
   });
 }
 
 
-export function setRefreshTokenCookie(
-  reply: FastifyReply,
-  token: string
-) {
+export function setRefreshTokenCookie(request: FastifyRequest, reply: FastifyReply, token: string) {
   reply.setCookie("refreshToken", token, {
-    ...cookieBase(),
-
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    ...cookieBase(request),
+    maxAge: 604800,  
   });
 }
 
 
-export function clearCookie(
-  reply: FastifyReply,
-  name: string
-) {
+export function clearCookie(request: FastifyRequest, reply: FastifyReply, name: string) {
   reply.clearCookie(name, {
-    ...cookieBase(),
+    ...cookieBase(request),
   });
 }
