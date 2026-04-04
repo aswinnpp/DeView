@@ -15,6 +15,7 @@ import type {
   IUpdateApplicationStatusOutputDTO,
 } from '../dtos/ApplicationStatusDTO.js';
 import { AppError } from '../../../shared/errors/AppError.js';
+import { ApplicationMapper } from '../mappers/ApplicationMapper.js';
 
 @injectable()
 export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusUseCase {
@@ -169,6 +170,6 @@ export class UpdateApplicationStatusUseCase implements IUpdateApplicationStatusU
       });
     }
 
-    return { application: updated };
+    return { application: ApplicationMapper.toView(updated) };
   }
 }

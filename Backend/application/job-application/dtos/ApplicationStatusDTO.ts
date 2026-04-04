@@ -1,6 +1,7 @@
 /** Application status update — input + output in one module. */
 
-import type { Application, ApplicationStatus } from '../../../domain/entities/Application.js';
+import type { ApplicationStatus } from '../../../domain/entities/Application.js';
+import type { ApplicationView } from './ApplicationView.js';
 
 export interface IUpdateApplicationStatusInputDTO {
   applicationId: string;
@@ -16,5 +17,5 @@ export interface IUpdateApplicationStatusInputDTO {
 }
 
 export interface IUpdateApplicationStatusOutputDTO {
-  application: Application;
+  application: ApplicationView;
 }

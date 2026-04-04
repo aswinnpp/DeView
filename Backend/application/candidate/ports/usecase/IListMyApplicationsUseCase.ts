@@ -1,5 +1,5 @@
-import type { Application } from '../../../../domain/entities/Application.js';
 import type { ApplicationStatus } from '../../../../domain/entities/Application.js';
+import type { ApplicationView } from '../../../job-application/dtos/ApplicationView.js';
 
 export interface IListMyApplicationsInput {
   candidateUserId: string;
@@ -11,7 +11,7 @@ export interface IListMyApplicationsInput {
 }
 
 export interface IListMyApplicationsResult {
-  data: Application[];
+  data: ApplicationView[];
   total: number;
 }
 

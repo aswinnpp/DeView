@@ -2,8 +2,9 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IApplicationRepository } from '../ports/repository/IApplicationRepository.js';
 import type { IInterviewRepository } from '../../interview/ports/repository/IInterviewRepository.js';
-import type { Application } from '../../../domain/entities/Application.js';
+import type { ApplicationView } from '../dtos/ApplicationView.js';
 import { AppError } from '../../../shared/errors/AppError.js';
+import { ApplicationMapper } from '../mappers/ApplicationMapper.js';
 
 export interface IDeclineRescheduleRequestInput {
   companyId: string;
@@ -12,7 +13,7 @@ export interface IDeclineRescheduleRequestInput {
 }
 
 export interface IDeclineRescheduleRequestUseCase {
-  execute(input: IDeclineRescheduleRequestInput): Promise<{ application: Application }>;
+  execute(input: IDeclineRescheduleRequestInput): Promise<{ application: ApplicationView }>;
 }
 
 @injectable()
@@ -24,7 +25,7 @@ export class DeclineRescheduleRequestUseCase implements IDeclineRescheduleReques
     private readonly _interviewRepository: IInterviewRepository
   ) {}
 
-  async execute(input: IDeclineRescheduleRequestInput): Promise<{ application: Application }> {
+  async execute(input: IDeclineRescheduleRequestInput): Promise<{ application: ApplicationView }> {
     const { companyId, jobId, applicationId } = input;
 
     const updated = await this._applicationRepository.updateStatus({
@@ -43,6 +44,6 @@ export class DeclineRescheduleRequestUseCase implements IDeclineRescheduleReques
       await this._interviewRepository.declineCandidateRejection(existing.id);
     }
 
-    return { application: updated };
+    return { application: ApplicationMapper.toView(updated) };
   }
 }

@@ -5,6 +5,7 @@ import type { ICounterLetterRepository } from '../../job-application/ports/repos
 import type { OfferMail } from '../../../domain/entities/OfferMail.js';
 import type { CounterLetter } from '../../../domain/entities/CounterLetter.js';
 import { AppError } from '../../../shared/errors/AppError.js';
+import { ApplicationMapper } from '../../job-application/mappers/ApplicationMapper.js';
 
 export interface ISubmitOfferCounterLetterResult {
   offer: OfferMail;
@@ -29,7 +30,7 @@ export class SubmitOfferCounterLetterUseCase {
     startDate?: string;
     benefits?: string;
     positionTitle?: string;
-  }): Promise<ISubmitOfferCounterLetterResult> {
+  }): Promise<ReturnType<(typeof ApplicationMapper)['toSubmitOfferCounterView']>> {
     const letter = input.letter?.trim() ?? '';
     if (!letter) {
       throw AppError.badRequest('Counter letter is required');
@@ -99,6 +100,6 @@ export class SubmitOfferCounterLetterUseCase {
       throw AppError.notFound('Offer not found or a counter reply is not allowed for this offer');
     }
 
-    return { offer: updated, counter };
+    return ApplicationMapper.toSubmitOfferCounterView({ offer: updated, counter });
   }
 }

@@ -59,3 +59,5 @@ export const CompanyProfileMapper = {
     };
   },
 };
+
+export type CompanyProfileDataResponse = ReturnType<(typeof CompanyProfileMapper)['toProfileResponse']>;

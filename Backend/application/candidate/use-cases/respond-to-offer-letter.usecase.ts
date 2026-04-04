@@ -3,6 +3,7 @@ import { TYPES } from '../../../shared/di/types.js';
 import type { IOfferMailRepository } from '../../job-application/ports/repository/IOfferMailRepository.js';
 import type { OfferMail } from '../../../domain/entities/OfferMail.js';
 import { AppError } from '../../../shared/errors/AppError.js';
+import { ApplicationMapper } from '../../job-application/mappers/ApplicationMapper.js';
 
 export type OfferResponseAction = 'accept' | 'decline';
 
@@ -17,7 +18,7 @@ export class RespondToOfferLetterUseCase {
     candidateUserId: string;
     offerMailId: string;
     action: OfferResponseAction;
-  }): Promise<OfferMail> {
+  }): Promise<ReturnType<(typeof ApplicationMapper)['toOfferSummaryView']>> {
     const action = input.action;
     if (action === 'accept') {
       throw AppError.badRequest(
@@ -49,6 +50,6 @@ export class RespondToOfferLetterUseCase {
       throw AppError.badRequest('This offer is no longer awaiting your response');
     }
 
-    return updated;
+    return ApplicationMapper.toOfferSummaryView(updated);
   }
 }

@@ -22,12 +22,12 @@ export class DashboardStatsController {
   ) => {
     const input = AdminDashboardStatsMapper.toInputDTO(request.query?.period);
     const result = await this._adminDashboardStats.execute(input);
-    reply.send(success(AdminDashboardStatsMapper.toHttpBody(result)));
+    reply.send(success(result));
   };
 
   getCompanyDashboardStats = async (request: FastifyRequest, reply: FastifyReply) => {
     const input = CompanyDashboardStatsMapper.toInputDTO(request.currentUser);
     const result = await this._companyDashboardStats.execute(input);
-    reply.send(success(CompanyDashboardStatsMapper.toHttpBody(result)));
+    reply.send(success(result));
   };
 }

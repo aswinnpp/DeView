@@ -6,6 +6,7 @@ import type {
   IListMyApplicationsResult,
   IListMyApplicationsUseCase,
 } from '../ports/usecase/IListMyApplicationsUseCase.js';
+import { ApplicationMapper } from '../../job-application/mappers/ApplicationMapper.js';
 
 @injectable()
 export class ListMyApplicationsUseCase implements IListMyApplicationsUseCase {
@@ -23,7 +24,7 @@ export class ListMyApplicationsUseCase implements IListMyApplicationsUseCase {
       limit,
       sortOrder,
     });
-    return { data, total };
+    return { data: ApplicationMapper.toListView(data), total };
   }
 }
 

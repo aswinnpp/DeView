@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IInterviewRepository } from '../../interview/ports/repository/IInterviewRepository.js';
 import type { IScheduleInterviewUseCase, IScheduleInterviewInput } from './schedule-interview.usecase.js';
-import type { Application } from '../../../domain/entities/Application.js';
+import type { ApplicationView } from '../dtos/ApplicationView.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 
 export interface IRescheduleInterviewInput {
@@ -20,7 +20,7 @@ export interface IRescheduleInterviewInput {
 }
 
 export interface IRescheduleInterviewUseCase {
-  execute(input: IRescheduleInterviewInput): Promise<{ application: Application }>;
+  execute(input: IRescheduleInterviewInput): Promise<{ application: ApplicationView }>;
 }
 
 @injectable()
@@ -30,8 +30,8 @@ export class RescheduleInterviewUseCase implements IRescheduleInterviewUseCase {
     @inject(TYPES.ScheduleInterviewUseCasePort) private readonly _scheduleInterviewUseCase: IScheduleInterviewUseCase,
   ) {}
 
-  async execute(input: IRescheduleInterviewInput): Promise<{ application: Application }> {
-    try {
+  async execute(input: IRescheduleInterviewInput): Promise<{ application: ApplicationView }> {
+  
       const existing = await this._interviewRepository.findActiveByApplicationId(input.applicationId);
       if (!existing) {
         throw AppError.notFound('Active interview not found for rescheduling');
@@ -53,13 +53,7 @@ export class RescheduleInterviewUseCase implements IRescheduleInterviewUseCase {
       };
 
       return this._scheduleInterviewUseCase.execute(scheduleInput);
-    } catch (e: unknown) {
-      // Keep known application errors (400/404/409/etc) as-is.
-      if (e instanceof AppError) throw e;
-
-      const message = e instanceof Error ? e.message : 'Reschedule failed';
-      throw AppError.internal(message);
-    }
+    
   }
 }
 

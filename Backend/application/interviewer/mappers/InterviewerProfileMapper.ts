@@ -36,6 +36,11 @@ export interface InterviewerProfileView {
   profilePicUrl: string;
 }
 
+export type InterviewerProfileStateResponse = {
+  hasProfile: boolean;
+  data?: InterviewerProfileView;
+};
+
 export function toView(profile: InterviewerProfile): InterviewerProfileView {
   const educationList =
     profile.educationList?.length && profile.educationList.length > 0
@@ -87,10 +92,7 @@ export function toView(profile: InterviewerProfile): InterviewerProfileView {
   };
 }
 
-export function toProfileStateView(profile: InterviewerProfile | null): {
-  hasProfile: boolean;
-  data?: InterviewerProfileView;
-} {
+export function toProfileStateView(profile: InterviewerProfile | null): InterviewerProfileStateResponse {
   return {
     hasProfile: profile !== null,
     data: profile ? toView(profile) : undefined,

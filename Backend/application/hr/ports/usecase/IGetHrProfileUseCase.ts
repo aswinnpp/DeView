@@ -1,5 +1,5 @@
-import type { HrProfile } from "../../../../domain/entities/HrProfile";
+import type { HrProfileStateResponse } from "../../mappers/HrProfileMapper";
 
 export interface IGetHrProfileUseCase {
-  execute(userId: string): Promise<HrProfile | null>;
+  execute(userId: string): Promise<HrProfileStateResponse>;
 }

@@ -6,12 +6,10 @@ import { TYPES } from "../../../infrastructure/di/types";
 import type { IGetInterviewerProfileUseCase } from "../../../application/interviewer/ports/usecase/IGetInterviewerProfileUseCase";
 import type { ICreateInterviewerProfileUseCase } from "../../../application/interviewer/ports/usecase/ICreateInterviewerProfileUseCase";
 import type { IUpdateInterviewerProfileUseCase } from "../../../application/interviewer/ports/usecase/IUpdateInterviewerProfileUseCase";
-import type { IFileStorage } from "../../../application/upload/ports/services/IFileStorage.js";
+import type { IGetInterviewerProfilePicViewUrlUseCase } from "../../../application/interviewer/ports/usecase/IGetInterviewerProfilePicViewUrlUseCase";
 import {
-  toProfileStateView,
   toCreateDTO,
   toUpdateDTO,
-  toProfilePicStorageKey,
   type InterviewerProfileView,
 } from "../../../application/interviewer/mappers/InterviewerProfileMapper";
 
@@ -24,14 +22,14 @@ export class InterviewerProfileController {
     private readonly _createProfileUseCase: ICreateInterviewerProfileUseCase,
     @inject(TYPES.UpdateInterviewerProfileUseCasePort)
     private readonly _updateProfileUseCase: IUpdateInterviewerProfileUseCase,
-    @inject(TYPES.FileStoragePort)
-    private readonly _fileStorage: IFileStorage
+    @inject(TYPES.GetInterviewerProfilePicViewUrlUseCasePort)
+    private readonly _getInterviewerProfilePicViewUrlUseCase: IGetInterviewerProfilePicViewUrlUseCase
   ) {}
 
   getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
     const userId = request.currentUser!.userId;
-    const profile = await this._getProfileUseCase.execute(userId);
-    reply.send(success(toProfileStateView(profile)));
+    const data = await this._getProfileUseCase.execute(userId);
+    reply.send(success(data));
   };
 
   createProfile = async (
@@ -56,9 +54,7 @@ export class InterviewerProfileController {
 
   getProfilePicViewUrl = async (request: FastifyRequest, reply: FastifyReply) => {
     const userId = request.currentUser!.userId;
-    const profile = await this._getProfileUseCase.execute(userId);
-    const key = toProfilePicStorageKey(profile);
-    const url = await this._fileStorage.getSignedViewUrl(key, 3600);
+    const { url } = await this._getInterviewerProfilePicViewUrlUseCase.execute(userId);
     reply.send(success({ url }));
   };
 }

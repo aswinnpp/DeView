@@ -6,12 +6,10 @@ import { TYPES } from "../../../infrastructure/di/types";
 import type { IGetHrProfileUseCase } from "../../../application/hr/ports/usecase/IGetHrProfileUseCase";
 import type { ICreateHrProfileUseCase } from "../../../application/hr/ports/usecase/ICreateHrProfileUseCase";
 import type { IUpdateHrProfileUseCase } from "../../../application/hr/ports/usecase/IUpdateHrProfileUseCase";
-import type { IFileStorage } from "../../../application/upload/ports/services/IFileStorage.js";
+import type { IGetHrProfilePicViewUrlUseCase } from "../../../application/hr/ports/usecase/IGetHrProfilePicViewUrlUseCase";
 import {
-  toProfileStateView,
   toCreateDTO,
   toUpdateDTO,
-  toProfilePicStorageKey,
   type HrProfileView,
 } from "../../../application/hr/mappers/HrProfileMapper";
 
@@ -24,14 +22,14 @@ export class HrProfileController {
     private readonly _createProfileUseCase: ICreateHrProfileUseCase,
     @inject(TYPES.UpdateHrProfileUseCasePort)
     private readonly _updateProfileUseCase: IUpdateHrProfileUseCase,
-    @inject(TYPES.FileStoragePort)
-    private readonly _fileStorage: IFileStorage
+    @inject(TYPES.GetHrProfilePicViewUrlUseCasePort)
+    private readonly _getHrProfilePicViewUrlUseCase: IGetHrProfilePicViewUrlUseCase
   ) {}
 
   getProfile = async (request: FastifyRequest, reply: FastifyReply) => {
     const userId = request.currentUser!.userId;
-    const profile = await this._getProfileUseCase.execute(userId);
-    reply.send(success(toProfileStateView(profile)));
+    const data = await this._getProfileUseCase.execute(userId);
+    reply.send(success(data));
   };
 
   createProfile = async (request: FastifyRequest<{ Body: HrProfileView }>, reply: FastifyReply) => {
@@ -53,9 +51,7 @@ export class HrProfileController {
 
   getProfilePicViewUrl = async (request: FastifyRequest, reply: FastifyReply) => {
     const userId = request.currentUser!.userId;
-    const profile = await this._getProfileUseCase.execute(userId);
-    const key = toProfilePicStorageKey(profile);
-    const url = await this._fileStorage.getSignedViewUrl(key, 3600);
+    const { url } = await this._getHrProfilePicViewUrlUseCase.execute(userId);
     reply.send(success({ url }));
   };
 }

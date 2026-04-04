@@ -2,25 +2,14 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IOfferMailRepository } from '../ports/repository/IOfferMailRepository.js';
 import type { ICounterLetterRepository } from '../ports/repository/ICounterLetterRepository.js';
-import type { OfferMail } from '../../../domain/entities/OfferMail.js';
-import type { CounterLetter } from '../../../domain/entities/CounterLetter.js';
 import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
+import type {
+  IListOfferMailsInputDTO,
+  IListOfferMailsResult,
+} from '../dtos/ListOfferMailsDTO.js';
+import { ApplicationMapper } from '../mappers/ApplicationMapper.js';
 
-export interface IListOfferMailsInputDTO {
-  companyId: string;
-  jobId?: string;
-  status?: 'pending' | 'accepted' | 'declined' | 'counter';
-  search?: string;
-  page?: number;
-  limit?: number;
-}
-
-export interface IListOfferMailsResult {
-  data: OfferMail[];
-  total: number;
-  counterLettersByOfferMailId: Map<string, CounterLetter>;
-  legacyEmbeddedCounters: Map<string, { content: string; sentAt: Date }>;
-}
+export type IListOfferMailsListViewDTO = ReturnType<(typeof ApplicationMapper)['toOfferMailsListView']>;
 
 @injectable()
 export class ListOfferMailsUseCase {
@@ -33,7 +22,7 @@ export class ListOfferMailsUseCase {
     private readonly _jobRepository: IJobRepository
   ) {}
 
-  async execute(input: IListOfferMailsInputDTO): Promise<IListOfferMailsResult> {
+  async execute(input: IListOfferMailsInputDTO): Promise<IListOfferMailsListViewDTO> {
     const companyId = String(input.companyId ?? '').trim();
     const page = Math.max(1, input.page ?? 1);
     const limit = Math.min(100, Math.max(1, input.limit ?? 10));
@@ -84,6 +73,11 @@ export class ListOfferMailsUseCase {
       this._offerMailRepository.findLegacyEmbeddedCountersByOfferMailIds(ids),
     ]);
 
-    return { data, total, counterLettersByOfferMailId, legacyEmbeddedCounters };
+    return ApplicationMapper.toOfferMailsListView({
+      data,
+      total,
+      counterLettersByOfferMailId,
+      legacyEmbeddedCounters,
+    });
   }
 }

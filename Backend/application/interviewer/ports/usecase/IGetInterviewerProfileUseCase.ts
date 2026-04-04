@@ -1,5 +1,5 @@
-import type { InterviewerProfile } from "../../../../domain/entities/InterviewerProfile";
+import type { InterviewerProfileStateResponse } from "../../mappers/InterviewerProfileMapper";
 
 export interface IGetInterviewerProfileUseCase {
-  execute(userId: string): Promise<InterviewerProfile | null>;
+  execute(userId: string): Promise<InterviewerProfileStateResponse>;
 }

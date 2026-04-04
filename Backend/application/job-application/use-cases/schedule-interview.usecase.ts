@@ -8,9 +8,11 @@ import type { IInterviewerSlotsRepository } from '../../interviewer/ports/reposi
 import type { INotificationRepository } from '../../notification/ports/repository/INotificationRepository.js';
 import type { INotificationPublisher } from '../../notification/ports/service/INotificationPublisher.js';
 import type { Application } from '../../../domain/entities/Application.js';
+import type { ApplicationView } from '../dtos/ApplicationView.js';
 import { Interview } from '../../../domain/entities/Interview.js';
 import type { InterviewType } from '../../../domain/entities/Interview.js';
 import { AppError } from '../../../shared/errors/AppError.js';
+import { ApplicationMapper } from '../mappers/ApplicationMapper.js';
 
 export interface IScheduleInterviewInput {
   companyId: string;
@@ -28,7 +30,7 @@ export interface IScheduleInterviewInput {
 }
 
 export interface IScheduleInterviewUseCase {
-  execute(input: IScheduleInterviewInput): Promise<{ application: Application }>;
+  execute(input: IScheduleInterviewInput): Promise<{ application: ApplicationView }>;
 }
 
 @injectable()
@@ -50,7 +52,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     private readonly _notificationPublisher: INotificationPublisher
   ) {}
 
-  async execute(input: IScheduleInterviewInput): Promise<{ application: Application }> {
+  async execute(input: IScheduleInterviewInput): Promise<{ application: ApplicationView }> {
     const {
       companyId,
       jobId,
@@ -220,6 +222,6 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       notification: interviewerNotification,
     });
 
-    return { application: updated };
+    return { application: ApplicationMapper.toView(updated) };
   }
 }

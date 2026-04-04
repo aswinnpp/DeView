@@ -6,6 +6,7 @@ import type {
   IListNotificationsInputDTO,
   IListNotificationsOutputDTO,
 } from "../dtos/NotificationDTO.js";
+import { NotificationMapper } from "../mappers/NotificationMapper.js";
 
 @injectable()
 export class ListNotificationsUseCase implements IListNotificationsUseCase {
@@ -15,12 +16,13 @@ export class ListNotificationsUseCase implements IListNotificationsUseCase {
   ) {}
 
   async execute(input: IListNotificationsInputDTO): Promise<IListNotificationsOutputDTO> {
-    const data = await this._notifications.listByRecipient({
-      recipientType: "COMPANY",
-      recipientId: input.companyId,
+    const rows = await this._notifications.listByRecipient({
+      recipientType: input.recipientType,
+      recipientId: input.recipientId,
       unreadOnly: input.unreadOnly,
       limit: input.limit,
     });
+    const data = rows.map((n) => NotificationMapper.toView(n));
     return { data };
   }
 }

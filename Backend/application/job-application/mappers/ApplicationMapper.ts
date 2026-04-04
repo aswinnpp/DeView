@@ -9,7 +9,7 @@ import type { IScheduleInterviewInput } from '../use-cases/schedule-interview.us
 import type { IDeclineRescheduleRequestInput } from '../use-cases/decline-reschedule-request.usecase.js';
 import type { IGetResumeViewUrlInput } from '../use-cases/get-resume-view-url.usecase.js';
 import type { IPrecheckScheduleInterviewInputDTO } from '../dtos/PrecheckScheduleInterviewDTO.js';
-import type { IListOfferMailsInputDTO, IListOfferMailsResult } from '../use-cases/list-offer-mails.usecase.js';
+import type { IListOfferMailsInputDTO, IListOfferMailsResult } from '../dtos/ListOfferMailsDTO.js';
 import type { IGetLatestInterviewerFeedbackInput } from '../use-cases/get-latest-interviewer-feedback.usecase.js';
 import type { IRespondToCounterLetterInput } from '../use-cases/respond-to-counter-letter.usecase.js';
 import type { GetSignedOfferPdfRequest } from '../use-cases/get-signed-offer-pdf.usecase.js';

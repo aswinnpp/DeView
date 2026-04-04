@@ -1,5 +1,11 @@
-import type { CompanyApproval } from "../../../../domain/entities/CompanyApprovalEntitie";
+import type { CompanyProfileDataResponse } from "../../mappers/CompanyProfileMapper.js";
+
+export interface IGetCompanyProfileInputDTO {
+  userId: string;
+  page: number;
+  limit: number;
+}
 
 export interface IGetCompanyProfileUseCase {
-  execute(userId: string): Promise<CompanyApproval>;
+  execute(input: IGetCompanyProfileInputDTO): Promise<CompanyProfileDataResponse>;
 }

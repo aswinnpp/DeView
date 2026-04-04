@@ -4,6 +4,7 @@ import { AppError } from '../../../shared/errors/AppError.js';
 import { env } from '../../../infrastructure/config/env.js';
 import type { IOfferMailRepository } from '../../job-application/ports/repository/IOfferMailRepository.js';
 import type { OfferMail } from '../../../domain/entities/OfferMail.js';
+import { ApplicationMapper } from '../../job-application/mappers/ApplicationMapper.js';
 import { DocuSignJwtAuthService } from '../../../infrastructure/docusign/DocuSignJwtAuthService.js';
 import { DocuSignOfferEnvelopeService } from '../../../infrastructure/docusign/DocuSignOfferEnvelopeService.js';
 
@@ -16,7 +17,9 @@ export class ConfirmOfferSigningUseCase {
     private readonly _docusign: DocuSignOfferEnvelopeService
   ) {}
 
-  async execute(input: { candidateUserId: string; offerMailId: string }): Promise<{ offer: OfferMail }> {
+  async execute(
+    input: { candidateUserId: string; offerMailId: string },
+  ): Promise<ReturnType<(typeof ApplicationMapper)['toOfferSummaryView']>> {
     if (!DocuSignJwtAuthService.fromEnv(env)) {
       throw AppError.serviceUnavailable('DocuSign is not configured on the server');
     }
@@ -30,7 +33,7 @@ export class ConfirmOfferSigningUseCase {
     }
 
     if (offer.status === 'accepted') {
-      return { offer };
+      return ApplicationMapper.toOfferSummaryView(offer);
     }
 
     if (!offer.docusignAcceptanceEnvelopeId) {
@@ -57,6 +60,6 @@ export class ConfirmOfferSigningUseCase {
       throw AppError.conflict('Could not finalize acceptance. Refresh and try again.');
     }
 
-    return { offer: updated };
+    return ApplicationMapper.toOfferSummaryView(updated);
   }
 }

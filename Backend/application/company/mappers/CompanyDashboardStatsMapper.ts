@@ -1,8 +1,5 @@
 import { AppError } from '../../../shared/errors/AppError.js';
-import type {
-  ICompanyDashboardStatsInputDTO,
-  ICompanyDashboardStatsOutputDTO,
-} from '../dtos/CompanyDashboardStatsDTO.js';
+import type { ICompanyDashboardStatsInputDTO } from '../dtos/CompanyDashboardStatsDTO.js';
 
 export const CompanyDashboardStatsMapper = {
   requireCompanyIdFromUser(user: { companyId?: string }): string {
@@ -15,9 +12,5 @@ export const CompanyDashboardStatsMapper = {
 
   toInputDTO(user: { companyId?: string }): ICompanyDashboardStatsInputDTO {
     return { companyId: CompanyDashboardStatsMapper.requireCompanyIdFromUser(user) };
-  },
-
-  toHttpBody(result: ICompanyDashboardStatsOutputDTO): ICompanyDashboardStatsOutputDTO {
-    return result;
   },
 };

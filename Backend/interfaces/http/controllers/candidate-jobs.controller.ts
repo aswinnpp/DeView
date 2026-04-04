@@ -92,8 +92,7 @@ export class CandidateJobsController {
       }),
     );
 
-    const data = ApplicationMapper.toListView(result.data);
-    reply.send(success({ data, total: result.total }));
+    reply.send(success({ data: result.data, total: result.total }));
   };
 
   listMailbox = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -113,8 +112,8 @@ export class CandidateJobsController {
   ) => {
     const userId = request.currentUser.userId;
     const input = ApplicationMapper.toRespondToOfferInput(request.params, userId);
-    const offer = await this._respondToOfferLetterUseCase.execute(input);
-    reply.send(success(ApplicationMapper.toOfferSummaryView(offer)));
+    const offerPayload = await this._respondToOfferLetterUseCase.execute(input);
+    reply.send(success(offerPayload));
   };
 
   beginOfferSigning = async (
@@ -135,11 +134,11 @@ export class CandidateJobsController {
   ) => {
     const userId = request.currentUser.userId;
     const input = ApplicationMapper.toRespondToOfferInput(request.params, userId);
-    const { offer } = await this._confirmOfferSigningUseCase.execute({
+    const offerPayload = await this._confirmOfferSigningUseCase.execute({
       candidateUserId: input.candidateUserId,
       offerMailId: input.offerMailId,
     });
-    reply.send(success(ApplicationMapper.toOfferSummaryView(offer)));
+    reply.send(success(offerPayload));
   };
 
   downloadSignedOfferPdf = async (
@@ -172,7 +171,7 @@ export class CandidateJobsController {
     const userId = request.currentUser.userId;
     const input = ApplicationMapper.toSubmitOfferCounterInput(request.params, request.body, userId);
     const result = await this._submitOfferCounterLetterUseCase.execute(input);
-    reply.send(success(ApplicationMapper.toSubmitOfferCounterView(result)));
+    reply.send(success(result));
   };
 
   getAllJobs = async (

@@ -6,6 +6,7 @@ import type {
   IListPendingApplicationsForJobUseCase,
 } from '../ports/usecase/IListPendingApplicationsForJobUseCase.js';
 import type { IListPendingApplicationsForJobInputDTO } from '../dtos/PendingApplicationsForJobDTO.js';
+import { ApplicationMapper } from '../mappers/ApplicationMapper.js';
 
 @injectable()
 export class ListPendingApplicationsForJobUseCase
@@ -60,6 +61,6 @@ export class ListPendingApplicationsForJobUseCase
       complete: byStatus.REJECTED ?? 0,
     };
 
-    return { data, counts };
+    return { data: ApplicationMapper.toListView(data), counts };
   }
 }

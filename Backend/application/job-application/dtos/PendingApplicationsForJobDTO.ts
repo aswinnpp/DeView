@@ -1,6 +1,7 @@
 /** List pending applications for a job — input + output in one module. */
 
-import type { Application, ApplicationStatus } from '../../../domain/entities/Application.js';
+import type { ApplicationStatus } from '../../../domain/entities/Application.js';
+import type { ApplicationView } from './ApplicationView.js';
 
 export interface IListPendingApplicationsForJobInputDTO {
   jobId: string;
@@ -10,7 +11,7 @@ export interface IListPendingApplicationsForJobInputDTO {
 }
 
 export interface IListPendingApplicationsForJobOutputDTO {
-  data: Application[];
+  data: ApplicationView[];
   counts: {
     pending: number;
     shortlist: number;

@@ -4,10 +4,8 @@ import { success } from "../../../shared/http/apiResponse";
 import { TYPES } from "../../../infrastructure/di/types";
 import type { IGetCompanyProfileUseCase } from "../../../application/company/ports/usecase/IGetCompanyProfileUseCase";
 import type { IUpdateCompanyProfileUseCase } from "../../../application/company/ports/usecase/IUpdateCompanyProfileUseCase";
+import type { IGetCompanyLogoViewUrlUseCase } from "../../../application/company/ports/usecase/IGetCompanyLogoViewUrlUseCase";
 import { CompanyProfileMapper } from "../../../application/company/mappers/CompanyProfileMapper.js";
-import type { IFileStorage } from "../../../application/upload/ports/services/IFileStorage.js";
-import { AppError } from "../../../shared/errors/AppError";
-import { MESSAGES } from "../../../shared/constants/messages.js";
 
 interface IUpdateProfileBody {
   companyName?: string;
@@ -32,7 +30,8 @@ export class CompanyProfileController {
   constructor(
     @inject(TYPES.GetCompanyProfileUseCasePort) private readonly _getProfileUseCase: IGetCompanyProfileUseCase,
     @inject(TYPES.UpdateCompanyProfileUseCasePort) private readonly _updateProfileUseCase: IUpdateCompanyProfileUseCase,
-    @inject(TYPES.FileStoragePort) private readonly _fileStorage: IFileStorage,
+    @inject(TYPES.GetCompanyLogoViewUrlUseCasePort)
+    private readonly _getCompanyLogoViewUrlUseCase: IGetCompanyLogoViewUrlUseCase,
   ) {}
 
   getProfile = async (
@@ -43,8 +42,11 @@ export class CompanyProfileController {
     const page = Math.max(1, Number(request.query.page ?? 1) || 1);
     const limit = Math.max(1, Math.min(50, Number(request.query.limit ?? 8) || 8));
 
-    const profile = await this._getProfileUseCase.execute(user.userId);
-    const data = CompanyProfileMapper.toProfileResponse(profile, { page, limit });
+    const data = await this._getProfileUseCase.execute({
+      userId: user.userId,
+      page,
+      limit,
+    });
 
     reply.send(success({ data }));
   };
@@ -61,10 +63,7 @@ export class CompanyProfileController {
 
   getLogoViewUrl = async (request: FastifyRequest, reply: FastifyReply) => {
     const user = request.currentUser;
-    const profile = await this._getProfileUseCase.execute(user.userId);
-    const raw = (profile as unknown as { logoUrl?: string } | null)?.logoUrl ?? '';
-    if (!raw.trim()) throw AppError.notFound(MESSAGES.NOT_FOUND);
-    const url = await this._fileStorage.getSignedViewUrl(raw, 3600);
+    const { url } = await this._getCompanyLogoViewUrlUseCase.execute(user.userId);
     reply.send(success({ url }));
   };
 }

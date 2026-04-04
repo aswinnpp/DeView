@@ -33,6 +33,11 @@ export interface HrProfileView {
   profilePicUrl: string;
 }
 
+export type HrProfileStateResponse = {
+  hasProfile: boolean;
+  data?: HrProfileView;
+};
+
 export function toView(profile: HrProfile): HrProfileView {
   const educationList =
     profile.educationList?.length && profile.educationList.length > 0
@@ -84,10 +89,7 @@ export function toView(profile: HrProfile): HrProfileView {
   };
 }
 
-export function toProfileStateView(profile: HrProfile | null): {
-  hasProfile: boolean;
-  data?: HrProfileView;
-} {
+export function toProfileStateView(profile: HrProfile | null): HrProfileStateResponse {
   return {
     hasProfile: profile !== null,
     data: profile ? toView(profile) : undefined,

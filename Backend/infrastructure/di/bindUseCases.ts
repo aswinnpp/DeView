@@ -21,6 +21,7 @@ import { CheckCompanyStatusUseCase } from '../../application/company/use-cases/c
 import { SubmitCompanyApprovalUseCase } from '../../application/company/use-cases/submit-company-approval.usecase.js';
 import { GetMyCompanyApprovalUseCase } from '../../application/company/use-cases/get-my-company-approval.usecase.js';
 import { GetCompanyProfileUseCase } from '../../application/company/use-cases/get-company-profile.usecase.js';
+import { GetCompanyLogoViewUrlUseCase } from '../../application/company/use-cases/get-company-logo-view-url.usecase.js';
 import { GetCompanyDashboardStatsUseCase } from '../../application/company/use-cases/get-company-dashboard-stats.usecase.js';
 import { UpdateCompanyProfileUseCase } from '../../application/company/use-cases/update-company-profile.usecase.js';
 import { CreateTeamMemberUseCase } from '../../application/company/use-cases/create-team-member.usecase.js';
@@ -87,9 +88,11 @@ import { ListCompletedInterviewsForInterviewerUseCase } from '../../application/
 import { SaveInterviewFeedbackUseCase } from '../../application/interview/use-cases/save-interview-feedback.usecase';
 import { ListMyInterviewFeedbacksUseCase } from '../../application/interview/use-cases/list-my-interview-feedbacks.usecase.js';
 import { GetInterviewerProfileUseCase } from '../../application/interviewer/use-cases/get-interviewer-profile.usecase.js';
+import { GetInterviewerProfilePicViewUrlUseCase } from '../../application/interviewer/use-cases/get-interviewer-profile-pic-view-url.usecase.js';
 import { CreateInterviewerProfileUseCase } from '../../application/interviewer/use-cases/create-interviewer-profile.usecase.js';
 import { UpdateInterviewerProfileUseCase } from '../../application/interviewer/use-cases/update-interviewer-profile.usecase.js';
 import { GetHrProfileUseCase } from '../../application/hr/use-cases/get-hr-profile.usecase.js';
+import { GetHrProfilePicViewUrlUseCase } from '../../application/hr/use-cases/get-hr-profile-pic-view-url.usecase.js';
 import { CreateHrProfileUseCase } from '../../application/hr/use-cases/create-hr-profile.usecase.js';
 import { UpdateHrProfileUseCase } from '../../application/hr/use-cases/update-hr-profile.usecase.js';
 import { GetMyInterviewerSlotsUseCase } from "../../application/interviewer/use-cases/get-my-interviewer-slots.usecase.js";
@@ -133,6 +136,9 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.SubmitCompanyApprovalUseCasePort).to(SubmitCompanyApprovalUseCase);
   container.bind(TYPES.GetMyCompanyApprovalUseCasePort).to(GetMyCompanyApprovalUseCase);
   container.bind(TYPES.GetCompanyProfileUseCasePort).to(GetCompanyProfileUseCase);
+  container
+    .bind(TYPES.GetCompanyLogoViewUrlUseCasePort)
+    .to(GetCompanyLogoViewUrlUseCase);
   container.bind(TYPES.GetCompanyDashboardStatsUseCasePort).to(GetCompanyDashboardStatsUseCase);
   container.bind(TYPES.UpdateCompanyProfileUseCasePort).to(UpdateCompanyProfileUseCase);
   container.bind(TYPES.CreateTeamMemberUseCasePort).to(CreateTeamMemberUseCase);
@@ -210,9 +216,15 @@ export function bindUseCases(container: Container): void {
 
   // Interviewer profile use cases
   container.bind(TYPES.GetInterviewerProfileUseCasePort).to(GetInterviewerProfileUseCase);
+  container
+    .bind(TYPES.GetInterviewerProfilePicViewUrlUseCasePort)
+    .to(GetInterviewerProfilePicViewUrlUseCase);
   container.bind(TYPES.CreateInterviewerProfileUseCasePort).to(CreateInterviewerProfileUseCase);
   container.bind(TYPES.UpdateInterviewerProfileUseCasePort).to(UpdateInterviewerProfileUseCase);
   container.bind(TYPES.GetHrProfileUseCasePort).to(GetHrProfileUseCase);
+  container
+    .bind(TYPES.GetHrProfilePicViewUrlUseCasePort)
+    .to(GetHrProfilePicViewUrlUseCase);
   container.bind(TYPES.CreateHrProfileUseCasePort).to(CreateHrProfileUseCase);
   container.bind(TYPES.UpdateHrProfileUseCasePort).to(UpdateHrProfileUseCase);
   container.bind(TYPES.GetMyInterviewerSlotsUseCasePort).to(GetMyInterviewerSlotsUseCase);

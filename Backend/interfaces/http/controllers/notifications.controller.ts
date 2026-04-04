@@ -3,11 +3,14 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { success } from "../../../shared/http/apiResponse.js";
 import { TYPES } from "../../../shared/di/types.js";
 import type { INotificationRepository } from "../../../application/notification/ports/repository/INotificationRepository.js";
+import type { IListNotificationsUseCase } from "../../../application/notification/ports/usecase/IListNotificationsUseCase.js";
 import { NotificationMapper } from "../../../application/notification/mappers/NotificationMapper.js";
 
 @injectable()
 export class NotificationsController {
   constructor(
+    @inject(TYPES.ListNotificationsUseCasePort)
+    private readonly _listNotifications: IListNotificationsUseCase,
     @inject(TYPES.NotificationRepositoryPort)
     private readonly _notifications: INotificationRepository,
   ) {}
@@ -16,13 +19,15 @@ export class NotificationsController {
     request: FastifyRequest<{ Querystring: { unreadOnly?: string; limit?: string } }>,
     reply: FastifyReply,
   ) => {
-    const input = NotificationMapper.toListInput(request.currentUser, request.query);
-    const data = await this._notifications.listByRecipient(input);
-    reply.send(
-      success({
-        data: data.map((n) => NotificationMapper.toView(n)),
-      }),
-    );
+    const listInput = NotificationMapper.toListInput(request.currentUser, request.query);
+    const { recipientType, recipientId, unreadOnly, limit } = listInput;
+    const result = await this._listNotifications.execute({
+      recipientType,
+      recipientId,
+      unreadOnly,
+      limit,
+    });
+    reply.send(success(result));
   };
 
   markRead = async (

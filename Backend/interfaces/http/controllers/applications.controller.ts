@@ -88,8 +88,7 @@ export class ApplicationsController {
       ctx
     );
     const result = await this._listPendingApplicationsUseCase.execute(input);
-    const data = ApplicationMapper.toListView(result.data);
-    reply.send(success({ data, counts: result.counts }));
+    reply.send(success({ data: result.data, counts: result.counts }));
   };
 
   getResumeViewUrl = async (
@@ -152,7 +151,7 @@ export class ApplicationsController {
     const query = offerMailsListQuerySchema.parse(request.query ?? {});
     const input = ApplicationMapper.toListOfferMailsInput(query, ctx);
     const result = await this._listOfferMailsUseCase.execute(input);
-    reply.send(success(ApplicationMapper.toOfferMailsListView(result)));
+    reply.send(success(result));
   };
 
   updateStatus = async (
@@ -185,8 +184,7 @@ export class ApplicationsController {
       ctx
     );
     const result = await this._updateApplicationStatusUseCase.execute(input);
-    const application = ApplicationMapper.toView(result.application);
-    reply.send(success({ application }));
+    reply.send(success({ application: result.application }));
   };
 
   scheduleInterview = async (
@@ -209,7 +207,7 @@ export class ApplicationsController {
     const ctx = toContext(request.currentUser);
     const input = ApplicationMapper.toScheduleInterviewInput(request.params, request.body, ctx);
     const result = await this._scheduleInterviewUseCase.execute(input);
-    reply.send(success({ application: ApplicationMapper.toView(result.application) }));
+    reply.send(success({ application: result.application }));
   };
 
   rescheduleInterview = async (
@@ -244,7 +242,7 @@ export class ApplicationsController {
       slotStartIso: request.body.slotStartIso,
     });
 
-    reply.send(success({ application: ApplicationMapper.toView(result.application) }));
+    reply.send(success({ application: result.application }));
   };
 
   declineRescheduleRequest = async (
@@ -256,7 +254,7 @@ export class ApplicationsController {
     const ctx = toContext(request.currentUser);
     const input = ApplicationMapper.toDeclineRescheduleRequestInput(request.params, ctx);
     const result = await this._declineRescheduleRequestUseCase.execute(input);
-    reply.send(success({ application: ApplicationMapper.toView(result.application) }));
+    reply.send(success({ application: result.application }));
   };
 
   getLatestInterviewerFeedback = async (

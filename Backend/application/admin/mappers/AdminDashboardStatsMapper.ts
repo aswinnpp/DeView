@@ -1,8 +1,5 @@
 import type { AdminDashboardTimePeriod } from '../dtos/AdminDashboardStatsDTO.js';
-import type {
-  IAdminDashboardStatsInputDTO,
-  IAdminDashboardStatsOutputDTO,
-} from '../dtos/AdminDashboardStatsDTO.js';
+import type { IAdminDashboardStatsInputDTO } from '../dtos/AdminDashboardStatsDTO.js';
 
 const ADMIN_PERIODS: readonly AdminDashboardTimePeriod[] = ['daily', 'weekly', 'monthly', 'yearly'];
 
@@ -16,9 +13,5 @@ export const AdminDashboardStatsMapper = {
 
   toInputDTO(raw: string | undefined): IAdminDashboardStatsInputDTO {
     return { period: AdminDashboardStatsMapper.parsePeriodFromQuery(raw) };
-  },
-
-  toHttpBody(result: IAdminDashboardStatsOutputDTO): IAdminDashboardStatsOutputDTO {
-    return result;
   },
 };

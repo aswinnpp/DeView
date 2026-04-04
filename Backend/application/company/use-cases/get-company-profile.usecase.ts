@@ -2,7 +2,11 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from "../../../shared/di/types";
 import { ICompanyProfileRepository } from "../ports/repository/ICompanyProfileRepository";
 import { AppError } from "../../../shared/errors/AppError";
-import type { IGetCompanyProfileUseCase } from "../ports/usecase/IGetCompanyProfileUseCase";
+import type {
+  IGetCompanyProfileUseCase,
+  IGetCompanyProfileInputDTO,
+} from "../ports/usecase/IGetCompanyProfileUseCase";
+import { CompanyProfileMapper } from "../mappers/CompanyProfileMapper.js";
 import type { ISubscriptionRepository } from "../../admin/ports/repository/ISubscriptionRepository.js";
 
 @injectable()
@@ -13,13 +17,13 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
     
   ) {}
 
-  async execute(userId: string) {
+  async execute(input: IGetCompanyProfileInputDTO) {
+    const { userId, page, limit } = input;
     if (!userId) {
       throw AppError.badRequest("UserId is required");
     }
 
     const profile = await this._repo.findByUserId(userId);
-  
 
     if (!profile) {
       throw AppError.notFound("Company profile not found");
@@ -49,6 +53,6 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
     profile.refreshSubscriptions(now);
     await this._repo.save(profile);
 
-    return profile;
+    return CompanyProfileMapper.toProfileResponse(profile, { page, limit });
   }
 }
