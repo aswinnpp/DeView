@@ -89,6 +89,9 @@ import { ListMyInterviewFeedbacksUseCase } from '../../application/interview/use
 import { GetInterviewerProfileUseCase } from '../../application/interviewer/use-cases/get-interviewer-profile.usecase.js';
 import { CreateInterviewerProfileUseCase } from '../../application/interviewer/use-cases/create-interviewer-profile.usecase.js';
 import { UpdateInterviewerProfileUseCase } from '../../application/interviewer/use-cases/update-interviewer-profile.usecase.js';
+import { GetHrProfileUseCase } from '../../application/hr/use-cases/get-hr-profile.usecase.js';
+import { CreateHrProfileUseCase } from '../../application/hr/use-cases/create-hr-profile.usecase.js';
+import { UpdateHrProfileUseCase } from '../../application/hr/use-cases/update-hr-profile.usecase.js';
 import { GetMyInterviewerSlotsUseCase } from "../../application/interviewer/use-cases/get-my-interviewer-slots.usecase.js";
 import { UpsertMyInterviewerSlotsUseCase } from "../../application/interviewer/use-cases/upsert-my-interviewer-slots.usecase.js";
 import { ListNotificationsUseCase } from "../../application/notification/use-cases/list-notifications.usecase.js";
@@ -209,6 +212,9 @@ export function bindUseCases(container: Container): void {
   container.bind(TYPES.GetInterviewerProfileUseCasePort).to(GetInterviewerProfileUseCase);
   container.bind(TYPES.CreateInterviewerProfileUseCasePort).to(CreateInterviewerProfileUseCase);
   container.bind(TYPES.UpdateInterviewerProfileUseCasePort).to(UpdateInterviewerProfileUseCase);
+  container.bind(TYPES.GetHrProfileUseCasePort).to(GetHrProfileUseCase);
+  container.bind(TYPES.CreateHrProfileUseCasePort).to(CreateHrProfileUseCase);
+  container.bind(TYPES.UpdateHrProfileUseCasePort).to(UpdateHrProfileUseCase);
   container.bind(TYPES.GetMyInterviewerSlotsUseCasePort).to(GetMyInterviewerSlotsUseCase);
   container.bind(TYPES.UpsertMyInterviewerSlotsUseCasePort).to(UpsertMyInterviewerSlotsUseCase);
 

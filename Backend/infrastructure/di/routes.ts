@@ -19,6 +19,7 @@ import { applicationsRoutes } from '../../interfaces/http/routes/applications.ro
 import { interviewRoomRoutes } from '../../interfaces/http/routes/interview-room.routes.js';
 import { interviewerAssignmentsRoutes } from '../../interfaces/http/routes/interviewer-assignments.routes.js';
 import { interviewerProfileRoutes } from '../../interfaces/http/routes/interviewer-profile.routes.js';
+import { hrProfileRoutes } from '../../interfaces/http/routes/hr-profile.routes.js';
 import { interviewerSlotsRoutes } from "../../interfaces/http/routes/interviewer-slots.routes.js";
 import { notificationsRoutes } from "../../interfaces/http/routes/notifications.routes.js";
 import { landingStatsRoutes } from "../../interfaces/http/routes/landing-stats.routes.js";
@@ -146,6 +147,12 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
         { prefix: '/interviewer' }
     );
 
+    await fastify.register(
+        async (instance) => {
+            await hrProfileRoutes(instance, controllers.hrProfileController);
+        },
+        { prefix: '/hr' }
+    );
 
     await fastify.register(
         async (instance) => {

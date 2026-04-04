@@ -1,6 +1,5 @@
 import { useId } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/context/store';
+
 import { useRecruitmentDashboard } from '@/hooks/useRecruitmentDashboard';
 import {
     AreaChart,
@@ -49,12 +48,10 @@ const INTERVIEW_STATUS_COLORS: Record<string, string> = {
 const CHART_H = 220;
 
 const RecruitmentDashboardPage = () => {
-    const user = useSelector((state: RootState) => state.auth.user);
     const { stats, loading, error } = useRecruitmentDashboard();
     const gradApps = `${useId().replace(/:/g, '')}-apps`;
     const gradMonthly = `${useId().replace(/:/g, '')}-monthly`;
 
-    const welcomeName = stats?.companyName?.trim() || user?.fullName || '';
 
     if (error) {
         return (
@@ -96,7 +93,7 @@ const RecruitmentDashboardPage = () => {
         <div className="max-w-[1400px] mx-auto w-full min-w-0 max-md:px-0">
             <div className="mb-8 max-md:mb-6">
                 <h1 className="m-0 text-[28px] max-md:text-[22px] text-[#f1f5f9]">
-                    Welcome back{welcomeName ? `, ${welcomeName}` : ''}!
+                    Welcome back
                 </h1>
                 <p className="mt-1 mb-0 text-[#94a3b8] text-sm max-md:text-xs">
                     Recruitment overview for your organization — applications and interviews from live data.

@@ -41,6 +41,7 @@ const AdminSubscriptionsPage = lazy(() => import("../features/admin/AdminSubscri
 const AdminSubscriptionHistoryPage = lazy(() => import("../features/admin/AdminSubscriptionHistoryPage"));
 
 const HRLayout = lazy(() => import("../features/hr/HRLayout"));
+const HRProfile = lazy(() => import("../features/hr/HRProfile"));
 const RecruitmentDashboardPage = lazy(() => import("../features/dashboard"));
 const ApplicationsManagementPage = lazy(() => import("../features/application/ApplicationsManagement"));
 const InterviewRoomPage = lazy(() => import("../features/interviewRoom/InterviewRoomPage"));
@@ -122,6 +123,7 @@ const AppRouter = () => {
           <Route path="/hr" element={<HRLayout />}>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<RecruitmentDashboardPage />} />
+            <Route path="profile" element={<HRProfile />} />
             <Route path="jobs" element={<JobsPage />} />
             <Route path="applications" element={<ApplicationsManagementPage />} />
             <Route path="offer-letters" element={<OfferLettersPage />} />

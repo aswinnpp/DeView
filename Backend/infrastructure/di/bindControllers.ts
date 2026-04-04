@@ -17,6 +17,7 @@ import { JobsController } from '../../interfaces/http/controllers/jobs.controlle
 import { ApplicationsController } from '../../interfaces/http/controllers/applications.controller.js';
 import { InterviewerAssignmentsController } from '../../interfaces/http/controllers/interviewer-assignments.controller.js';
 import { InterviewerProfileController } from '../../interfaces/http/controllers/interviewer-profile.controller.js';
+import { HrProfileController } from '../../interfaces/http/controllers/hr-profile.controller.js';
 import { InterviewerSlotsController } from '../../interfaces/http/controllers/interviewer-slots.controller.js';
 import { NotificationsController } from "../../interfaces/http/controllers/notifications.controller.js";
 import { LandingStatsController } from '../../interfaces/http/controllers/landing-stats.controller.js';
@@ -41,6 +42,7 @@ export function bindControllers(container: Container): void {
   container.bind(ApplicationsController).toSelf();
   container.bind(InterviewerAssignmentsController).toSelf();
   container.bind(InterviewerProfileController).toSelf();
+  container.bind(HrProfileController).toSelf();
   container.bind(InterviewerSlotsController).toSelf();
   container.bind(NotificationsController).toSelf();
   container.bind(LandingStatsController).toSelf();

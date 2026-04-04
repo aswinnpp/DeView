@@ -116,6 +116,11 @@ export const TYPES = {
   CreateInterviewerProfileUseCasePort: Symbol('CreateInterviewerProfileUseCasePort'),
   UpdateInterviewerProfileUseCasePort: Symbol('UpdateInterviewerProfileUseCasePort'),
   GetMyInterviewerSlotsUseCasePort: Symbol("GetMyInterviewerSlotsUseCasePort"),
+
+  HrProfileRepositoryPort: Symbol('HrProfileRepositoryPort'),
+  GetHrProfileUseCasePort: Symbol('GetHrProfileUseCasePort'),
+  CreateHrProfileUseCasePort: Symbol('CreateHrProfileUseCasePort'),
+  UpdateHrProfileUseCasePort: Symbol('UpdateHrProfileUseCasePort'),
   UpsertMyInterviewerSlotsUseCasePort: Symbol("UpsertMyInterviewerSlotsUseCasePort"),
   SubscriptionUseCasePort: Symbol("SubscriptionUseCasePort"),
 

@@ -1,4 +1,4 @@
-import { NavLink, Outlet, Navigate } from 'react-router-dom';
+import { NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button, NotificationBell } from '../../components/common';
 import { APP_ROUTES } from '../../constants/routes';
@@ -7,16 +7,47 @@ import type { RootState } from "../../context/store";
 import { useNotifications } from "../../hooks/notifications/useNotifications";
 import { useLogout } from "../../hooks/auth/useLogout";
 import type { NotificationScope } from "../../services/notifications.service";
+import { hrProfileService } from '../../services/hrProfile.service';
 
 
 
 
 const HRLayout = () => {
+    const location = useLocation();
     const [showNotifications, setShowNotifications] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [navbarProfilePicUrl, setNavbarProfilePicUrl] = useState<string | null>(null);
     const { logout: handleLogout } = useLogout();
     const user = useSelector((state: RootState) => state.auth.user);
     const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("hr" as NotificationScope);
+
+    useEffect(() => {
+        const roleCheck = (user?.role || '').toLowerCase();
+        if (!user || roleCheck !== 'hr') {
+            setNavbarProfilePicUrl(null);
+            return;
+        }
+
+        let cancelled = false;
+        (async () => {
+            try {
+                const profile = await hrProfileService.getProfile();
+                const hasPic =
+                    profile?.hasProfile && Boolean(profile.data?.profilePicUrl?.trim());
+                if (!hasPic) {
+                    if (!cancelled) setNavbarProfilePicUrl(null);
+                    return;
+                }
+                const { url } = await hrProfileService.getProfilePicViewUrl();
+                if (!cancelled) setNavbarProfilePicUrl(url);
+            } catch {
+                if (!cancelled) setNavbarProfilePicUrl(null);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [location.pathname, user?.id, user?.role]);
 
     useEffect(() => {
         if (sidebarOpen) {
@@ -62,6 +93,14 @@ const HRLayout = () => {
                 : 'text-[#cbd5e1] hover:bg-[rgba(255,255,255,0.06)] hover:text-white'
         }`;
 
+    const profileInitials = (user?.fullName ?? '')
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2) || '?';
+
     return (
         <div className="hr-theme min-h-screen w-full bg-linear-to-br from-[#111318] to-[#0b0f17] font-[Inter,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-[rgba(255,255,255,0.95)] box-border">
             <div className="w-full min-h-screen bg-[rgba(15,15,25,0.96)] border border-[rgba(255,255,255,0.03)] backdrop-blur-[10px]">
@@ -88,7 +127,7 @@ const HRLayout = () => {
                         </h2>
                     </div>
 
-                    <div className="flex gap-4 items-center">
+                    <div className="flex gap-3 items-center shrink-0">
                         {/* Notification Bell */}
                         <div className="relative">
                             <NotificationBell
@@ -128,6 +167,34 @@ const HRLayout = () => {
                                 </div>
                             )}
                         </div>
+
+                        <NavLink
+                            to={APP_ROUTES.HR_PROFILE}
+                            title="Profile"
+                            aria-label="Profile"
+                            className={({ isActive }) =>
+                                `relative flex items-center justify-center w-10 h-10 rounded-full shrink-0 no-underline overflow-hidden text-[13px] font-bold text-white border-2 transition-all duration-200 shadow-[0_4px_14px_rgba(139,92,246,0.35)] ${
+                                    navbarProfilePicUrl
+                                        ? 'bg-[rgba(20,20,30,0.95)]'
+                                        : 'bg-linear-to-br from-[#8b5cf6] to-[#06b6d4]'
+                                } ${
+                                    isActive
+                                        ? 'border-white/50 ring-2 ring-white/25 ring-offset-2 ring-offset-[rgba(15,15,25,0.96)]'
+                                        : 'border-white/20 hover:border-white/40 hover:brightness-110'
+                                }`
+                            }
+                        >
+                            {navbarProfilePicUrl ? (
+                                <img
+                                    src={navbarProfilePicUrl}
+                                    alt=""
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                    onError={() => setNavbarProfilePicUrl(null)}
+                                />
+                            ) : (
+                                profileInitials
+                            )}
+                        </NavLink>
                     </div>
                 </div>
 

@@ -1,19 +1,19 @@
 import React, { useCallback } from "react";
 import { ProfessionalProfilePageContent } from "../../components/profile/ProfessionalProfilePageContent";
-import { useInterviewerProfile } from "../../hooks/interviewer";
-import { interviewerProfileService } from "../../services/interviewerProfile.service";
+import { useHrProfile } from "../../hooks/hr";
+import { hrProfileService } from "../../services/hrProfile.service";
 
-const INTERVIEWER_PROFILE_COPY = {
-  createSubtitle: "Complete your profile to start conducting interviews",
+const HR_PROFILE_COPY = {
+  createSubtitle: "Complete your profile so your team knows who they are working with.",
   editSubtitle: "Update your professional information",
-  titlePlaceholder: "Senior Software Engineer",
-  bioPlaceholder: "Brief summary of your professional experience...",
+  titlePlaceholder: "e.g., Senior HR Business Partner",
+  bioPlaceholder: "Brief summary of your HR and recruiting experience...",
   skillsReadOnlyHeading: "Skills",
   skillsFormSectionTitle: "Skills",
-  skillsInputLabel: "Technical Skills (Press Enter to add)",
+  skillsInputLabel: "Professional skills (Press Enter to add)",
 } as const;
 
-const InterviewerProfileSettings: React.FC = () => {
+const HRProfilePage: React.FC = () => {
   const {
     form,
     profileData,
@@ -29,15 +29,11 @@ const InterviewerProfileSettings: React.FC = () => {
     fetchProfile,
     profileFeedback,
     dismissProfileFeedback,
-  } = useInterviewerProfile();
-
-  const getProfilePicViewUrl = useCallback(
-    () => interviewerProfileService.getProfilePicViewUrl(),
-    []
-  );
+    getProfilePicViewUrl,
+  } = useHrProfile();
 
   const updateProfilePicPartial = useCallback(async (stored: string) => {
-    await interviewerProfileService.updateProfilePartial({ profilePicUrl: stored });
+    await hrProfileService.updateProfilePartial({ profilePicUrl: stored });
   }, []);
 
   return (
@@ -56,13 +52,13 @@ const InterviewerProfileSettings: React.FC = () => {
       fetchProfile={fetchProfile}
       profileFeedback={profileFeedback}
       dismissProfileFeedback={dismissProfileFeedback}
-      feedbackTitleId="interviewer-profile-feedback-title"
-      uploadCategory="interviewerProfilePic"
+      feedbackTitleId="hr-profile-feedback-title"
+      uploadCategory="hrProfilePic"
       updateProfilePicPartial={updateProfilePicPartial}
       getProfilePicViewUrl={getProfilePicViewUrl}
-      copy={INTERVIEWER_PROFILE_COPY}
+      copy={HR_PROFILE_COPY}
     />
   );
 };
 
-export default InterviewerProfileSettings;
+export default HRProfilePage;

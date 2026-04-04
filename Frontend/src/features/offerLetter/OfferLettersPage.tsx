@@ -123,7 +123,6 @@ export default function OfferLettersPage() {
     signedPdfError,
     openEmployerSignedPdfInNewTab,
     respondToCounter,
-    refreshOffers,
     jobTitleMap,
     totalPages,
     paginationLeftContent,

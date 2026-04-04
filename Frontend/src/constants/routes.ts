@@ -98,6 +98,9 @@ export const API_ROUTES = {
     PUBLIC: {
         DOCUSIGN_CONSENT_URL: '/public/docusign/consent-url',
     },
+    HR: {
+        PROFILE: '/hr/profile',
+    },
     INTERVIEWER: {
         PROFILE: '/interviewer/profile',
         ASSIGNMENTS: '/interviewer/assignments',
@@ -165,5 +168,6 @@ export const APP_ROUTES = {
     INTERVIEWER_ASSIGNMENTS: '/interviewer/assignments',
     INTERVIEWER_SLOTS: '/interviewer/slots',
     INTERVIEWER_PROFILE: '/interviewer/profile',
+    HR_PROFILE: '/hr/profile',
 } as const;
 

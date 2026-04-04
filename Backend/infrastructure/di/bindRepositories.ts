@@ -18,6 +18,7 @@ import type { ICounterLetterRepository } from '../../application/job-application
 import type { IInterviewRepository } from '../../application/interview/ports/repository/IInterviewRepository.js';
 import type { IInterviewFeedbackRepository } from '../../application/interview/ports/repository/IInterviewFeedbackRepository.js';
 import type { IInterviewerProfileRepository } from '../../application/interviewer/ports/repository/IInterviewerProfileRepository.js';
+import type { IHrProfileRepository } from '../../application/hr/ports/repository/IHrProfileRepository.js';
 import type { IInterviewerSlotsRepository } from "../../application/interviewer/ports/repository/IInterviewerSlotsRepository.js";
 import type { INotificationRepository } from "../../application/notification/ports/repository/INotificationRepository.js";
 import { MongoUserRepository } from '../persistence/mongodb/repositories/MongoUserRepository.js';
@@ -49,6 +50,8 @@ import { IInterviewFeedbackDocument } from '../persistence/mongodb/schemas/Inter
 import { MongoInterviewFeedbackRepository } from '../persistence/mongodb/repositories/MongoInterviewFeedbackRepository.js';
 import { IInterviewerProfileDocument } from '../persistence/mongodb/schemas/InterviewerProfileDocument.js';
 import { MongoInterviewerProfileRepository } from '../persistence/mongodb/repositories/MongoInterviewerProfileRepository.js';
+import { IHrProfileDocument } from '../persistence/mongodb/schemas/HrProfileDocument.js';
+import { MongoHrProfileRepository } from '../persistence/mongodb/repositories/MongoHrProfileRepository.js';
 import { MongoInterviewerSlotsRepository } from "../persistence/mongodb/repositories/MongoInterviewerSlotsRepository.js";
 import { IInterviewerSlotsDocument } from "../persistence/mongodb/schemas/InterviewerSlotsDocument.js";
 import type { INotificationDocument } from "../persistence/mongodb/schemas/NotificationDocument.js";
@@ -101,6 +104,9 @@ const createInterviewFeedbackRepository = (db: Db) =>
 
 const createInterviewerProfileRepository = (db: Db) =>
   new MongoInterviewerProfileRepository(db.collection<IInterviewerProfileDocument>('interviewerProfiles'));
+
+const createHrProfileRepository = (db: Db) =>
+  new MongoHrProfileRepository(db.collection<IHrProfileDocument>('hrProfiles'));
 
 const createInterviewerSlotsRepository = (db: Db) =>
   new MongoInterviewerSlotsRepository(db.collection<IInterviewerSlotsDocument>("interviewerSlots"));
@@ -170,6 +176,10 @@ export function bindRepositories(container: Container): void {
 
   container.bind<IInterviewerProfileRepository>(TYPES.InterviewerProfileRepositoryPort).toDynamicValue(() =>
     createInterviewerProfileRepository(container.get<Db>(TYPES.Db))
+  );
+
+  container.bind<IHrProfileRepository>(TYPES.HrProfileRepositoryPort).toDynamicValue(() =>
+    createHrProfileRepository(container.get<Db>(TYPES.Db))
   );
 
   container.bind<IInterviewerSlotsRepository>(TYPES.InterviewerSlotsRepositoryPort).toDynamicValue(() =>

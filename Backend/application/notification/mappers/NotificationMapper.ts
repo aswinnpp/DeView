@@ -6,7 +6,7 @@ type CurrentUser = { role: string; userId: string; companyId?: string };
 export const NotificationMapper = {
   toRecipient(user: CurrentUser) {
     const role = (user.role || '').toLowerCase();
-    if (role === 'company') {
+    if (role === 'company' || role === 'hr') {
       if (!user.companyId) throw AppError.forbidden('Company context missing.');
       return { recipientType: 'COMPANY' as const, recipientId: user.companyId };
     }
