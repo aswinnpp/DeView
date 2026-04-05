@@ -6,6 +6,17 @@ import { HttpStatus } from "../../shared/http/HttpStatus";
 
 export function registerErrorHandler(app: FastifyInstance) {
   app.setErrorHandler((error, request, reply) => {
+    const rateLimitStatus = (error as { statusCode?: number }).statusCode;
+    if (rateLimitStatus === HttpStatus.TOO_MANY_REQUESTS) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : 'Too many requests. Please try again later.';
+      return reply.status(HttpStatus.TOO_MANY_REQUESTS).send({
+        success: false,
+        message,
+      });
+    }
 
     if (error instanceof AppError) {
       request.log.error(

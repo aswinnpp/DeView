@@ -9,6 +9,7 @@ import { env } from './infrastructure/config/env.js';
 import { getHttpsCorsOriginSet, isAllowedBrowserOrigin } from './infrastructure/config/corsOrigins.js';
 import { initializeDatabase } from './infrastructure/database/index.js';
 import { registerHelmet } from './infrastructure/plugins/fastifyHelmet.js';
+import { registerLayeredRateLimit } from './infrastructure/plugins/layeredRateLimit.js';
 import { registerErrorHandler } from './infrastructure/plugins/errorHandler.js';
 import jwtPlugin from './infrastructure/plugins/fastifyJwt.js';
 import { createContainer, getControllers } from './infrastructure/di/container.js';
@@ -36,20 +37,14 @@ const loggerConfig = useFileLogging
 async function bootstrap() {
   const fastify = Fastify({
     logger: loggerConfig,
-    /**
-     * TLS often ends at nginx/ALB; without this, `request.protocol` stays `http` and
-     * auth cookies would be set as non-Secure — browsers then drop them on cross-site
-     * requests (e.g. deview.serveftp.com → API on deview.ddns.net).
-     */
+   
     trustProxy: true,
-    /** Explicit cap for JSON bodies; profile payloads stay well under this after field limits. */
     bodyLimit: 1048576,
   });
 
   await fastify.register(fastifyRawBody, {
     field: 'rawBody',
     global: false,
-    /** Buffer preserves exact bytes for Stripe `constructEvent` signature verification. */
     encoding: false,
     runFirst: true,
   });
@@ -80,6 +75,8 @@ async function bootstrap() {
     await redisClient.connect();
     fastify.log.info("Redis connected");
   }
+
+  registerLayeredRateLimit(fastify);
 
   const db = await initializeDatabase();
   fastify.decorate('db', db);
