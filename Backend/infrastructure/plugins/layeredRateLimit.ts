@@ -1,13 +1,10 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { redisClient } from '../cache/RedisClient.js';
 
-/** All routes — soft DoS cap (per IP, rolling ~1 min via TTL). */
 const GLOBAL_MAX_PER_MINUTE = 150;
 
-/** POST / PUT / PATCH / DELETE — abuse cap (per IP). Webhooks excluded. */
 const MUTATING_MAX_PER_MINUTE = 60;
 
-/** /auth/login, /auth/register, /auth/refresh — brute-force cap (per IP). */
 const AUTH_STRICT_MAX_PER_MINUTE = 8;
 
 const WINDOW_SECONDS = 60;
@@ -21,6 +18,17 @@ const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 function pathOnly(request: FastifyRequest): string {
   const raw = request.url.split('?')[0] ?? '';
   return raw.length > 0 ? raw : '/';
+}
+
+/** Nginx often forwards `/api/...` unchanged; Fastify routes are registered as `/auth/...`. */
+function normalizeAppPath(path: string): string {
+  if (path === '/api') {
+    return '/';
+  }
+  if (path.startsWith('/api/')) {
+    return path.slice(4);
+  }
+  return path;
 }
 
 function rateLimitError(message: string): Error & { statusCode: number } {
@@ -62,11 +70,11 @@ async function enforceLimitSafe(
   }
 }
 
-function authStrictMessage(path: string): string {
-  if (path === '/auth/login') {
+function authStrictMessage(normalizedPath: string): string {
+  if (normalizedPath === '/auth/login') {
     return 'Too many login attempts. Please try again in a minute.';
   }
-  if (path === '/auth/register') {
+  if (normalizedPath === '/auth/register') {
     return 'Too many registration attempts. Please try again in a minute.';
   }
   return 'Too many session refresh attempts. Please try again shortly.';
@@ -82,8 +90,9 @@ export function registerLayeredRateLimit(fastify: FastifyInstance): void {
       return;
     }
 
-    const path = pathOnly(request);
-    if (path.startsWith(WEBHOOK_PATH_PREFIX)) {
+    const rawPath = pathOnly(request);
+    const appPath = normalizeAppPath(rawPath);
+    if (appPath.startsWith(WEBHOOK_PATH_PREFIX)) {
       return;
     }
 
@@ -107,13 +116,13 @@ export function registerLayeredRateLimit(fastify: FastifyInstance): void {
       );
     }
 
-    if (AUTH_STRICT_PATHS.has(path)) {
+    if (AUTH_STRICT_PATHS.has(appPath)) {
       await enforceLimitSafe(
         request,
-        `rl:auth:${path}:${ip}`,
+        `rl:auth:${appPath}:${ip}`,
         AUTH_STRICT_MAX_PER_MINUTE,
         WINDOW_SECONDS,
-        authStrictMessage(path),
+        authStrictMessage(appPath),
       );
     }
   });
