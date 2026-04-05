@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { redisClient } from '../cache/RedisClient.js';
+import { env } from '../config/env.js';
 
 const GLOBAL_MAX_PER_MINUTE = 150;
 
@@ -15,9 +16,17 @@ const AUTH_STRICT_PATHS = new Set(['/auth/login', '/auth/register', '/auth/refre
 
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
+const rateLimitDebug = env.RATE_LIMIT_DEBUG === 'true';
+
+let warnedRedisClosed = false;
+
 function pathOnly(request: FastifyRequest): string {
   const raw = request.url.split('?')[0] ?? '';
-  return raw.length > 0 ? raw : '/';
+  const trimmed = raw.length > 0 ? raw : '/';
+  if (trimmed.length > 1 && trimmed.endsWith('/')) {
+    return trimmed.slice(0, -1);
+  }
+  return trimmed;
 }
 
 /** Nginx often forwards `/api/...` unchanged; Fastify routes are registered as `/auth/...`. */
@@ -37,37 +46,12 @@ function rateLimitError(message: string): Error & { statusCode: number } {
   return err;
 }
 
-/** INCR + EXPIRE on first hit. */
-async function enforceLimit(
-  key: string,
-  max: number,
-  windowSec: number,
-  message: string,
-): Promise<void> {
+async function touchLimit(key: string, windowSec: number): Promise<number> {
   const n = await redisClient.incr(key);
   if (n === 1) {
     await redisClient.expire(key, windowSec);
   }
-  if (n > max) {
-    throw rateLimitError(message);
-  }
-}
-
-async function enforceLimitSafe(
-  request: FastifyRequest,
-  key: string,
-  max: number,
-  windowSec: number,
-  message: string,
-): Promise<void> {
-  try {
-    await enforceLimit(key, max, windowSec, message);
-  } catch (e) {
-    if ((e as { statusCode?: number }).statusCode === 429) {
-      throw e;
-    }
-    request.log.warn({ err: e, key }, 'Rate limit Redis error; allowing request');
-  }
+  return n;
 }
 
 function authStrictMessage(normalizedPath: string): string {
@@ -85,8 +69,29 @@ function authStrictMessage(normalizedPath: string): string {
  * Webhook routes skip all limits (Stripe server-to-server).
  */
 export function registerLayeredRateLimit(fastify: FastifyInstance): void {
+  fastify.log.info(
+    {
+      redisOpen: redisClient.isOpen,
+      rateLimitDebug,
+      globalPerMinute: GLOBAL_MAX_PER_MINUTE,
+      mutatingPerMinute: MUTATING_MAX_PER_MINUTE,
+      authStrictPerMinute: AUTH_STRICT_MAX_PER_MINUTE,
+      windowSeconds: WINDOW_SECONDS,
+      hint: rateLimitDebug
+        ? 'RATE_LIMIT_DEBUG is on — watch logs for rl_diag on each limited request'
+        : 'Set RATE_LIMIT_DEBUG=true to log path, IP, and bucket counts',
+    },
+    'Layered Redis rate limiting',
+  );
+
   fastify.addHook('onRequest', async (request) => {
     if (!redisClient.isOpen) {
+      if (!warnedRedisClosed) {
+        warnedRedisClosed = true;
+        request.log.warn(
+          'Rate limiting is inactive: Redis is not connected (rl: keys never incremented). Check REDIS_URL and Redis availability.',
+        );
+      }
       return;
     }
 
@@ -97,43 +102,63 @@ export function registerLayeredRateLimit(fastify: FastifyInstance): void {
     }
 
     const ip = request.ip;
+    const diag = {
+      method: request.method,
+      rawPath,
+      appPath,
+      ip,
+      xForwardedFor: request.headers['x-forwarded-for'],
+      authStrict: AUTH_STRICT_PATHS.has(appPath),
+    };
 
-    await enforceLimitSafe(
-      request,
+    const runBucket = async (
+      label: string,
+      key: string,
+      max: number,
+      message: string,
+    ): Promise<void> => {
+      try {
+        const n = await touchLimit(key, WINDOW_SECONDS);
+        if (rateLimitDebug) {
+          request.log.info({ rl_diag: true, bucket: label, count: n, max, key, ...diag }, 'rate limit');
+        }
+        if (n > max) {
+          if (rateLimitDebug) {
+            request.log.warn({ rl_diag: true, bucket: label, count: n, max, key, ...diag }, 'rate limit 429');
+          }
+          throw rateLimitError(message);
+        }
+      } catch (e) {
+        if ((e as { statusCode?: number }).statusCode === 429) {
+          throw e;
+        }
+        request.log.warn({ err: e, key, ...diag }, 'Rate limit Redis error; allowing request');
+      }
+    };
+
+    await runBucket(
+      'global',
       `rl:global:${ip}`,
       GLOBAL_MAX_PER_MINUTE,
-      WINDOW_SECONDS,
       'Too many requests. Please try again in a minute.',
     );
 
     if (MUTATING_METHODS.has(request.method)) {
-      await enforceLimitSafe(
-        request,
+      await runBucket(
+        'mutating',
         `rl:mut:${ip}`,
         MUTATING_MAX_PER_MINUTE,
-        WINDOW_SECONDS,
         'Too many write requests. Please try again in a minute.',
       );
     }
 
     if (AUTH_STRICT_PATHS.has(appPath)) {
-      await enforceLimitSafe(
-        request,
+      await runBucket(
+        'auth_strict',
         `rl:auth:${appPath}:${ip}`,
         AUTH_STRICT_MAX_PER_MINUTE,
-        WINDOW_SECONDS,
         authStrictMessage(appPath),
       );
     }
   });
-
-  fastify.log.info(
-    {
-      globalPerMinute: GLOBAL_MAX_PER_MINUTE,
-      mutatingPerMinute: MUTATING_MAX_PER_MINUTE,
-      authStrictPerMinute: AUTH_STRICT_MAX_PER_MINUTE,
-      windowSeconds: WINDOW_SECONDS,
-    },
-    'Layered Redis rate limiting registered',
-  );
 }

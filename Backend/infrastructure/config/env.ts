@@ -34,6 +34,8 @@ export interface IEnvConfig {
     GOOGLE_AI_API_KEY?: string;
     LOG_TO_FILE?: string;
     LOG_RETENTION_DAYS?: string;
+    /** `true` — log rate-limit path, IP, Redis counters (verbose; use only while debugging). */
+    RATE_LIMIT_DEBUG?: string;
     /** DocuSign integration (JWT grant) — all optional until you enable signing */
     DOCUSIGN_INTEGRATION_KEY?: string;
     DOCUSIGN_USER_ID?: string;
@@ -90,6 +92,7 @@ function validateEnv(): IEnvConfig {
         GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
         LOG_TO_FILE: process.env.LOG_TO_FILE,
         LOG_RETENTION_DAYS: process.env.LOG_RETENTION_DAYS,
+        RATE_LIMIT_DEBUG: process.env.RATE_LIMIT_DEBUG,
 
         DOCUSIGN_INTEGRATION_KEY: process.env.DOCUSIGN_INTEGRATION_KEY,
         DOCUSIGN_USER_ID: process.env.DOCUSIGN_USER_ID,
