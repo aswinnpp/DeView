@@ -9,6 +9,9 @@ async function jwtPlugin(fastify: FastifyInstance) {
     await fastify.register(fastifyJwt, {
         secret: env.JWT_ACCESS_SECRET,
         sign: { expiresIn: env.ACCESS_TOKEN_TTL },
+        verify: {
+            extractToken: (request) => request.cookies?.accessToken,
+        },
     });
 
     fastify.decorate('signRefreshToken', (payload: IRefreshTokenPayload) => {

@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { authService } from '../../services/auth.service';
 import { setUser } from '../../context/authSlice';
-import { setAuthTokens } from '../../utils/authTokens';
 import type { AppDispatch } from '../../context/store';
 import { extractApiError } from '../../api/axios';
 import { API_ROUTES, APP_ROUTES } from '../../constants/routes';
@@ -75,10 +74,6 @@ export function useGoogleAuth() {
           navigate(APP_ROUTES.COMPANY_APPROVAL_FORM, { replace: true });
         }
       };
-
-      if (result.accessToken && result.refreshToken) {
-        setAuthTokens(result.accessToken, result.refreshToken);
-      }
 
       dispatch(setUser(user));
       const role = (user.role ?? "").toLowerCase();

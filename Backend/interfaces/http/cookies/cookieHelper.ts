@@ -1,14 +1,10 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 
-/**
- * Cross-site SPA (e.g. serveftp.com) → API (ddns.net): None + Secure.
- * `Partitioned` (CHIPS) improves storage when the browser limits third-party cookies.
- */
+/** Same-origin SPA (`/api` proxy): Lax + Secure + httpOnly. */
 const authCookieOptions = {
   httpOnly: true,
-  sameSite: "none" as const,
+  sameSite: "lax" as const,
   secure: true,
-  partitioned: true,
   path: "/",
 } as const;
 

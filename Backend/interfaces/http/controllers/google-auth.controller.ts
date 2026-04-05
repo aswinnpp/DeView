@@ -48,12 +48,6 @@ export class GoogleAuthController {
     setAccessTokenCookie(request, reply, result.accessToken);
     setRefreshTokenCookie(request, reply, result.refreshToken);
 
-    reply.send(
-      success({
-        user: result.user,
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-      })
-    );
+    reply.send(success({ user: result.user }));
   };
 }

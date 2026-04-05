@@ -1,28 +1,16 @@
 import axios from 'axios';
-import type { AxiosRequestConfig, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig, AxiosError } from 'axios';
 import store from '../context/store';
 import { logout } from '../context/authSlice';
 import { API_ROUTES, APP_ROUTES } from '../constants/routes';
-import { getAccessToken, getRefreshToken, setAuthTokens } from '../utils/authTokens';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
 
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: { 'Content-Type': 'application/json' },
     withCredentials: true,
 });
-
-function attachBearer(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
-    const token = getAccessToken();
-    if (token && !config.headers.Authorization) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-}
-
-api.interceptors.request.use(attachBearer);
 
 // ─── Silent-refresh interceptor ─────────────────────────────────
 
@@ -75,12 +63,7 @@ api.interceptors.response.use(
         );
         const isLoginRequest = originalRequest?.url?.includes(API_ROUTES.AUTH.LOGIN);
         if (isBlocked && !isLoginRequest) {
-            void api
-                .post(API_ROUTES.AUTH.LOGOUT, {
-                    refreshToken: getRefreshToken() ?? undefined,
-                    accessToken: getAccessToken() ?? undefined,
-                })
-                .catch(() => {});
+            void api.post(API_ROUTES.AUTH.LOGOUT).catch(() => {});
             store.dispatch(logout());
             window.location.replace(APP_ROUTES.LOGIN);
             return Promise.reject(error);
@@ -108,30 +91,15 @@ api.interceptors.response.use(
         isRefreshing = true;
 
         try {
-            const refreshRes = await api.post(API_ROUTES.AUTH.REFRESH, {
-                refreshToken: getRefreshToken() ?? undefined,
-            });
-            const payload = refreshRes.data as {
-                accessToken?: string;
-                refreshToken?: string;
-            };
-            if (payload?.accessToken && payload?.refreshToken) {
-                setAuthTokens(payload.accessToken, payload.refreshToken);
-            }
+            await api.post(API_ROUTES.AUTH.REFRESH);
 
             processQueue(null);
 
-            attachBearer(originalRequest as InternalAxiosRequestConfig);
             return api(originalRequest);
         } catch (refreshError) {
             processQueue(refreshError);
 
-            void api
-                .post(API_ROUTES.AUTH.LOGOUT, {
-                    refreshToken: getRefreshToken() ?? undefined,
-                    accessToken: getAccessToken() ?? undefined,
-                })
-                .catch(() => {});
+            void api.post(API_ROUTES.AUTH.LOGOUT).catch(() => {});
 
             store.dispatch(logout());
 

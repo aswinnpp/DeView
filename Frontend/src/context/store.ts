@@ -1,20 +1,10 @@
-import { configureStore, type Middleware } from "@reduxjs/toolkit";
-import authReducer, { logout } from "./authSlice";
-import { clearAuthTokens } from "../utils/authTokens";
-
-const clearTokensOnLogout: Middleware = () => (next) => (action) => {
-  if (logout.match(action)) {
-    clearAuthTokens();
-  }
-  return next(action);
-};
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./authSlice";
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(clearTokensOnLogout),
 });
 
 export default store;
