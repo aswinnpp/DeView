@@ -439,7 +439,7 @@ const CompanyProfilePage = () => {
                                     onClick={handleChangePassword}
                                     className="!py-3 !px-6 !font-semibold"
                                 >
-                                    Change Password
+                                    Change Passwordd
                                 </Button>
                                 <Button
                                     onClick={() => setIsEditing(true)}
