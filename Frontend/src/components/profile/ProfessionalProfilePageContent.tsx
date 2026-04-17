@@ -183,6 +183,7 @@ export const ProfessionalProfilePageContent: React.FC<ProfessionalProfilePageCon
       imageSmoothingEnabled: true,
       imageSmoothingQuality: "high",
     });
+    if (!canvas) return;
 
     const blob: Blob | null = await new Promise((resolve) =>
       canvas.toBlob((b) => resolve(b), "image/webp", 0.92)
