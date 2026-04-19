@@ -11,7 +11,7 @@ import { useNotifications } from "../../hooks/notifications/useNotifications";
 const CompanyLayout = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [companyLogoViewUrl, setCompanyLogoViewUrl] = useState<string>('');
+    const [, setCompanyLogoViewUrl] = useState<string>('');
     const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("company");
     const user = useSelector((state: RootState) => state.auth.user);
 
@@ -44,8 +44,6 @@ const CompanyLayout = () => {
         if (!showNotifications) return;
         refresh().catch(() => {});
     }, [showNotifications, refresh]);
-
-    const companyInitial = (user as { companyName?: string } | null)?.companyName?.trim()?.charAt(0)?.toUpperCase() || 'C';
 
     if (!user) {
         return <Navigate to={APP_ROUTES.LOGIN} replace />;
@@ -173,10 +171,7 @@ const CompanyLayout = () => {
                             className="flex items-center gap-3 py-2.5 px-3 mt-auto rounded-xl cursor-pointer select-none transition-all duration-150 bg-linear-to-b from-[rgba(255,255,255,0.02)] to-[rgba(255,255,255,0.01)] self-stretch shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] no-underline hover:bg-[rgba(255,255,255,0.03)] hover:-translate-y-px"
                         >
                            
-                            <div className="flex flex-col min-w-0">
-                                <div className="text-[13px] font-semibold text-[#e6eef7] whitespace-nowrap overflow-hidden text-ellipsis">View Profile </div>
-                                <div className="text-[11px] text-[#94a3b8]"></div>
-                            </div>
+                            
                         </NavLink>
                     </aside>
 
