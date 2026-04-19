@@ -98,7 +98,7 @@ export function ChangePasswordModal({
         <div className="p-7">
           <p className="text-white/70 text-sm mb-5">
             {isOldPasswordVerified
-              ? 'Enter a new password and confirm it.'
+              ? 'Enter a new password (8+ chars with uppercase, lowercase, number, and special character).'
               : 'Enter your current password to continue.'}
           </p>
 

@@ -111,7 +111,7 @@ const RegisterPage = () => {
                   <span className={passwordIconClass}></span>
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Password (min 6 characters)"
+                    placeholder="Password (e.g. Abc@1234)"
                     className={inputClass}
                     {...register("password")}
                   />
@@ -166,7 +166,7 @@ const RegisterPage = () => {
             <p className="text-[rgba(255,255,255,0.8)] text-sm leading-relaxed mb-6 relative z-[1]">Create your account to get started.</p>
 
             <div className="flex flex-col gap-3.5 relative z-[1]">
-              {["Free account creation", "Secure authentication", "24/7 support"].map((text, i) => (
+              {["Use 8+ chars with Aa1@", "Secure authentication", "24/7 support"].map((text, i) => (
                 <div key={i} className="flex items-center gap-3 text-[rgba(255,255,255,0.8)] text-sm">
                   <div className="w-6 h-6 bg-[rgba(255,255,255,0.1)] rounded-md flex items-center justify-center text-xs shrink-0">✓</div>
                   <span>{text}</span>

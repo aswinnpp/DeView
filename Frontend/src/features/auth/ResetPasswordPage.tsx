@@ -111,9 +111,9 @@ const ResetPasswordPage = () => {
             </p>
             <div className="flex flex-col gap-3.5 relative z-[1]">
               {[
-                { icon: "🔒", text: "At least 6 characters" },
-                { icon: "Aa", text: "Mix of letters and numbers" },
-                { icon: "⚡", text: "Unique and memorable" },
+                { icon: "🔒", text: "At least 8 characters" },
+                { icon: "Aa", text: "Include uppercase and lowercase letters" },
+                { icon: "#1", text: "Include a number and a special character" },
               ].map((tip, i) => (
                 <div key={i} className="flex items-center gap-3 text-[rgba(255,255,255,0.8)] text-sm">
                   <div className="w-6 h-6 bg-[rgba(255,255,255,0.1)] rounded-md flex items-center justify-center text-xs shrink-0">{tip.icon}</div>
