@@ -231,15 +231,7 @@ const CompanyLayout = () => {
                             className="mt-auto shrink-0 flex items-center gap-3 py-2.5 px-3 rounded-xl cursor-pointer select-none transition-all duration-150 bg-linear-to-b from-[rgba(255,255,255,0.02)] to-[rgba(255,255,255,0.01)] self-stretch shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] no-underline hover:bg-[rgba(255,255,255,0.03)]"
                             onClick={() => setSidebarOpen(false)}
                         >
-                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-linear-to-br from-[#6366f1] to-[#8b5cf6] overflow-hidden shrink-0">
-                                {companyLogoViewUrl ? (
-                                    <img src={companyLogoViewUrl} alt="Company" className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="font-bold text-lg text-white p-1.5">
-                                        {companyInitial}
-                                    </div>
-                                )}
-                            </div>
+                           
                             <div className="flex flex-col min-w-0">
                                 <div className="text-[13px] font-semibold text-[#e6eef7] whitespace-nowrap overflow-hidden text-ellipsis">View Profile</div>
                             </div>
