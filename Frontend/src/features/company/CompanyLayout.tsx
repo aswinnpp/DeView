@@ -170,7 +170,7 @@ const CompanyLayout = () => {
                             to="/company/profile"
                             className="flex items-center gap-3 py-2.5 px-3 mt-auto rounded-xl cursor-pointer select-none transition-all duration-150 bg-linear-to-b from-[rgba(255,255,255,0.02)] to-[rgba(255,255,255,0.01)] self-stretch shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] no-underline hover:bg-[rgba(255,255,255,0.03)] hover:-translate-y-px"
                         >
-                           
+                           View Profile
                             
                         </NavLink>
                     </aside>
