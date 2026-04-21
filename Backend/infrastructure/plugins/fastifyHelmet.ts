@@ -5,7 +5,7 @@ import { env } from '../config/env.js';
 
 export async function registerHelmet(fastify: FastifyInstance): Promise<void> {
     const frameParticipants = getHelmetFrameParticipantSources();
-    const s3BucketHost = env.AWS_S3_BUCKET ? `https://${env.AWS_S3_BUCKET}.s3.${env.AWS_REGION ?? 'ap-south-1'}.amazonaws.com` : null;
+    const s3BucketHost = env.AWS_S3_BUCKET ? `https://${env.AWS_S3_BUCKET}.s3.${env.AWS_REGION }.amazonaws.com` : null;
     const stripeScriptHosts = ['https://js.stripe.com'];
     const stripeConnectHosts = ['https://api.stripe.com', 'https://r.stripe.com', 'https://m.stripe.network', 'https://q.stripe.com'];
     const allowedImageHosts = ["'self'", 'data:', 'blob:', 'https:'];

@@ -76,9 +76,7 @@ const AdminLayout = () => {
                                 <line x1="3" y1="18" x2="21" y2="18" />
                             </svg>
                         </Button>
-                        <div className="bg-linear-to-br from-[#6366f1] to-[#4f46e5] text-white w-11 h-11 rounded-[10px] flex items-center justify-center text-lg font-bold shrink-0">
-                            A
-                        </div>
+                       
                         <h2 className="text-[#e5e7eb] m-0 text-xl font-semibold max-md:text-base truncate">
                             Admin Control Room
                         </h2>
