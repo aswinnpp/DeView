@@ -2,7 +2,7 @@ import type { FastifyBaseLogger } from "fastify";
 import { env } from "./env.js";
 
 /** Fixed production frontends (HTTPS only). */
-const STATIC_HTTPS_ORIGINS = ["https://deview.serveftp.com", "https://deview.ddns.net"] as const;
+const STATIC_HTTPS_ORIGINS = ["https://deview.serveftp.com", "https://ndeview.dds.net" ,"https://35.153.76.13:3000"] as const;
 
 function normalizeOrigin(url: string): string {
   return url.trim().replace(/\/$/, "");
