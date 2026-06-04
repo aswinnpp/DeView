@@ -1,10 +1,13 @@
 import { RedisClientType } from "redis";
 
 export class RedisAccessTokenRepository {
-  constructor(private _redis: RedisClientType) {}
+  constructor(
+    private _redis: RedisClientType,
+    private _ttlSeconds: number
+  ) {}
 
   async save(jti: string, userId: string) {
-    await this._redis.set(`access:${jti}`, userId, { EX: 900 });
+    await this._redis.set(`access:${jti}`, userId, { EX: this._ttlSeconds });
   }
 
   async delete(jti: string) {

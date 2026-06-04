@@ -1,10 +1,10 @@
 import { RedisClientType } from "redis";
 import { IOtpRepository } from "../../../application/auth/ports/repository/IOtpRepository";
 import { OTPCode } from "../../../domain/value-objects/OTPCode";
+import { env } from "../../config/env.js";
 
 export class RedisOTPRepository implements IOtpRepository {
   private readonly _PREFIX = "otp:";
-  private readonly _TTL_SECONDS = 60;
 
   constructor(private readonly _redis: RedisClientType) {}
 
@@ -14,7 +14,7 @@ export class RedisOTPRepository implements IOtpRepository {
 
   async save(email: string, otp: OTPCode): Promise<void> {
     await this._redis.set(this.key(email), otp.getValue(), {
-      EX: this._TTL_SECONDS,
+      EX: env.OTP_TTL_SECONDS,
     });
   }
 

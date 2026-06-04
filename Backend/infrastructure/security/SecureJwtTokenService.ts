@@ -16,7 +16,10 @@ export class SecureJwtTokenService implements ITokenService {
     private _refreshRepo: RedisRefreshTokenRepository,
     private _accessRepo: RedisAccessTokenRepository,
     private _accessSecret: string,
-    private _refreshSecret: string
+    private _refreshSecret: string,
+    private _accessTtl: string,
+    private _refreshTtl: string,
+    private _refreshTtlMs: number
   ) {}
 
   // ================= ACCESS TOKEN =================
@@ -27,7 +30,7 @@ export class SecureJwtTokenService implements ITokenService {
     const token = jwt.sign(
       { ...payload, jti },
       this._accessSecret,
-      { expiresIn: "15m" }
+      { expiresIn: this._accessTtl as jwt.SignOptions["expiresIn"] }
     );
 
     await this._accessRepo.save(jti, payload.userId);
@@ -47,7 +50,7 @@ export class SecureJwtTokenService implements ITokenService {
     const token = jwt.sign(
       { userId, jti: tokenId },
       this._refreshSecret,
-      { expiresIn: "7d" }
+      { expiresIn: this._refreshTtl as jwt.SignOptions["expiresIn"] }
     );
 
     await this._refreshRepo.save(userId, tokenId);
@@ -55,7 +58,7 @@ export class SecureJwtTokenService implements ITokenService {
     return {
       token,
       tokenHash: tokenId,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + this._refreshTtlMs),
     };
   }
 

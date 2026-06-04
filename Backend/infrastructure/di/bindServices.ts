@@ -38,11 +38,19 @@ export function bindServices(container: Container): void {
 
   container.bind(TYPES.TokenServicePort).toDynamicValue(() => {
     const redis = container.get<RedisClientType>(TYPES.Redis);
+
+    // Repos receive TTL seconds derived from env — single source of truth
+    const refreshRepo = new RedisRefreshTokenRepository(redis, env.REFRESH_TOKEN_TTL_SECONDS);
+    const accessRepo = new RedisAccessTokenRepository(redis, env.ACCESS_TOKEN_TTL_SECONDS);
+
     return new SecureJwtTokenService(
-      new RedisRefreshTokenRepository(redis),
-      new RedisAccessTokenRepository(redis),
+      refreshRepo,
+      accessRepo,
       env.JWT_ACCESS_SECRET,
-      env.JWT_REFRESH_SECRET
+      env.JWT_REFRESH_SECRET,
+      env.ACCESS_TOKEN_TTL,
+      env.REFRESH_TOKEN_TTL,
+      env.REFRESH_TOKEN_TTL_SECONDS * 1000   // ms for expiresAt calculation
     );
   });
 }

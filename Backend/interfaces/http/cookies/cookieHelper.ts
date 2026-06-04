@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import { env } from "../../../infrastructure/config/env.js";
 
 /** Same-origin SPA (`/api` proxy): Lax + Secure + httpOnly. */
 const authCookieOptions = {
@@ -15,14 +16,14 @@ export function getCookie(request: FastifyRequest, name: string): string | undef
 export function setAccessTokenCookie(_request: FastifyRequest, reply: FastifyReply, token: string) {
   reply.setCookie("accessToken", token, {
     ...authCookieOptions,
-    maxAge: 900,
+    maxAge: env.ACCESS_TOKEN_TTL_SECONDS,
   });
 }
 
 export function setRefreshTokenCookie(_request: FastifyRequest, reply: FastifyReply, token: string) {
   reply.setCookie("refreshToken", token, {
     ...authCookieOptions,
-    maxAge: 604800,
+    maxAge: env.REFRESH_TOKEN_TTL_SECONDS,
   });
 }
 

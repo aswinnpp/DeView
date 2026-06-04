@@ -14,7 +14,7 @@ function createRotatingLogStream(): ReturnType<typeof createStream> {
 
   return createStream('app.log', {
     path: LOG_DIR,
-    interval: '1d',
+    interval: env.LOG_ROTATION_INTERVAL,
     maxFiles: RETENTION_DAYS,
     compress: 'gzip',
   });

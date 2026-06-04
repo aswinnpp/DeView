@@ -1,5 +1,6 @@
 import { IOAuthSession } from "../../../application/auth/ports/services/IOAuthSession";
 import { RedisClientType } from "redis";
+import { env } from "../../config/env.js";
 
 export class RedisOAuthSessionRepository implements IOAuthSession {
   constructor(private _redis: RedisClientType) {}
@@ -7,7 +8,7 @@ export class RedisOAuthSessionRepository implements IOAuthSession {
   async save(sessionId: string, payload: IOAuthSession["save"] extends (id: string, p: infer P) => Promise<void> ? P : never): Promise<void> {
     await this._redis.setEx(
       `oauth:session:${sessionId}`,
-      900,
+      env.OAUTH_SESSION_TTL_SECONDS,
       JSON.stringify(payload)
     );
   }

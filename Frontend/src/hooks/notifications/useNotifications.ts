@@ -25,10 +25,12 @@ export function useNotifications(scope: NotificationScope) {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const NOTIFICATIONS_LIMIT = parseInt(import.meta.env.VITE_NOTIFICATIONS_FETCH_LIMIT || '50', 10);
+
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await notificationsService.list(scope, { unreadOnly: true, limit: 50 });
+      const { data } = await notificationsService.list(scope, { unreadOnly: true, limit: NOTIFICATIONS_LIMIT });
       setNotifications(data?.data ?? []);
     } finally {
       setLoading(false);

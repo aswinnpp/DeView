@@ -172,7 +172,7 @@ export class MongoOfferMailRepository implements IOfferMailRepository {
       return null;
     }
 
-    const $set: Partial<Record<keyof IOfferMailDocument, unknown>> = {};
+    const $set: Partial<IOfferMailDocument> = {};
     if (terms.salary !== undefined) $set.salary = terms.salary;
     if (terms.location !== undefined) $set.location = terms.location;
     if (terms.startDate !== undefined) $set.startDate = terms.startDate;

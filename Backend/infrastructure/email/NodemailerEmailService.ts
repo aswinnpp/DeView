@@ -8,7 +8,7 @@ export class NodemailerEmailService implements IEmailService {
     private _transporter: nodemailer.Transporter;
     constructor() {
         this._transporter = nodemailer.createTransport({
-            service: 'gmail',
+            service: env.EMAIL_SERVICE,
             auth: {
                 user: env.EMAIL_USER,
                 pass: env.EMAIL_PASSWORD,

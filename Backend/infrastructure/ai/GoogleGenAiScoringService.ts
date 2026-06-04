@@ -3,6 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 
 import { IAiScoringService } from '../../application/shared/ports/services/IAiScoringService.js';
 import { AppError } from '../../shared/errors/AppError.js';
+import { env } from '../config/env.js';
 
 const SYSTEM_PROMPT = `You are a strict candidate evaluation system.
 
@@ -40,7 +41,7 @@ export class GoogleGenAiScoringService implements IAiScoringService {
     const userPrompt = `Job Description:\n${jobText}\n\nCandidate Profile:\n${candidateText}\n\nReturn ONLY a valid JSON object with key "matchScore" (0-100).`;
 
     const request = {
-      model: 'gemini-2.5-flash',
+      model: env.GOOGLE_AI_MODEL_ID,
       systemInstruction: SYSTEM_PROMPT,
       contents: [
         {

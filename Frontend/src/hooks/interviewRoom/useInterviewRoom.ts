@@ -8,22 +8,36 @@ import {
 
 type Nullable<T> = T | null;
 
-const rtcConfig: RTCConfiguration = {
-  iceServers: [
-    {
-      urls: ["stun:stun.l.google.com:19302"],
-    },
-    {
-      urls: [
-        "turn:3.27.107.241:3478?transport=udp",
-        "turn:3.27.107.241:3478?transport=tcp",
-      ],
-      username: "aswin",
-      credential: "Aswin@123",
-    },
-  ],
-  iceCandidatePoolSize: 10,
-};
+function buildRtcConfig(): RTCConfiguration {
+  const iceServers: RTCIceServer[] = [];
+
+  // STUN servers from env (comma-separated), fallback to Google public STUN
+  const stunRaw = import.meta.env.VITE_STUN_URLS?.trim();
+  const stunUrls = stunRaw
+    ? stunRaw.split(",").map((u: string) => u.trim()).filter(Boolean)
+    : ["stun:stun.l.google.com:19302"];
+  iceServers.push({ urls: stunUrls });
+
+  // TURN servers from env (comma-separated) — only added when configured
+  const turnRaw = import.meta.env.VITE_TURN_URLS?.trim();
+  if (turnRaw) {
+    const turnUrls = turnRaw.split(",").map((u: string) => u.trim()).filter(Boolean);
+    const username = import.meta.env.VITE_TURN_USERNAME?.trim() || "";
+    const credential = import.meta.env.VITE_TURN_CREDENTIAL?.trim() || "";
+    if (turnUrls.length > 0 && username && credential) {
+      iceServers.push({ urls: turnUrls, username, credential });
+    }
+  }
+
+  const poolSize = parseInt(import.meta.env.VITE_ICE_CANDIDATE_POOL_SIZE || "10", 10);
+
+  return {
+    iceServers,
+    iceCandidatePoolSize: Number.isFinite(poolSize) ? poolSize : 10,
+  };
+}
+
+const rtcConfig: RTCConfiguration = buildRtcConfig();
 
 export interface ChatMessage {
   message: string;

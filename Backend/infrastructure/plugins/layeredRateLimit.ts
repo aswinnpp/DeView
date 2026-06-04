@@ -1,13 +1,11 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { redisClient } from '../cache/RedisClient.js';
+import { env } from '../config/env.js';
 
-const GLOBAL_MAX_PER_MINUTE = 150;
-
-const MUTATING_MAX_PER_MINUTE = 60;
-
-const AUTH_STRICT_MAX_PER_MINUTE = 8;
-
-const WINDOW_SECONDS = 60;
+const GLOBAL_MAX_PER_MINUTE = env.RATE_LIMIT_GLOBAL_MAX;
+const MUTATING_MAX_PER_MINUTE = env.RATE_LIMIT_MUTATING_MAX;
+const AUTH_STRICT_MAX_PER_MINUTE = env.RATE_LIMIT_AUTH_MAX;
+const WINDOW_SECONDS = env.RATE_LIMIT_WINDOW_SECONDS;
 
 const WEBHOOK_PATH_PREFIX = '/webhooks/';
 

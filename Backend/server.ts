@@ -37,9 +37,8 @@ const loggerConfig = useFileLogging
 async function bootstrap() {
   const fastify = Fastify({
     logger: loggerConfig,
-   
     trustProxy: true,
-    bodyLimit: 1048576,
+    bodyLimit: env.BODY_LIMIT_BYTES,
   });
 
   await fastify.register(fastifyRawBody, {
@@ -84,7 +83,7 @@ async function bootstrap() {
   
   await fastify.register(jwtPlugin);
 
-  await fastify.register(multipart, { limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB max for resume uploads
+  await fastify.register(multipart, { limits: { fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES } });
 
 
   const ioc = createContainer(db);

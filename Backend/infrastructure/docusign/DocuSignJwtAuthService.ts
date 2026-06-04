@@ -1,10 +1,8 @@
 import jwt from 'jsonwebtoken';
 import type { IEnvConfig } from '../config/env.js';
 
-/** Demo OAuth hostname (JWT `aud` claim and token endpoint host). */
 export const DOCUSIGN_DEMO_OAUTH_HOST = 'account-d.docusign.com';
 
-/** Demo REST API base (set on ApiClient / fetch base URL for envelopes). */
 export const DOCUSIGN_DEMO_REST_API_BASE = 'https://demo.docusign.net/restapi';
 
 export function getDocuSignRestBaseUrl(e: IEnvConfig): string {
@@ -15,7 +13,6 @@ const JWT_BEARER_GRANT = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
 
 const DEFAULT_SCOPES = ['signature', 'impersonation'];
 
-/** Thrown when the integration user has not yet granted JWT consent (first-time setup). */
 export class DocuSignConsentRequiredError extends Error {
   constructor(public readonly consentUrl: string) {
     super('DocuSign consent required');
@@ -73,7 +70,7 @@ export class DocuSignJwtAuthService {
       userId,
       privateKeyPem: normalizePemFromEnv(rawKey),
       oauthHost: (e.DOCUSIGN_OAUTH_HOST ?? DOCUSIGN_DEMO_OAUTH_HOST).replace(/^https?:\/\//, ''),
-      redirectUri: (e.DOCUSIGN_REDIRECT_URI ?? 'https://deview.ddns.net/offer/success').trim(),
+      redirectUri: (e.DOCUSIGN_REDIRECT_URI ?? '').trim(),
       jwtLifetimeSeconds: e.DOCUSIGN_JWT_LIFETIME_SECONDS
         ? parseInt(e.DOCUSIGN_JWT_LIFETIME_SECONDS, 10)
         : 600,

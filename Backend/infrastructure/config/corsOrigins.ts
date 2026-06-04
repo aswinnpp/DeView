@@ -1,22 +1,27 @@
 import type { FastifyBaseLogger } from "fastify";
 import { env } from "./env.js";
 
-/** Fixed production frontends (HTTPS only). */
-const STATIC_HTTPS_ORIGINS = ["https://deview.myddns.me","https://deview.serveftp.com", "https://deview.serveblog.net","https://ndeview.dds.net" ] as const;
-
 function normalizeOrigin(url: string): string {
   return url.trim().replace(/\/$/, "");
 }
 
 /**
  * Origins allowed for credentialed CORS / Socket.IO. HTTPS only; HTTP localhost is excluded.
- * `FRONTEND_URL` is included when it is an `https://` URL.
+ * Built from `CORS_ALLOWED_ORIGINS` (comma-separated) + `FRONTEND_URL` (when HTTPS).
  */
 export function getHttpsCorsOriginSet(log?: Pick<FastifyBaseLogger, "warn">): Set<string> {
   const set = new Set<string>();
-  for (const o of STATIC_HTTPS_ORIGINS) {
+
+  // Parse comma-separated CORS_ALLOWED_ORIGINS from env
+  const origins = env.CORS_ALLOWED_ORIGINS
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
+  for (const o of origins) {
     set.add(normalizeOrigin(o));
   }
+
   const fe = env.FRONTEND_URL ? normalizeOrigin(env.FRONTEND_URL) : "";
   if (fe.length > 0) {
     if (fe.toLowerCase().startsWith("https://")) {

@@ -47,7 +47,7 @@ export class S3FileStorageService implements IFileStorage {
       Key: key,
     });
 
-    const uploadUrl = await getSignedUrl(this._s3, command, { expiresIn: 60 * 5 });
+    const uploadUrl = await getSignedUrl(this._s3, command, { expiresIn: env.S3_UPLOAD_URL_EXPIRES_SECONDS });
 
     const getCommand = new GetObjectCommand({
       Bucket: env.AWS_S3_BUCKET,
@@ -59,8 +59,8 @@ export class S3FileStorageService implements IFileStorage {
       category === 'profilePic' ||
       category === 'interviewerProfilePic' ||
       category === 'hrProfilePic'
-        ? 60 * 60 * 24 * 7
-        : 60 * 5;
+        ? env.S3_PROFILE_VIEW_URL_EXPIRES_SECONDS
+        : env.S3_FILE_VIEW_URL_EXPIRES_SECONDS;
     const fileUrl = await getSignedUrl(this._s3, getCommand, { expiresIn: viewExpiresIn });
 
     return {
@@ -71,7 +71,7 @@ export class S3FileStorageService implements IFileStorage {
   }
 
   
-  async getSignedViewUrl(s3KeyOrFullUrl: string, expiresInSeconds = 3600): Promise<string> {
+  async getSignedViewUrl(s3KeyOrFullUrl: string, expiresInSeconds = env.S3_DEFAULT_VIEW_URL_EXPIRES_SECONDS): Promise<string> {
     let key = s3KeyOrFullUrl;
     if (s3KeyOrFullUrl.startsWith('http://') || s3KeyOrFullUrl.startsWith('https://')) {
       try {

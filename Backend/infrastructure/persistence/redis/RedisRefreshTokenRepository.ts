@@ -1,10 +1,13 @@
 import { RedisClientType } from "redis";
 
 export class RedisRefreshTokenRepository {
-  constructor(private _redis: RedisClientType) {}
+  constructor(
+    private _redis: RedisClientType,
+    private _ttlSeconds: number
+  ) {}
 
   async save(userId: string, tokenId: string) {
-    await this._redis.set(`refresh:${tokenId}`, userId, { EX: 604800 });
+    await this._redis.set(`refresh:${tokenId}`, userId, { EX: this._ttlSeconds });
   }
 
   async exists(tokenId: string) {
