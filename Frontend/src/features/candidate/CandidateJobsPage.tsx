@@ -308,7 +308,7 @@ const CandidateJobsPage: React.FC = () => {
                                     <p className="m-0 text-sm text-[rgba(148,163,184,0.9)]">Loading jobs...</p>
                                 </div>
                             ) : (
-                                jobs.map((job) => (
+                                jobs.filter((job) => job.status === "OPEN").map((job) => (
                                     <button
                                         key={job.id}
                                         type="button"
@@ -383,6 +383,8 @@ const CandidateJobsPage: React.FC = () => {
                                 {/* Job Header Card */}
                                 <div className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.7)] px-5 py-5 mb-6">
                                     <h3 className="m-0 text-lg font-bold text-white">{selectedJob.title}</h3>
+                                  
+                                    
                                     <p className="m-0 mt-1 text-[13px] text-[rgba(148,163,184,0.9)]">
                                         {selectedJob.companyName || "Company"}
                                         <span className="mx-1.5">•</span>
