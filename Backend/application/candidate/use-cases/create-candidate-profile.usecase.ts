@@ -50,6 +50,9 @@ export class CreateCandidateProfileUseCase implements ICreateCandidateProfileUse
             dto.resumeUrl,
             dto.profilePicUrl
         );
+           
+    console.log("sssss",profile);
+    
 
         await this._repo.save(profile);
 

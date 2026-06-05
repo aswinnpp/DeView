@@ -161,9 +161,7 @@ const candidateProfileObjectSchema = z.object({
         .array(z.string().trim().max(100))
         .max(50)
         .catch([''])
-        .refine((arr) => arr.some((s) => s !== ''), {
-            message: 'At least one skill is required',
-        }),
+        ,
     languages: z
         .array(z.string().trim().max(80))
         .max(30)
