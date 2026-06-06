@@ -99,6 +99,10 @@ const InterviewRoom = () => {
 
   const combinedError = error || rtcError;
 
+
+  console.log("ss" ,combinedError , details);
+  
+
   if (combinedError || !details) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
