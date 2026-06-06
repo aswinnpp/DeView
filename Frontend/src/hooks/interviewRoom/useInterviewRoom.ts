@@ -198,17 +198,12 @@ export function useInterviewRoom(roomId: string | undefined, displayName: string
           }
         };
 
-        const socketEnv = import.meta.env.VITE_SOCKET_URL?.trim();
-        const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() ?? "";
-        const socketUrl = (() => {
-          if (socketEnv) {
-            const raw = socketEnv.includes("://") ? socketEnv : `https://${socketEnv}`;
-            return new URL(raw).origin;
-          }
-          if (apiBase.startsWith("/")) return window.location.origin;
-          if (apiBase.startsWith("http")) return new URL(apiBase).origin;
-          return window.location.origin;
-        })();
+        const socketUrl = import.meta.env.VITE_SOCKET_URL?.trim();
+        
+      
+
+        console.log(socketUrl);
+        
 
         const socket = io(socketUrl, {
           withCredentials: true,
