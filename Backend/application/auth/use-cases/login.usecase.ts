@@ -6,9 +6,8 @@ import { IPasswordHasher } from '../ports/services/IPasswordHasher';
 import { ITokenService } from '../ports/services/ITokenService';
 import { AppError } from '../../../shared/errors/AppError';
 import { ICompanyProfileRepository } from '../../company/ports/repository/ICompanyProfileRepository';
-import type { ILoginInputDTO, ILoginOutputDTO } from '../dtos/LoginDTO.js';
+import type { ILoginInputDTO, ILoginOutputDTO } from '../dtos/LoginDTO';
 import type { ILoginUseCase } from '../ports/usecase/ILoginUseCase';
-import { log } from 'node:console';
 
 @injectable()
 export class LoginUseCase implements ILoginUseCase {

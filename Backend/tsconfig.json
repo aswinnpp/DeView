@@ -1,21 +1,25 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "strict": true,
-    "esModuleInterop": true,
 
-    "lib": ["ES2022"],
+  "compilerOptions": {
+      "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+
+    "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+
     "outDir": "./dist",
     "rootDir": "../",
+
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
-  },
+
+},
   "include": ["**/*.ts", "../Shared/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

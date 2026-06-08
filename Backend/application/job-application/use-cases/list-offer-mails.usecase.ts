@@ -5,7 +5,6 @@ import type { ICounterLetterRepository } from '../ports/repository/ICounterLette
 import type { IJobRepository } from '../../job/ports/repository/IJobRepository.js';
 import type {
   IListOfferMailsInputDTO,
-  IListOfferMailsResult,
 } from '../dtos/ListOfferMailsDTO.js';
 import { ApplicationMapper } from '../mappers/ApplicationMapper.js';
 

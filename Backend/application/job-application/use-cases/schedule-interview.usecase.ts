@@ -7,7 +7,6 @@ import type { IJobRepository } from '../../job/ports/repository/IJobRepository.j
 import type { IInterviewerSlotsRepository } from '../../interviewer/ports/repository/IInterviewerSlotsRepository.js';
 import type { INotificationRepository } from '../../notification/ports/repository/INotificationRepository.js';
 import type { INotificationPublisher } from '../../notification/ports/service/INotificationPublisher.js';
-import type { Application } from '../../../domain/entities/Application.js';
 import type { ApplicationView } from '../dtos/ApplicationView.js';
 import { Interview } from '../../../domain/entities/Interview.js';
 import type { InterviewType } from '../../../domain/entities/Interview.js';

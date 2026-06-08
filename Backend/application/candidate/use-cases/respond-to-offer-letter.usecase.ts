@@ -1,7 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../../shared/di/types.js';
 import type { IOfferMailRepository } from '../../job-application/ports/repository/IOfferMailRepository.js';
-import type { OfferMail } from '../../../domain/entities/OfferMail.js';
 import { AppError } from '../../../shared/errors/AppError.js';
 import { ApplicationMapper } from '../../job-application/mappers/ApplicationMapper.js';
 
