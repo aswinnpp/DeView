@@ -515,7 +515,7 @@ const HRApplicationsPage = () => {
             ),
         },
         {
-            header: "Actions",
+            header: "",
             cellClassName: "text-right",
             render: (job: Job) => (
                 <Button

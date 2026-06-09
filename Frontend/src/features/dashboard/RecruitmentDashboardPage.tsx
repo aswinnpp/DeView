@@ -1,5 +1,6 @@
 import { useId } from 'react';
 
+import { ExportButtons } from '@/components/common';
 import { useRecruitmentDashboard } from '@/hooks/useRecruitmentDashboard';
 import {
     AreaChart,
@@ -52,6 +53,58 @@ const RecruitmentDashboardPage = () => {
     const gradApps = `${useId().replace(/:/g, '')}-apps`;
     const gradMonthly = `${useId().replace(/:/g, '')}-monthly`;
 
+    const reportSections = stats
+        ? [
+              {
+                  title: 'Applications Over Time',
+                  columns: [
+                      { header: 'Day', key: 'day', width: 140 },
+                      { header: 'Applications', key: 'applications', width: 100 },
+                  ],
+                  rows: stats.applicationsOverTime,
+              },
+              {
+                  title: 'Application Status',
+                  columns: [
+                      { header: 'Status', key: 'name', width: 160 },
+                      { header: 'Value', key: 'value', width: 80 },
+                  ],
+                  rows: stats.applicationStatus,
+              },
+              {
+                  title: 'Applications by Job',
+                  columns: [
+                      { header: 'Job Title', key: 'name', width: 200 },
+                      { header: 'Applications', key: 'applications', width: 100 },
+                  ],
+                  rows: stats.applicationsByJob,
+              },
+              {
+                  title: 'Monthly Interviews',
+                  columns: [
+                      { header: 'Month', key: 'month', width: 140 },
+                      { header: 'Interviews', key: 'interviews', width: 100 },
+                  ],
+                  rows: stats.monthlyInterviews,
+              },
+              {
+                  title: 'Interview Status',
+                  columns: [
+                      { header: 'Status', key: 'name', width: 160 },
+                      { header: 'Value', key: 'value', width: 80 },
+                  ],
+                  rows: stats.interviewStatus,
+              },
+              {
+                  title: 'Weekly Interviews',
+                  columns: [
+                      { header: 'Day', key: 'day', width: 140 },
+                      { header: 'Interviews', key: 'interviews', width: 100 },
+                  ],
+                  rows: stats.weeklyInterviews,
+              },
+          ]
+        : [];
 
     if (error) {
         return (
@@ -91,13 +144,21 @@ const RecruitmentDashboardPage = () => {
 
     return (
         <div className="max-w-[1400px] mx-auto w-full min-w-0 max-md:px-0">
-            <div className="mb-8 max-md:mb-6">
-                <h1 className="m-0 text-[28px] max-md:text-[22px] text-[#f1f5f9]">
-                    Welcome back
-                </h1>
-                <p className="mt-1 mb-0 text-[#94a3b8] text-sm max-md:text-xs">
-                    Recruitment overview for your organization — applications and interviews from live data.
-                </p>
+            <div className="mb-8 max-md:mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <h1 className="m-0 text-[28px] max-md:text-[22px] text-[#f1f5f9]">
+                        Welcome back
+                    </h1>
+                    <p className="mt-1 mb-0 text-[#94a3b8] text-sm max-md:text-xs">
+                        Recruitment overview for your organization — applications and interviews from live data.
+                    </p>
+                </div>
+                <ExportButtons
+                    title="Recruitment Dashboard Report"
+                    filenameBase="recruitment-dashboard-report"
+                    sections={reportSections}
+                    className="self-center"
+                />
             </div>
 
             <h2 className="text-xs font-semibold text-[#64748b] uppercase tracking-widest m-0 mb-3">

@@ -1,5 +1,5 @@
 
-import { Button } from "../../components/common";
+import { Button, ExportButtons } from "../../components/common";
 import {
     BarChart,
     Bar,
@@ -30,6 +30,34 @@ const AdminDashboard = () => {
         error,
     } = useAdminDashboard();
 
+    const reportSections = [
+        {
+            title: 'Company Registrations',
+            columns: [
+                { header: 'Status', key: 'name', width: 120 },
+                { header: 'Companies', key: 'value', width: 80 },
+            ],
+            rows: registrationStatusData,
+        },
+        {
+            title: 'Company Subscriptions',
+            columns: [
+                { header: 'Plan', key: 'name', width: 140 },
+                { header: 'Companies', key: 'companies', width: 80 },
+            ],
+            rows: subscriptionByPlanData,
+        },
+        {
+            title: 'Growth Overview',
+            columns: [
+                { header: 'Label', key: 'label', width: 160 },
+                { header: 'Count', key: 'count', width: 80 },
+                { header: 'Period', key: 'period', width: 120 },
+            ],
+            rows: growthData,
+        },
+    ];
+
     if (error) {
         return (
             <div className="max-w-[1400px] mx-auto">
@@ -53,13 +81,20 @@ const AdminDashboard = () => {
     return (
         <div className="max-w-[1400px] mx-auto">
 
-            <div className="mb-6 max-md:mb-5">
-                <h1 className="m-0 text-[28px] max-md:text-[22px] text-[#f1f5f9] font-bold">
-                    Admin Dashboard
-                </h1>
-                <p className="mt-2 mb-0 text-[#94a3b8] text-sm max-md:text-xs">
-                    Welcome back! Here's an overview of your platform's activity
-                </p>
+            <div className="mb-6 max-md:mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 className="m-0 text-[28px] max-md:text-[22px] text-[#f1f5f9] font-bold">
+                        Admin Dashboard
+                    </h1>
+                    <p className="mt-2 mb-0 text-[#94a3b8] text-sm max-md:text-xs">
+                        Welcome back! Here's an overview of your platform's activity
+                    </p>
+                </div>
+                <ExportButtons
+                    title="Admin Dashboard Report"
+                    filenameBase="admin-dashboard-report"
+                    sections={reportSections}
+                />
             </div>
 
 
