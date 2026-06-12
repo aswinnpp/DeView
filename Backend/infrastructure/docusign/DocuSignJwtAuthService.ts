@@ -106,15 +106,7 @@ export class DocuSignJwtAuthService {
       sub: userId,
     };
 
-    console.log("KEY START:");
-console.log(privateKeyPem.substring(0, 100));
-
-console.log("KEY END:");
-console.log(privateKeyPem.slice(-100));
-
-console.log("HAS BEGIN:", privateKeyPem.includes("BEGIN RSA PRIVATE KEY"));
-console.log("HAS END:", privateKeyPem.includes("END RSA PRIVATE KEY"));
-
+    
     return jwt.sign(payload, privateKeyPem, { algorithm: 'RS256' });
   }
 

@@ -124,7 +124,7 @@ const CandidateAppliedJobsPage: React.FC = () => {
                 <CandidateNavHeader title="APPLIED JOBS" currentPage="applied" />
 
                 <div className="pt-[72px] px-3 sm:px-6 pb-6 sm:pb-8">
-                    <div className="mx-auto w-full max-w-6xl">
+                    <div className="">
                     <div className="shrink-0 py-4 border-b border-[rgba(255,255,255,0.06)]">
                         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                             <div className="w-full md:max-w-[320px]">
