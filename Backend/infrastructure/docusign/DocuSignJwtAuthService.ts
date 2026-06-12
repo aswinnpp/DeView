@@ -55,6 +55,7 @@ function normalizePemFromEnv(raw: string): string {
   }
 }
 
+
 export class DocuSignJwtAuthService {
   constructor(private readonly config: DocuSignJwtAuthConfig) { }
 
@@ -65,6 +66,8 @@ export class DocuSignJwtAuthService {
     if (!integrationKey || !userId || !rawKey) {
       return null;
     }
+
+    
     return new DocuSignJwtAuthService({
       integrationKey,
       userId,
@@ -76,7 +79,7 @@ export class DocuSignJwtAuthService {
         : 600,
     });
   }
-
+   
   /** OAuth consent URL — open in a browser while logged in as the impersonated DocuSign user. */
   getConsentUrl(): string {
     const { integrationKey, redirectUri } = this.config;
@@ -102,6 +105,16 @@ export class DocuSignJwtAuthService {
       scope: DEFAULT_SCOPES.join(' '),
       sub: userId,
     };
+
+    console.log("KEY START:");
+console.log(privateKeyPem.substring(0, 100));
+
+console.log("KEY END:");
+console.log(privateKeyPem.slice(-100));
+
+console.log("HAS BEGIN:", privateKeyPem.includes("BEGIN RSA PRIVATE KEY"));
+console.log("HAS END:", privateKeyPem.includes("END RSA PRIVATE KEY"));
+
     return jwt.sign(payload, privateKeyPem, { algorithm: 'RS256' });
   }
 
