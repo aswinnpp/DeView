@@ -1,0 +1,67 @@
+name: CI-CD
+
+on:
+push:
+branches:
+- master
+
+jobs:
+frontend:
+runs-on: ubuntu-latest
+
+```
+defaults:
+  run:
+    working-directory: Frontend
+
+steps:
+  - uses: actions/checkout@v4
+
+  - uses: actions/setup-node@v4
+    with:
+      node-version: 22
+
+  - run: npm ci
+
+  - run: npm run lint
+
+  - run: npm run build
+```
+
+backend:
+runs-on: ubuntu-latest
+
+```
+defaults:
+  run:
+    working-directory: Backend
+
+steps:
+  - uses: actions/checkout@v4
+
+  - uses: actions/setup-node@v4
+    with:
+      node-version: 22
+
+  - run: npm ci
+
+  - run: npm run build
+```
+
+deploy:
+needs:
+- frontend
+- backend
+
+```
+runs-on: ubuntu-latest
+
+steps:
+  - name: Deploy Frontend
+    run: |
+      curl -X POST https://deview.myddns.me/hooks/deploy-frontend
+
+  - name: Deploy Backend
+    run: |
+      curl -X POST https://deview.serveblog.net/hooks/deploy-backend
+```
