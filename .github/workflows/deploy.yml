@@ -22,9 +22,7 @@ steps:
       node-version: 22
 
   - run: npm ci
-
   - run: npm run lint
-
   - run: npm run build
 ```
 
@@ -44,7 +42,6 @@ steps:
       node-version: 22
 
   - run: npm ci
-
   - run: npm run build
 ```
 
@@ -58,10 +55,8 @@ runs-on: ubuntu-latest
 
 steps:
   - name: Deploy Frontend
-    run: |
-      curl -X POST https://deview.myddns.me/hooks/deploy-frontend
+    run: curl -X POST https://deview.myddns.me/hooks/deploy-frontend
 
   - name: Deploy Backend
-    run: |
-      curl -X POST https://deview.serveblog.net/hooks/deploy-backend
+    run: curl -X POST https://deview.serveblog.net/hooks/deploy-backend
 ```
