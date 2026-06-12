@@ -507,7 +507,7 @@ const HRApplicationsPage = () => {
         },
         {
             header: "Applications",
-            cellClassName: "text-center",
+            cellClassName: "",
             render: (job: Job) => (
                 <span className="inline-flex items-center justify-center px-3 py-1 rounded-lg text-sm font-semibold bg-blue-500/10 text-blue-400">
                     {job.applicantCount ?? 0}
