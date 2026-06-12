@@ -31,8 +31,10 @@ const RejectionEmailModal: React.FC<RejectionEmailModalProps> = ({
 }) => {
     const [content, setContent] = useState('');
 
+ 
     useEffect(() => {
         if (isOpen && candidate && job) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setContent(`Thank you for your interest in the ${job.title} position at ${company?.name || 'our company'} and for taking the time to interview with us.
 
 After careful consideration, we have decided to move forward with other candidates whose qualifications more closely match our current needs.

@@ -201,7 +201,8 @@ export function useJobs() {
       try {
         await jobsService.toggleStatus(job.id, newStatus as "OPEN" | "CLOSED");
         await fetchJobs();
-      } catch {
+      } catch (err){
+        setJobsError(extractApiError(err));
       }
     },
     [fetchJobs, isActive]

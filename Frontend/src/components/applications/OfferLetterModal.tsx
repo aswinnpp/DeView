@@ -47,8 +47,10 @@ const OfferLetterModal: React.FC<OfferLetterModalProps> = ({
     const [startDate, setStartDate] = useState('');
     const [benefits, setBenefits] = useState('');
 
+     
     useEffect(() => {
         if (isOpen && candidate && job) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setContent(`We are delighted to extend an offer of employment for the position of ${job.title} at ${company?.name || 'our company'}. After careful consideration of your qualifications and interview performance, we believe you will be an excellent addition to our team.
 
 This offer is contingent upon successful completion of background verification and reference checks. Please confirm your acceptance of this offer by responding to this email within 7 business days.
