@@ -118,7 +118,7 @@ const LoginPage = () => {
               </div>
               <div className="flex justify-between items-center mb-4">
                 <Link to="/forgot-password" className="text-brand-primary no-underline text-sm transition-colors duration-300 hover:text-[#5a67d8]">
-                  Forgot your password?
+                  Forgot your passworddddd?
                 </Link>
               </div>
 
