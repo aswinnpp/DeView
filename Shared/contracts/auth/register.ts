@@ -3,11 +3,14 @@ import { z } from 'zod';
 const emailField = z.string().trim().toLowerCase().email({ message: 'Please enter a valid email' });
 const strongPasswordField = z
   .string()
-  .min(8, { message: 'Password must be at least 8 characters' })
-  .regex(/[a-z]/, { message: 'Password must include at least one lowercase letter' })
-  .regex(/[A-Z]/, { message: 'Password must include at least one uppercase letter' })
-  .regex(/\d/, { message: 'Password must include at least one number' })
-  .regex(/[^A-Za-z0-9]/, { message: 'Password must include at least one special character' });
+  .regex(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
+    {
+      message:
+        'Password must contain: 8+ characters, [a-z], [A-Z], [0-9], [@#$%^&*...]',
+    }
+  );
+
 const fullNameField = z
   .string()
   .trim()
