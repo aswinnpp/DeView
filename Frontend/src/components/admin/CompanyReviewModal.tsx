@@ -112,9 +112,15 @@ const CompanyReviewModal = ({
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 min-w-0">
-                      <span className="text-sm text-slate-200 truncate font-medium">
-                        {doc.fileName}
-                      </span>
+                         <p className="text-xs text-slate-400 mb-1">
+                          {docKey
+                            .replace(/([A-Z])/g, " $1")
+                            .replace(/^./, (s) => s.toUpperCase())}
+                        </p>
+
+                        <p className="text-sm text-slate-200 truncate font-medium">
+                          {doc.fileName || "No filename available"}
+                        </p>
                       {isMarked && (
                         <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400">
                           ✓ Verified
