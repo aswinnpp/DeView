@@ -65,6 +65,8 @@ export interface IEnvConfig {
     GOOGLE_AI_API_KEY?: string;
     LOG_TO_FILE?: string;
     LOG_RETENTION_DAYS?: string;
+    LOG_LEVEL: 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace';
+    LOG_DIRECTORY?: string;
     DOCUSIGN_INTEGRATION_KEY?: string;
     DOCUSIGN_USER_ID?: string;
     DOCUSIGN_PRIVATE_KEY?: string;
@@ -160,6 +162,12 @@ function validateEnv(): IEnvConfig {
         GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
         LOG_TO_FILE: process.env.LOG_TO_FILE,
         LOG_RETENTION_DAYS: process.env.LOG_RETENTION_DAYS,
+        LOG_LEVEL: (() => {
+            const valid = ['fatal', 'error', 'warn', 'info', 'debug', 'trace'] as const;
+            const raw = (process.env.LOG_LEVEL ?? 'info').trim().toLowerCase();
+            return (valid.includes(raw as typeof valid[number]) ? raw : 'info') as typeof valid[number];
+        })(),
+        LOG_DIRECTORY: process.env.LOG_DIRECTORY || 'logs',
 
         DOCUSIGN_INTEGRATION_KEY: process.env.DOCUSIGN_INTEGRATION_KEY,
         DOCUSIGN_USER_ID: process.env.DOCUSIGN_USER_ID,

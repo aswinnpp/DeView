@@ -6,37 +6,33 @@ import multipart from '@fastify/multipart';
 import fastifyRawBody from 'fastify-raw-body';
 
 import { env } from './infrastructure/config/env.js';
-import { getHttpsCorsOriginSet, isAllowedBrowserOrigin } from './infrastructure/config/corsOrigins.js';
+import {
+  getHttpsCorsOriginSet,
+  isAllowedBrowserOrigin,
+} from './infrastructure/config/corsOrigins.js';
+
 import { initializeDatabase } from './infrastructure/database/index.js';
 import { registerHelmet } from './infrastructure/plugins/fastifyHelmet.js';
 import { registerLayeredRateLimit } from './infrastructure/plugins/layeredRateLimit.js';
 import { registerErrorHandler } from './infrastructure/plugins/errorHandler.js';
 import jwtPlugin from './infrastructure/plugins/fastifyJwt.js';
-import { createContainer, getControllers } from './infrastructure/di/container.js';
+
+import {
+  createContainer,
+  getControllers,
+} from './infrastructure/di/container.js';
+
 import { registerRoutes } from './infrastructure/di/routes.js';
+
 import { redisClient } from './infrastructure/cache/RedisClient.js';
-import { getFileLogStream } from './infrastructure/logging/fileLogger.js';
+import { logger } from './infrastructure/logging/fileLogger.js';
+
 import { createInterviewSocketServer } from './infrastructure/socket/interviewSocket.js';
 
-const useFileLogging = env.LOG_TO_FILE === 'true' ;
-
-const loggerConfig = useFileLogging
-  ? { level: 'info' as const, stream: getFileLogStream() }
-  : {
-      level: 'info' as const,
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          translateTime: 'SYS:standard',
-          ignore: 'pid,hostname',
-        },
-      },
-    };
 
 async function bootstrap() {
-  const fastify = Fastify({
-    logger: loggerConfig,
+   const fastify = Fastify({
+    logger:false, // Disable Fastify's default logger
     trustProxy: true,
     bodyLimit: env.BODY_LIMIT_BYTES,
   });
@@ -49,6 +45,7 @@ async function bootstrap() {
   });
 
   await registerHelmet(fastify);
+
   registerErrorHandler(fastify);
 
   const corsAllowedOrigins = getHttpsCorsOriginSet(fastify.log);
@@ -59,6 +56,7 @@ async function bootstrap() {
         cb(null, true);
         return;
       }
+
       cb(null, false);
     },
     credentials: true,
@@ -67,12 +65,11 @@ async function bootstrap() {
     exposedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
   });
 
-  
   await fastify.register(cookie);
 
   if (!redisClient.isOpen) {
     await redisClient.connect();
-    fastify.log.info("Redis connected");
+    fastify.log.info('Redis connected');
   }
 
   registerLayeredRateLimit(fastify);
@@ -80,30 +77,86 @@ async function bootstrap() {
   const db = await initializeDatabase();
   fastify.decorate('db', db);
 
-  
   await fastify.register(jwtPlugin);
 
-  await fastify.register(multipart, { limits: { fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES } });
-
+  await fastify.register(multipart, {
+    limits: {
+      fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES,
+    },
+  });
 
   const ioc = createContainer(db);
   const controllers = getControllers(ioc);
+
   await registerRoutes(fastify, controllers);
 
   createInterviewSocketServer(fastify);
 
   const gracefulShutdown = async () => {
-    await redisClient.disconnect();
-    await fastify.close();
-    process.exit(0);
+    try {
+      if (redisClient.isOpen) {
+        await redisClient.disconnect();
+      }
+
+      await fastify.close();
+
+      fastify.log.info('Server shutdown completed');
+
+      process.exit(0);
+    } catch (error) {
+      fastify.log.error(error);
+
+      process.exit(1);
+    }
   };
+
+
+
+fastify.addHook('onRequest', async (request) => {
+  logger.info({
+    type: 'REQUEST',
+    method: request.method,
+    url: request.url,
+    ip: request.ip,
+  });
+});
+
+fastify.addHook('onResponse', async (request, reply) => {
+  const logData = {
+    type: 'RESPONSE',
+    method: request.method,
+    url: request.url,
+    statusCode: reply.statusCode,
+  };
+
+  if (reply.statusCode >= 500) {
+    logger.error(logData);
+  } else if (reply.statusCode >= 400) {
+    logger.warn(logData);
+  } else {
+    logger.info(logData);
+  }
+});
+
+  
 
   process.on('SIGINT', gracefulShutdown);
   process.on('SIGTERM', gracefulShutdown);
 
-  await fastify.listen({ port: env.PORT, host: '0.0.0.0' });
+  await fastify.listen({
+    port: env.PORT,
+    host: '0.0.0.0',
+  });
 
-  fastify.log.info(`Server running on port ${env.PORT}`);
+logger.info('INFO TEST');
+logger.warn('WARN TEST');
+logger.error('ERROR TEST');
+
+fastify.log.info(`Server running on port ${env.PORT}`);
+
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
