@@ -8,47 +8,81 @@ import type { IRefreshTokenUseCase } from "../ports/usecase/IRefreshTokenUseCase
 @injectable()
 export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   constructor(
-    @inject(TYPES.TokenServicePort) private _tokenService: ITokenService,
-    @inject(TYPES.UserRepositoryPort) private _userRepo: IUserRepository
+    @inject(TYPES.TokenServicePort)
+    private _tokenService: ITokenService,
+
+    @inject(TYPES.UserRepositoryPort)
+    private _userRepo: IUserRepository
   ) {}
 
-  async execute(refreshToken: string | undefined) {
+  async execute(
+    refreshToken: string | undefined,
+    authType: "admin" | "user"
+  ) {
     if (!refreshToken) {
       throw AppError.unauthorized("Refresh token missing");
     }
 
-    const payload = await this._tokenService.verifyRefreshToken(refreshToken);
+    const payload =
+      await this._tokenService.verifyRefreshToken(refreshToken);
 
     if (!payload) {
-      throw AppError.unauthorized("Invalid or expired refresh token");
+      throw AppError.unauthorized(
+        "Invalid or expired refresh token"
+      );
     }
 
-    const rotated = await this._tokenService.rotateRefreshToken(refreshToken);
+    const rotated =
+      await this._tokenService.rotateRefreshToken(refreshToken);
 
     if (!rotated) {
-      throw AppError.unauthorized("Refresh token rotation failed");
+      throw AppError.unauthorized(
+        "Refresh token rotation failed"
+      );
     }
 
-    const user = await this._userRepo.findById(payload.userId);
+    const user =
+      await this._userRepo.findById(payload.userId);
 
     if (!user) {
       throw AppError.unauthorized("User not found");
     }
 
     if (!user.isActive) {
-      throw AppError.forbidden("Account is deactivated");
+      throw AppError.forbidden(
+        "Account is deactivated"
+      );
     }
 
-    const accessToken = await this._tokenService.signAccessToken({
-      userId: user.id!,
-      role: user.role.getValue(),
-      ...(user.companyId && { companyId: user.companyId }),
-    });
+    const role = user.role.getValue();
+
+    // Admin refresh endpoint must only refresh admin tokens
+    if (authType === "admin" && role !== "admin") {
+      throw AppError.forbidden(
+        "Admin token required"
+      );
+    }
+
+    // User refresh endpoint must not refresh admin tokens
+    if (authType === "user" && role === "admin") {
+      throw AppError.forbidden(
+        "User token required"
+      );
+    }
+
+    const accessToken =
+      await this._tokenService.signAccessToken({
+        userId: user.id!,
+        role,
+        ...(user.companyId && {
+          companyId: user.companyId,
+        }),
+      });
 
     return {
       accessToken,
       newRefreshToken: rotated.token,
-      role: user.role.getValue()
+      role,
     };
   }
 }

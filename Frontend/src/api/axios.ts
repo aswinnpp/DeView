@@ -14,24 +14,38 @@ const api = axios.create({
 
 // ─── Silent-refresh interceptor ─────────────────────────────────
 
-let isRefreshing = false;
+let adminRefreshing = false;
+let userRefreshing = false;
 
-let failedQueue: Array<{
-    resolve: (value: unknown) => void;
-    reject: (reason: unknown) => void;
+const adminQueue: Array<{
+  resolve: (value: unknown) => void;
+  reject: (reason: unknown) => void;
 }> = [];
 
-const processQueue = (error: unknown) => {
-    failedQueue.forEach(({ resolve, reject }) => {
-        if (error) {
-            reject(error);
-        } else {
-            resolve(undefined);
-        }
-    });
-    failedQueue = [];
-};
+const userQueue: Array<{
+  resolve: (value: unknown) => void;
+  reject: (reason: unknown) => void;
+}> = [];
 
+
+
+const processQueue = (
+  queue: Array<{
+    resolve: (value: unknown) => void;
+    reject: (reason: unknown) => void;
+  }>,
+  error: unknown
+) => {
+  queue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve(undefined);
+    }
+  });
+
+  queue.length = 0;
+};
 type ApiEnvelope<T> = { success: boolean; data?: T };
 
 api.interceptors.response.use(
@@ -64,8 +78,19 @@ api.interceptors.response.use(
         const isLoginRequest =
             originalRequest?.url?.includes(API_ROUTES.AUTH.LOGIN) ||
             originalRequest?.url?.includes(API_ROUTES.ADMIN.LOGIN);
-        if (isBlocked && !isLoginRequest) {
+
             const isAdminRoute = originalRequest?.url?.startsWith('/admin/');
+                    const currentQueue = isAdminRoute
+            ? adminQueue
+            : userQueue;
+
+            const isCurrentlyRefreshing = isAdminRoute
+            ? adminRefreshing
+            : userRefreshing;
+            
+        if (isBlocked && !isLoginRequest) {
+            
+           
             const logoutRoute = isAdminRoute ? API_ROUTES.ADMIN.LOGOUT : API_ROUTES.AUTH.LOGOUT;
             void api.post(logoutRoute).catch(() => {});
             if (isAdminRoute) {
@@ -78,7 +103,7 @@ api.interceptors.response.use(
 
         const isUnauthorized = error.response?.status === 401;
         const alreadyRetried = originalRequest?._retry;
-        const isAdminRoute = originalRequest?.url?.startsWith('/admin/');
+        
         const refreshRoute = isAdminRoute ? API_ROUTES.ADMIN.REFRESH : API_ROUTES.AUTH.REFRESH;
         const logoutRoute = isAdminRoute ? API_ROUTES.ADMIN.LOGOUT : API_ROUTES.AUTH.LOGOUT;
         const isRefreshRoute = originalRequest?.url?.includes(refreshRoute);
@@ -93,25 +118,26 @@ api.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        if (isRefreshing) {
-            return new Promise((resolve, reject) => {
-                failedQueue.push({ resolve, reject });
-            }).then(() => {
-                return api(originalRequest);
-            });
-        }
+        if (isCurrentlyRefreshing) {
+  return new Promise((resolve, reject) => {
+    currentQueue.push({ resolve, reject });
+  }).then(() => api(originalRequest));
+}
 
         originalRequest._retry = true;
-        isRefreshing = true;
+        if (isAdminRoute) {
+  adminRefreshing = true;
+} else {
+  userRefreshing = true;
+}
 
         try {
             await api.post(refreshRoute);
 
-            processQueue(null);
-
+processQueue(currentQueue, null);
             return api(originalRequest);
         } catch (refreshError) {
-            processQueue(refreshError);
+            processQueue(currentQueue, refreshError);
 
             void api.post(logoutRoute).catch(() => {});
 
@@ -124,7 +150,11 @@ api.interceptors.response.use(
 
             return Promise.reject(refreshError);
         } finally {
-            isRefreshing = false;
+            if (isAdminRoute) {
+                adminRefreshing = false;
+            } else {
+                userRefreshing = false;
+            }
         }
     }
 );
