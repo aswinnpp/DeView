@@ -97,7 +97,10 @@ api.interceptors.response.use(
                 store.dispatch(logoutAdmin());
               } else {
                 store.dispatch(logoutUser());
-              }            window.location.replace(APP_ROUTES.LOGIN);
+              }            const loginPath = isAdminRoute
+                ? APP_ROUTES.ADMIN_LOGIN
+                : APP_ROUTES.LOGIN;
+            window.location.replace(loginPath);
             return Promise.reject(error);
         }
 
@@ -146,7 +149,10 @@ processQueue(currentQueue, null);
               } else {
                 store.dispatch(logoutUser());
               }
-            window.location.replace(APP_ROUTES.LOGIN);
+            const loginPath = isAdminRoute
+                ? APP_ROUTES.ADMIN_LOGIN
+                : APP_ROUTES.LOGIN;
+            window.location.replace(loginPath);
 
             return Promise.reject(refreshError);
         } finally {

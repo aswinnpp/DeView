@@ -1,9 +1,10 @@
 import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { PrivateRoute, PublicRoute } from "../components/common/routeGuards";
+import { PrivateRoute, PublicRoute, UserLoginRoute, AdminLoginRoute } from "../components/common/routeGuards";
 
 const LandingPage = lazy(() => import("../features/landing/LandingPage"));
 const LoginPage = lazy(() => import("../features/auth/LoginPage"));
+const AdminLoginPage = lazy(() => import("../features/auth/AdminLoginPage"));
 const RegisterPage = lazy(() => import("../features/auth/RegisterPage"));
 const EmailVerificationPage = lazy(() => import("../features/auth/EmailVerificationPage"));
 const ForgotPasswordPage = lazy(() => import("../features/auth/ForgotPasswordPage"));
@@ -69,14 +70,22 @@ const AppRouter = () => {
         {/* ─── Public Routes ───────────────────────── */}
 
         <Route element={<PublicRoute />}>
-          <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Route>
+
+        <Route element={<UserLoginRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+        </Route>
+
+        <Route element={<AdminLoginRoute />}>
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+        </Route>
+
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
         {/* Unprotected admin subscriptions preview route */}
 

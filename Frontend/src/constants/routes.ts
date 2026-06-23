@@ -150,6 +150,7 @@ export type EmployerBase = "company" | "hr";
 export const APP_ROUTES = {
     ROOT: '/',
     LOGIN: '/login',
+    ADMIN_LOGIN: '/admin/login',
     RESET_PASSWORD: '/reset-password',
     /** Shared recruitment dashboard (same page for company owner and HR). */
     EMPLOYER_DASHBOARD: (base: EmployerBase) => `/${base}/dashboard`,

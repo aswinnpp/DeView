@@ -40,7 +40,7 @@ const RegisterPage = () => {
 
   const handleGoogleRegister = () => {
     if (!selectedRole) return;
-    initiateGoogleAuth(selectedRole);
+    initiateGoogleAuth(selectedRole, "user");
   };
 
   const reduxError = error || googleError || formState.errors.root?.message;

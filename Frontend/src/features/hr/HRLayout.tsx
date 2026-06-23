@@ -17,7 +17,7 @@ const HRLayout = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [navbarProfilePicUrl, setNavbarProfilePicUrl] = useState<string | null>(null);
-    const { logout: handleLogout } = useLogout();
+    const { logout: handleLogout } = useLogout({ session: "user" });
 
 
 const normalUser = useSelector(
@@ -82,8 +82,6 @@ const { notifications, unreadCount, markRead, formatTime, refresh } = useNotific
         switch (role) {
             case 'candidate':
                 return <Navigate to="/candidate" replace />;
-            case 'admin':
-                return <Navigate to={APP_ROUTES.ADMIN_DASHBOARD} replace />;
             case 'company':
                 return <Navigate to={APP_ROUTES.COMPANY_DASHBOARD} replace />;
             case 'interviewer':

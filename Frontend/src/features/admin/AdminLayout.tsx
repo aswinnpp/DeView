@@ -10,7 +10,7 @@ import { useLogout } from "../../hooks/auth/useLogout";
 const AdminLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
-    const { logout: handleLogout } = useLogout();
+    const { logout: handleLogout } = useLogout({ session: "admin" });
 
 const adminUser = useSelector(
   (state: RootState) => state.auth.adminUser
@@ -48,22 +48,11 @@ const { notifications, unreadCount, markRead, formatTime, refresh } = useNotific
         }`;
 
     if (!user) {
-        return <Navigate to={APP_ROUTES.LOGIN} replace />;
+        return <Navigate to={APP_ROUTES.ADMIN_LOGIN} replace />;
     }
 
     if (role !== "admin") {
-        switch (role) {
-            case "candidate":
-                return <Navigate to="/candidate" replace />;
-            case "company":
-                return <Navigate to={APP_ROUTES.COMPANY_DASHBOARD} replace />;
-            case "hr":
-                return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
-            case "interviewer":
-                return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
-            default:
-                return <Navigate to={APP_ROUTES.ROOT} replace />;
-        }
+        return <Navigate to={APP_ROUTES.ADMIN_LOGIN} replace />;
     }
 
     return (

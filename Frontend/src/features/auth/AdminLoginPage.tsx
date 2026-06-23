@@ -4,6 +4,7 @@ import { useLogin } from "@/hooks/auth/useLogin";
 import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 import { Input, Button } from "../../components/common";
 import { useState } from "react";
+import { APP_ROUTES } from "../../constants/routes";
 
 const inputWrapperClass = "relative flex items-center bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 transition-all duration-300 focus-within:border-brand-primary focus-within:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]";
 const inputClass = "bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-[rgba(255,255,255,0.5)]";
@@ -11,11 +12,11 @@ const iconClass = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 
 const passwordIconClass = "text-[rgba(255,255,255,0.6)] mr-3 shrink-0 text-base min-w-5 flex items-center justify-center text-[10px] before:content-['⬤'] before:bg-linear-to-br before:from-brand-primary before:to-brand-secondary before:bg-clip-text before:text-transparent";
 const toggleClass = "bg-none border-none text-[rgba(255,255,255,0.6)] cursor-pointer p-1 rounded transition-colors duration-300 hover:text-white text-xs min-w-10";
 
-const LoginPage = () => {
+const AdminLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword(prev => !prev);
 
-  const { isLoading, error, data } = useLogin({ mode: "user" });
+  const { isLoading, error, data } = useLogin({ mode: "admin" });
   const { form, onSubmit } = data;
   const { register, handleSubmit, formState } = form;
   const google = useGoogleAuth();
@@ -36,7 +37,7 @@ const LoginPage = () => {
       <div className="bg-[rgba(15,15,25,0.95)] rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.1)] w-full max-w-[960px] min-h-[600px] overflow-hidden relative flex flex-col max-md:rounded-2xl max-sm:rounded-xl max-sm:min-h-[520px]">
         <div className="py-5 px-7 border-b border-[rgba(255,255,255,0.1)] flex justify-between items-center max-md:py-4 max-md:px-5">
           <div className="flex items-center gap-3">
-            <h2 className="text-white text-lg font-semibold tracking-wider">DEVIEW</h2>
+            <h2 className="text-white text-lg font-semibold tracking-wider">DEVIEW ADMIN</h2>
           </div>
         </div>
         <div className="grid grid-cols-1 min-[680px]:grid-cols-[1fr_1.2fr] flex-1">
@@ -47,7 +48,7 @@ const LoginPage = () => {
                   <span className={iconClass}>@</span>
                   <Input
                     type="email"
-                    placeholder="Email"
+                    placeholder="Admin email"
                     className={inputClass}
                     {...register("email")}
                     autoComplete="email"
@@ -80,14 +81,9 @@ const LoginPage = () => {
                   </div>
                 )}
               </div>
-              <div className="flex justify-between items-center mb-4">
-                <Link to="/forgot-password" className="text-brand-primary no-underline text-sm transition-colors duration-300 hover:text-[#5a67d8]">
-                  Forgot your password?
-                </Link>
-              </div>
 
               <Button type="submit" variant="primary" className="w-full p-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading || googleLoading}>
-                {isLoading ? "Logging in..." : "LOGIN"}
+                {isLoading ? "Signing in..." : "ADMIN LOGIN"}
               </Button>
 
               <div className="flex items-center my-4 text-[rgba(255,255,255,0.5)] text-sm before:content-[''] before:flex-1 before:h-px before:bg-[rgba(255,255,255,0.1)] after:content-[''] after:flex-1 after:h-px after:bg-[rgba(255,255,255,0.1)]">
@@ -97,7 +93,7 @@ const LoginPage = () => {
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => initiateGoogleAuth("candidate", "user")}
+                onClick={() => initiateGoogleAuth("admin", "admin")}
                 className="w-full py-3 px-4 border border-[rgba(255,255,255,0.2)] rounded-xl text-sm font-medium flex items-center justify-center gap-3 !bg-[rgba(255,255,255,0.05)] !text-white disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
                 disabled={isLoading || googleLoading}
               >
@@ -110,20 +106,21 @@ const LoginPage = () => {
                 {googleLoading ? "Connecting..." : "Continue with Google"}
               </Button>
             </form>
-            <div className="hidden max-[679px]:block text-center mt-5 text-[rgba(255,255,255,0.7)] text-sm">
-              <span>New here? </span>
-              <Link to="/register" className="text-brand-blue no-underline font-semibold transition-colors duration-300 hover:text-[#5a67d8]">Sign up</Link>
+            <div className="text-center mt-5 text-[rgba(255,255,255,0.7)] text-sm">
+              <Link to={APP_ROUTES.LOGIN} className="text-brand-blue no-underline font-semibold transition-colors duration-300 hover:text-[#5a67d8]">
+                User login
+              </Link>
             </div>
           </div>
           <div className="hidden min-[680px]:flex bg-linear-to-br from-[rgba(102,126,234,0.1)] to-[rgba(118,75,162,0.1)] py-8 px-8 flex-col justify-center relative overflow-hidden text-center">
-            <h1 className="text-white text-4xl font-bold mb-4 relative z-[1]">Welcome.</h1>
+            <h1 className="text-white text-4xl font-bold mb-4 relative z-[1]">Admin Portal</h1>
             <p className="text-[rgba(255,255,255,0.8)] text-sm leading-relaxed mb-6 relative z-[1]">
-              Sign in to access your account and manage your profile. Stay connected with the latest updates and
-              opportunities.
+              Sign in with your administrator credentials to manage companies, candidates, and platform settings.
             </p>
             <div className="text-[rgba(255,255,255,0.7)] text-sm relative z-[1]">
-              <span>New here? </span>
-              <Link to="/register" className="text-brand-blue no-underline font-semibold transition-colors duration-300 hover:text-[#5a67d8]">Sign up</Link>
+              <Link to={APP_ROUTES.LOGIN} className="text-brand-blue no-underline font-semibold transition-colors duration-300 hover:text-[#5a67d8]">
+                Back to user login
+              </Link>
             </div>
           </div>
         </div>
@@ -132,4 +129,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default AdminLoginPage;

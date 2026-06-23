@@ -100,7 +100,7 @@ export class AuthController {
 
   refresh = async (request: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = getCookie(request, USER_COOKIE.REFRESH);
-    const result = await this._refreshTokenUseCase.execute(refreshToken);
+    const result = await this._refreshTokenUseCase.execute(refreshToken,"user");
 
     setUserAccessTokenCookie(request, reply, result.accessToken);
     setUserRefreshTokenCookie(request, reply, result.newRefreshToken);

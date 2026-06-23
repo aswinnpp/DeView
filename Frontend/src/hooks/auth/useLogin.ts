@@ -3,22 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
 import { authService } from '../../services/auth.service';
 import { candidateService } from '../../services/candidate.service';
 
 import { loginRequestSchema, type LoginRequest } from '@shared/contracts/auth/login';
-import { setAdminUser,setNormalUser } from '../../context/authSlice';
+import { setAdminUser, setNormalUser } from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
 import { extractApiError } from '../../api/axios';
 import { APP_ROUTES } from '../../constants/routes';
 
 export type { LoginRequest };
 
-export function useLogin() {
+type LoginMode = 'user' | 'admin';
+
+export function useLogin(options?: { mode?: LoginMode }) {
+  const mode = options?.mode ?? 'user';
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-
 
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,14 +30,9 @@ export function useLogin() {
     mode: 'onSubmit',
   });
 
-
-
   const navigateCompanyUser = async (): Promise<void> => {
     try {
       const { data: result } = await authService.checkCompanyStatus();
-
-
-
 
       switch (result.status) {
         case 'approved':
@@ -59,49 +55,38 @@ export function useLogin() {
     setIsLoading(true);
 
     try {
-      let response;
-      try {
-        response = await authService.adminLogin({
+      if (mode === 'admin') {
+        const response = await authService.adminLogin({
           email: values.email,
           password: values.password,
         });
-      } catch (adminErr) {
-        const isNonAdmin =
-          axios.isAxiosError(adminErr) && adminErr.response?.status === 403;
-        if (!isNonAdmin) {
-          throw adminErr;
-        }
-        response = await authService.login({
-          email: values.email,
-          password: values.password,
-        });
-      }
-
-
-
-      const result = response.data;
-      const user = result.user;
-      if (user.role === "admin") {
+        const user = response.data.user;
         dispatch(setAdminUser(user));
-      } else {
-        dispatch(setNormalUser(user));
+        navigate(APP_ROUTES.ADMIN_DASHBOARD, { replace: true });
+        return;
       }
-      const role = (user?.role ?? "").toLowerCase();
 
-      if (role === "candidate") {
+      const response = await authService.login({
+        email: values.email,
+        password: values.password,
+      });
+
+      const user = response.data.user;
+      dispatch(setNormalUser(user));
+      const role = (user?.role ?? '').toLowerCase();
+
+      if (role === 'candidate') {
         const { data } = await candidateService.getProfile();
         if (data?.profile) {
           navigate(APP_ROUTES.CANDIDATE_INTERVIEWS, { replace: true });
         } else {
           navigate(APP_ROUTES.CANDIDATE_PROFILE, { replace: true });
         }
-      } else if (role === "company") {
+      } else if (role === 'company') {
         await navigateCompanyUser();
-      } else if (role === "hr") {
+      } else if (role === 'hr') {
         navigate(APP_ROUTES.HR_DASHBOARD, { replace: true });
-      } else if (role === "admin") {
-        navigate(APP_ROUTES.ADMIN_DASHBOARD, { replace: true });
-      } else if (role === "interviewer") {
+      } else if (role === 'interviewer') {
         navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS, { replace: true });
       } else {
         navigate(APP_ROUTES.ROOT, { replace: true });

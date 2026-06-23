@@ -59,8 +59,6 @@ const user =  normalUser;
         switch (role) {
             case "candidate":
                 return <Navigate to="/candidate" replace />;
-            case "admin":
-                return <Navigate to={APP_ROUTES.ADMIN_DASHBOARD} replace />;
             case "hr":
                 return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
             case "interviewer":
