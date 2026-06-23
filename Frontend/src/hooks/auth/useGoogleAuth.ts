@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { authService } from '../../services/auth.service';
-import { setUser } from '../../context/authSlice';
+import { setAdminUser,setNormalUser} from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
 import { extractApiError } from '../../api/axios';
 import { API_ROUTES, APP_ROUTES } from '../../constants/routes';
@@ -75,7 +75,11 @@ export function useGoogleAuth() {
         }
       };
 
-      dispatch(setUser(user));
+      if (user.role === "admin") {
+        dispatch(setAdminUser(user));
+      } else {
+        dispatch(setNormalUser(user));
+      }
       const role = (user.role ?? "").toLowerCase();
 
       if (role === "candidate") {

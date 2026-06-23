@@ -1,8 +1,8 @@
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosError } from 'axios';
 import store from '../context/store';
-import { logout } from '../context/authSlice';
 import { API_ROUTES, APP_ROUTES } from '../constants/routes';
+import { logoutAdmin, logoutUser } from '../context/authSlice';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -68,8 +68,11 @@ api.interceptors.response.use(
             const isAdminRoute = originalRequest?.url?.startsWith('/admin/');
             const logoutRoute = isAdminRoute ? API_ROUTES.ADMIN.LOGOUT : API_ROUTES.AUTH.LOGOUT;
             void api.post(logoutRoute).catch(() => {});
-            store.dispatch(logout());
-            window.location.replace(APP_ROUTES.LOGIN);
+            if (isAdminRoute) {
+                store.dispatch(logoutAdmin());
+              } else {
+                store.dispatch(logoutUser());
+              }            window.location.replace(APP_ROUTES.LOGIN);
             return Promise.reject(error);
         }
 
@@ -112,8 +115,11 @@ api.interceptors.response.use(
 
             void api.post(logoutRoute).catch(() => {});
 
-            store.dispatch(logout());
-
+            if (isAdminRoute) {
+                store.dispatch(logoutAdmin());
+              } else {
+                store.dispatch(logoutUser());
+              }
             window.location.replace(APP_ROUTES.LOGIN);
 
             return Promise.reject(refreshError);

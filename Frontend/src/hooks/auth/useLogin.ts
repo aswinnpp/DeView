@@ -8,7 +8,7 @@ import { authService } from '../../services/auth.service';
 import { candidateService } from '../../services/candidate.service';
 
 import { loginRequestSchema, type LoginRequest } from '@shared/contracts/auth/login';
-import { setUser } from '../../context/authSlice';
+import { setAdminUser,setNormalUser } from '../../context/authSlice';
 import type { AppDispatch } from '../../context/store';
 import { extractApiError } from '../../api/axios';
 import { APP_ROUTES } from '../../constants/routes';
@@ -81,7 +81,11 @@ export function useLogin() {
 
       const result = response.data;
       const user = result.user;
-      dispatch(setUser(user));
+      if (user.role === "admin") {
+        dispatch(setAdminUser(user));
+      } else {
+        dispatch(setNormalUser(user));
+      }
       const role = (user?.role ?? "").toLowerCase();
 
       if (role === "candidate") {
