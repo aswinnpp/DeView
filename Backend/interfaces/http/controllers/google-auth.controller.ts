@@ -8,6 +8,8 @@ import { env } from "../../../infrastructure/config/env.js";
 import {
   setUserAccessTokenCookie,
   setUserRefreshTokenCookie,
+  setAdminAccessTokenCookie,
+  setAdminRefreshTokenCookie,
 } from "../cookies/cookieHelper";
 
 @injectable()
@@ -45,8 +47,13 @@ export class GoogleAuthController {
       request.query.sessionId
     );
 
-    setUserAccessTokenCookie(request, reply, result.accessToken);
-    setUserRefreshTokenCookie(request, reply, result.refreshToken);
+    if (result.user.role === 'admin') {
+      setAdminAccessTokenCookie(request, reply, result.accessToken);
+      setAdminRefreshTokenCookie(request, reply, result.refreshToken);
+    } else {
+      setUserAccessTokenCookie(request, reply, result.accessToken);
+      setUserRefreshTokenCookie(request, reply, result.refreshToken);
+    }
 
     reply.send(success({ user: result.user }));
   };
