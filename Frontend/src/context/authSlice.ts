@@ -11,49 +11,120 @@ export interface IUser {
 }
 
 interface IAuthState {
-  user: IUser | null;
+  adminUser: IUser | null;
+  normalUser: IUser | null;
   isAuthenticated: boolean;
 }
 
-const getStoredUser = (): IUser | null => {
-  const userStr = localStorage.getItem("user");
-  const parsedUser = safeParseForKey<IUser>("user", userStr);
+const ADMIN_STORAGE_KEY = "adminUser";
+const USER_STORAGE_KEY = "userUser";
+
+const getStoredAdmin = (): IUser | null => {
+  const userStr = localStorage.getItem(ADMIN_STORAGE_KEY);
+
+  const parsedUser = safeParseForKey<IUser>(
+    ADMIN_STORAGE_KEY,
+    userStr
+  );
+
   if (parsedUser && typeof parsedUser === "object") {
     return parsedUser;
   }
+
   return null;
 };
 
+const getStoredUser = (): IUser | null => {
+  const userStr = localStorage.getItem(USER_STORAGE_KEY);
+
+  const parsedUser = safeParseForKey<IUser>(
+    USER_STORAGE_KEY,
+    userStr
+  );
+
+  if (parsedUser && typeof parsedUser === "object") {
+    return parsedUser;
+  }
+
+  return null;
+};
+
+const storedAdmin = getStoredAdmin();
 const storedUser = getStoredUser();
 
 const initialState: IAuthState = {
-  user: storedUser,
-  isAuthenticated: storedUser !== null,
+  adminUser: storedAdmin,
+  normalUser: storedUser,
+  isAuthenticated: !!storedAdmin || !!storedUser,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<IUser>) => {
-      state.user = action.payload;
+    setAdminUser: (state, action: PayloadAction<IUser>) => {
+      state.adminUser = action.payload;
       state.isAuthenticated = true;
-      setStorageJson("user", action.payload);
+
+      setStorageJson(
+        ADMIN_STORAGE_KEY,
+        action.payload
+      );
     },
 
-    logout: (state) => {
-      state.user = null;
-      state.isAuthenticated = false;
-      localStorage.removeItem("user");
+    setNormalUser: (state, action: PayloadAction<IUser>) => {
+      state.normalUser = action.payload;
+      state.isAuthenticated = true;
+
+      setStorageJson(
+        USER_STORAGE_KEY,
+        action.payload
+      );
+    },
+
+    logoutAdmin: (state) => {
+      state.adminUser = null;
+
+      localStorage.removeItem(
+        ADMIN_STORAGE_KEY
+      );
+
+      state.isAuthenticated =
+        state.normalUser !== null;
+    },
+
+    logoutUser: (state) => {
+      state.normalUser = null;
+
+      localStorage.removeItem(
+        USER_STORAGE_KEY
+      );
+
+      state.isAuthenticated =
+        state.adminUser !== null;
     },
   },
 });
 
-export const { setUser, logout } = authSlice.actions;
+export const {
+  setAdminUser,
+  setNormalUser,
+  logoutAdmin,
+  logoutUser,
+} = authSlice.actions;
 
-export const selectUser = (state: { auth: IAuthState }) => state.auth.user;
-export const selectIsAuthenticated = (state: { auth: IAuthState }) => state.auth.isAuthenticated;
-export const selectUserRole = (state: { auth: IAuthState }) => state.auth.user?.role ?? null;
+export const selectAdminUser = (
+  state: { auth: IAuthState }
+) => state.auth.adminUser;
+
+export const selectNormalUser = (
+  state: { auth: IAuthState }
+) => state.auth.normalUser;
+
+export const selectIsAuthenticated = (
+  state: { auth: IAuthState }
+) => state.auth.isAuthenticated;
 
 export default authSlice.reducer;
+
 export type { IAuthState };
