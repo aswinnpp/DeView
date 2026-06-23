@@ -46,8 +46,11 @@ function getDefaultValues(email: string): CandidateProfileData {
 
 export function useCandidateProfile() {
   const { logout: handleLogout, isLoggingOut } = useLogout();
-  const user = useSelector((state: RootState) => state.auth.user);
-  const userEmail = user?.email ?? '';
+ const normalUser = useSelector(
+  (state: RootState) => state.auth.normalUser
+);
+
+const userEmail = normalUser?.email ?? '';
 
   const [profileExists, setProfileExists] = useState(false);
   const [isEditing, setIsEditing] = useState(false);

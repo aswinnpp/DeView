@@ -13,9 +13,18 @@ function formatTime(value: string | Date) {
 }
 
 export function useNotifications(scope: NotificationScope) {
-  const user = useSelector((state: RootState) => state.auth.user);
-  const userId = user?.id ?? "";
-  const companyId = user?.companyId ?? "";
+ const adminUser = useSelector(
+  (state: RootState) => state.auth.adminUser
+);
+
+const normalUser = useSelector(
+  (state: RootState) => state.auth.normalUser
+);
+
+const user = adminUser ?? normalUser;
+
+const userId = user?.id ?? "";
+const companyId = user?.companyId ?? "";
 
   const recipient = useMemo(() => {
     if (scope === "company" || scope === "hr") return { kind: "company" as const, id: companyId };

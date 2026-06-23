@@ -4,8 +4,15 @@ import type { RootState } from "../../context/store";
 import { APP_ROUTES } from "../../constants/routes";
 
 export default function CandidateLayout() {
-  const user = useSelector((state: RootState) => state.auth.user);
+const adminUser = useSelector(
+  (state: RootState) => state.auth.adminUser
+);
 
+const normalUser = useSelector(
+  (state: RootState) => state.auth.normalUser
+);
+
+const user = adminUser ?? normalUser;
   if (!user) {
     return <Navigate to={APP_ROUTES.LOGIN} replace />;
   }

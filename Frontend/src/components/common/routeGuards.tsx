@@ -8,9 +8,16 @@ import { APP_ROUTES } from "../../constants/routes";
 /* ───────────────── PRIVATE ROUTES ───────────────── */
 
 export function PrivateRoute() {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const adminUser = useSelector(
+    (state: RootState) => state.auth.adminUser
+  );
 
-  // Not logged in → go to login
+  const normalUser = useSelector(
+    (state: RootState) => state.auth.normalUser
+  );
+
+  const user = adminUser ?? normalUser;
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
@@ -28,29 +35,43 @@ function CompanyPublicRedirect() {
 
     (async () => {
       try {
-        const { data: result } = await authService.checkCompanyStatus();
+        const { data: result } =
+          await authService.checkCompanyStatus();
 
         if (!result) {
-          if (!cancelled) setTarget(APP_ROUTES.COMPANY_APPROVAL_FORM);
+          if (!cancelled) {
+            setTarget(
+              APP_ROUTES.COMPANY_APPROVAL_FORM
+            );
+          }
           return;
         }
 
         let next: string;
+
         switch (result.status) {
           case "approved":
             next = APP_ROUTES.COMPANY_DASHBOARD;
             break;
+
           case "pending":
           case "rejected":
-            next = APP_ROUTES.COMPANY_APPROVAL_PENDING;
+            next =
+              APP_ROUTES.COMPANY_APPROVAL_PENDING;
             break;
+
           default:
-            next = APP_ROUTES.COMPANY_APPROVAL_FORM;
+            next =
+              APP_ROUTES.COMPANY_APPROVAL_FORM;
         }
 
-        if (!cancelled) setTarget(next);
+        if (!cancelled) {
+          setTarget(next);
+        }
       } catch {
-        if (!cancelled) setTarget(APP_ROUTES.ROOT);
+        if (!cancelled) {
+          setTarget(APP_ROUTES.ROOT);
+        }
       }
     })();
 
@@ -67,29 +88,59 @@ function CompanyPublicRedirect() {
 }
 
 export function PublicRoute() {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const adminUser = useSelector(
+    (state: RootState) => state.auth.adminUser
+  );
+
+  const normalUser = useSelector(
+    (state: RootState) => state.auth.normalUser
+  );
+
+  const user = adminUser ?? normalUser;
 
   if (user) {
     const role = (user.role || "").toLowerCase();
+
     switch (role) {
       case "admin":
-        return <Navigate to={APP_ROUTES.ADMIN_DASHBOARD} replace />;
+        return (
+          <Navigate
+            to={APP_ROUTES.ADMIN_DASHBOARD}
+            replace
+          />
+        );
 
       case "company":
         return <CompanyPublicRedirect />;
 
       case "hr":
-        return <Navigate to={APP_ROUTES.HR_DASHBOARD} replace />;
+        return (
+          <Navigate
+            to={APP_ROUTES.HR_DASHBOARD}
+            replace
+          />
+        );
 
       case "interviewer":
-        return <Navigate to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS} replace />;
+        return (
+          <Navigate
+            to={
+              APP_ROUTES.INTERVIEWER_ASSIGNMENTS
+            }
+            replace
+          />
+        );
 
       case "candidate":
       default:
-        return <Navigate to="/candidate" replace />;
+        return (
+          <Navigate
+            to="/candidate"
+            replace
+          />
+        );
     }
   }
 
   return <Outlet />;
 }
-

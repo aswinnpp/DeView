@@ -20,8 +20,15 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
   const navigate = useNavigate();
-  const user = useSelector((state: RootState) => state.auth.user);
+const adminUser = useSelector(
+  (state: RootState) => state.auth.adminUser
+);
 
+const normalUser = useSelector(
+  (state: RootState) => state.auth.normalUser
+);
+
+const user = adminUser ?? normalUser;
   // If already logged in, never show login page (Back button, manual URL, etc.)
   useEffect(() => {
     if (!user) return;

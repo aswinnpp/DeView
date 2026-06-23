@@ -18,8 +18,15 @@ const HRLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [navbarProfilePicUrl, setNavbarProfilePicUrl] = useState<string | null>(null);
     const { logout: handleLogout } = useLogout();
-    const user = useSelector((state: RootState) => state.auth.user);
-    const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("hr" as NotificationScope);
+const adminUser = useSelector(
+  (state: RootState) => state.auth.adminUser
+);
+
+const normalUser = useSelector(
+  (state: RootState) => state.auth.normalUser
+);
+
+const user = adminUser ?? normalUser;    const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("hr" as NotificationScope);
 
     useEffect(() => {
         const roleCheck = (user?.role || '').toLowerCase();

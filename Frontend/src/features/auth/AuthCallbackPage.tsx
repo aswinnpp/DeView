@@ -12,8 +12,15 @@ const AuthCallbackPage = () => {
     const { handleCallback } = data;
 
     const [isProcessing, setIsProcessing] = useState(true);
-    const user = useSelector((state: RootState) => state.auth.user);
+const adminUser = useSelector(
+  (state: RootState) => state.auth.adminUser
+);
 
+const normalUser = useSelector(
+  (state: RootState) => state.auth.normalUser
+);
+
+const user = adminUser ?? normalUser;
     const hasRun = useRef(false);
 
     useEffect(() => {

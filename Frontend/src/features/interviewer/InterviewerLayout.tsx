@@ -10,7 +10,15 @@ import { useNotifications } from "../../hooks/notifications/useNotifications";
 const InterviewerLayout: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const user = useSelector((state: RootState) => state.auth.user);
+const adminUser = useSelector(
+  (state: RootState) => state.auth.adminUser
+);
+
+const normalUser = useSelector(
+  (state: RootState) => state.auth.normalUser
+);
+
+  const user = adminUser ?? normalUser;
   const [profilePicViewUrl, setProfilePicViewUrl] = useState<string>("");
   const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("interviewer");
 
