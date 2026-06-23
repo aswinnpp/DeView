@@ -11,15 +11,17 @@ const AdminLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const { logout: handleLogout } = useLogout();
+
 const adminUser = useSelector(
   (state: RootState) => state.auth.adminUser
 );
 
-const normalUser = useSelector(
-  (state: RootState) => state.auth.normalUser
-);
 
-const user = adminUser ?? normalUser;    const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("admin");
+
+const user = adminUser ;   
+
+
+const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("admin");
 
     const role = (user?.role || "").toLowerCase();
 

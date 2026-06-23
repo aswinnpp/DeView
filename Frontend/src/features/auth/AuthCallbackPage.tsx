@@ -20,43 +20,47 @@ const normalUser = useSelector(
   (state: RootState) => state.auth.normalUser
 );
 
-const user = adminUser ?? normalUser;
     const hasRun = useRef(false);
 
-    useEffect(() => {
-        // If already logged in (Back button to callback), redirect by role.
-        if (user) {
-            const role = (user.role || '').toLowerCase();
+   useEffect(() => {
+    if (adminUser) {
+        navigate(APP_ROUTES.ADMIN_DASHBOARD, { replace: true });
+        return;
+    }
 
-            if (role === 'admin') {
-                navigate(APP_ROUTES.ADMIN_DASHBOARD, { replace: true });
-            } else if (role === 'company') {
-                navigate(APP_ROUTES.COMPANY_DASHBOARD, { replace: true });
-            } else if (role === 'hr') {
-                navigate(APP_ROUTES.HR_DASHBOARD, { replace: true });
-            } else if (role === 'interviewer') {
-                navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS, { replace: true });
-            } else {
-                navigate(APP_ROUTES.CANDIDATE_INTERVIEWS, { replace: true });
-            }
-            return;
+    if (normalUser) {
+        const role = (normalUser.role || '').toLowerCase();
+
+        if (role === 'company') {
+            navigate(APP_ROUTES.COMPANY_DASHBOARD, { replace: true });
+        } else if (role === 'hr') {
+            navigate(APP_ROUTES.HR_DASHBOARD, { replace: true });
+        } else if (role === 'interviewer') {
+            navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS, { replace: true });
+        } else {
+            navigate(APP_ROUTES.CANDIDATE_INTERVIEWS, { replace: true });
         }
+        return;
+    }
 
-        if (hasRun.current) return;
-        hasRun.current = true;
+    if (hasRun.current) return;
+    hasRun.current = true;
 
-        const processCallback = async () => {
-            const success = await handleCallback();
+    const processCallback = async () => {
+        const success = await handleCallback();
 
-            if (!success) {
-                setIsProcessing(false);
-            }
-            // success → hook handles navigation
-        };
+        if (!success) {
+            setIsProcessing(false);
+        }
+    };
 
-        processCallback();
-    }, [handleCallback, user, navigate]);
-
+    processCallback();
+}, [
+    handleCallback,
+    adminUser,
+    normalUser,
+    navigate,
+]);
     if (error || !isProcessing) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#0f0f1a] via-[#1a1a2e] to-[#16213e]">

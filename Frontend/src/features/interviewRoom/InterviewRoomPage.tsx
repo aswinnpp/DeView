@@ -9,15 +9,13 @@ import { useJudge0Runner } from "./hooks/useJudge0Runner";
 const InterviewRoom = () => {
   const { interviewId } = useParams<{ interviewId: string }>();
   const navigate = useNavigate();
-const adminUser = useSelector(
-  (state: RootState) => state.auth.adminUser
-);
+
 
 const normalUser = useSelector(
   (state: RootState) => state.auth.normalUser
 );
 
-const user = adminUser ?? normalUser;
+const user = normalUser;
   const displayName = user?.fullName || "Guest";
   const { details, error, isLoading, roomId } = useInterviewRoomDetails(interviewId);
   const {

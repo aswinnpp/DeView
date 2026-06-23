@@ -13,15 +13,14 @@ const CompanyLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [, setCompanyLogoViewUrl] = useState<string>('');
     const { notifications, unreadCount, markRead, formatTime, refresh } = useNotifications("company");
-const adminUser = useSelector(
-  (state: RootState) => state.auth.adminUser
-);
+
+
 
 const normalUser = useSelector(
   (state: RootState) => state.auth.normalUser
 );
 
-const user = adminUser ?? normalUser;
+const user =  normalUser;
     const role = (user?.role || "").toLowerCase();
 
     useEffect(() => {

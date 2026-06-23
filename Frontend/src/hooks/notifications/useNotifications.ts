@@ -21,7 +21,12 @@ const normalUser = useSelector(
   (state: RootState) => state.auth.normalUser
 );
 
-const user = adminUser ?? normalUser;
+const user = useMemo(() => {
+  return scope === "admin"
+    ? adminUser
+    : normalUser;
+}, [scope, adminUser, normalUser]);
+
 
 const userId = user?.id ?? "";
 const companyId = user?.companyId ?? "";
@@ -31,6 +36,7 @@ const companyId = user?.companyId ?? "";
     return { kind: "user" as const, id: userId };
   }, [scope, companyId, userId]);
 
+  
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(false);
 

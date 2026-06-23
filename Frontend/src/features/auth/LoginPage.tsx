@@ -28,24 +28,38 @@ const normalUser = useSelector(
   (state: RootState) => state.auth.normalUser
 );
 
-const user = adminUser ?? normalUser;
-  // If already logged in, never show login page (Back button, manual URL, etc.)
   useEffect(() => {
-    if (!user) return;
-    const role = (user.role || "").toLowerCase();
+  if (adminUser) {
+    navigate(APP_ROUTES.ADMIN_DASHBOARD, {
+      replace: true,
+    });
+    return;
+  }
 
-    if (role === "admin") {
-      navigate(APP_ROUTES.ADMIN_DASHBOARD, { replace: true });
-    } else if (role === "company") {
-      navigate(APP_ROUTES.COMPANY_DASHBOARD, { replace: true });
+  if (normalUser) {
+    const role = (normalUser.role || "").toLowerCase();
+
+    if (role === "company") {
+      navigate(APP_ROUTES.COMPANY_DASHBOARD, {
+        replace: true,
+      });
     } else if (role === "hr") {
-      navigate(APP_ROUTES.HR_DASHBOARD, { replace: true });
+      navigate(APP_ROUTES.HR_DASHBOARD, {
+        replace: true,
+      });
     } else if (role === "interviewer") {
-      navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS, { replace: true });
+      navigate(APP_ROUTES.INTERVIEWER_ASSIGNMENTS, {
+        replace: true,
+      });
     } else {
-      navigate(APP_ROUTES.CANDIDATE_INTERVIEWS, { replace: true });
+      navigate(APP_ROUTES.CANDIDATE_INTERVIEWS, {
+        replace: true,
+      });
     }
-  }, [user, navigate]);
+  }
+}, [adminUser, normalUser, navigate]);
+
+
 
   const { isLoading, error, data } = useLogin();
   const { form, onSubmit } = data;
@@ -62,7 +76,7 @@ const user = adminUser ?? normalUser;
     formState.errors.email?.message ||
     formState.errors.password?.message; 
 
-  if (user) {
+  if (adminUser || normalUser) {
     return null;
   }
 

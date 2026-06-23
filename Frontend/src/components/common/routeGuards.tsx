@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet ,useLocation} from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import type { RootState } from "../../context/store";
@@ -6,7 +6,6 @@ import { authService } from "../../services/auth.service";
 import { APP_ROUTES } from "../../constants/routes";
 
 /* ───────────────── PRIVATE ROUTES ───────────────── */
-
 export function PrivateRoute() {
   const adminUser = useSelector(
     (state: RootState) => state.auth.adminUser
@@ -16,9 +15,7 @@ export function PrivateRoute() {
     (state: RootState) => state.auth.normalUser
   );
 
-  const user = adminUser ?? normalUser;
-
-  if (!user) {
+  if (!adminUser && !normalUser) {
     return <Navigate to="/login" replace />;
   }
 
@@ -87,7 +84,10 @@ function CompanyPublicRedirect() {
   return <Navigate to={target} replace />;
 }
 
+
 export function PublicRoute() {
+  const location = useLocation();
+
   const adminUser = useSelector(
     (state: RootState) => state.auth.adminUser
   );
@@ -96,51 +96,53 @@ export function PublicRoute() {
     (state: RootState) => state.auth.normalUser
   );
 
-  const user = adminUser ?? normalUser;
+  const isAdminPath =
+    location.pathname.startsWith("/admin");
 
-  if (user) {
-    const role = (user.role || "").toLowerCase();
+  const user = isAdminPath
+    ? adminUser
+    : normalUser;
 
-    switch (role) {
-      case "admin":
-        return (
-          <Navigate
-            to={APP_ROUTES.ADMIN_DASHBOARD}
-            replace
-          />
-        );
-
-      case "company":
-        return <CompanyPublicRedirect />;
-
-      case "hr":
-        return (
-          <Navigate
-            to={APP_ROUTES.HR_DASHBOARD}
-            replace
-          />
-        );
-
-      case "interviewer":
-        return (
-          <Navigate
-            to={
-              APP_ROUTES.INTERVIEWER_ASSIGNMENTS
-            }
-            replace
-          />
-        );
-
-      case "candidate":
-      default:
-        return (
-          <Navigate
-            to="/candidate"
-            replace
-          />
-        );
-    }
+  if (!user) {
+    return <Outlet />;
   }
 
-  return <Outlet />;
+  const role = user.role.toLowerCase();
+
+  switch (role) {
+    case "admin":
+      return (
+        <Navigate
+          to={APP_ROUTES.ADMIN_DASHBOARD}
+          replace
+        />
+      );
+
+    case "company":
+      return <CompanyPublicRedirect />;
+
+    case "hr":
+      return (
+        <Navigate
+          to={APP_ROUTES.HR_DASHBOARD}
+          replace
+        />
+      );
+
+    case "interviewer":
+      return (
+        <Navigate
+          to={APP_ROUTES.INTERVIEWER_ASSIGNMENTS}
+          replace
+        />
+      );
+
+    default:
+      return (
+        <Navigate
+          to={APP_ROUTES.CANDIDATE_INTERVIEWS}
+          replace
+        />
+      );
+  }
 }
