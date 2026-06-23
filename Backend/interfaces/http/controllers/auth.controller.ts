@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 import { FastifyRequest, FastifyReply } from "fastify";
 import { success } from "../../../shared/http/apiResponse";
 import { HttpStatus } from "../../../shared/http/HttpStatus";
+import { AppError } from "../../../shared/errors/AppError";
 
 import { TYPES } from "../../../infrastructure/di/types";
 import type { IRegisterUserUseCase } from "../../../application/auth/ports/usecase/IRegisterUserUseCase";
@@ -18,9 +19,10 @@ import type { IChangePasswordUseCase } from "../../../application/auth/ports/use
 
 import {
   getCookie,
-  setAccessTokenCookie,
-  setRefreshTokenCookie,
+  setUserAccessTokenCookie,
+  setUserRefreshTokenCookie,
   clearCookie,
+  USER_COOKIE,
 } from "../cookies/cookieHelper";
 
 import type { IRegisterUserInputDTO } from "../../../application/auth/dtos/RegisterDTO.js";
@@ -84,8 +86,12 @@ export class AuthController {
   ) => {
     const result = await this._loginUseCase.execute(request.body);
 
-    setAccessTokenCookie(request, reply, result.accessToken);
-    setRefreshTokenCookie(request, reply, result.refreshToken);
+    if (result.user.role === 'admin') {
+      throw AppError.forbidden('Administrators must use /admin/login');
+    }
+
+    setUserAccessTokenCookie(request, reply, result.accessToken);
+    setUserRefreshTokenCookie(request, reply, result.refreshToken);
 
     reply.send(success({ user: result.user }));
   };
@@ -93,23 +99,23 @@ export class AuthController {
   // ---------------- REFRESH ----------------
 
   refresh = async (request: FastifyRequest, reply: FastifyReply) => {
-    const refreshToken = getCookie(request, "refreshToken");
+    const refreshToken = getCookie(request, USER_COOKIE.REFRESH);
     const result = await this._refreshTokenUseCase.execute(refreshToken);
 
-    setAccessTokenCookie(request, reply, result.accessToken);
-    setRefreshTokenCookie(request, reply, result.newRefreshToken);
+    setUserAccessTokenCookie(request, reply, result.accessToken);
+    setUserRefreshTokenCookie(request, reply, result.newRefreshToken);
 
     reply.send(success({ success: true }));
   };
 
   logout = async (request: FastifyRequest, reply: FastifyReply) => {
-    const refreshToken = getCookie(request, "refreshToken");
-    const accessToken = getCookie(request, "accessToken");
+    const refreshToken = getCookie(request, USER_COOKIE.REFRESH);
+    const accessToken = getCookie(request, USER_COOKIE.ACCESS);
 
     const result = await this._logoutUseCase.execute(refreshToken, accessToken);
 
-    clearCookie(request, reply, "accessToken");
-    clearCookie(request, reply, "refreshToken");
+    clearCookie(request, reply, USER_COOKIE.ACCESS);
+    clearCookie(request, reply, USER_COOKIE.REFRESH);
 
     reply.send(success(result));
   };

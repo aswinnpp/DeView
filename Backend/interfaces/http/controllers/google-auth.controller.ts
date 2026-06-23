@@ -6,8 +6,8 @@ import type { IGoogleOAuthUseCase } from "../../../application/auth/ports/usecas
 import type { IGoogleAuth } from "../../../application/auth/ports/services/IGoogleAuth";
 import { env } from "../../../infrastructure/config/env.js";
 import {
-  setAccessTokenCookie,
-  setRefreshTokenCookie,
+  setUserAccessTokenCookie,
+  setUserRefreshTokenCookie,
 } from "../cookies/cookieHelper";
 
 @injectable()
@@ -45,8 +45,8 @@ export class GoogleAuthController {
       request.query.sessionId
     );
 
-    setAccessTokenCookie(request, reply, result.accessToken);
-    setRefreshTokenCookie(request, reply, result.refreshToken);
+    setUserAccessTokenCookie(request, reply, result.accessToken);
+    setUserRefreshTokenCookie(request, reply, result.refreshToken);
 
     reply.send(success({ user: result.user }));
   };

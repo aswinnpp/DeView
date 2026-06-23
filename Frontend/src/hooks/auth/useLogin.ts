@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
 import { authService } from '../../services/auth.service';
 import { candidateService } from '../../services/candidate.service';
 
@@ -58,10 +59,23 @@ export function useLogin() {
     setIsLoading(true);
 
     try {
-      const response = await authService.login({
-        email: values.email,
-        password: values.password,
-      });
+      let response;
+      try {
+        response = await authService.adminLogin({
+          email: values.email,
+          password: values.password,
+        });
+      } catch (adminErr) {
+        const isNonAdmin =
+          axios.isAxiosError(adminErr) && adminErr.response?.status === 403;
+        if (!isNonAdmin) {
+          throw adminErr;
+        }
+        response = await authService.login({
+          email: values.email,
+          password: values.password,
+        });
+      }
 
 
 

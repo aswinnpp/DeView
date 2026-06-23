@@ -69,6 +69,9 @@ export const API_ROUTES = {
             `/applications/jobs/${jobId}/applications/${applicationId}/reschedule/decline`,
     },
     ADMIN: {
+        LOGIN: '/admin/login',
+        LOGOUT: '/admin/logout',
+        REFRESH: '/admin/refresh',
         COMPANY_PENDING: '/admin/company-requests/pending',
         COMPANY_APPROVE: (id: string) => `/admin/company-requests/${id}/approve`,
         COMPANY_REJECT: (id: string) => `/admin/company-requests/${id}/reject`,
@@ -80,6 +83,7 @@ export const API_ROUTES = {
         SUBSCRIPTION_TOGGLE: (id: string) => `/admin/company-requests/subscription/${id}/toggle-active`,
         SUBSCRIPTION_UPDATE: (id: string) => `/admin/company-requests/subscription/${id}`,
         SUBSCRIPTION_HISTORY: '/admin/company-requests/subscription-history',
+        CANDIDATES_LIST: '/admin/candidates',
         DASHBOARD_STATS: '/admin/dashboard/stats',
         NOTIFICATIONS: {
             LIST: '/admin/notifications',
@@ -119,7 +123,6 @@ export const API_ROUTES = {
     },
     CANDIDATE: {
         PROFILE: '/candidate/profile',
-        GETALL: '/candidate/list',
         JOBS: '/candidate/jobs',
         APPLY: (jobId: string) => `/candidate/jobs/${jobId}/apply`,
         MY_APPLICATIONS: '/candidate/applications/my',

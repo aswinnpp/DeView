@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { CandidateProfileController } from "../controllers/candidate-profile.controller.js";
-import { requireAuth,requireRoles } from "../middleware/authMiddleware.js";
+import { requireAuth } from "../middleware/authMiddleware.js";
 import {
   createCandidateProfileBodyParser,
   createCandidateProfileSchema,
@@ -38,11 +38,4 @@ export async function candidateProfileRoutes(
         schema: updateCandidateProfileSchema,
         handler: controller.updateProfile,
     });
-
-    fastify.get("/list", {
-        preHandler:requireRoles("admin"),
-        handler: controller.getAll
-    });
-
- 
-} 
+}

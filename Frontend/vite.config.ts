@@ -9,6 +9,8 @@ export default defineConfig(({ mode }) => {
   /** Local Node API during `vite` dev; production builds do not use this proxy. */
   const devBackendTarget =
     env.VITE_DEV_PROXY_TARGET?.trim() || 'http://127.0.0.1:3000'
+  const devAdminBackendTarget =
+    env.VITE_DEV_ADMIN_PROXY_TARGET?.trim() || 'http://127.0.0.1:3001'
 
   return {
     plugins: [react(), tailwindcss()],
@@ -29,6 +31,13 @@ export default defineConfig(({ mode }) => {
         allow: [path.resolve(__dirname, '..')],
       },
       proxy: {
+        // Admin API → port 3001 (must be registered before the catch-all /api rule)
+        '/api/admin': {
+          target: devAdminBackendTarget,
+          changeOrigin: true,
+          secure: false,
+          rewrite: (p) => p.replace(/^\/api/, ''),
+        },
         '/api': {
           target: devBackendTarget,
           changeOrigin: true,

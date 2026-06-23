@@ -16,7 +16,7 @@ declare module "fastify" {
 
 
 async function attachUser(request: FastifyRequest) {
-  if (!request.cookies?.accessToken) {
+  if (!request.cookies?.userAccessToken) {
     throw AppError.unauthorized("Authentication required - please login");
   }
 

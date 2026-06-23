@@ -4,13 +4,18 @@ import { FastifyInstance } from 'fastify';
 import { env } from '../config/env.js';
 import type { IRefreshTokenPayload } from '../../application/auth/ports/services/ITokenService';
 
+export interface JwtPluginOptions {
+  accessTokenCookieName?: string;
+}
 
-async function jwtPlugin(fastify: FastifyInstance) {
+async function jwtPlugin(fastify: FastifyInstance, opts: JwtPluginOptions) {
+    const cookieName = opts.accessTokenCookieName ?? 'userAccessToken';
+
     await fastify.register(fastifyJwt, {
         secret: env.JWT_ACCESS_SECRET,
         sign: { expiresIn: env.ACCESS_TOKEN_TTL },
         verify: {
-            extractToken: (request) => request.cookies?.accessToken,
+            extractToken: (request) => request.cookies?.[cookieName],
         },
     });
 

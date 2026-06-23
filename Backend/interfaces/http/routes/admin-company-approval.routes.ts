@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { AdminCompanyApprovalController } from '../controllers/admin-company-approval.controller.js';
-import { requireRoles } from '../middleware/authMiddleware.js';
+import { requireAdminAuth } from '../middleware/adminAuthMiddleware.js';
 import { approveCompanySchema, rejectCompanySchema } from '../schemas/admin-company-approval.schema.js';
 
 export async function adminCompanyApprovalRoutes(
@@ -8,7 +8,7 @@ export async function adminCompanyApprovalRoutes(
     controller: AdminCompanyApprovalController
 ): Promise<void> {
 
-    fastify.addHook("preHandler", requireRoles('admin'));
+    fastify.addHook("preHandler", requireAdminAuth);
 
     fastify.get('/pending', {
         handler: controller.getPending,

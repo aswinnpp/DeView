@@ -34,6 +34,7 @@ import { NotificationsController } from "../../interfaces/http/controllers/notif
 import { LandingStatsController } from '../../interfaces/http/controllers/landing-stats.controller.js';
 import { CompilerController } from "../../interfaces/http/controllers/compiler.controller.js";
 import { DashboardStatsController } from "../../interfaces/http/controllers/dashboard-stats.controller.js";
+import { AdminAuthController } from '../../interfaces/http/controllers/admin-auth.controller.js';
 
 export function createContainer(db: Db) {
   const container = new Container();
@@ -52,6 +53,7 @@ export function createContainer(db: Db) {
 export function getControllers(container: ContainerType) {
   return {
     authController: container.get(AuthController),
+    adminAuthController: container.get(AdminAuthController),
     googleAuthController: container.get(GoogleAuthController),
     companyApprovalController: container.get(CompanyApprovalController),
     adminCompanyApprovalController: container.get(AdminCompanyApprovalController),

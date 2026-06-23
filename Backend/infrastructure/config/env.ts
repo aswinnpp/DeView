@@ -39,6 +39,7 @@ function optionalInt(raw: string | undefined, fallback: number): number {
 
 export interface IEnvConfig {
     PORT: number;
+    ADMIN_PORT: number;
     MONGO_URI: string;
     JWT_ACCESS_SECRET: string;
     JWT_REFRESH_SECRET: string;
@@ -133,6 +134,7 @@ function validateEnv(): IEnvConfig {
 
     return {
         PORT: parseInt(process.env.PORT!, 10),
+        ADMIN_PORT: optionalInt(process.env.ADMIN_PORT, 3001),
         MONGO_URI: process.env.MONGO_URI!,
         JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
         JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET!,

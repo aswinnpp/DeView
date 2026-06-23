@@ -1,2 +1,2 @@
 export { createContainer, getControllers } from './container.js';
-export { registerRoutes } from './routes.js';
+export { registerUserRoutes, registerAdminRoutes } from './routes.js';

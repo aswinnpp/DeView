@@ -1,12 +1,12 @@
 import { FastifyInstance } from 'fastify';
 import { AdminSubscriptionController } from "../controllers/admin-subscription.controller.js";
-import { requireRoles } from "../middleware/authMiddleware.js";
+import { requireAdminAuth } from '../middleware/adminAuthMiddleware.js';
 
 export async function subscriptionRoutes(
   fastify: FastifyInstance,
   controller: AdminSubscriptionController
 ): Promise<void> {
-  fastify.addHook("preHandler", requireRoles('admin', 'company'));
+  fastify.addHook("preHandler", requireAdminAuth);
 
   fastify.get("/subscription", {
     handler: controller.list,

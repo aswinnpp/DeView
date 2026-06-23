@@ -9,7 +9,7 @@ const WINDOW_SECONDS = env.RATE_LIMIT_WINDOW_SECONDS;
 
 const WEBHOOK_PATH_PREFIX = '/webhooks/';
 
-const AUTH_STRICT_PATHS = new Set(['/auth/login', '/auth/register', '/auth/refresh']);
+const AUTH_STRICT_PATHS = new Set(['/auth/login', '/auth/register', '/auth/refresh', '/admin/login']);
 
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 

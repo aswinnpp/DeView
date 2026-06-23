@@ -4,13 +4,11 @@ import { authRoutes } from '../../interfaces/http/routes/auth.routes.js';
 import { googleAuthRoutes } from '../../interfaces/http/routes/google-auth.routes.js';
 import { companyApprovalRoutes } from '../../interfaces/http/routes/company-approval.routes.js';
 import { companyProfileRoutes } from '../../interfaces/http/routes/company-profile.routes.js';
-import { adminCompanyApprovalRoutes } from '../../interfaces/http/routes/admin-company-approval.routes.js';
 import { uploadRoutes } from '../../interfaces/http/routes/upload.routes.js';
 import { companyTeamRoutes } from '../../interfaces/http/routes/company-team.routes.js';
 import { candidateProfileRoutes } from '../../interfaces/http/routes/candidate-profile.routes.js';
 import { candidateJobsRoutes } from '../../interfaces/http/routes/candidate-jobs.routes.js';
 import { candidateInterviewsRoutes } from '../../interfaces/http/routes/candidate-interviews.routes.js';
-import { subscriptionRoutes } from '../../interfaces/http/routes/admin-subscription.routes.js';
 import { companySubscriptionRoutes } from '../../interfaces/http/routes/company-subscription.routes.js';
 import { companyPaymentRoutes } from '../../interfaces/http/routes/company-payment.routes.js';
 import { stripeWebhookRoutes } from '../../interfaces/http/routes/stripe-webhook.routes.js';
@@ -24,13 +22,26 @@ import { interviewerSlotsRoutes } from "../../interfaces/http/routes/interviewer
 import { notificationsRoutes } from "../../interfaces/http/routes/notifications.routes.js";
 import { landingStatsRoutes } from "../../interfaces/http/routes/landing-stats.routes.js";
 import { compilerRoutes } from "../../interfaces/http/routes/compiler.routes.js";
-import { adminDashboardRoutes } from "../../interfaces/http/routes/admin-dashboard.routes.js";
 import { companyDashboardRoutes } from "../../interfaces/http/routes/company-dashboard.routes.js";
 import { docusignPublicRoutes } from '../../interfaces/http/routes/docusign.routes.js';
 import { registerOfferDocusignRedirect } from '../../interfaces/http/routes/offer-docusign-redirect.routes.js';
 
-export async function registerRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
+// Admin-only imports
+import { adminAuthRoutes } from '../../interfaces/http/routes/admin-auth.routes.js';
+import { adminCompanyApprovalRoutes } from '../../interfaces/http/routes/admin-company-approval.routes.js';
+import { subscriptionRoutes } from '../../interfaces/http/routes/admin-subscription.routes.js';
+import { adminDashboardRoutes } from "../../interfaces/http/routes/admin-dashboard.routes.js";
+import { adminCandidatesRoutes } from '../../interfaces/http/routes/admin-candidates.routes.js';
+import { requireAdminAuth } from '../../interfaces/http/middleware/adminAuthMiddleware.js';
+
+// ─────────────────────────────────────────────────────────
+// User Server Routes (port 3000)
+// All non-admin routes: auth, company, candidate, HR, etc.
+// ─────────────────────────────────────────────────────────
+export async function registerUserRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
     await registerOfferDocusignRedirect(fastify);
+
+    // Auth routes (user login — HR, Company, Employee, User)
     await fastify.register(
         async (instance) => {
             await authRoutes(instance, controllers.authController);
@@ -39,6 +50,7 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
         { prefix: '/auth' }
     );
 
+    // Company routes
     await fastify.register(
         async (instance) => {
             await companyApprovalRoutes(instance, controllers.companyApprovalController);
@@ -63,27 +75,6 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
             await stripeWebhookRoutes(instance, controllers.companyPaymentController);
         },
         { prefix: '/webhooks' }
-    );
-
-    await fastify.register(
-        async (instance) => {
-            await adminCompanyApprovalRoutes(instance, controllers.adminCompanyApprovalController);
-            await subscriptionRoutes(instance, controllers.adminSubscriptionController);
-        },
-        { prefix: '/admin/company-requests' }
-    );
-
-    await fastify.register(
-        async (instance) => {
-            await adminDashboardRoutes(instance, controllers.dashboardStatsController);
-            await instance.register(
-                async (sub) => {
-                    await notificationsRoutes(sub, controllers.notificationsController);
-                },
-                { prefix: '/notifications' }
-            );
-        },
-        { prefix: '/admin' }
     );
 
     // Upload routes
@@ -177,3 +168,47 @@ export async function registerRoutes(fastify: FastifyInstance, controllers: Retu
     );
 }
 
+// ─────────────────────────────────────────────────────────
+// Admin Server Routes (port 3001)
+// Admin auth + admin-only management routes.
+// ─────────────────────────────────────────────────────────
+export async function registerAdminRoutes(fastify: FastifyInstance, controllers: ReturnType<typeof getControllers>): Promise<void> {
+    // Admin auth (login / refresh / logout)
+    await fastify.register(
+        async (instance) => {
+            await adminAuthRoutes(instance, controllers.adminAuthController);
+        },
+        { prefix: '/admin' }
+    );
+
+    // Admin company approvals + subscription management
+    await fastify.register(
+        async (instance) => {
+            await adminCompanyApprovalRoutes(instance, controllers.adminCompanyApprovalController);
+            await subscriptionRoutes(instance, controllers.adminSubscriptionController);
+        },
+        { prefix: '/admin/company-requests' }
+    );
+
+    // Admin dashboard + notifications
+    await fastify.register(
+        async (instance) => {
+            await adminDashboardRoutes(instance, controllers.dashboardStatsController);
+            await instance.register(
+                async (sub) => {
+                    await notificationsRoutes(sub, controllers.notificationsController, requireAdminAuth);
+                },
+                { prefix: '/notifications' }
+            );
+        },
+        { prefix: '/admin' }
+    );
+
+    // Admin candidate management
+    await fastify.register(
+        async (instance) => {
+            await adminCandidatesRoutes(instance, controllers.candidateProfileController);
+        },
+        { prefix: '/admin/candidates' }
+    );
+}

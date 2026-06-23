@@ -61,9 +61,13 @@ api.interceptors.response.use(
             message.toLowerCase().includes("deactivated") ||
             message.toLowerCase().includes("blocked")
         );
-        const isLoginRequest = originalRequest?.url?.includes(API_ROUTES.AUTH.LOGIN);
+        const isLoginRequest =
+            originalRequest?.url?.includes(API_ROUTES.AUTH.LOGIN) ||
+            originalRequest?.url?.includes(API_ROUTES.ADMIN.LOGIN);
         if (isBlocked && !isLoginRequest) {
-            void api.post(API_ROUTES.AUTH.LOGOUT).catch(() => {});
+            const isAdminRoute = originalRequest?.url?.startsWith('/admin/');
+            const logoutRoute = isAdminRoute ? API_ROUTES.ADMIN.LOGOUT : API_ROUTES.AUTH.LOGOUT;
+            void api.post(logoutRoute).catch(() => {});
             store.dispatch(logout());
             window.location.replace(APP_ROUTES.LOGIN);
             return Promise.reject(error);
@@ -71,9 +75,16 @@ api.interceptors.response.use(
 
         const isUnauthorized = error.response?.status === 401;
         const alreadyRetried = originalRequest?._retry;
-        const isRefreshRoute = originalRequest?.url?.includes(API_ROUTES.AUTH.REFRESH);
-        const isLoginRoute = originalRequest?.url?.includes(API_ROUTES.AUTH.LOGIN);
-        const isLogoutRoute = originalRequest?.url?.includes(API_ROUTES.AUTH.LOGOUT);
+        const isAdminRoute = originalRequest?.url?.startsWith('/admin/');
+        const refreshRoute = isAdminRoute ? API_ROUTES.ADMIN.REFRESH : API_ROUTES.AUTH.REFRESH;
+        const logoutRoute = isAdminRoute ? API_ROUTES.ADMIN.LOGOUT : API_ROUTES.AUTH.LOGOUT;
+        const isRefreshRoute = originalRequest?.url?.includes(refreshRoute);
+        const isLoginRoute =
+            originalRequest?.url?.includes(API_ROUTES.AUTH.LOGIN) ||
+            originalRequest?.url?.includes(API_ROUTES.ADMIN.LOGIN);
+        const isLogoutRoute =
+            originalRequest?.url?.includes(API_ROUTES.AUTH.LOGOUT) ||
+            originalRequest?.url?.includes(API_ROUTES.ADMIN.LOGOUT);
 
         if (!isUnauthorized || alreadyRetried || isRefreshRoute || isLoginRoute || isLogoutRoute) {
             return Promise.reject(error);
@@ -91,7 +102,7 @@ api.interceptors.response.use(
         isRefreshing = true;
 
         try {
-            await api.post(API_ROUTES.AUTH.REFRESH);
+            await api.post(refreshRoute);
 
             processQueue(null);
 
@@ -99,7 +110,7 @@ api.interceptors.response.use(
         } catch (refreshError) {
             processQueue(refreshError);
 
-            void api.post(API_ROUTES.AUTH.LOGOUT).catch(() => {});
+            void api.post(logoutRoute).catch(() => {});
 
             store.dispatch(logout());
 

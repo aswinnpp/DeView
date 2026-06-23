@@ -26,7 +26,7 @@ export const candidateService = {
         if (params?.page != null) searchParams.set('page', String(params.page));
         if (params?.limit != null) searchParams.set('limit', String(params.limit));
         const query = searchParams.toString();
-        const url = query ? `${API_ROUTES.CANDIDATE.GETALL}?${query}` : API_ROUTES.CANDIDATE.GETALL;
+        const url = query ? `${API_ROUTES.ADMIN.CANDIDATES_LIST}?${query}` : API_ROUTES.ADMIN.CANDIDATES_LIST;
         return api.get<{ data: Array<{
             id: string;
             fullName: string;

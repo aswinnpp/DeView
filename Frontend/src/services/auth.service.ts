@@ -53,6 +53,10 @@ export const authService = {
         return api.post<LoginResponse>(API_ROUTES.AUTH.LOGIN, data);
     },
 
+    adminLogin(data: LoginPayload) {
+        return api.post<LoginResponse>(API_ROUTES.ADMIN.LOGIN, data);
+    },
+
     register(data: RegisterPayload) {
         return api.post<RegisterResponse>(API_ROUTES.AUTH.REGISTER, data);
     },
@@ -96,5 +100,13 @@ export const authService = {
 
     logout() {
         return api.post(API_ROUTES.AUTH.LOGOUT);
+    },
+
+    adminLogout() {
+        return api.post(API_ROUTES.ADMIN.LOGOUT);
+    },
+
+    adminRefresh() {
+        return api.post(API_ROUTES.ADMIN.REFRESH);
     },
 };
