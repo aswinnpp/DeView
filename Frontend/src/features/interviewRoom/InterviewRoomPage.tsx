@@ -2,16 +2,22 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { interviewsService } from "../../services/interviews.service";
-import { selectUser } from "../../context/authSlice";
-import { APP_ROUTES } from "../../constants/routes";
+import type { RootState } from "../../context/store";import { APP_ROUTES } from "../../constants/routes";
 import { useInterviewRoom, useInterviewRoomDetails } from "./hooks/useInterviewRoom";
 import { useJudge0Runner } from "./hooks/useJudge0Runner";
 
 const InterviewRoom = () => {
   const { interviewId } = useParams<{ interviewId: string }>();
   const navigate = useNavigate();
-  const user = useSelector(selectUser);
+const adminUser = useSelector(
+  (state: RootState) => state.auth.adminUser
+);
 
+const normalUser = useSelector(
+  (state: RootState) => state.auth.normalUser
+);
+
+const user = adminUser ?? normalUser;
   const displayName = user?.fullName || "Guest";
   const { details, error, isLoading, roomId } = useInterviewRoomDetails(interviewId);
   const {
