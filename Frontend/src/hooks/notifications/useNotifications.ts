@@ -12,6 +12,11 @@ function formatTime(value: string | Date) {
   return d.toLocaleString();
 }
 
+const NOTIFICATIONS_LIMIT = parseInt(
+  import.meta.env.VITE_NOTIFICATIONS_FETCH_LIMIT || "50",
+  10
+);
+
 export function useNotifications(scope: NotificationScope) {
  const adminUser = useSelector(
   (state: RootState) => state.auth.adminUser
@@ -39,8 +44,6 @@ const companyId = user?.companyId ?? "";
   
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const NOTIFICATIONS_LIMIT = parseInt(import.meta.env.VITE_NOTIFICATIONS_FETCH_LIMIT || '50', 10);
 
   const refresh = useCallback(async () => {
     setLoading(true);

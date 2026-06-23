@@ -54,7 +54,7 @@ const { notifications, unreadCount, markRead, formatTime, refresh } = useNotific
         return () => {
             cancelled = true;
         };
-    }, [location.pathname, user?.id, user?.role]);
+    }, [location.pathname, user]);
 
     useEffect(() => {
         if (sidebarOpen) {

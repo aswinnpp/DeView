@@ -10,35 +10,28 @@ const AuthCallbackPage = () => {
     const { error, data } = useGoogleAuth();
     const { handleCallback } = data;
 
-    const [isProcessing, setIsProcessing] = useState(true);
+    const sessionId = searchParams.get('sessionId');
+    const [callbackFailed, setCallbackFailed] = useState(false);
     const hasRun = useRef(false);
 
     useEffect(() => {
-        const sessionId = searchParams.get('sessionId');
-        if (!sessionId) {
-            setIsProcessing(false);
-            return;
-        }
-
-        if (hasRun.current) return;
+        if (!sessionId || hasRun.current) return;
         hasRun.current = true;
 
-        const processCallback = async () => {
-            const success = await handleCallback();
-
+        void handleCallback().then((success) => {
             if (!success) {
-                setIsProcessing(false);
+                setCallbackFailed(true);
             }
-        };
-
-        processCallback();
-    }, [handleCallback, searchParams]);
+        });
+    }, [handleCallback, sessionId]);
 
     const oauthSessionType = sessionStorage.getItem('oauthSessionType');
     const fallbackLoginPath =
         oauthSessionType === 'admin' ? APP_ROUTES.ADMIN_LOGIN : APP_ROUTES.LOGIN;
 
-    if (error || !isProcessing) {
+    const showError = !sessionId || Boolean(error) || callbackFailed;
+
+    if (showError) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#0f0f1a] via-[#1a1a2e] to-[#16213e]">
                 <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)] rounded-2xl p-12 text-center max-w-[400px] w-[90%]">
@@ -48,7 +41,7 @@ const AuthCallbackPage = () => {
                             Authentication Failed
                         </h2>
                         <p className="text-[rgba(255,255,255,0.6)] m-0 text-sm">
-                            {error || 'Something went wrong'}
+                            {error || (sessionId ? 'Something went wrong' : 'Invalid callback. No session ID found.')}
                         </p>
                         <Button
                             variant="primary"
