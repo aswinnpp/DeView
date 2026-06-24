@@ -141,13 +141,26 @@ const CandidateInterviews = () => {
     }
   };
 
-  const tabbedInterviews = useMemo(() => {
-    return interviews.filter((i) =>
-      activeTab === "UPCOMING"
-        ? i.status === "SCHEDULED"
-        : i.status === "RESCHEDULED" || i.candidateRejectionStatus === "DECLINED"
-    );
-  }, [interviews, activeTab]);
+ const tabbedInterviews = useMemo(() => {
+  return interviews.filter((i) => {
+    if (activeTab === "UPCOMING") {
+      const interviewDateTime = new Date(
+        `${i.scheduledDate}T${i.scheduledTime}:00`
+      );
+
+      const expiryTime =
+        interviewDateTime.getTime() + 5 * 60 * 1000; // start time + 5 min
+
+      return (
+        i.status === "SCHEDULED" &&
+        !isNaN(interviewDateTime.getTime()) &&
+        Date.now() <= expiryTime
+      );
+    }
+
+    return i.status === "RESCHEDULED";
+  });
+}, [interviews, activeTab]);
 
   const totalPages = Math.max(1, Math.ceil(totalInterviews / ITEMS_PER_PAGE));
 

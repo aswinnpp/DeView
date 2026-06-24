@@ -31,6 +31,17 @@ const InterviewerDashboard = () => {
   } = useInterviewerDashboard();
   const [updatingInterviewId, setUpdatingInterviewId] = useState<string | null>(null);
 
+
+ const upcomingInterviews = filtered.filter((item) => {
+  const interviewDateTime = new Date(`${item.date}T${item.startTime}:00`);
+
+  const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+
+  return (
+    !isNaN(interviewDateTime.getTime()) &&
+    interviewDateTime.getTime() >= fiveMinutesAgo
+  );
+});
   // Reschedule modal state
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
   const [rescheduleInterview, setRescheduleInterview] = useState<InterviewerAssignmentItem | null>(null);
@@ -244,7 +255,7 @@ const InterviewerDashboard = () => {
             <div className="hidden md:block overflow-x-auto">
               <Table<InterviewerAssignmentItem>
                 columns={columns}
-                data={filtered}
+                data={upcomingInterviews}
                 rowKey={(item) => item.id}
                 emptyMessage={emptyMessage}
               />
@@ -256,7 +267,7 @@ const InterviewerDashboard = () => {
                   {emptyMessage}
                 </div>
               ) : (
-                filtered.map((item) => (
+                upcomingInterviews.map((item) => (
                   <div key={item.id} className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">

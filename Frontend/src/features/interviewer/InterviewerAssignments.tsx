@@ -161,6 +161,17 @@ const InterviewerAssignments = () => {
     },
   ];
 
+const upcomingInterviews = filtered.filter((item) => {
+  const interviewDateTime = new Date(`${item.date}T${item.startTime}:00`);
+
+  const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+
+  return (
+    !isNaN(interviewDateTime.getTime()) &&
+    interviewDateTime.getTime() >= fiveMinutesAgo
+  );
+});
+
   return (
     <div>
       <h2 className="text-lg font-semibold text-white mb-1">Assignments</h2>
@@ -216,7 +227,7 @@ const InterviewerAssignments = () => {
             <div className="hidden md:block overflow-x-auto">
               <Table<InterviewerAssignmentItem>
                 columns={columns}
-                data={filtered}
+                data={upcomingInterviews}
                 rowKey={(item) => item.id}
                 emptyMessage={emptyMessage}
               />
@@ -228,7 +239,9 @@ const InterviewerAssignments = () => {
                   {emptyMessage}
                 </div>
               ) : (
-                filtered.map((item) => (
+                
+                
+                 upcomingInterviews .map((item) => (
                   <div key={item.id} className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -297,6 +310,8 @@ const InterviewerAssignments = () => {
                 ))
               )}
             </div>
+
+
             {!isLoading && filtered.length > 0 && (
               <Pagination
                 page={page}

@@ -122,7 +122,7 @@ const HRApplicationsPage = () => {
         pendingApplications,
         paginatedCandidates,
         selectedJob,
-        selectedCandidate,  
+        selectedCandidate,
         handleViewApplications,
         handleReject,
         handleConfirmRejection,
@@ -329,14 +329,14 @@ const HRApplicationsPage = () => {
         }
     };
 
-  
-    
+
+
 
     useEffect(() => {
         if (!showInterviewerModal) return;
         if (scheduleStep !== 2) return;
         if (interviewers.length > 0) return;
-         loadInterviewers();
+        loadInterviewers();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showInterviewerModal, scheduleStep]);
 
@@ -428,10 +428,10 @@ const HRApplicationsPage = () => {
         return () => {
             cancelled = true;
         };
-    }, [showCandidateDetail, selectedJob?.id, selectedCandidate?.applicationId, selectedCandidate?.status, selectedCandidate,selectedJob]);
+    }, [showCandidateDetail, selectedJob?.id, selectedCandidate?.applicationId, selectedCandidate?.status, selectedCandidate, selectedJob]);
 
     // Helper function to format slot date
- 
+
 
     const handleConfirmOffer = async (data: OfferLetterData) => {
         if (!selectedJob || !selectedCandidate) return;
@@ -471,8 +471,8 @@ const HRApplicationsPage = () => {
         await handleScheduleInterview(candidate);
     };
 
-    
-   
+
+
 
     // ==================== TABLE COLUMN CONFIG ====================
     const jobColumns = [
@@ -605,7 +605,7 @@ const HRApplicationsPage = () => {
             });
         }
 
-      
+
 
         baseColumns.push({
             header: "Actions",
@@ -723,7 +723,7 @@ const HRApplicationsPage = () => {
                         </div>
                     </div>
 
-                 
+
                     {/* Workflow Tabs */}
                     <div className="flex gap-3 mb-6 flex-wrap">
                         {workflowTabs.map(tab => {
@@ -759,39 +759,39 @@ const HRApplicationsPage = () => {
                                     c.status === 'PENDING' &&
                                     (c.aiScore == null || c.aiScore === undefined),
                             ) && (
-                            <div className="mb-4 flex justify-end">
-                                <Button
-                                    onClick={handleAIScorePendingCandidates}
-                                    disabled={isScoringPendingCandidates}
-                                    className={`px-6 py-3 rounded-lg text-sm font-semibold flex items-center gap-2 ${isScoringPendingCandidates
-                                        ? "bg-slate-600 cursor-wait opacity-70"
-                                        : "bg-gradient-to-br from-violet-500 to-indigo-500 hover:from-violet-400 hover:to-indigo-400"
-                                        }`}
-                                >
-                                    {isScoringPendingCandidates ? 'Scoring Candidates...' : 'AI Score Candidates'}
-                                </Button>
-                            </div>
-                        )}
+                                <div className="mb-4 flex justify-end">
+                                    <Button
+                                        onClick={handleAIScorePendingCandidates}
+                                        disabled={isScoringPendingCandidates}
+                                        className={`px-6 py-3 rounded-lg text-sm font-semibold flex items-center gap-2 ${isScoringPendingCandidates
+                                            ? "bg-slate-600 cursor-wait opacity-70"
+                                            : "bg-gradient-to-br from-violet-500 to-indigo-500 hover:from-violet-400 hover:to-indigo-400"
+                                            }`}
+                                    >
+                                        {isScoringPendingCandidates ? 'Scoring Candidates...' : 'AI Score Candidates'}
+                                    </Button>
+                                </div>
+                            )}
 
                         {/* Candidates Table */}
                         {(() => {
                             const candidatesForStage = selectedJob
                                 ? paginatedCandidates
-                                      .filter((c) => {
-                                          if (activeTab === "PENDING") return c.status === "PENDING";
-                                          if (activeTab === "SHORTLISTED") return c.status === "SHORTLISTED";
-                                          if (activeTab === "INTERVIEW_ATTENDEES") return c.status === "INTERVIEW_SCHEDULED";
-                                          if (activeTab === "RESCHEDULE_REQUESTS") return c.status === "RESCHEDULE_REQUESTED";
-                                          if (activeTab === "INTERVIEW_COMPLETE")
-                                              return c.status === "COMPLETED" || c.status === "INTERVIEW_COMPLETE";
-                                          if (activeTab === "HIRED") return c.status === "HIRED";
-                                          if (activeTab === "REJECTED") return c.status === "REJECTED";
-                                          return true;
-                                      })
-                                      .map((c) => ({
-                                          ...c,
-                                          aiScore: c.aiScore ?? candidateScores[c.id],
-                                      }))
+                                    .filter((c) => {
+                                        if (activeTab === "PENDING") return c.status === "PENDING";
+                                        if (activeTab === "SHORTLISTED") return c.status === "SHORTLISTED";
+                                        if (activeTab === "INTERVIEW_ATTENDEES") return c.status === "INTERVIEW_SCHEDULED";
+                                        if (activeTab === "RESCHEDULE_REQUESTS") return c.status === "RESCHEDULE_REQUESTED";
+                                        if (activeTab === "INTERVIEW_COMPLETE")
+                                            return c.status === "COMPLETED" || c.status === "INTERVIEW_COMPLETE";
+                                        if (activeTab === "HIRED") return c.status === "HIRED";
+                                        if (activeTab === "REJECTED") return c.status === "REJECTED";
+                                        return true;
+                                    })
+                                    .map((c) => ({
+                                        ...c,
+                                        aiScore: c.aiScore ?? candidateScores[c.id],
+                                    }))
                                 : [];
 
                             return (
@@ -919,16 +919,16 @@ const HRApplicationsPage = () => {
                                 <h3 style={{ color: '#f1f5f9', fontSize: 22, fontWeight: 700, margin: 0 }}>{selectedCandidate.name}</h3>
                                 {selectedCandidate.title && <p style={{ color: '#8b5cf6', fontSize: 14, margin: '4px 0 0', fontWeight: 500 }}>{selectedCandidate.title}</p>}
                                 {selectedCandidate.currentCompany && <p style={{ color: '#64748b', fontSize: 13, margin: '2px 0 0' }}>@ {selectedCandidate.currentCompany}</p>}
-                        <div style={{ marginTop: 8 }}>
-                            {(() => {
-                                const badge = getStatusBadge(selectedCandidate.status);
-                                return (
-                                    <span className={badge.className}>
-                                        {badge.label}
-                                    </span>
-                                );
-                            })()}
-                        </div>
+                                <div style={{ marginTop: 8 }}>
+                                    {(() => {
+                                        const badge = getStatusBadge(selectedCandidate.status);
+                                        return (
+                                            <span className={badge.className}>
+                                                {badge.label}
+                                            </span>
+                                        );
+                                    })()}
+                                </div>
                             </div>
                         </div>
 
@@ -1400,7 +1400,7 @@ const HRApplicationsPage = () => {
                             )}
                             {selectedCandidate.status === 'RESCHEDULE_REQUESTED' && (
                                 <>
-                                 
+
                                     <button
                                         onClick={() => {
                                             handleScheduleInterview(selectedCandidate);
@@ -1433,7 +1433,7 @@ const HRApplicationsPage = () => {
                                 <span style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, backgroundColor: scheduleStep === 1 ? '#3b82f620' : scheduleStep === 2 ? '#8b5cf620' : '#10b98120', color: scheduleStep === 1 ? '#3b82f6' : scheduleStep === 2 ? '#8b5cf6' : '#10b981' }}>
                                     Step {scheduleStep} of 3
                                 </span>
-                            <button onClick={() => { setShowInterviewerModal(false); setSelectedInterviewer(null); setInterviewLocation(''); setSelectedInterviewType("ONLINE"); setScheduleStep(1); }} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 24 }}>×</button>
+                                <button onClick={() => { setShowInterviewerModal(false); setSelectedInterviewer(null); setInterviewLocation(''); setSelectedInterviewType("ONLINE"); setScheduleStep(1); }} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 24 }}>×</button>
                             </div>
                         </div>
 
@@ -1454,33 +1454,33 @@ const HRApplicationsPage = () => {
                                             );
                                         }
                                         return (
-                                    <div style={{ display: 'grid', gap: 10 }}>
-                                        {availableRounds.map((round: string) => (
-                                            <div
-                                                key={round}
-                                                onClick={() => setSelectedRound(round)}
-                                                style={{
-                                                    padding: 16,
-                                                    backgroundColor: selectedRound === round ? '#334155' : '#0f172a',
-                                                    border: selectedRound === round ? '2px solid #3b82f6' : '1px solid #334155',
-                                                    borderRadius: 10,
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 12
-                                                }}
-                                            >
-                                                <div style={{
-                                                    width: 20,
-                                                    height: 20,
-                                                    borderRadius: '50%',
-                                                    border: selectedRound === round ? '6px solid #3b82f6' : '2px solid #64748b',
-                                                    backgroundColor: selectedRound === round ? '#fff' : 'transparent'
-                                                }} />
-                                                <span style={{ color: selectedRound === round ? '#3b82f6' : '#e2e8f0', fontWeight: 500, fontSize: 15 }}>{round}</span>
+                                            <div style={{ display: 'grid', gap: 10 }}>
+                                                {availableRounds.map((round: string) => (
+                                                    <div
+                                                        key={round}
+                                                        onClick={() => setSelectedRound(round)}
+                                                        style={{
+                                                            padding: 16,
+                                                            backgroundColor: selectedRound === round ? '#334155' : '#0f172a',
+                                                            border: selectedRound === round ? '2px solid #3b82f6' : '1px solid #334155',
+                                                            borderRadius: 10,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: 12
+                                                        }}
+                                                    >
+                                                        <div style={{
+                                                            width: 20,
+                                                            height: 20,
+                                                            borderRadius: '50%',
+                                                            border: selectedRound === round ? '6px solid #3b82f6' : '2px solid #64748b',
+                                                            backgroundColor: selectedRound === round ? '#fff' : 'transparent'
+                                                        }} />
+                                                        <span style={{ color: selectedRound === round ? '#3b82f6' : '#e2e8f0', fontWeight: 500, fontSize: 15 }}>{round}</span>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
                                         );
                                     })()}
                                 </div>
@@ -1537,7 +1537,7 @@ const HRApplicationsPage = () => {
                                     style={{
                                         width: '100%',
                                         padding: 14,
-                                            backgroundColor: (!selectedRound || (selectedInterviewType === "F2F" && !interviewLocation.trim())) ? '#475569' : '#3b82f6',
+                                        backgroundColor: (!selectedRound || (selectedInterviewType === "F2F" && !interviewLocation.trim())) ? '#475569' : '#3b82f6',
                                         color: '#fff',
                                         border: 'none',
                                         borderRadius: 8,
@@ -1735,12 +1735,14 @@ const HRApplicationsPage = () => {
                                         ) : (
                                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                                                 {[...interviewerSlotTimes]
+                                                    .filter((startIso) => new Date(startIso).getTime() >= Date.now())
                                                     .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
                                                     .map((startIso) => {
                                                         const startLabel = formatTime(startIso);
                                                         const endLabel = formatTime(addMinutes(startIso, 60));
                                                         const key = startIso;
                                                         const value = startLabel;
+
                                                         return (
                                                             <div
                                                                 key={key}
@@ -1757,10 +1759,18 @@ const HRApplicationsPage = () => {
                                                                     textAlign: 'center'
                                                                 }}
                                                             >
-                                                                <span style={{ color: selectedTime === value ? '#10b981' : '#e2e8f0', fontWeight: 600, fontSize: 15 }}>
+                                                                <span
+                                                                    style={{
+                                                                        color: selectedTime === value ? '#10b981' : '#e2e8f0',
+                                                                        fontWeight: 600,
+                                                                        fontSize: 15
+                                                                    }}
+                                                                >
                                                                     {startLabel} - {endLabel}
                                                                 </span>
-                                                                <p style={{ color: '#64748b', fontSize: 11, margin: '4px 0 0' }}>60 min</p>
+                                                                <p style={{ color: '#64748b', fontSize: 11, margin: '4px 0 0' }}>
+                                                                    60 min
+                                                                </p>
                                                             </div>
                                                         );
                                                     })}
@@ -1867,11 +1877,11 @@ const HRApplicationsPage = () => {
                                                 setScheduleSuccessMessage(
                                                     isRescheduleMode
                                                         ? `Interview rescheduled with ${selectedInterviewer.name} on ${new Date(
-                                                              selectedDate
-                                                          ).toLocaleDateString()} at ${selectedTime}`
+                                                            selectedDate
+                                                        ).toLocaleDateString()} at ${selectedTime}`
                                                         : `Interview scheduled with ${selectedInterviewer.name} on ${new Date(
-                                                              selectedDate
-                                                          ).toLocaleDateString()} at ${selectedTime}`
+                                                            selectedDate
+                                                        ).toLocaleDateString()} at ${selectedTime}`
                                                 );
                                                 setShowScheduleSuccessModal(true);
 
@@ -1946,7 +1956,7 @@ const HRApplicationsPage = () => {
                                                     setSelectedTime('');
                                                     setSelectedTimeIso('');
                                                     setInterviewerSlotsError('This slot is already booked. Please choose another time.');
-                                                }                                                
+                                                }
                                             }
                                         }}
                                         disabled={!selectedDate || !selectedTime}
@@ -2392,7 +2402,7 @@ const HRApplicationsPage = () => {
                 </div>
             )}
 
-      <ToastContainer />
+            <ToastContainer />
 
         </>
 
