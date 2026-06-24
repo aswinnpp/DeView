@@ -43,15 +43,7 @@ const CandidateJobsPage: React.FC = () => {
         buttonn
     } = useCandidateJob();
 
-    // Auto-select the first job whenever jobs list changes
-    React.useEffect(() => {
-        if (jobs.length > 0) {
-            if (!selectedJob || !jobs.some(j => j.id === selectedJob.id)) {
-                handleJobClick(jobs[0]);
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [jobs]);
+
 
 
     /* ───────────────── Application Confirm Screen (unchanged) ───────────────── */
