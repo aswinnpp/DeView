@@ -46,7 +46,7 @@ const jobBaseSchema = z.object({
   status: jobStatusEnum,
 });
 
-const isFutureOrTodayDate = (value?: string | null) => {
+export const isFutureOrTodayDate = (value?: string | null) => {
   if (!value || !value.trim()) return true;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return false;
@@ -57,6 +57,12 @@ const isFutureOrTodayDate = (value?: string | null) => {
 
   return date >= today;
 };
+
+export const isJobDeadlinePast = (value?: string | null) =>
+  !!value?.trim() && !isFutureOrTodayDate(value);
+
+export const JOB_DEADLINE_PAST_MESSAGE =
+  "The application deadline has passed. You cannot reopen, edit, or recreate this job.";
 
 export const jobFormSchema = jobBaseSchema
   .refine(

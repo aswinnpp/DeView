@@ -98,6 +98,16 @@ export function useCandidateJob() {
 
   const jobs = rawJobs;
 
+  useEffect(() => {
+    if (jobs.length === 0) {
+      setSelectedJob(null);
+      return;
+    }
+    setSelectedJob((current) =>
+      current && jobs.some((job) => job.id === current.id) ? current : null
+    );
+  }, [jobs]);
+
   // Checkbox checked = use profile only. Unchecked = add new resume only.
   const applicationResumeUrl = useResumeFromProfile ? profileResumeUrl : uploadedFile?.url ?? null;
 

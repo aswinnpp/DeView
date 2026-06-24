@@ -3,7 +3,14 @@ import { useForm, useFieldArray, type Resolver, type SubmitHandler } from "react
 import { zodResolver } from "@hookform/resolvers/zod";
 import { jobsService, type Job, type JobCreatePayload } from "../../services/jobs.service";
 import { extractApiError } from "../../api/axios";
-import { jobFormSchema, defaultJobFormValues, type JobFormValues } from "@shared/contracts/job/form";
+import {
+  jobFormSchema,
+  defaultJobFormValues,
+  isJobDeadlinePast,
+  JOB_DEADLINE_PAST_MESSAGE,
+  type JobFormValues,
+} from "@shared/contracts/job/form";
+import { showToast } from "../../components/common/toastService";
 
 export type { Job, JobCreatePayload };
 
@@ -186,6 +193,10 @@ export function useJobs() {
 
   const openEditModal = useCallback(
     (job: Job) => {
+      if (isJobDeadlinePast(job.applicationDeadline)) {
+        showToast(JOB_DEADLINE_PAST_MESSAGE, "error");
+        return;
+      }
       setEditingJob(job);
       form.reset(jobToFormValues(job));
       setIsCreating(true);
@@ -198,11 +209,15 @@ export function useJobs() {
       e.stopPropagation();
       if (!isActive) return;
       const newStatus = job.status === "OPEN" ? "CLOSED" : "OPEN";
+      if (newStatus === "OPEN" && isJobDeadlinePast(job.applicationDeadline)) {
+        showToast(JOB_DEADLINE_PAST_MESSAGE, "error");
+        return;
+      }
       try {
         await jobsService.toggleStatus(job.id, newStatus as "OPEN" | "CLOSED");
         await fetchJobs();
       } catch (err){
-        setJobsError(extractApiError(err));
+        showToast(extractApiError(err), "error");
       }
     },
     [fetchJobs, isActive]

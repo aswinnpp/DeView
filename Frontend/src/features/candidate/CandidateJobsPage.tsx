@@ -373,7 +373,7 @@ const CandidateJobsPage: React.FC = () => {
 
                     {/* ─── Right Panel: Job Detail (only scrollable area) ─── */}
                     <div className={`${showMobileDetail ? "block" : "hidden lg:block"} w-full lg:w-[45%] bg-[rgba(10,12,20,0.4)] lg:overflow-y-auto`}>
-                        {selectedJob ? (
+                        {selectedJob && jobs.some((job) => job.id === selectedJob.id) ? (
                             <div className="px-4 py-5 sm:px-5 lg:px-7 lg:py-6">
                                
                                 <h2 className="m-0 text-base font-semibold text-[rgba(226,232,240,0.9)] mb-5">

@@ -1,4 +1,5 @@
 import { Table, Button, Input, SearchInput, Pagination } from "../../components/common";
+import { ToastContainer } from "../../components/common/Toast";
 import { useJobs } from "../../hooks/jobs/useJobs";
 
 const JobsPage = () => {
@@ -676,6 +677,8 @@ const JobsPage = () => {
           </div>
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 };
