@@ -11,7 +11,6 @@ const formErrorClass = "text-[#f87171] text-sm mt-1";
 const CompanyApprovalFormPage = () => {
     const {
         loading,
-        error,
         form,
         documents,
         remove,
