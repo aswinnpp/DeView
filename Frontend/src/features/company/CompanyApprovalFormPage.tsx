@@ -109,12 +109,7 @@ const CompanyApprovalFormPage = () => {
                         </h2>
                     </div>
 
-                    {error && (
-                        <div className="flex items-center gap-2.5 bg-[rgba(220,38,38,0.15)] border border-[rgba(220,38,38,0.3)] text-[#fca5a5] py-3.5 px-[18px] rounded-[10px] mb-6 text-sm">
-                            <span className="text-lg">!</span>
-                            {error}
-                        </div>
-                    )}
+                   
 
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 max-md:gap-6">
                         <section className="bg-[rgba(15,23,42,0.5)] border border-[rgba(71,85,105,0.3)] rounded-2xl max-md:rounded-xl p-6 max-md:p-4">
