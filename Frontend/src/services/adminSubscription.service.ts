@@ -74,7 +74,7 @@ export const adminSubscriptionService = {
   },
 
   toggleActive(id: string) {
-    return api.post(API_ROUTES.ADMIN.SUBSCRIPTION_TOGGLE(id));
+    return api.patch(API_ROUTES.ADMIN.SUBSCRIPTION_TOGGLE(id));
   },
 
   listHistory(params?: GetSubscriptionHistoryParams) {
