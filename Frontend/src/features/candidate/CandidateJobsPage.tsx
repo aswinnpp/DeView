@@ -308,11 +308,10 @@ const CandidateJobsPage: React.FC = () => {
                                             handleJobClick(job);
                                             setShowMobileDetail(true);
                                         }}
-                                        className={`w-full text-left rounded-xl border px-4 py-3.5 transition-all duration-200 cursor-pointer ${
-                                            selectedJob?.id === job.id
+                                        className={`w-full text-left rounded-xl border px-4 py-3.5 transition-all duration-200 cursor-pointer ${selectedJob?.id === job.id
                                                 ? 'border-brand-primary bg-[rgba(102,126,234,0.08)] border-l-[3px] border-l-brand-primary'
                                                 : 'border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.6)] hover:bg-[rgba(30,41,59,0.7)] hover:border-[rgba(255,255,255,0.12)]'
-                                        }`}
+                                            }`}
                                     >
                                         <div>
                                             <div className="min-w-0 flex-1">
@@ -356,7 +355,7 @@ const CandidateJobsPage: React.FC = () => {
                             {totalPages > 0 && jobs.length > 0 && (
                                 <Pagination
                                     page={page}
-                                    totalPages={totalPages || 1}
+                                    totalPages={Math.min(totalPages, page + (jobs.length === 2 ? 1 : 0))}
                                     onPageChange={handlePageChange}
                                 />
                             )}
@@ -367,7 +366,7 @@ const CandidateJobsPage: React.FC = () => {
                     <div className={`${showMobileDetail ? "block" : "hidden lg:block"} w-full lg:w-[45%] bg-[rgba(10,12,20,0.4)] lg:overflow-y-auto`}>
                         {selectedJob && jobs.some((job) => job.id === selectedJob.id) ? (
                             <div className="px-4 py-5 sm:px-5 lg:px-7 lg:py-6">
-                               
+
                                 <h2 className="m-0 text-base font-semibold text-[rgba(226,232,240,0.9)] mb-5">
                                     Job Detail
                                 </h2>
@@ -375,8 +374,8 @@ const CandidateJobsPage: React.FC = () => {
                                 {/* Job Header Card */}
                                 <div className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(15,23,42,0.7)] px-5 py-5 mb-6">
                                     <h3 className="m-0 text-lg font-bold text-white">{selectedJob.title}</h3>
-                                  
-                                    
+
+
                                     <p className="m-0 mt-1 text-[13px] text-[rgba(148,163,184,0.9)]">
                                         {selectedJob.companyName || "Company"}
                                         <span className="mx-1.5">•</span>
