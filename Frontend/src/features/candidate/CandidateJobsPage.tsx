@@ -355,7 +355,7 @@ const CandidateJobsPage: React.FC = () => {
                             {totalPages > 0 && jobs.length > 0 && (
                                 <Pagination
                                     page={page}
-                                    totalPages={Math.min(totalPages, page + (jobs.length === 2 ? 1 : 0))}
+                                    totalPages={Math.min(totalPages, page)}
                                     onPageChange={handlePageChange}
                                 />
                             )}
